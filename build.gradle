@@ -9,22 +9,24 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
+	maven {
+		url "https://cursemaven.com"
+	}
 }
 
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	// Fabric API
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	// Kotlin support
 	modImplementation("net.fabricmc:fabric-language-kotlin:1.9.2+kotlin.1.8.10")
+	// MaLiLib, required on client
+	modImplementation("curse.maven:malilib-303119:4519977")
+	// carpet, required on client & server
+	modImplementation("curse.maven:carpet-349239:4446319")
 }
 
 base {
@@ -43,18 +45,15 @@ processResources {
 	}
 }
 
-tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
+kotlin {
+	jvmToolchain(17)
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
 	withSourcesJar()
-
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(17))
+	}
 }
 
 jar {

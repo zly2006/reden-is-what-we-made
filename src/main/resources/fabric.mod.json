@@ -24,6 +24,9 @@
   "entrypoints": {
     "main": [
       "com.github.zly2006.reden.Reden"
+    ],
+    "client": [
+      "com.github.zly2006.reden.RedenClient"
     ]
   },
   "mixins": [
@@ -35,6 +38,7 @@
     "fabric-api": "*",
     "minecraft": "~1.19.4",
     "java": ">=17",
-    "fabric-language-kotlin": "*"
+    "fabric-language-kotlin": "*",
+    "carpet": "*"
   }
 }
