@@ -1,38 +1,40 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "reden",
   "version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Reden is What We Make",
+  "description": "Redstone EDEN!",
   "authors": [
-    "Me!"
+    {
+      "name": "zly2006",
+      "contact": {
+        "homepage": "https://github.com/zly2006"
+      }
+    }
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "sources": "https://github.com/zly2006/reden-is-what-we-made"
   },
 
-  "license": "CC0-1.0",
-  "icon": "assets/modid/icon.png",
+  "license": "GPL-v3",
+  "icon": "assets/rwwm/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.fabricmc.example.ExampleMod"
+      "com.github.zly2006.reden.Reden"
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "reden.mixins.json"
   ],
-
+  "accessWidener": "reden.accesswidener",
   "depends": {
     "fabricloader": ">=0.14.19",
     "fabric-api": "*",
     "minecraft": "~1.19.4",
-    "java": ">=17"
-  },
-  "suggests": {
-    "another-mod": "*"
+    "java": ">=17",
+    "fabric-language-kotlin": "*"
   }
 }
