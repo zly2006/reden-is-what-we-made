@@ -33,6 +33,10 @@ val RVC_RECORD_MULTIPLAYER = ConfigBoolean("rvcRecordMultiplayer", true, "Enable
 val RVC_FORCE_LOCALLY = ConfigBoolean("rvcForceLocally", false, "Force RVC to run locally even the remote server enabled RVC").rvc()
 val DEBUG_LOGGER = ConfigBoolean("debugLogger", false, "Enable debug logger").debug()
 
+fun debug() = DEBUG_LOGGER.booleanValue
+
+fun getAllOptions() = GENERIC_TAB + RVC_TAB + MICRO_TICK_TAB + DEBUG_TAB
+
 fun configScreen(): GuiConfigs {
     return GuiConfigs()
 }

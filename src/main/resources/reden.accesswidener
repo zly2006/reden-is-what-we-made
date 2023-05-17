@@ -1,2 +1,3 @@
 accessWidener	v1  named
 accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$Entry
+accessible field net/minecraft/world/World neighborUpdater Lnet/minecraft/world/block/NeighborUpdater;

@@ -6,11 +6,13 @@
   "mixins": [
     "common.MixinServerPlayer",
     "ctrlz.MixinPlayerMode",
+    "ctrlz.MixinServerWorldChunk",
     "ctrlz.MixinUpdater",
     "tick.MixinTick",
     "tick.MixinWatchdog"
   ],
   "client": [
+    "fix.NoTimeOut"
   ],
   "injectors": {
     "defaultRequire": 1

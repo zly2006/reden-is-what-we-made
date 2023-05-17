@@ -3,6 +3,7 @@ package com.github.zly2006.reden;
 import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.config.ConfigUtils;
@@ -27,6 +28,7 @@ public class Reden implements ModInitializer {
 	public static final String MOD_NAME = "Reden";
 	public static final String CONFIG_FILE = "reden.json";
 	public static final Logger LOGGER = LoggerFactory.getLogger("reden");
+	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
 	@Override
 	public void onInitialize() {
@@ -35,11 +37,8 @@ public class Reden implements ModInitializer {
 				@Override
 				public void load() {
                     try {
-                        ConfigUtils.readConfigBase(
-                                new Gson().fromJson(Files.readString(new File(FileUtils.getConfigDirectory(), CONFIG_FILE).toPath()), JsonObject.class),
-                                MOD_NAME,
-                                MalilibSettingsKt.GENERIC_TAB
-                        );
+						JsonObject jo = GSON.fromJson(Files.readString(new File(FileUtils.getConfigDirectory(), CONFIG_FILE).toPath()), JsonObject.class);
+						ConfigUtils.readConfigBase(jo, MOD_NAME, MalilibSettingsKt.getAllOptions());
                     } catch (IOException e) {
                         save();
                     }
@@ -48,9 +47,9 @@ public class Reden implements ModInitializer {
 				@Override
 				public void save() {
                     JsonObject jo = new JsonObject();
-                    ConfigUtils.writeConfigBase(jo, MOD_NAME, MalilibSettingsKt.GENERIC_TAB);
+                    ConfigUtils.writeConfigBase(jo, MOD_NAME, MalilibSettingsKt.getAllOptions());
                     try {
-                        Files.writeString(new File(FileUtils.getConfigDirectory(), CONFIG_FILE).toPath(), new Gson().toJson(jo));
+                        Files.writeString(new File(FileUtils.getConfigDirectory(), CONFIG_FILE).toPath(), GSON.toJson(jo));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
