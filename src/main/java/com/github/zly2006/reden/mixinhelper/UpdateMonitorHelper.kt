@@ -1,10 +1,13 @@
 package com.github.zly2006.reden.mixinhelper
 
 import com.github.zly2006.reden.access.PlayerPatchesView
+import com.github.zly2006.reden.malilib.DEBUG_LOGGER
 import net.minecraft.block.BlockState
+import net.minecraft.client.MinecraftClient
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
+import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
@@ -26,6 +29,9 @@ object UpdateMonitorHelper {
 
     @JvmStatic
     fun onUpdate(world: World, entry: ChainRestrictedNeighborUpdater.Entry) {
+        if (DEBUG_LOGGER.booleanValue && listeners.isNotEmpty()) {
+            MinecraftClient.getInstance().player?.sendMessage(Text.literal("UpdateMonitorHelper.onUpdate"))
+        }
         listeners.forEach { (k, v) ->
             k.invoke(world, entry)
             if (v == LifeTime.ONCE) {
@@ -36,6 +42,9 @@ object UpdateMonitorHelper {
 
     @JvmStatic
     fun onChainFinish(world: World) {
+        if (DEBUG_LOGGER.booleanValue && (listeners + chainFinishListeners).isNotEmpty()) {
+            MinecraftClient.getInstance().player?.sendMessage(Text.literal("UpdateMonitorHelper.finish"))
+        }
         listeners.forEach { (k, v) ->
             if (v == LifeTime.CHAIN) {
                 listeners.remove(k)
@@ -58,10 +67,15 @@ object UpdateMonitorHelper {
                 .findFirst().ifPresent { monitoringPlayerCache = it }
         }
         if (isPlayerRecording()) {
-            (monitoringPlayerCache as PlayerPatchesView).blocks.last()[pos] = PlayerPatchesView.Entry(
-                NbtHelper.fromBlockState(world.getBlockState(pos)),
-                world.getBlockEntity(pos)?.createNbt()
-            )
+            if (DEBUG_LOGGER.booleanValue) {
+                MinecraftClient.getInstance().player?.sendMessage(Text.literal("UpdateMonitorHelper.monitorSetBlock$pos"))
+            }
+            (monitoringPlayerCache as PlayerPatchesView).blocks.last().computeIfAbsent(pos) {
+                PlayerPatchesView.Entry(
+                    NbtHelper.fromBlockState(world.getBlockState(pos)),
+                    world.getBlockEntity(pos)?.createNbt()
+                )
+            }
         }
     }
 

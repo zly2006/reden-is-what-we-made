@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
+import net.minecraft.block.Block
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
@@ -27,7 +28,11 @@ class Rollback(
                 view.isRecording = false
                 view.blocks.lastOrNull()?.let {
                     it.forEach { (pos, entry) ->
-                        player.world.setBlockState(pos, NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState))
+                        player.world.setBlockState(
+                            pos,
+                            NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState),
+                            Block.NOTIFY_LISTENERS
+                        )
                         entry.blockEntity?.let { be ->
                             player.world.getBlockEntity(pos)?.readNbt(be)
                         }

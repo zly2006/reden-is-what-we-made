@@ -21,9 +21,8 @@ public class MixinUpdater implements ChainedUpdaterView {
     private void onRunQueuedUpdates(CallbackInfo ci, ChainRestrictedNeighborUpdater.Entry entry) {
         UpdateMonitorHelper.onUpdate(world, entry);
     }
-    @Inject(method = "runQueuedUpdates", at = @At(value = "INVOKE", target = "Ljava/util/ArrayDeque;clear()V"))
+    @Inject(method = "runQueuedUpdates", at = @At("RETURN"))
     private void finishUpdates(CallbackInfo ci) {
-        if (depth == 0) // only finish when the depth is 0
-            UpdateMonitorHelper.onChainFinish(world);
+        UpdateMonitorHelper.onChainFinish(world);
     }
 }

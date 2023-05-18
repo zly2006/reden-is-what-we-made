@@ -4,6 +4,7 @@
   "package": "com.github.zly2006.reden.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "breakpoint.MixinUpdater",
     "common.MixinServerPlayer",
     "ctrlz.MixinPlayerMode",
     "ctrlz.MixinServerWorldChunk",

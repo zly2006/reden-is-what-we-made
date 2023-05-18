@@ -29,4 +29,9 @@ public class MixinServerPlayer implements PlayerPatchesView {
     public void setRecording(boolean b) {
         recording = b;
     }
+
+    @Override
+    public void stopRecording() {
+        PlayerPatchesView.DefaultImpls.stopRecording(this);
+    }
 }
