@@ -4,7 +4,6 @@ import com.github.zly2006.reden.access.PlayerPatchesView
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
 import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
-import net.minecraft.nbt.NbtHelper
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
@@ -70,11 +69,8 @@ object UpdateMonitorHelper {
             if (DEBUG_LOGGER.booleanValue) {
                 MinecraftClient.getInstance().player?.sendMessage(Text.literal("UpdateMonitorHelper.monitorSetBlock$pos"))
             }
-            (monitoringPlayerCache as PlayerPatchesView).blocks.last().computeIfAbsent(pos) {
-                PlayerPatchesView.Entry(
-                    NbtHelper.fromBlockState(world.getBlockState(pos)),
-                    world.getBlockEntity(pos)?.createNbt()
-                )
+            (monitoringPlayerCache as PlayerPatchesView).undo.last().computeIfAbsent(pos) {
+                PlayerPatchesView.Entry.fromWorld(world, pos)
             }
         }
     }

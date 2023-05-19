@@ -40,7 +40,7 @@ public class MixinPlayerMode {
             PlayerPatchesView playerView = (PlayerPatchesView) player;
             if (!playerView.isRecording()) {
                 playerView.setRecording(true);
-                playerView.getBlocks().add(new HashMap<>());
+                playerView.getUndo().add(new HashMap<>());
             }
         }
     }
@@ -52,7 +52,7 @@ public class MixinPlayerMode {
         }
         PlayerPatchesView playerView = (PlayerPatchesView) player;
         if (playerView.isRecording()) {
-            playerView.stopRecording();
+            playerView.stopRecording(world);
         }
     }
 
@@ -64,7 +64,7 @@ public class MixinPlayerMode {
         PlayerPatchesView playerView = (PlayerPatchesView) player;
         if (!playerView.isRecording()) {
             playerView.setRecording(true);
-            playerView.getBlocks().add(new HashMap<>());
+            playerView.getUndo().add(new HashMap<>());
         }
     }
 
@@ -75,7 +75,7 @@ public class MixinPlayerMode {
         }
         PlayerPatchesView playerView = (PlayerPatchesView) player;
         if (playerView.isRecording()) {
-            playerView.stopRecording();
+            playerView.stopRecording(world);
         }
     }
 
@@ -87,7 +87,7 @@ public class MixinPlayerMode {
         PlayerPatchesView playerView = (PlayerPatchesView) player;
         if (!playerView.isRecording()) {
             playerView.setRecording(true);
-            playerView.getBlocks().add(new HashMap<>());
+            playerView.getUndo().add(new HashMap<>());
         }
     }
 
@@ -98,7 +98,7 @@ public class MixinPlayerMode {
         }
         PlayerPatchesView playerView = (PlayerPatchesView) player;
         if (playerView.isRecording()) {
-            playerView.stopRecording();
+            playerView.stopRecording(world);
         }
     }
 
@@ -110,7 +110,7 @@ public class MixinPlayerMode {
         PlayerPatchesView playerView = (PlayerPatchesView) player;
         if (!playerView.isRecording()) {
             playerView.setRecording(true);
-            playerView.getBlocks().add(new HashMap<>());
+            playerView.getUndo().add(new HashMap<>());
         }
     }
 
@@ -121,7 +121,7 @@ public class MixinPlayerMode {
         }
         PlayerPatchesView playerView = (PlayerPatchesView) player;
         if (playerView.isRecording()) {
-            playerView.stopRecording();
+            playerView.stopRecording(world);
         }
     }
 }

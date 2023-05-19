@@ -1,17 +1,21 @@
 package com.github.zly2006.reden.network
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
+import net.fabricmc.fabric.api.networking.v1.FabricPacket
+import net.fabricmc.fabric.api.networking.v1.PacketType
+import net.fabricmc.loader.api.Version
+import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.Identifier
 
 private val id = Identifier("reden", "hello")
-fun register() {
-    ServerPlayNetworking.registerGlobalReceiver(id) { server, player, l, byteBuf, packetSender ->
-        packetSender.sendPacket(id, byteBuf)
-    }
+private val pType = PacketType.create(id) {
+    Hello(Version.parse(it.readString()))
 }
 
-fun send() {
-    ClientPlayNetworking.send(id, PacketByteBufs.empty())
+class Hello(
+    val version: Version
+): FabricPacket {
+    override fun write(buf: PacketByteBuf) {
+        buf.writeString(version.toString())
+    }
+    override fun getType(): PacketType<*> = pType
 }

@@ -40,5 +40,10 @@
     "java": ">=17",
     "fabric-language-kotlin": "*",
     "carpet": "*"
+  },
+  "custom": {
+    "modmanager": {
+
+    }
   }
 }
