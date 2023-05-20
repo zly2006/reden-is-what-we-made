@@ -25,28 +25,28 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 public class Reden implements ModInitializer {
-	public static final String MOD_ID = "reden";
-	public static final String MOD_NAME = "Reden";
-	public static final String CONFIG_FILE = "reden.json";
-	public static final Logger LOGGER = LoggerFactory.getLogger("reden");
-	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    public static final String MOD_ID = "reden";
+    public static final String MOD_NAME = "Reden";
+    public static final String CONFIG_FILE = "reden.json";
+    public static final Logger LOGGER = LoggerFactory.getLogger("reden");
+    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-	@Override
-	public void onInitialize() {
-		InitializationHandler.getInstance().registerInitializationHandler(() -> {
-			ConfigManager.getInstance().registerConfigHandler("reden", new IConfigHandler() {
-				@Override
-				public void load() {
+    @Override
+    public void onInitialize() {
+        InitializationHandler.getInstance().registerInitializationHandler(() -> {
+            ConfigManager.getInstance().registerConfigHandler("reden", new IConfigHandler() {
+                @Override
+                public void load() {
                     try {
-						JsonObject jo = GSON.fromJson(Files.readString(new File(FileUtils.getConfigDirectory(), CONFIG_FILE).toPath()), JsonObject.class);
-						ConfigUtils.readConfigBase(jo, MOD_NAME, MalilibSettingsKt.getAllOptions());
+                        JsonObject jo = GSON.fromJson(Files.readString(new File(FileUtils.getConfigDirectory(), CONFIG_FILE).toPath()), JsonObject.class);
+                        ConfigUtils.readConfigBase(jo, MOD_NAME, MalilibSettingsKt.getAllOptions());
                     } catch (IOException e) {
                         save();
                     }
                 }
 
-				@Override
-				public void save() {
+                @Override
+                public void save() {
                     JsonObject jo = new JsonObject();
                     ConfigUtils.writeConfigBase(jo, MOD_NAME, MalilibSettingsKt.getAllOptions());
                     try {
@@ -54,23 +54,23 @@ public class Reden implements ModInitializer {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-				}
-			});
-			InputEventHandler.getKeybindManager().registerKeybindProvider(new IKeybindProvider() {
-				@Override
-				public void addKeysToMap(IKeybindManager iKeybindManager) {
-					MalilibSettingsKt.HOTKEYS.stream()
-							.map(ConfigHotkey::getKeybind)
-							.forEach(iKeybindManager::addKeybindToMap);
-				}
+                }
+            });
+            InputEventHandler.getKeybindManager().registerKeybindProvider(new IKeybindProvider() {
+                @Override
+                public void addKeysToMap(IKeybindManager iKeybindManager) {
+                    MalilibSettingsKt.HOTKEYS.stream()
+                            .map(ConfigHotkey::getKeybind)
+                            .forEach(iKeybindManager::addKeybindToMap);
+                }
 
-				@Override
-				public void addHotkeys(IKeybindManager iKeybindManager) {
-					iKeybindManager.addHotkeysForCategory("Reden", "reden.hotkeys.category.generic_hotkeys", MalilibSettingsKt.HOTKEYS);
-				}
-			});
-			KeyCallbacksKt.configureKeyCallbacks(MinecraftClient.getInstance());
-			ChannelsKt.register();
-		});
-	}
+                @Override
+                public void addHotkeys(IKeybindManager iKeybindManager) {
+                    iKeybindManager.addHotkeysForCategory("Reden", "reden.hotkeys.category.generic_hotkeys", MalilibSettingsKt.HOTKEYS);
+                }
+            });
+            KeyCallbacksKt.configureKeyCallbacks(MinecraftClient.getInstance());
+            ChannelsKt.register();
+        });
+    }
 }
