@@ -7,7 +7,7 @@ import net.minecraft.util.math.BlockPos
 import kotlin.jvm.optionals.getOrNull
 
 class BlockUpdateEvent(
-    var pos: BlockPos?,
+    var pos: BlockPos? = null,
     var type: Int = 0
 ): BreakPoint() {
     override val id: Identifier = Identifier("reden", "update_event")
@@ -43,6 +43,7 @@ class BlockUpdateEvent(
 
 
     companion object {
+        val id: Identifier = Identifier("reden", "update_event")
         const val PP = 1
         const val NC = 2
         const val CU = 4

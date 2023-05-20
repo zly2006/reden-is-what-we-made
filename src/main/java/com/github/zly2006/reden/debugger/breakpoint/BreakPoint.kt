@@ -4,7 +4,9 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 
-val registry = mutableMapOf<Identifier, () -> BreakPoint>()
+val registry = mutableMapOf<Identifier, () -> BreakPoint>(
+    BlockUpdateEvent.id to { BlockUpdateEvent() }
+)
 
 abstract class BreakPoint {
     abstract val description: Text

@@ -46,19 +46,20 @@ class TagBlockPos(
         const val green = 1
         const val red = 2
 
-        internal val tags = mutableMapOf<BlockPos, Int>()
+        internal val tags = mutableMapOf<Long, Int>()
 
         fun register() {
             ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
-                tags[packet.pos] = packet.status
+                tags[packet.pos.asLong()] = packet.status
             }
             WorldRenderEvents.AFTER_TRANSLUCENT.register { context ->
-                tags.filter { context.camera().pos.distanceTo(it.key.toCenterPos()) < MAX_RENDER_DISTANCE.integerValue }
-                    .forEach { (pos, status) ->
+                tags.filter { context.camera().pos.distanceTo(BlockPos.fromLong(it.key).toCenterPos()) < MAX_RENDER_DISTANCE.integerValue }
+                    .forEach { (_pos, status) ->
                         if (status == 0) {
-                            tags.remove(pos)
+                            tags.remove(_pos)
                             return@register
                         }
+                        val pos = BlockPos.fromLong(_pos)
                         val matrix4f = context.matrixStack().peek().positionMatrix
                         RenderSystem.disableCull()
                         RenderSystem.disableScissor()

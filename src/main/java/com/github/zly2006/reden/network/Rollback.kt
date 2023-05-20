@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.network
 
-import com.github.zly2006.reden.access.PlayerPatchesView
+import com.github.zly2006.reden.access.PlayerData.Companion.data
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
@@ -28,18 +28,18 @@ class Rollback(
     companion object {
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, res ->
-                val view = player as PlayerPatchesView
+                val view = player.data()
                 view.isRecording = false
                 res.sendPacket(Rollback(when (packet.status) {
                     0 -> view.undo.lastOrNull()?.let {
                         it.forEach { (pos, entry) ->
                             player.world.setBlockNoPP(
-                                pos,
+                                BlockPos.fromLong(pos),
                                 NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState),
                                 Block.NOTIFY_LISTENERS
                             )
                             entry.blockEntity?.let { be ->
-                                player.world.getBlockEntity(pos)?.readNbt(be)
+                                player.world.getBlockEntity(BlockPos.fromLong(pos))?.readNbt(be)
                             }
                         }
                         view.redo.add(view.undo.removeLast())
@@ -48,12 +48,12 @@ class Rollback(
                     1 -> view.redo.lastOrNull()?.run {
                         forEach { (pos, entry) ->
                             player.world.setBlockNoPP(
-                                pos,
+                                BlockPos.fromLong(pos),
                                 NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState),
                                 Block.NOTIFY_LISTENERS
                             )
                             entry.blockEntity?.let { be ->
-                                player.world.getBlockEntity(pos)?.readNbt(be)
+                                player.world.getBlockEntity(BlockPos.fromLong(pos))?.readNbt(be)
                             }
                         }
                         view.undo.add(view.redo.removeLast())

@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixinhelper
 
-import com.github.zly2006.reden.access.PlayerPatchesView
+import com.github.zly2006.reden.access.PlayerData
+import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
 import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
@@ -60,23 +61,23 @@ object UpdateMonitorHelper {
     private var monitoringPlayerCache: ServerPlayerEntity? = null
     @JvmStatic
     fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
-        if (monitoringPlayerCache == null || !(monitoringPlayerCache as PlayerPatchesView).isRecording) {
+        if (monitoringPlayerCache?.data()?.isRecording != true) {
             world.server.playerManager.playerList.stream()
-                .filter { (it as PlayerPatchesView).isRecording }
+                .filter { it.data().isRecording }
                 .findFirst().ifPresent { monitoringPlayerCache = it }
         }
         if (isPlayerRecording()) {
             if (DEBUG_LOGGER.booleanValue) {
-                MinecraftClient.getInstance().player?.sendMessage(Text.literal("UpdateMonitorHelper.monitorSetBlock$pos"))
+                MinecraftClient.getInstance().player?.sendMessage(Text.literal("set$pos, ${world.getBlockState(pos)} -> $blockState"))
             }
-            (monitoringPlayerCache as PlayerPatchesView).undo.last().computeIfAbsent(pos) {
-                PlayerPatchesView.Entry.fromWorld(world, pos)
+            monitoringPlayerCache!!.data().undo.last().computeIfAbsent(pos.asLong()) {
+                PlayerData.Entry.fromWorld(world, pos)
             }
         }
     }
 
     @JvmStatic
     fun isPlayerRecording(): Boolean {
-        return monitoringPlayerCache != null && (monitoringPlayerCache as PlayerPatchesView).isRecording
+        return monitoringPlayerCache?.data()?.isRecording == true
     }
 }

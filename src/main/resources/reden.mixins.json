@@ -6,6 +6,7 @@
   "mixins": [
     "breakpoint.MixinUpdater",
     "common.MixinServerPlayer",
+    "ctrlz.MixinCommands",
     "ctrlz.MixinPlayerMode",
     "ctrlz.MixinServerWorldChunk",
     "ctrlz.MixinUpdater",
