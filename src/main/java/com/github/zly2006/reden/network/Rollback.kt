@@ -1,6 +1,9 @@
 package com.github.zly2006.reden.network
 
+import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
+import com.github.zly2006.reden.malilib.DEBUG_LOGGER
+import com.github.zly2006.reden.sendMessage
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
@@ -25,40 +28,46 @@ class Rollback(
     override fun write(buf: PacketByteBuf) {
         buf.writeVarInt(status)
     }
+
     companion object {
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, res ->
                 val view = player.data()
                 view.isRecording = false
-                res.sendPacket(Rollback(when (packet.status) {
-                    0 -> view.undo.lastOrNull()?.let {
-                        it.forEach { (pos, entry) ->
-                            player.world.setBlockNoPP(
-                                BlockPos.fromLong(pos),
-                                NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState),
-                                Block.NOTIFY_LISTENERS
-                            )
-                            entry.blockEntity?.let { be ->
-                                player.world.getBlockEntity(BlockPos.fromLong(pos))?.readNbt(be)
-                            }
+                fun operate(map: MutableMap<Long, PlayerData.Entry>): MutableMap<Long, PlayerData.Entry> {
+                    val ret = map.keys.associateWith {
+                        PlayerData.Entry.fromWorld(
+                            player.world,
+                            BlockPos.fromLong(it)
+                        )
+                    }.toMutableMap()
+                    map.forEach { (pos, entry) ->
+                        val state = NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState)
+                        if (DEBUG_LOGGER.booleanValue) {
+                            player.sendMessage("undo ${BlockPos.fromLong(pos)}, $state")
                         }
-                        view.redo.add(view.undo.removeLast())
+                        player.world.setBlockNoPP(
+                            BlockPos.fromLong(pos),
+                            state,
+                            Block.NOTIFY_LISTENERS
+                        )
+                        entry.blockEntity?.let { be ->
+                            player.world.getBlockEntity(BlockPos.fromLong(pos))?.readNbt(be)
+                        }
+                    }
+                    return ret
+                }
+                res.sendPacket(Rollback(when (packet.status) {
+                    0 -> view.undo.removeLastOrNull()?.let {
+                        view.redo.add(operate(it))
                         0
                     } ?: 2
-                    1 -> view.redo.lastOrNull()?.run {
-                        forEach { (pos, entry) ->
-                            player.world.setBlockNoPP(
-                                BlockPos.fromLong(pos),
-                                NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState),
-                                Block.NOTIFY_LISTENERS
-                            )
-                            entry.blockEntity?.let { be ->
-                                player.world.getBlockEntity(BlockPos.fromLong(pos))?.readNbt(be)
-                            }
-                        }
-                        view.undo.add(view.redo.removeLast())
+
+                    1 -> view.redo.removeLastOrNull()?.let {
+                        view.undo.add(operate(it))
                         1
                     } ?: 2
+
                     else -> 65536
                 }))
             }

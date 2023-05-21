@@ -3,22 +3,11 @@ package com.github.zly2006.reden.malilib
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.network.Rollback
 import com.github.zly2006.reden.network.TagBlockPos
+import com.github.zly2006.reden.sendMessage
+import com.github.zly2006.reden.toBlockPos
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.client.MinecraftClient
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.text.Text
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Vec3d
 import net.minecraft.world.GameMode
-
-
-private fun Vec3d.toBlockPos(): BlockPos {
-    return BlockPos.ofFloored(this)
-}
-
-private fun PlayerEntity.sendMessage(s: String) {
-    sendMessage(Text.literal(s))
-}
 
 fun configureKeyCallbacks(mc: MinecraftClient) {
     REDEN_CONFIG_KEY.keybind.setCallback { _, _ ->
@@ -51,8 +40,9 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             true
         } else false
     }
-    PREVIEW_UNDO.keybind.setCallback { _, _ ->
+    DEBUG_PREVIEW_UNDO.keybind.setCallback { _, _ ->
         if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
+            TagBlockPos.tags.clear()
             val view = mc.server!!.playerManager.playerList[0].data()
             view.undo.lastOrNull()?.keys?.forEach {
                 TagBlockPos.tags[it] = 1

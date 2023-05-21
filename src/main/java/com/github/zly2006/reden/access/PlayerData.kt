@@ -19,12 +19,6 @@ class PlayerData(
         if (undo.lastOrNull() != null) {
             if (undo.last().isEmpty()) {
                 undo.removeLast()
-            } else {
-                redo.add(mutableMapOf<Long, Entry>().apply {
-                    undo.last().keys.forEach {
-                        this[it] = Entry.fromWorld(world, BlockPos.fromLong(it))
-                    }
-                })
             }
         }
     }

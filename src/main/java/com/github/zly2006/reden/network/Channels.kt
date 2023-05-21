@@ -10,4 +10,6 @@ val TAG_BLOCK_POS = Identifier("reden", "tag_block_pos")
 fun register() {
     TagBlockPos.register()
     Rollback.register()
+    ChangeBreakpointPacket.register()
+    BreakPointInterrupt.register()
 }

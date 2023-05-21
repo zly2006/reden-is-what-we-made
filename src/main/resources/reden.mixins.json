@@ -4,12 +4,13 @@
   "package": "com.github.zly2006.reden.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "breakpoint.MixinNewUpdater",
     "breakpoint.MixinUpdater",
     "common.MixinServerPlayer",
-    "ctrlz.MixinCommands",
-    "ctrlz.MixinPlayerMode",
-    "ctrlz.MixinServerWorldChunk",
-    "ctrlz.MixinUpdater",
+    "undo.MixinCommands",
+    "undo.MixinPlayerMode",
+    "undo.MixinServerWorldChunk",
+    "undo.MixinUpdater",
     "tick.MixinTick",
     "tick.MixinWatchdog"
   ],

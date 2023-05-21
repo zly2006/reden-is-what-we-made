@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.mixin.ctrlz;
+package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
@@ -16,10 +16,6 @@ import java.util.HashMap;
 
 @Mixin(CommandManager.class)
 public class MixinCommands {
-    // 你可以打字交流
-    // 好的
-    // DEBUG: /fill 12 -60 2 12 -60 5 air
-
     @Inject(method = "execute", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/CommandDispatcher;execute(Lcom/mojang/brigadier/ParseResults;)I"))
     private void onExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfoReturnable<Integer> cir) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {

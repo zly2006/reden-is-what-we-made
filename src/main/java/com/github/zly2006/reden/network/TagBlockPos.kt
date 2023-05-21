@@ -65,8 +65,9 @@ class TagBlockPos(
                         RenderSystem.disableScissor()
                         RenderSystem.enableBlend()
                         fun drawBox(_min: Vec3d, _max: Vec3d, r: Float, g: Float, b: Float, a: Float) {
-                            val min = _min.toVector3f()
-                            val max = _max.toVector3f()
+                            val delta = 0.0001f
+                            val min = _min.toVector3f().add(-delta, -delta, -delta)
+                            val max = _max.toVector3f().add(delta, delta, delta)
 
                             RenderSystem.setShader(GameRenderer::getPositionColorProgram)
                             Tessellator.getInstance().buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)

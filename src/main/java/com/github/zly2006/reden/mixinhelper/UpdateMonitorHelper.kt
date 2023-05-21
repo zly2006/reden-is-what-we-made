@@ -70,7 +70,7 @@ object UpdateMonitorHelper {
             if (DEBUG_LOGGER.booleanValue) {
                 MinecraftClient.getInstance().player?.sendMessage(Text.literal("set$pos, ${world.getBlockState(pos)} -> $blockState"))
             }
-            monitoringPlayerCache!!.data().undo.last().computeIfAbsent(pos.asLong()) {
+            monitoringPlayerCache!!.data().undo.lastOrNull()?.computeIfAbsent(pos.asLong()) {
                 PlayerData.Entry.fromWorld(world, pos)
             }
         }

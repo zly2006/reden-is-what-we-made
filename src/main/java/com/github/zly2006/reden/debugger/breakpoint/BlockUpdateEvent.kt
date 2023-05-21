@@ -7,10 +7,11 @@ import net.minecraft.util.math.BlockPos
 import kotlin.jvm.optionals.getOrNull
 
 class BlockUpdateEvent(
+    id: Int,
     var pos: BlockPos? = null,
-    var type: Int = 0
-): BreakPoint() {
-    override val id: Identifier = Identifier("reden", "update_event")
+    var type: Int = 0,
+): BreakPoint(id) {
+    override val identifier: Identifier = Identifier("reden", "update_event")
     override val description: Text = Text.literal(toString())
     override fun read(buf: PacketByteBuf) {
         type = buf.readVarInt()

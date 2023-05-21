@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.mixin.ctrlz;
+package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import net.minecraft.block.BlockState;
