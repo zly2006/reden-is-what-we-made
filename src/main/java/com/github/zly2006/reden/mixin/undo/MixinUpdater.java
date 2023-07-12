@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.mixin.undo;
 
-import com.github.zly2006.reden.access.ChainedUpdaterView;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import net.minecraft.world.World;
@@ -15,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ChainRestrictedNeighborUpdater.class)
-public class MixinUpdater implements ChainedUpdaterView {
+public class MixinUpdater {
     @Shadow @Final private World world;
     @Shadow private int depth;
     @Mutable @Shadow @Final private int maxChainDepth;

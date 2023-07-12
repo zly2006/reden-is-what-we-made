@@ -12,4 +12,5 @@ fun register() {
     Rollback.register()
     ChangeBreakpointPacket.register()
     BreakPointInterrupt.register()
+    StepUpdate.register()
 }

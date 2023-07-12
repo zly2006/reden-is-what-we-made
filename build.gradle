@@ -1,86 +1,86 @@
 plugins {
-	id 'fabric-loom' version '1.2-SNAPSHOT'
-	id 'maven-publish'
-	id "org.ajoberstar.grgit" version "4.1.0"
-	id 'org.jetbrains.kotlin.jvm' version '1.8.10'
+    id 'fabric-loom' version '1.2-SNAPSHOT'
+    id 'maven-publish'
+    id "org.ajoberstar.grgit" version "4.1.0"
+    id 'org.jetbrains.kotlin.jvm' version '1.8.10'
 }
 
 version = project.mod_version
 group = project.maven_group
 
 repositories {
-	maven {
-		url "https://cursemaven.com"
-	}
+    maven {
+        url "https://cursemaven.com"
+    }
 }
 
 dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	// Fabric API
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	// Kotlin support
-	modImplementation("net.fabricmc:fabric-language-kotlin:1.9.2+kotlin.1.8.10")
-	// MaLiLib, required on client
-	modImplementation("curse.maven:malilib-303119:4519977")
-	// carpet, required on client & server
-	modImplementation("curse.maven:carpet-349239:4446319")
-	// Game test
-	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+    // To change the versions see the gradle.properties file
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    // Fabric API
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    // Kotlin support
+    modImplementation("net.fabricmc:fabric-language-kotlin:1.9.2+kotlin.1.8.10")
+    // MaLiLib, required on client
+    modImplementation("curse.maven:malilib-303119:4519977")
+    // carpet, required on client & server
+    modImplementation("curse.maven:carpet-349239:4446319")
+    // Game test
+    testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 base {
-	archivesName = project.archives_base_name
+    archivesName = project.archives_base_name
 }
 
 loom {
-	accessWidenerPath = file("src/main/resources/reden.accesswidener")
+    accessWidenerPath = file("src/main/resources/reden.accesswidener")
 }
 
 processResources {
-	inputs.property "version", project.version
+    inputs.property "version", project.version
 
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
-	}
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
 }
 
 kotlin {
-	jvmToolchain(17)
+    jvmToolchain(17)
 }
 
 java {
-	withSourcesJar()
-	toolchain {
-		languageVersion.set(JavaLanguageVersion.of(17))
-	}
+    withSourcesJar()
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 jar {
-	from("LICENSE") {
-		rename { "${it}_${base.archivesName.get()}"}
-	}
+    from("LICENSE") {
+        rename { "${it}_${base.archivesName.get()}"}
+    }
 }
 
 // configure the maven publication
 publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
-		}
-	}
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
-	}
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+        // Notice: This block does NOT have the same function as the block in the top level.
+        // The repositories here will be used for publishing your artifact, not for
+        // retrieving dependencies.
+    }
 }

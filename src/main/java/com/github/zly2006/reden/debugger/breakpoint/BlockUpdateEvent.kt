@@ -8,17 +8,24 @@ import kotlin.jvm.optionals.getOrNull
 
 class BlockUpdateEvent(
     id: Int,
+    var options: Int = 0,
     var pos: BlockPos? = null,
-    var type: Int = 0,
-): BreakPoint(id) {
-    override val identifier: Identifier = Identifier("reden", "update_event")
-    override val description: Text = Text.literal(toString())
+): BreakPoint(id, Companion) {
+    companion object: BreakPointType {
+        override val id: Identifier = Identifier("reden", "update_event")
+        override val description: Text = Text.literal("BlockUpdateEvent")
+        override fun create(id: Int): BreakPoint = BlockUpdateEvent(id)
+
+        const val PP = 1
+        const val NC = 2
+        const val CU = 4
+    }
     override fun read(buf: PacketByteBuf) {
-        type = buf.readVarInt()
+        options = buf.readVarInt()
         pos = buf.readOptional { it.readBlockPos() }.getOrNull()
     }
     override fun write(buf: PacketByteBuf) {
-        buf.writeVarInt(type)
+        buf.writeVarInt(options)
         if (pos == null) {
             buf.writeBoolean(false)
         } else {
@@ -29,24 +36,16 @@ class BlockUpdateEvent(
 
     override fun toString() = buildString {
         append("BlockUpdateEvent(")
-        if (type and PP > 0) {
+        if (options and PP > 0) {
             append("PP")
         }
-        if (type and NC > 0) {
+        if (options and NC > 0) {
             append("NC")
         }
-        if (type and CU > 0) {
+        if (options and CU > 0) {
             append("CU")
         }
         append(')')
         append(pos)
-    }
-
-
-    companion object {
-        val id: Identifier = Identifier("reden", "update_event")
-        const val PP = 1
-        const val NC = 2
-        const val CU = 4
     }
 }

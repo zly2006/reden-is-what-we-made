@@ -8,18 +8,22 @@ import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import java.util.*
 
-val registry = mutableMapOf<Identifier, (Int) -> BreakPoint>(
-    BlockUpdateEvent.id to { BlockUpdateEvent(it) }
+val registry = mutableMapOf<Identifier, BreakPointType>(
+
 )
+
+interface BreakPointType {
+    val id: Identifier
+    val description: Text
+    fun create(id: Int): BreakPoint
+}
 
 val breakpoints = TreeMap<Int, BreakPoint>()
 
 abstract class BreakPoint(
-    val id: Int
+    val id: Int,
+    open val type: BreakPointType
 ) {
-    abstract val description: Text
-    abstract val identifier: Identifier
-
     /**
      * @see com.github.zly2006.reden.network.ChangeBreakpointPacket.Companion
      */
@@ -32,12 +36,17 @@ abstract class BreakPoint(
         fun read(buf: PacketByteBuf): BreakPoint {
             val id = buf.readIdentifier()
             val bpId = buf.readVarInt()
-            return registry[id]?.invoke(bpId)?.apply { read(buf) } ?: throw Exception("Unknown BreakPoint $id")
+            val flags = buf.readVarInt()
+            return registry[id]?.create(bpId)?.apply {
+                this.flags = flags
+                read(buf)
+            } ?: throw Exception("Unknown BreakPoint $id")
         }
 
         fun write(bp: BreakPoint, buf: PacketByteBuf) {
-            buf.writeIdentifier(bp.identifier)
+            buf.writeIdentifier(bp.type.id)
             buf.writeVarInt(bp.id)
+            buf.writeVarInt(bp.flags)
             bp.write(buf)
         }
     }

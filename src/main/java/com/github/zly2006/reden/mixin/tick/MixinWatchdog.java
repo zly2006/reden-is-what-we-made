@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(DedicatedServerWatchdog.class)
 public class MixinWatchdog {
-    @ModifyVariable(method = "run", at = @At(value = "STORE", ordinal = 1), ordinal = 0)
+    @ModifyVariable(method = "run", at = @At(value = "STORE"), ordinal = 1)
     private long onTickTimeout(long time) {
         if (FreezeKt.getDisableWatchDog()) {
             return 0;

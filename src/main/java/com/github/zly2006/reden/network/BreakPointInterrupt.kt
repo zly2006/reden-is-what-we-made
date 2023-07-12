@@ -12,8 +12,9 @@ private val pType = PacketType.create(id) {
     BreakPointInterrupt(id)
 }
 
-class BreakPointInterrupt(
-    val bpId: Int
+data class BreakPointInterrupt(
+    val bpId: Int,
+    val interrupted: Boolean = true
 ): FabricPacket {
     override fun write(buf: PacketByteBuf) {
         buf.writeVarInt(bpId)

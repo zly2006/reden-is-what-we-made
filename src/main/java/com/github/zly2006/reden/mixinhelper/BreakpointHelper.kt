@@ -10,6 +10,8 @@ import net.minecraft.world.block.NeighborUpdater
 class BreakpointHelper(
     world: World
 ) {
+    var isInterrupted = false
+        private set
     fun handle(entry: Entry): Boolean {
         return false
     }

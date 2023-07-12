@@ -33,12 +33,8 @@ data class ChangeBreakpointPacket(
                 val flag = packet.flag
                 val bpId = packet.bpId
                 when (flag) {
-                    ADD -> {
-                        breakpoints[bpId] = bp
-                    }
-                    REMOVE -> {
-                        breakpoints.remove(bpId)
-                    }
+                    ADD -> breakpoints[bpId] = bp
+                    REMOVE -> breakpoints.remove(bpId)
                 }
                 bp.flags = flag
             }
