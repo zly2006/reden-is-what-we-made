@@ -38,7 +38,7 @@ public class MixinCommands {
             }
             PlayerData playerView = PlayerData.Companion.data(player);
             if (playerView.isRecording()) {
-                playerView.stopRecording(player.world);
+                playerView.stopRecording(player.getWorld());
             }
         }
     }

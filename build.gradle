@@ -24,9 +24,9 @@ dependencies {
     // Kotlin support
     modImplementation("net.fabricmc:fabric-language-kotlin:1.9.2+kotlin.1.8.10")
     // MaLiLib, required on client
-    modImplementation("curse.maven:malilib-303119:4519977")
+    modImplementation "curse.maven:malilib-303119:4623483"
     // carpet, required on client & server
-    modImplementation("curse.maven:carpet-349239:4446319")
+    modImplementation "curse.maven:carpet-349239:4573334"
     // Game test
     testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
 }

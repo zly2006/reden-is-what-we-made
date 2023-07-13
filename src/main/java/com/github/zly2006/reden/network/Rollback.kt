@@ -89,23 +89,9 @@ class Rollback(
 }
 
 private fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int) {
-    infix fun Int.umod(b: Int): Int =
-        this % b + if (this < 0) b else 0
-
-    val result = getChunk(pos).run {
+    getChunk(pos).run {
         getSection(getSectionIndex(pos.y))
-    }.setBlockState(pos.x umod 16, pos.y umod 16, pos.z umod 16, state, false)
-    val after = getBlockState(pos)
-    if ((flags and Block.SKIP_LIGHTING_UPDATES) == 0 && after != result &&
-        (after.getOpacity(this, pos) != result.getOpacity(this, pos) ||
-                after.luminance != result.luminance ||
-                after.hasSidedTransparency() ||
-                result.hasSidedTransparency())
-    ) {
-        profiler.push("queueCheckLight")
-        this.chunkManager.lightingProvider.checkBlock(pos)
-        profiler.pop()
-    }
+    }.setBlockState(pos.x and 15, pos.y and 15, pos.z and 15, state, false)
     if (this is ServerWorld) {
         chunkManager.markForUpdate(pos)
     }
