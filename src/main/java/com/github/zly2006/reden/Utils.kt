@@ -1,5 +1,7 @@
 package com.github.zly2006.reden
 
+import net.fabricmc.api.EnvType
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.Text
@@ -20,3 +22,6 @@ fun <E> MutableList<E>.removeAtOrNull(index: Int): E? {
     val i = if (index < 0) size + index else index
     return if (i in indices) removeAt(i) else null
 }
+
+
+val isClient: Boolean get() = FabricLoader.getInstance().environmentType == EnvType.CLIENT

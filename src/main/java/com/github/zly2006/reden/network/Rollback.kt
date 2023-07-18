@@ -2,6 +2,7 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
+import com.github.zly2006.reden.isClient
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
 import com.github.zly2006.reden.sendMessage
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
@@ -71,18 +72,20 @@ class Rollback(
                     else -> 65536
                 }))
             }
-            ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, res ->
-                player.sendMessage(
-                    when (packet.status) {
-                        0 -> Text.literal("Rollback success")
-                        1 -> Text.literal("Restore success")
-                        2 -> Text.literal("No blocks info")
-                        16 -> Text.literal("No permission")
-                        32 -> Text.literal("Not recording")
-                        65536 -> Text.literal("Unknown error")
-                        else -> Text.literal("Unknown status")
-                    }
-                )
+            if (isClient) {
+                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, res ->
+                    player.sendMessage(
+                        when (packet.status) {
+                            0 -> Text.literal("Rollback success")
+                            1 -> Text.literal("Restore success")
+                            2 -> Text.literal("No blocks info")
+                            16 -> Text.literal("No permission")
+                            32 -> Text.literal("Not recording")
+                            65536 -> Text.literal("Unknown error")
+                            else -> Text.literal("Unknown status")
+                        }
+                    )
+                }
             }
         }
     }

@@ -26,7 +26,7 @@ class WorldStatus(status: Long, data: NbtCompound?)
     override fun getType(): PacketType<*> = PacketType.create(id) {
         val status = it.readVarLong()
         val nbt = it.readNbt()
-        WorldStatus(status, data)
+        WorldStatus(status, nbt)
     }
 }
 class GlobalStatus(status: Long, data: NbtCompound?)
@@ -38,6 +38,6 @@ class GlobalStatus(status: Long, data: NbtCompound?)
     override fun getType(): PacketType<*> = PacketType.create(id) {
         val status = it.readVarLong()
         val nbt = it.readNbt()
-        WorldStatus(status, data)
+        GlobalStatus(status, nbt)
     }
 }

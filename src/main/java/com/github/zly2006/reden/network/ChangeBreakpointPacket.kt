@@ -2,6 +2,7 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.breakpoint.breakpoints
+import com.github.zly2006.reden.isClient
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.*
@@ -44,10 +45,6 @@ data class ChangeBreakpointPacket(
                     ServerPlayNetworking.send(it, packet.copy(sender = player.uuid)) // sync
                 }
             }
-            ClientPlayNetworking.registerGlobalReceiver(pType, action)
-            ClientPlayConnectionEvents.JOIN.register { handler, sender, client ->
-                breakpoints.clear()
-            }
             ServerPlayConnectionEvents.JOIN.register { handler, sender, server ->
                 breakpoints.forEach { (id, bp) -> // sync
                     sender.sendPacket(ChangeBreakpointPacket(
@@ -55,6 +52,12 @@ data class ChangeBreakpointPacket(
                         bp.flags,
                         id
                     ))
+                }
+            }
+            if (isClient) {
+                ClientPlayNetworking.registerGlobalReceiver(pType, action)
+                ClientPlayConnectionEvents.JOIN.register { handler, sender, client ->
+                    breakpoints.clear()
                 }
             }
         }

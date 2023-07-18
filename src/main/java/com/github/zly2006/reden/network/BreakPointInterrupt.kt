@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.network
 
+import com.github.zly2006.reden.isClient
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
@@ -24,7 +25,9 @@ data class BreakPointInterrupt(
 
     companion object {
         fun register() {
-            ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
+            if (isClient) {
+                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
+                }
             }
         }
     }

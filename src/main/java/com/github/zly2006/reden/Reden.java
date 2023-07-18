@@ -40,7 +40,11 @@ public class Reden implements ModInitializer {
                 @Override
                 public void load() {
                     try {
-                        JsonObject jo = GSON.fromJson(Files.readString(new File(FileUtils.getConfigDirectory(), CONFIG_FILE).toPath()), JsonObject.class);
+                        File file = new File(FileUtils.getConfigDirectory(), CONFIG_FILE);
+                        if (!file.exists()) {
+                            return;
+                        }
+                        JsonObject jo = GSON.fromJson(Files.readString(file.toPath()), JsonObject.class);
                         ConfigUtils.readConfigBase(jo, MOD_NAME, MalilibSettingsKt.getAllOptions());
                     } catch (IOException e) {
                         save();
@@ -72,7 +76,7 @@ public class Reden implements ModInitializer {
                 }
             });
             KeyCallbacksKt.configureKeyCallbacks(MinecraftClient.getInstance());
-            ChannelsKt.register();
         });
+        ChannelsKt.register();
     }
 }

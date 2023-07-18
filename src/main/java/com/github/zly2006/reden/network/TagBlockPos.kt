@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.network
 
+import com.github.zly2006.reden.isClient
 import com.github.zly2006.reden.malilib.MAX_RENDER_DISTANCE
 import com.mojang.blaze3d.systems.RenderSystem
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
@@ -49,6 +50,7 @@ class TagBlockPos(
         internal val tags = mutableMapOf<Long, Int>()
 
         fun register() {
+            if (!isClient) return
             ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
                 tags[packet.pos.asLong()] = packet.status
             }
