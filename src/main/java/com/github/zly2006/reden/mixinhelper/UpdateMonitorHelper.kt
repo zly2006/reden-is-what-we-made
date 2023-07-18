@@ -62,9 +62,7 @@ object UpdateMonitorHelper {
     @JvmStatic
     fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
         if (monitoringPlayerCache?.data()?.isRecording != true) {
-            world.server.playerManager.playerList.stream()
-                .filter { it.data().isRecording }
-                .findFirst().ifPresent { monitoringPlayerCache = it }
+            monitoringPlayerCache = world.server.playerManager.playerList.firstOrNull { it.data().isRecording }
         }
         if (isPlayerRecording()) {
             if (DEBUG_LOGGER.booleanValue) {
