@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 @Mixin(CommandManager.class)
 public class MixinCommands {
-    @Inject(method = "execute", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/CommandDispatcher;execute(Lcom/mojang/brigadier/ParseResults;)I"))
+    @Inject(method = "execute", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/command/ServerCommandSource;getServer()Lnet/minecraft/server/MinecraftServer;"))
     private void onExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfoReturnable<Integer> cir) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {
             if (MalilibSettingsKt.debug()) {
@@ -30,7 +30,7 @@ public class MixinCommands {
         }
     }
 
-    @Inject(method = "execute", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lcom/mojang/brigadier/CommandDispatcher;execute(Lcom/mojang/brigadier/ParseResults;)I"))
+    @Inject(method = "execute", at = @At("RETURN"))
     private void afterExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfoReturnable<Integer> cir) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {
             if (MalilibSettingsKt.debug()) {

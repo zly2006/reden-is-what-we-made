@@ -18,6 +18,9 @@
     "undo.MixinUpdater"
   ],
   "client": [
+    "chat.ChatHudMixin",
+    "chat.ChatScreenMixin",
+    "chat.VisibleChatHudLineMixin",
     "fix.NoTimeOut"
   ],
   "injectors": {

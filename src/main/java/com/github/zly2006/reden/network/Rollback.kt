@@ -5,19 +5,17 @@ import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.isClient
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
 import com.github.zly2006.reden.sendMessage
+import com.github.zly2006.reden.setBlockNoPP
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.block.Block
-import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
-import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
 
 private val pType = PacketType.create(ROLLBACK) {
     Rollback(it.readVarInt())
@@ -88,17 +86,5 @@ class Rollback(
                 }
             }
         }
-    }
-}
-
-private fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int) {
-    getChunk(pos).run {
-        getSection(getSectionIndex(pos.y))
-    }.setBlockState(pos.x and 15, pos.y and 15, pos.z and 15, state, false)
-    if (this is ServerWorld) {
-        chunkManager.markForUpdate(pos)
-    }
-    if (flags and Block.NOTIFY_LISTENERS != 0) {
-        updateListeners(pos, getBlockState(pos), state, flags)
     }
 }

@@ -5,3 +5,8 @@ accessible class net/minecraft/server/command/DataCommand$ModifyOperation
 accessible field net/minecraft/block/AbstractBlock settings Lnet/minecraft/block/AbstractBlock$Settings;
 accessible field net/minecraft/block/AbstractBlock$Settings mapColorProvider Ljava/util/function/Function;
 accessible field net/minecraft/block/MapColor COLORS [Lnet/minecraft/block/MapColor;
+accessible method net/minecraft/client/gui/screen/Screen remove (Lnet/minecraft/client/gui/Element;)V
+accessible method net/minecraft/client/gui/hud/ChatHud toChatLineX (D)D
+accessible method net/minecraft/client/gui/hud/ChatHud getMessageLineIndex (DD)I
+accessible method net/minecraft/client/gui/hud/ChatHud toChatLineY (D)D
+accessible field net/minecraft/client/gui/hud/ChatHud visibleMessages Ljava/util/List;

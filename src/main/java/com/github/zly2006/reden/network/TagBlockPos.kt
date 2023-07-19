@@ -8,8 +8,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.network.ClientPlayNetworkHandler
 import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormat
@@ -42,7 +40,7 @@ class TagBlockPos(
         buf.writeVarInt(status)
     }
 
-    companion object: ClientPlayConnectionEvents.Disconnect {
+    companion object {
         const val clear = 0
         const val green = 1
         const val red = 2
@@ -51,7 +49,8 @@ class TagBlockPos(
 
         fun register() {
             if (!isClient) return
-            ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
+            ClientPlayConnectionEvents.DISCONNECT.register { _, _ -> tags.clear()}
+            ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->
                 tags[packet.pos.asLong()] = packet.status
             }
             WorldRenderEvents.AFTER_TRANSLUCENT.register { context ->
@@ -139,8 +138,6 @@ class TagBlockPos(
                     }
             }
         }
-
-        override fun onPlayDisconnect(handler: ClientPlayNetworkHandler?, client: MinecraftClient?) = tags.clear()
     }
 }
 
