@@ -18,5 +18,5 @@ interface IStructure {
     fun getBlockState(pos: BlockPos): BlockState
     fun getBlockEntityData(pos: BlockPos): NbtCompound?
     fun getOrCreateBlockEntityData(pos: BlockPos): NbtCompound
-    fun getEntities(): List<NbtCompound>
+    val entities: List<NbtCompound>
 }

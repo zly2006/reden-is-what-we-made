@@ -18,7 +18,7 @@
   },
 
   "license": "GPL-v3",
-  "icon": "assets/rwwm/icon.png",
+  "icon": "assets/reden/icon.png",
 
   "environment": "*",
   "entrypoints": {

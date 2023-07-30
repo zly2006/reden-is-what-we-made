@@ -1,19 +1,24 @@
-package com.github.zly2006.reden.rvc
+package com.github.zly2006.reden.rvc.tracking
 
+import com.github.zly2006.reden.rvc.IPlacement
+import com.github.zly2006.reden.rvc.IStructure
+import com.github.zly2006.reden.rvc.ReadWriteStructure
 import com.github.zly2006.reden.setBlockNoPP
+import it.unimi.dsi.fastutil.longs.Long2ObjectRBTreeMap
 import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
-import net.minecraft.entity.Entity
-import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.collection.IdList
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import java.nio.file.Path
 
-class TrackingStructure: IStructure, IPlacement {
+/**
+ * Only used for tracking changes, exporting and showing changes when rolling back changes.
+ * It should NOT be used either for version control or save data/network.
+ */
+class TrackingStructure(
+    name: String
+): ReadWriteStructure(name), IPlacement {
     var children = mutableListOf<IdList<TrackingStructure>>()
-    override var name: String = ""
     override var enabled: Boolean = true
     override val structure: IStructure = this
     override lateinit var world: World
@@ -21,9 +26,16 @@ class TrackingStructure: IStructure, IPlacement {
     override var ySize: Int = 0
     override var zSize: Int = 0
     override val origin: BlockPos.Mutable = BlockPos.ORIGIN.mutableCopy()
-    @JvmField val blocks = mutableMapOf<BlockPos, BlockState>()
-    @JvmField val blockEntities = mutableMapOf<BlockPos, NbtCompound>()
-    @JvmField val entities = mutableListOf<Entity>()
+    val diffs = Long2ObjectRBTreeMap<TrackedDiff>()
+    @JvmField val trackingPositions = object: LinkedHashSet<BlockPos>() {
+        override fun add(element: BlockPos): Boolean {
+            if (element is BlockPos.Mutable) {
+                throw IllegalArgumentException("element must be immutable")
+            }
+            return super.add(element)
+        }
+    }
+
     override fun createPlacement(world: World, origin: BlockPos): TrackingStructure {
         if (world != this.world || origin != this.origin) {
             throw IllegalArgumentException("world and origin must be the same as the structure")
@@ -41,19 +53,7 @@ class TrackingStructure: IStructure, IPlacement {
         }
     }
 
-    override fun save(path: Path) {
-        TODO("Not yet implemented")
-    }
-
-    override fun load(path: Path) {
-        TODO("Not yet implemented")
-    }
-
+    override fun save(path: Path) = throw UnsupportedOperationException("TrackingStructure is not used for saving data.")
+    override fun load(path: Path) = throw UnsupportedOperationException("TrackingStructure is not used for saving data.")
     override fun isInArea(pos: BlockPos) = pos in blocks
-    override fun getBlockState(pos: BlockPos) = blocks[pos] ?: Blocks.AIR.defaultState!!
-    override fun getBlockEntityData(pos: BlockPos) = blockEntities[pos]
-    override fun getOrCreateBlockEntityData(pos: BlockPos) = blockEntities.getOrPut(pos) { NbtCompound() }
-    override fun getEntities() =
-        //world.getOtherEntities(null, Box(origin, origin.toImmutable().add(xSize, ySize, zSize)))
-        entities.map { it.writeNbt(NbtCompound()) }
 }

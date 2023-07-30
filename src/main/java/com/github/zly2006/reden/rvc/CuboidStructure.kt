@@ -42,8 +42,4 @@ abstract class CuboidStructure(
     override fun getBlockEntityData(pos: BlockPos): NbtCompound? {
         TODO("Not yet implemented")
     }
-
-    override fun getEntities(): List<NbtCompound> {
-        TODO("Not yet implemented")
-    }
 }

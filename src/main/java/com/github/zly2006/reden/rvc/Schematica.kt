@@ -59,9 +59,8 @@ class SchematicImpl(
         TODO("Not yet implemented")
     }
 
-    override fun getEntities(): List<NbtCompound> {
-        TODO("Not yet implemented")
-    }
+    override val entities: List<NbtCompound>
+        get() = TODO("Not yet implemented")
 }
 
 class SchematicStructure: SchematicFormat() {

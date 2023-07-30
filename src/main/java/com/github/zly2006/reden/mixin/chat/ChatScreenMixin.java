@@ -2,6 +2,7 @@ package com.github.zly2006.reden.mixin.chat;
 
 import com.github.zly2006.reden.access.VisibleChatHudLineAccess;
 import com.github.zly2006.reden.gui.QuickMenuWidget;
+import com.github.zly2006.reden.intro.SuperRightIntro;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
@@ -26,6 +27,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.github.zly2006.reden.malilib.MalilibSettingsKt.*;
 
 @Mixin(ChatScreen.class)
 public abstract class ChatScreenMixin extends Screen {
@@ -61,7 +64,7 @@ public abstract class ChatScreenMixin extends Screen {
         if (button == GLFW.GLFW_MOUSE_BUTTON_2) { // Right click
             MinecraftClient client = MinecraftClient.getInstance();
             ChatHudLine.Visible visible = ct$geMessageAt(mouseX, mouseY);
-            if (visible != null) {
+            if (visible != null && CHAT_RIGHT_CLICK_MENU.getBooleanValue()) {
                 Text text = ((VisibleChatHudLineAccess) (Object) visible).reden$getText();
                 if (text != null) {
                     rightClickMenu((int) mouseX, (int) mouseY, client, text);
@@ -76,6 +79,9 @@ public abstract class ChatScreenMixin extends Screen {
             quickMenuWidget.remove();
         }
         quickMenuWidget = new QuickMenuWidget(this, mouseX, mouseY);
+        quickMenuWidget.addEntry(Text.of("About SuperRight Chat"), (e, b) -> {
+            client.setScreen(new SuperRightIntro());
+        });
         String message = text.getString();
         Matcher matcher = urlPattern.matcher(message);
         Style style = getTextStyleAt(mouseX, mouseY);

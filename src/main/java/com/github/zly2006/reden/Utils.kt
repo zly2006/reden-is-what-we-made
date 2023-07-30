@@ -8,6 +8,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
+import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
@@ -40,3 +41,23 @@ fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int) {
 }
 
 val isClient: Boolean get() = FabricLoader.getInstance().environmentType == EnvType.CLIENT
+
+object ResourceLoader {
+    fun loadBytes(path: String): ByteArray {
+        val stream = this::class.java.getResourceAsStream(path)
+        if (stream != null) {
+            return stream.readAllBytes()
+        }
+        else {
+            throw RuntimeException("The specified resource $path was not found!")
+        }
+    }
+
+    fun loadString(path: String): String {
+        return loadBytes(path).decodeToString()
+    }
+
+    fun loadTexture(path: String): Identifier {
+        return Identifier("reden", path)
+    }
+}

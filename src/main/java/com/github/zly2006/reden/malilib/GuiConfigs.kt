@@ -27,6 +27,7 @@ class GuiConfigs: GuiConfigsBase(
         ConfigGuiTab.GENERIC -> ConfigOptionWrapper.createFor(GENERIC_TAB)
         ConfigGuiTab.RVC -> ConfigOptionWrapper.createFor(RVC_TAB)
         ConfigGuiTab.MICRO_TICK -> ConfigOptionWrapper.createFor(MICRO_TICK_TAB)
+        ConfigGuiTab.SUPER_RIGHT -> ConfigOptionWrapper.createFor(SUPER_RIGHT_TAB)
         ConfigGuiTab.DEBUG -> ConfigOptionWrapper.createFor(DEBUG_TAB)
     }
     override fun useKeybindSearch() = true
@@ -37,7 +38,9 @@ class GuiConfigs: GuiConfigsBase(
         GENERIC("reden.widget.config.generic"),
         RVC("reden.widget.config.rvc"),
         MICRO_TICK("reden.widget.config.micro_tick"),
-        DEBUG("reden.widget.config.debug");
+        DEBUG("reden.widget.config.debug"),
+        SUPER_RIGHT("reden.widget.config.super_right");
+
         val displayName: String
             get() = StringUtils.translate(translationKey)
     }

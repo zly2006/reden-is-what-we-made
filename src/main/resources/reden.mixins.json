@@ -21,7 +21,10 @@
     "chat.ChatHudMixin",
     "chat.ChatScreenMixin",
     "chat.VisibleChatHudLineMixin",
-    "fix.NoTimeOut"
+    "fix.NoTimeOut",
+    "render.MixinBlockModelRenderer",
+    "render.MixinChunkRebuildTask",
+    "render.MixinWorldRenderer"
   ],
   "injectors": {
     "defaultRequire": 1

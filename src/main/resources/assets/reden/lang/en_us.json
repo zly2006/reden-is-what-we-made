@@ -1,0 +1,8 @@
+{
+  "reden.widget.config.debug": "Debug",
+  "reden.widget.config.generic": "Generic",
+  "reden.widget.config.micro_tick": "Micro Tick",
+  "reden.widget.config.rvc": "RVC",
+  "reden.widget.config.super_right": "Super Right",
+  "reden.widget.config.title": "Reden Config"
+}

@@ -10,3 +10,6 @@ accessible method net/minecraft/client/gui/hud/ChatHud toChatLineX (D)D
 accessible method net/minecraft/client/gui/hud/ChatHud getMessageLineIndex (DD)I
 accessible method net/minecraft/client/gui/hud/ChatHud toChatLineY (D)D
 accessible field net/minecraft/client/gui/hud/ChatHud visibleMessages Ljava/util/List;
+accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$RebuildTask
+accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$RebuildTask$RenderData
+accessible field net/minecraft/client/render/BufferBuilder format Lnet/minecraft/client/render/VertexFormat;

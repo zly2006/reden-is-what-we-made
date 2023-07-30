@@ -21,7 +21,7 @@ public class MixinUpdater {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInit(World world, int maxChainDepth, CallbackInfo ci) {
-        int a = MalilibSettingsKt.getMAX_CHAIN_UPDATES().getIntegerValue();
+        int a = MalilibSettingsKt.MAX_CHAIN_UPDATES.getIntegerValue();
         if (a != -1) {
             this.maxChainDepth = a;
         }

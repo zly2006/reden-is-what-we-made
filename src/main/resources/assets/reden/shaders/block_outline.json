@@ -1,0 +1,37 @@
+{
+  "targets": [
+    "slide_show:swap",
+    "slide_show:final"
+  ],
+  "passes": [{
+    "name": "minecraft:entity_outline",
+    "intarget": "slide_show:final",
+    "outtarget": "slide_show:swap"
+  }, {
+    "name": "minecraft:blur",
+    "intarget": "slide_show:swap",
+    "outtarget": "slide_show:final",
+    "uniforms": [{
+      "name": "BlurDir",
+      "values": [1.0, 0.0]
+    }, {
+      "name": "Radius",
+      "values": [2.0]
+    }]
+  }, {
+    "name": "minecraft:blur",
+    "intarget": "slide_show:final",
+    "outtarget": "slide_show:swap",
+    "uniforms": [{
+      "name": "BlurDir",
+      "values": [0.0, 1.0]
+    }, {
+      "name": "Radius",
+      "values": [2.0]
+    }]
+  }, {
+    "name": "minecraft:blit",
+    "intarget": "slide_show:swap",
+    "outtarget": "slide_show:final"
+  }]
+}
