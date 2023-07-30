@@ -13,3 +13,8 @@ accessible field net/minecraft/client/gui/hud/ChatHud visibleMessages Ljava/util
 accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$RebuildTask
 accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$RebuildTask$RenderData
 accessible field net/minecraft/client/render/BufferBuilder format Lnet/minecraft/client/render/VertexFormat;
+accessible field net/minecraft/nbt/NbtCompound entries Ljava/util/Map;
+accessible field net/minecraft/structure/StructureTemplate size Lnet/minecraft/util/math/Vec3i;
+accessible method net/minecraft/structure/StructureTemplate$PalettedBlockInfoList <init> (Ljava/util/List;)V
+accessible field net/minecraft/structure/StructureTemplate blockInfoLists Ljava/util/List;
+accessible field net/minecraft/structure/StructureTemplate entities Ljava/util/List;

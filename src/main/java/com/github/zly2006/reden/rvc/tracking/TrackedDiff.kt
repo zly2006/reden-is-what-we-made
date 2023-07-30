@@ -102,10 +102,7 @@ class TrackedDiff(
             return ret
         }
     }
-    object DummyDiff: NbtDiff {
-        override fun apply(nbt: Supplier<NbtCompound>): NbtCompound = nbt.get()
-        override fun combine(parent: NbtDiff): NbtDiff = parent
-    }
+
     private fun getBlockEntityData(storage: TrackedDiffStorage, pos: BlockPos): NbtCompound? {
         fun applyDiff(diff: NbtDiff, supplier: Supplier<NbtCompound?>): NbtCompound? {
             return try {
