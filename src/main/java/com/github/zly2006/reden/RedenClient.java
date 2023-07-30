@@ -5,6 +5,5 @@ import net.fabricmc.api.ClientModInitializer;
 public class RedenClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        SmallTestsKt.mapTest0();
     }
 }

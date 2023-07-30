@@ -1,33 +1,9 @@
 package com.github.zly2006.reden.rvc
 
-import net.minecraft.block.BarrelBlock
-import net.minecraft.block.Block
+import net.minecraft.block.BlockEntityProvider
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
-import net.minecraft.block.BrushableBlock
-import net.minecraft.block.DispenserBlock
-import net.minecraft.block.entity.BarrelBlockEntity
-import net.minecraft.block.entity.BeaconBlockEntity
-import net.minecraft.block.entity.BeehiveBlockEntity
-import net.minecraft.block.entity.BlastFurnaceBlockEntity
 import net.minecraft.block.entity.BlockEntity
-import net.minecraft.block.entity.BlockEntityType
-import net.minecraft.block.entity.BrushableBlockEntity
-import net.minecraft.block.entity.CampfireBlockEntity
-import net.minecraft.block.entity.ChestBlockEntity
-import net.minecraft.block.entity.CommandBlockBlockEntity
-import net.minecraft.block.entity.ComparatorBlockEntity
-import net.minecraft.block.entity.ConduitBlockEntity
-import net.minecraft.block.entity.DaylightDetectorBlockEntity
-import net.minecraft.block.entity.DecoratedPotBlockEntity
-import net.minecraft.block.entity.DispenserBlockEntity
-import net.minecraft.block.entity.DropperBlockEntity
-import net.minecraft.block.entity.FurnaceBlockEntity
-import net.minecraft.block.entity.JigsawBlockEntity
-import net.minecraft.block.entity.LecternBlockEntity
-import net.minecraft.block.entity.ShulkerBoxBlockEntity
-import net.minecraft.block.entity.SmokerBlockEntity
-import net.minecraft.block.entity.TrappedChestBlockEntity
 import net.minecraft.entity.Entity
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.math.BlockPos
@@ -47,7 +23,7 @@ open class DummyStructure(
     final override val zSize: Int
         get() = pZSize
 
-    private var pBlockstateMap: MutableMap<BlockPos, BlockState> = mutableMapOf()
+    private var pBlockStateMap: MutableMap<BlockPos, BlockState> = mutableMapOf()
     private var pBlockEntitiesMap: MutableMap<BlockPos, BlockEntity> = mutableMapOf()
     private var pEntities: MutableList<Entity> = mutableListOf()
 
@@ -58,9 +34,9 @@ open class DummyStructure(
     override fun load(path: Path) {}
 
     final override fun isInArea(pos: BlockPos): Boolean =
-        pos.x in 0..(xSize-1) &&
-        pos.y in 0..(ySize-1) &&
-        pos.z in 0..(zSize-1)
+        pos.x in 0 until xSize &&
+        pos.y in 0 until ySize &&
+        pos.z in 0 until zSize
 
     final override fun createPlacement(world: World, origin: BlockPos): IPlacement = object : IPlacement {
         override var name: String = this@DummyStructure.name
@@ -81,41 +57,16 @@ open class DummyStructure(
         }
     }
 
-    override final fun getBlockState(pos: BlockPos): BlockState = pBlockstateMap[pos] ?: Blocks.AIR.defaultState
+    final override fun getBlockState(pos: BlockPos): BlockState = pBlockStateMap[pos] ?: Blocks.AIR.defaultState
 
-    override final fun getBlockEntityData(pos: BlockPos): NbtCompound? = pBlockEntitiesMap[pos]?.createNbt()
+    final override fun getBlockEntityData(pos: BlockPos): NbtCompound? = pBlockEntitiesMap[pos]?.createNbt()
 
-    override final fun getOrCreateBlockEntityData(pos: BlockPos): NbtCompound = pBlockEntitiesMap[pos]?.createNbt() ?: run {
+    final override fun getOrCreateBlockEntityData(pos: BlockPos): NbtCompound = pBlockEntitiesMap[pos]?.createNbt() ?: run {
         val blockState = getBlockState(pos)
-        pBlockEntitiesMap[pos] = when (blockState.block) {
-            Blocks.CHEST -> ChestBlockEntity(pos, blockState)
-            Blocks.SHULKER_BOX -> ShulkerBoxBlockEntity(pos, blockState)
-            Blocks.TRAPPED_CHEST -> TrappedChestBlockEntity(pos, blockState)
-            Blocks.BEEHIVE -> BeehiveBlockEntity(pos, blockState)
-            Blocks.FURNACE -> FurnaceBlockEntity(pos, blockState)
-            Blocks.BLAST_FURNACE -> BlastFurnaceBlockEntity(pos, blockState)
-            Blocks.SMOKER -> SmokerBlockEntity(pos, blockState)
-            Blocks.DISPENSER -> DispenserBlockEntity(pos, blockState)
-            Blocks.DROPPER -> DropperBlockEntity(pos, blockState)
-            Blocks.BARREL -> BarrelBlockEntity(pos, blockState)
-            Blocks.CAMPFIRE, Blocks.SOUL_CAMPFIRE -> CampfireBlockEntity(pos, blockState)
-            Blocks.LECTERN -> LecternBlockEntity(pos, blockState)
-            Blocks.BEACON -> BeaconBlockEntity(pos, blockState)
-            Blocks.COMMAND_BLOCK, Blocks.CHAIN_COMMAND_BLOCK, Blocks.REPEATING_COMMAND_BLOCK -> CommandBlockBlockEntity(pos, blockState)
-            Blocks.JIGSAW -> JigsawBlockEntity(pos, blockState)
-            Blocks.DAYLIGHT_DETECTOR -> DaylightDetectorBlockEntity(pos, blockState)
-            Blocks.COMPARATOR -> ComparatorBlockEntity(pos, blockState)
-            Blocks.CONDUIT -> ConduitBlockEntity(pos, blockState)
-            Blocks.SUSPICIOUS_SAND, Blocks.SUSPICIOUS_GRAVEL -> BrushableBlockEntity(pos, blockState)
-            Blocks.DECORATED_POT -> DecoratedPotBlockEntity(pos, blockState)
-            else -> throw IllegalArgumentException("Cannot resolve the block entity's type for the block at $pos! ")
-        }
-        pBlockEntitiesMap[pos]!!.createNbt()
+        return (blockState.block as BlockEntityProvider).createBlockEntity(pos, blockState)!!.createNbt()
     }
 
-    override fun getEntities(): List<NbtCompound> = pEntities.map {
-        var nbt = NbtCompound()
-        it.writeNbt(nbt)
-        nbt
-    }
+    override val entities: List<NbtCompound>
+        get() = TODO("Not yet implemented")
+
 }
