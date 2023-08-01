@@ -82,32 +82,32 @@ class TrackingStructure(
             override fun canSpread(world: World, pos1: BlockPos, state1: BlockState, pos2: BlockPos, state2: BlockState): Boolean? {
                 TODO("Not yet implemented")
             }
-                   },
-        QC{
+        },
+        QC {
             override fun canSpread(world: World, pos1: BlockPos, state1: BlockState, pos2: BlockPos, state2: BlockState): Boolean? {
                 TODO("Not yet implemented")
             }
-          },
-        UPDATING{
+        },
+        UPDATING {
             override fun canSpread(world: World, pos1: BlockPos, state1: BlockState, pos2: BlockPos, state2: BlockState): Boolean? {
                 TODO("Not yet implemented")
             }
-                },
-        AIR_1{
+        },
+        AIR_1 {
             override fun canSpread(world: World, pos1: BlockPos, state1: BlockState, pos2: BlockPos, state2: BlockState): Boolean? {
                 TODO("Not yet implemented")
             }
-             },
-        AIR_2{
+        },
+        AIR_2 {
             override fun canSpread(world: World, pos1: BlockPos, state1: BlockState, pos2: BlockPos, state2: BlockState): Boolean? {
                 TODO("Not yet implemented")
             }
-             },
-        AIR_3{
+        },
+        AIR_3 {
             override fun canSpread(world: World, pos1: BlockPos, state1: BlockState, pos2: BlockPos, state2: BlockState): Boolean? {
                 TODO("Not yet implemented")
             }
-             },
+        },
     }
 
     class SpreadResult {

@@ -9,19 +9,17 @@ class TrackedDiffStorageImpl : TrackedDiffStorage {
     }
 
     // FIXME: A minimal implementation. Should be improved later.
-    override fun store(trackedDiff: TrackedDiff?): Long {
-        trackedDiff ?: return -1
+    override fun store(trackedDiff: TrackedDiff): Long {
         val id = pDiffs.size.toLong()
         pDiffs[id] = trackedDiff
         return id
     }
 
-    // What fuck are these two functions do?
-    override fun getRef(tag: String?): Long {
+    override fun getRef(tag: String): Long {
         TODO("Not yet implemented")
     }
 
-    override fun addRef(tag: String?, id: Long): Boolean {
+    override fun addRef(tag: String, id: Long): Boolean {
         TODO("Not yet implemented")
     }
 }

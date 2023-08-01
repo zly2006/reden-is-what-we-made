@@ -1,8 +1,8 @@
-package com.github.zly2006.reden.rvc.tracking;
+package com.github.zly2006.reden.rvc.tracking
 
-public interface TrackedDiffStorage {
-    TrackedDiff get(long id);
-    long store(TrackedDiff trackedDiff);
-    long getRef(String tag);
-    boolean addRef(String tag, long id);
+interface TrackedDiffStorage {
+    operator fun get(id: Long): TrackedDiff?
+    fun store(trackedDiff: TrackedDiff): Long
+    fun getRef(tag: String): Long
+    fun addRef(tag: String, id: Long): Boolean
 }

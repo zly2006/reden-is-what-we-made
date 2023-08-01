@@ -18,3 +18,7 @@ accessible field net/minecraft/structure/StructureTemplate size Lnet/minecraft/u
 accessible method net/minecraft/structure/StructureTemplate$PalettedBlockInfoList <init> (Ljava/util/List;)V
 accessible field net/minecraft/structure/StructureTemplate blockInfoLists Ljava/util/List;
 accessible field net/minecraft/structure/StructureTemplate entities Ljava/util/List;
+accessible method net/minecraft/client/gui/widget/ButtonWidget <init> (IIIILnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;Lnet/minecraft/client/gui/widget/ButtonWidget$NarrationSupplier;)V
+mutable field net/minecraft/util/math/Vec3d x D
+mutable field net/minecraft/util/math/Vec3d y D
+mutable field net/minecraft/util/math/Vec3d z D
