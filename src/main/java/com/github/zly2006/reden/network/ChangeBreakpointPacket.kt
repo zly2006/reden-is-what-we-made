@@ -2,7 +2,7 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.breakpoint.breakpoints
-import com.github.zly2006.reden.isClient
+import com.github.zly2006.reden.utils.isClient
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.*

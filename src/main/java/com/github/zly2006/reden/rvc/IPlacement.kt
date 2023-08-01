@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.rvc
 
-import com.github.zly2006.reden.setBlockNoPP
+import com.github.zly2006.reden.utils.setBlockNoPP
 import net.minecraft.block.Block
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World

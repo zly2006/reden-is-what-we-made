@@ -1,6 +1,5 @@
-package com.github.zly2006.reden.rvc.tracking
+package com.github.zly2006.reden.rvc.nbt
 
-import com.github.zly2006.reden.rvc.nbt.NbtDiff
 import net.minecraft.nbt.NbtCompound
 import java.util.function.Supplier
 

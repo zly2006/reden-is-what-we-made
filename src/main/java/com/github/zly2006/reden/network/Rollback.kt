@@ -2,10 +2,10 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
-import com.github.zly2006.reden.isClient
+import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
-import com.github.zly2006.reden.sendMessage
-import com.github.zly2006.reden.setBlockNoPP
+import com.github.zly2006.reden.utils.sendMessage
+import com.github.zly2006.reden.utils.setBlockNoPP
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType

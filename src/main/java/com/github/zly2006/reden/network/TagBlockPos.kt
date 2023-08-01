@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.network
 
-import com.github.zly2006.reden.isClient
+import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.render.BlockBorder
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking

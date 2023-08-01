@@ -1,4 +1,4 @@
-package com.github.zly2006.reden
+package com.github.zly2006.reden.utils
 
 import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
@@ -29,6 +29,9 @@ fun <E> MutableList<E>.removeAtOrNull(index: Int): E? {
 }
 
 fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int) {
+    if (isClient) {
+
+    }
     getChunk(pos).run {
         getSection(getSectionIndex(pos.y))
     }.setBlockState(pos.x and 15, pos.y and 15, pos.z and 15, state, false)

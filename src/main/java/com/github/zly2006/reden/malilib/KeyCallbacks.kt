@@ -3,8 +3,8 @@ package com.github.zly2006.reden.malilib
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.network.Rollback
 import com.github.zly2006.reden.render.BlockBorder
-import com.github.zly2006.reden.sendMessage
-import com.github.zly2006.reden.toBlockPos
+import com.github.zly2006.reden.utils.sendMessage
+import com.github.zly2006.reden.utils.toBlockPos
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.client.MinecraftClient
 import net.minecraft.world.GameMode

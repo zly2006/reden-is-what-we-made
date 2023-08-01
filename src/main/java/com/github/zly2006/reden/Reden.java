@@ -3,6 +3,7 @@ package com.github.zly2006.reden;
 import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.network.ChannelsKt;
+import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;

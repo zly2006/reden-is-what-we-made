@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.intro
 
-import com.github.zly2006.reden.ResourceLoader
+import com.github.zly2006.reden.utils.ResourceLoader
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
