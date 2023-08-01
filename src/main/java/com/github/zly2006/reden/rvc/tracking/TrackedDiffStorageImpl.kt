@@ -4,8 +4,8 @@ package com.github.zly2006.reden.rvc.tracking
 class TrackedDiffStorageImpl : TrackedDiffStorage {
     private var pDiffs: MutableMap<Long, TrackedDiff> = mutableMapOf()
 
-    override fun get(id: Long): TrackedDiff? {
-        return pDiffs[id]
+    override fun get(id: Long): TrackedDiff {
+        return pDiffs[id] ?: throw IllegalArgumentException("No such id: $id")
     }
 
     // FIXME: A minimal implementation. Should be improved later.
