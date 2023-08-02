@@ -5,6 +5,9 @@ import kotlin.math.sqrt
 
 
 class MyTnt(
+    /**
+     * Explosion pos, = tnt pos + (y: double) 0.0625f * 0.98d
+     */
     val pos: Vec3d,
     val power: Int = 4
 ) {

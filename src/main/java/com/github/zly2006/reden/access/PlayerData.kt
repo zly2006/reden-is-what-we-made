@@ -13,6 +13,8 @@ class PlayerData(
     val undo: MutableList<MutableMap<Long, Entry>> = mutableListOf()
     val redo: MutableList<MutableMap<Long, Entry>> = mutableListOf()
     var isRecording: Boolean = false
+    var pearlListening: Boolean = false
+
     fun stopRecording(world: World) {
         isRecording = false
         redo.clear()

@@ -6,6 +6,8 @@ import com.github.zly2006.reden.rvc.nbt.DiffProvider
 import com.github.zly2006.reden.rvc.nbt.DirectDiff
 import com.github.zly2006.reden.rvc.nbt.DummyDiff
 import com.github.zly2006.reden.rvc.nbt.NbtDiff
+import it.unimi.dsi.fastutil.longs.Long2ObjectRBTreeMap
+import kotlinx.serialization.Serializable
 import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.math.BlockPos
@@ -18,6 +20,7 @@ val diffProvider = DiffProvider { _, b ->
     DirectDiff(b)
 }
 
+@Serializable(with = DiffSerializer::class)
 class TrackedDiff(
     val parentIds: LongArray,
     /**
@@ -121,7 +124,13 @@ class TrackedDiff(
             val nbt: Map<Long, NbtCompound>
         )
 
-        suspend fun merge(storage: TrackedDiffStorage, parents: List<TrackedDiff>, message: String, author: Person, conflictHandler: suspend (BlockConflictInfo) -> BlockState): TrackedDiff {
+        suspend fun merge(
+            storage: TrackedDiffStorage,
+            parents: List<TrackedDiff>,
+            message: String,
+            author: Person,
+            conflictHandler: suspend (BlockConflictInfo) -> BlockState
+        ): TrackedDiff {
             val r = parents.map {
                 val origin = it.getOrigin(storage).toImmutable()
                 Pair(origin, origin.add(it.xSize, it.ySize, it.zSize))
@@ -135,10 +144,10 @@ class TrackedDiff(
             val changedBlockEntities = mutableMapOf<BlockPos, NbtDiff>()
             val removedBlocks = mutableSetOf<BlockPos>()
 
-            val ret = TrackedDiff(
+            return TrackedDiff(
                 author = author,
                 parentIds = parents.map { it.id }.toLongArray(),
-                originDiff = parents.map { newOrigin.subtract(it.getOrigin(storage)) }.toTypedArray(),
+                originDiff = parents.map { newOrigin.subtract(it.getOrigin(storage)) }.toTypedArray<BlockPos>(),
                 changedBlockEntities = changedBlockEntities,
                 changedBlocks = changedBlocks,
                 removedBlockPoses = removedBlocks,
@@ -148,8 +157,6 @@ class TrackedDiff(
                 message = message,
                 timestamp = System.currentTimeMillis()
             )
-
-            return ret
         }
         private fun max(first: BlockPos, second: BlockPos) = BlockPos(
             max(first.x, second.x),
@@ -161,6 +168,25 @@ class TrackedDiff(
             min(first.y, second.y),
             min(first.z, second.z)
         )
+        fun squash(storage: TrackedDiffStorage, firstId: Long, lastId: Long, author: Person): TrackedDiff {
+            val originDiffMap = Long2ObjectRBTreeMap<BlockPos>()
+            // map each diff id to the origin diff to last diff
+            val diffList = mutableListOf<TrackedDiff>()
+            var currentId = lastId
+            while (true) {
+                val diff = storage[currentId]
+                val shouldBreak = currentId == firstId
+                diffList.add(diff)
+                originDiffMap[currentId] = diff.originDiff[0]
+                currentId = diff.parentIds[0]
+                if (diff.parentIds.size != 1) {
+                    throw IllegalStateException("Diff $currentId has more than one parent")
+                }
+                if (shouldBreak) break
+            }
+
+            TODO()
+        }
     }
 
     private fun getBlockEntityData(storage: TrackedDiffStorage, pos: BlockPos): NbtCompound? {

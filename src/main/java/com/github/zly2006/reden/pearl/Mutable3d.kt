@@ -19,4 +19,15 @@ class Mutable3d(x: Double, y: Double, z: Double) : Vec3d(x, y, z) {
         this.z *= z
         return this
     }
+
+    fun set(x: Double, y: Double, z: Double): Mutable3d {
+        this.x = x
+        this.y = y
+        this.z = z
+        return this
+    }
+
+    fun set(vec3d: Vec3d): Mutable3d {
+        return set(vec3d.x, vec3d.y, vec3d.z)
+    }
 }

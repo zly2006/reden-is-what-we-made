@@ -10,6 +10,7 @@
     "common.MixinServer",
     "common.MixinServerPlayer",
     "common.MixinServerWorld",
+    "pearl.MixinExplosion",
     "tick.MixinTick",
     "tick.MixinWatchdog",
     "undo.MixinCommands",
