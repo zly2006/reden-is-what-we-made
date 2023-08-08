@@ -3,6 +3,7 @@ package com.github.zly2006.reden;
 import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.network.ChannelsKt;
+import com.github.zly2006.reden.pearl.PearlTask;
 import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,9 +11,9 @@ import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.config.ConfigUtils;
 import fi.dy.masa.malilib.config.IConfigHandler;
-import fi.dy.masa.malilib.config.options.ConfigHotkey;
 import fi.dy.masa.malilib.event.InitializationHandler;
 import fi.dy.masa.malilib.event.InputEventHandler;
+import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.malilib.hotkeys.IKeybindManager;
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.util.FileUtils;
@@ -36,6 +37,7 @@ public class Reden implements ModInitializer {
     @Override
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTING.register(UtilsKt::setServer);
+        PearlTask.Companion.register();
         InitializationHandler.getInstance().registerInitializationHandler(() -> {
             ConfigManager.getInstance().registerConfigHandler("reden", new IConfigHandler() {
                 @Override
@@ -67,7 +69,7 @@ public class Reden implements ModInitializer {
                 @Override
                 public void addKeysToMap(IKeybindManager iKeybindManager) {
                     MalilibSettingsKt.HOTKEYS.stream()
-                            .map(ConfigHotkey::getKeybind)
+                            .map(IHotkey::getKeybind)
                             .forEach(iKeybindManager::addKeybindToMap);
                 }
 

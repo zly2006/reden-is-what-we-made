@@ -10,6 +10,9 @@
     "common.MixinServer",
     "common.MixinServerPlayer",
     "common.MixinServerWorld",
+    "fix.forceSyncEntityPos.MixinClientNetwork",
+    "fix.forceSyncEntityPos.MixinTracker",
+    "log.MixinClientCoon",
     "pearl.MixinExplosion",
     "tick.MixinTick",
     "tick.MixinWatchdog",
@@ -23,6 +26,7 @@
     "chat.ChatScreenMixin",
     "chat.VisibleChatHudLineMixin",
     "fix.NoTimeOut",
+    "fix.forceSyncEntityPos.MixinWorldRenderer",
     "render.MixinBlockModelRenderer",
     "render.MixinChunkRebuildTask",
     "render.MixinWorldRenderer"

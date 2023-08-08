@@ -33,8 +33,7 @@ public class MixinExplosion {
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     private void onExplode(CallbackInfo ci, Set set, int a, float q, int k, int l, int r, int s, int t, int u, List list, Vec3d vec3d, int v, Entity entity) {
-        boolean sent = false;
-        if (entity instanceof SnowballEntity snowball) {
+        if (entity instanceof SnowballEntity snowball && !TntSyncPacket.Companion.getSyncedTntPos().contains(vec3d)) {
             if (snowball.getOwner() instanceof ServerPlayerEntity player) {
                 ServerPlayNetworking.send(player, new TntSyncPacket(
                         snowball.getUuid(),
@@ -43,11 +42,8 @@ public class MixinExplosion {
                         this.power,
                         vec3d
                 ));
-                sent = true;
+                TntSyncPacket.Companion.getSyncedTntPos().add(vec3d);
             }
-        }
-        if (sent) {
-            TntSyncPacket.Companion.getSyncedTntPos().add(vec3d);
         }
     }
 }

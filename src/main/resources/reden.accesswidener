@@ -22,3 +22,6 @@ accessible method net/minecraft/client/gui/widget/ButtonWidget <init> (IIIILnet/
 mutable field net/minecraft/util/math/Vec3d x D
 mutable field net/minecraft/util/math/Vec3d y D
 mutable field net/minecraft/util/math/Vec3d z D
+accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientX D
+accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientY D
+accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientZ D

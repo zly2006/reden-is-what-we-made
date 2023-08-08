@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.pearl
 
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
+import com.github.zly2006.reden.malilib.HOTKEYS
 import com.github.zly2006.reden.network.TntSyncPacket
 import com.github.zly2006.reden.utils.sendMessage
 import fi.dy.masa.malilib.config.options.ConfigHotkey
@@ -35,9 +36,14 @@ class PearlTask {
     companion object {
         val masaHotkeyConfig = ConfigHotkey("pearlHotkey", "P,R", "")
         fun register() {
-            masaHotkeyConfig.keybind.setCallback { action, iKeybind ->
-                false
+            masaHotkeyConfig.keybind.setCallback { _, _ ->
+                val mc = MinecraftClient.getInstance()
+                mc.execute {
+                    mc.setScreen(PearlScreen())
+                }
+                true
             }
+            HOTKEYS.add(masaHotkeyConfig)
         }
         init {
             ServerTickEvents.START_SERVER_TICK.register { pearlTask?.tickStart() }
@@ -56,8 +62,8 @@ class PearlTask {
                 MinecraftClient.getInstance().player?.sendMessage("PearlTask: refresh pearl pos")
             }
         }
-        else if (DEBUG_LOGGER.booleanValue && pearlEntity.motion != packet.projectileMotion) {
-            MinecraftClient.getInstance().player?.sendMessage("PearlTask: pearl motion changed")
+        else if (DEBUG_LOGGER.booleanValue && pearlEntity.motion != packet.projectileMotion && !pearlPosSaved) {
+            MinecraftClient.getInstance().player?.sendMessage("PearlTask: pearl motion changed, and it is not caused by previous explosion.")
         }
         if (packet.tntPos.distanceTo(packet.projectilePos) < 1.5) {
             // north-east = 0, north-west = 1, south-east = 2, south-west = 3
@@ -78,6 +84,10 @@ class PearlTask {
                     }
                 }
             }
+        }
+        if (flags == 31) {
+            mode = Mode.CALCULATING
+            MinecraftClient.getInstance().player?.sendMessage("PearlTask: start calculating")
         }
     }
 

@@ -3,18 +3,16 @@
 package com.github.zly2006.reden.malilib
 
 import fi.dy.masa.malilib.config.IConfigBase
-import fi.dy.masa.malilib.config.options.ConfigBase
-import fi.dy.masa.malilib.config.options.ConfigBoolean
-import fi.dy.masa.malilib.config.options.ConfigHotkey
-import fi.dy.masa.malilib.config.options.ConfigInteger
+import fi.dy.masa.malilib.config.options.*
+import fi.dy.masa.malilib.hotkeys.IHotkey
 
-@JvmField val HOTKEYS = mutableListOf<ConfigHotkey>()
+@JvmField val HOTKEYS = mutableListOf<IHotkey>()
 @JvmField val GENERIC_TAB = mutableListOf<ConfigBase<*>>()
 @JvmField val RVC_TAB = mutableListOf<ConfigBase<*>>()
 @JvmField val MICRO_TICK_TAB = mutableListOf<ConfigBase<*>>()
 @JvmField val SUPER_RIGHT_TAB = mutableListOf<ConfigBase<*>>()
 @JvmField val DEBUG_TAB = mutableListOf<ConfigBase<*>>()
-private fun <T : ConfigHotkey> T.hotkey() = this.apply(HOTKEYS::add)
+private fun <T : IHotkey> T.hotkey() = this.apply(HOTKEYS::add)
 @Suppress("UNCHECKED_CAST")
 private fun <T : IConfigBase?> ConfigBase<T>.generic() = this.apply(GENERIC_TAB::add) as T
 @Suppress("UNCHECKED_CAST")
@@ -35,6 +33,7 @@ private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add
 @JvmField val TOGGLE_NC_BREAKPOINT = ConfigHotkey("toggleNcBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,Z", "Neighbor Changed Event").mt().hotkey()
 @JvmField val TOGGLE_PP_BREAKPOINT = ConfigHotkey("togglePpBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,X", "Post Placement Event").mt().hotkey()
 @JvmField val TOGGLE_CU_BREAKPOINT = ConfigHotkey("toggleCuBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,C", "Comparator Update Event").mt().hotkey()
+@JvmField val TOGGLE_FORCE_ENTITY_POS_SYNC = ConfigBooleanHotkeyed("toggleForceEntityPosSync", false, "LEFT_CONTROL,LEFT_SHIFT,V", "Force Entity Pos Sync").hotkey().mt()
 @JvmField val RVC_RECORD_MULTIPLAYER = ConfigBoolean("rvcRecordMultiplayer", true, "Enable RVC in multiplayer").rvc()
 @JvmField val RVC_FORCE_LOCALLY = ConfigBoolean("rvcForceLocally", false, "Force RVC to run locally even the remote server enabled RVC").rvc()
 @JvmField val CHAT_RIGHT_CLICK_MENU = ConfigBoolean("chatRightClickMenu", true, "Enable right click menu in chat").sr()
