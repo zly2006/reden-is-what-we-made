@@ -18,6 +18,8 @@
     "tick.MixinWatchdog",
     "undo.MixinCommands",
     "undo.MixinPlayerMode",
+    "undo.MixinSchedule",
+    "undo.MixinScheduledTick",
     "undo.MixinServerWorldChunk",
     "undo.MixinUpdater"
   ],

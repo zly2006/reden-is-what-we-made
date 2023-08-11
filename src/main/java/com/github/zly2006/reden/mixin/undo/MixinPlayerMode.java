@@ -3,6 +3,7 @@ package com.github.zly2006.reden.mixin.undo;
 import com.github.zly2006.reden.access.ChainedUpdaterView;
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
@@ -20,8 +21,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.HashMap;
-
 @Mixin(ServerPlayerInteractionManager.class)
 public class MixinPlayerMode {
     @Shadow
@@ -37,11 +36,7 @@ public class MixinPlayerMode {
             if (MalilibSettingsKt.debug()) {
                 player.sendMessage(Text.of("Start monitoring of CHAIN - Break block"), false);
             }
-            PlayerData playerView = PlayerData.Companion.data(player);
-            if (!playerView.isRecording()) {
-                playerView.setRecording(true);
-                playerView.getUndo().add(new HashMap<>());
-            }
+            UpdateMonitorHelper.playerStartRecord(player);
         }
     }
 
@@ -51,9 +46,7 @@ public class MixinPlayerMode {
             player.sendMessage(Text.of("Stop monitoring of CHAIN - Break block"), false);
         }
         PlayerData playerView = PlayerData.Companion.data(player);
-        if (playerView.isRecording()) {
-            playerView.stopRecording(world);
-        }
+        playerView.stopRecording(world);
     }
 
     @Inject(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
@@ -61,11 +54,7 @@ public class MixinPlayerMode {
         if (MalilibSettingsKt.debug()) {
             player.sendMessage(Text.of("Start monitoring of CHAIN - Interact block"), false);
         }
-        PlayerData playerView = PlayerData.Companion.data(player);
-        if (!playerView.isRecording()) {
-            playerView.setRecording(true);
-            playerView.getUndo().add(new HashMap<>());
-        }
+        UpdateMonitorHelper.playerStartRecord(player);
     }
 
     @Inject(method = "interactBlock", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
@@ -74,9 +63,7 @@ public class MixinPlayerMode {
             player.sendMessage(Text.of("Stop monitoring of CHAIN - Interact block"), false);
         }
         PlayerData playerView = PlayerData.Companion.data(player);
-        if (playerView.isRecording()) {
-            playerView.stopRecording(world);
-        }
+        playerView.stopRecording(world);
     }
 
     @Inject(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;useOnBlock(Lnet/minecraft/item/ItemUsageContext;)Lnet/minecraft/util/ActionResult;"))
@@ -84,11 +71,7 @@ public class MixinPlayerMode {
         if (MalilibSettingsKt.debug()) {
             player.sendMessage(Text.of("Start monitoring of CHAIN - Interact block with item"), false);
         }
-        PlayerData playerView = PlayerData.Companion.data(player);
-        if (!playerView.isRecording()) {
-            playerView.setRecording(true);
-            playerView.getUndo().add(new HashMap<>());
-        }
+        UpdateMonitorHelper.playerStartRecord(player);
     }
 
     @Inject(method = "interactBlock", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/item/ItemStack;useOnBlock(Lnet/minecraft/item/ItemUsageContext;)Lnet/minecraft/util/ActionResult;"))
@@ -97,9 +80,7 @@ public class MixinPlayerMode {
             player.sendMessage(Text.of("Stop monitoring of CHAIN - Interact block with item"), false);
         }
         PlayerData playerView = PlayerData.Companion.data(player);
-        if (playerView.isRecording()) {
-            playerView.stopRecording(world);
-        }
+        playerView.stopRecording(world);
     }
 
     @Inject(method = "interactItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;"))
@@ -107,11 +88,7 @@ public class MixinPlayerMode {
         if (MalilibSettingsKt.debug()) {
             player.sendMessage(Text.of("Start monitoring of CHAIN - Interact item"), false);
         }
-        PlayerData playerView = PlayerData.Companion.data(player);
-        if (!playerView.isRecording()) {
-            playerView.setRecording(true);
-            playerView.getUndo().add(new HashMap<>());
-        }
+        UpdateMonitorHelper.playerStartRecord(player);
     }
 
     @Inject(method = "interactItem", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;"))
@@ -120,8 +97,6 @@ public class MixinPlayerMode {
             player.sendMessage(Text.of("Stop monitoring of CHAIN - Interact item"), false);
         }
         PlayerData playerView = PlayerData.Companion.data(player);
-        if (playerView.isRecording()) {
-            playerView.stopRecording(world);
-        }
+        playerView.stopRecording(world);
     }
 }

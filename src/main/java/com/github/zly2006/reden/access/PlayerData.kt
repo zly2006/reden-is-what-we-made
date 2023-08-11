@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.access
 
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.server.network.ServerPlayerEntity
@@ -10,8 +11,8 @@ import net.minecraft.world.World
 class PlayerData(
     player: ServerPlayerEntity,
 ) {
-    val undo: MutableList<MutableMap<Long, Entry>> = mutableListOf()
-    val redo: MutableList<MutableMap<Long, Entry>> = mutableListOf()
+    val undo: MutableList<UndoRecord> = mutableListOf()
+    val redo: MutableList<UndoRecord> = mutableListOf()
     var isRecording: Boolean = false
     var pearlListening: Boolean = false
 
@@ -19,7 +20,8 @@ class PlayerData(
         isRecording = false
         redo.clear()
         if (undo.lastOrNull() != null) {
-            if (undo.last().isEmpty()) {
+            if (undo.last().data.isEmpty()) {
+                UpdateMonitorHelper.removeRecord(undo.last().id)
                 undo.removeLast()
             }
         }
@@ -47,4 +49,9 @@ class PlayerData(
             return (this as PlayerDataAccess).getRedenPlayerData()
         }
     }
+
+    class UndoRecord(
+        val id: Long,
+        val data: MutableMap<Long, Entry>
+    )
 }

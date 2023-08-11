@@ -38,8 +38,9 @@ class GuiConfigs: GuiConfigsBase(
         GENERIC("reden.widget.config.generic"),
         RVC("reden.widget.config.rvc"),
         MICRO_TICK("reden.widget.config.micro_tick"),
+        SUPER_RIGHT("reden.widget.config.super_right"),
         DEBUG("reden.widget.config.debug"),
-        SUPER_RIGHT("reden.widget.config.super_right");
+        ;
 
         val displayName: String
             get() = StringUtils.translate(translationKey)

@@ -2,8 +2,8 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
-import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
+import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.setBlockNoPP
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
@@ -33,14 +33,14 @@ class Rollback(
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, res ->
                 val view = player.data()
                 view.isRecording = false
-                fun operate(map: MutableMap<Long, PlayerData.Entry>): MutableMap<Long, PlayerData.Entry> {
-                    val ret = map.keys.associateWith {
+                fun operate(record: PlayerData.UndoRecord): PlayerData.UndoRecord {
+                    val ret = PlayerData.UndoRecord(record.id, record.data.keys.associateWith {
                         PlayerData.Entry.fromWorld(
                             player.world,
                             BlockPos.fromLong(it)
                         )
-                    }.toMutableMap()
-                    map.forEach { (pos, entry) ->
+                    }.toMutableMap())
+                    record.data.forEach { (pos, entry) ->
                         val state = NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState)
                         if (DEBUG_LOGGER.booleanValue) {
                             player.sendMessage("undo ${BlockPos.fromLong(pos)}, $state")

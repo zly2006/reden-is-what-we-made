@@ -13,8 +13,11 @@ import net.minecraft.world.World
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 
 object UpdateMonitorHelper {
-    val listeners: MutableMap<World.(ChainRestrictedNeighborUpdater.Entry) -> Unit, LifeTime> = mutableMapOf()
-    val chainFinishListeners = mutableMapOf<World.() -> Unit, LifeTime>()
+    private val listeners: MutableMap<World.(ChainRestrictedNeighborUpdater.Entry) -> Unit, LifeTime> = mutableMapOf()
+    private val chainFinishListeners = mutableMapOf<World.() -> Unit, LifeTime>()
+    private var recordId = 0L
+    val undoRecordsMap: MutableMap<Long, MutableMap<Long, PlayerData.Entry>> = HashMap()
+    var recording: PlayerData.UndoRecord? = null
     enum class LifeTime {
         PERMANENT,
         TICK,
@@ -68,9 +71,36 @@ object UpdateMonitorHelper {
             if (DEBUG_LOGGER.booleanValue) {
                 MinecraftClient.getInstance().player?.sendMessage(Text.literal("set$pos, ${world.getBlockState(pos)} -> $blockState"))
             }
-            monitoringPlayerCache!!.data().undo.lastOrNull()?.computeIfAbsent(pos.asLong()) {
+            monitoringPlayerCache!!.data().undo.lastOrNull()?.data?.computeIfAbsent(pos.asLong()) {
                 PlayerData.Entry.fromWorld(world, pos)
             }
+        }
+    }
+
+    /**
+     * 此函数有危险副作用
+     *
+     * 使用此函数将**立刻**产生缓存的副作用
+     *
+     * 此缓存可能在没有确认的情况下不经检查直接调用
+     */
+    private fun addRecord(): PlayerData.UndoRecord {
+        undoRecordsMap[recordId] = hashMapOf()
+        recordId++
+        recording = PlayerData.UndoRecord(
+            recordId - 1,
+            undoRecordsMap[recordId - 1]!!
+        )
+        return recording!!
+    }
+
+    fun removeRecord(id: Long) = undoRecordsMap.remove(id)
+    @JvmStatic
+    fun playerStartRecord(player: ServerPlayerEntity) {
+        val playerView = player.data()
+        if (!playerView.isRecording) {
+            playerView.isRecording = true
+            playerView.undo.add(addRecord())
         }
     }
 
