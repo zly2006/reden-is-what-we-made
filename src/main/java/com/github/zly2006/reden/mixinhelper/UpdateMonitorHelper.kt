@@ -17,6 +17,12 @@ object UpdateMonitorHelper {
     private val chainFinishListeners = mutableMapOf<World.() -> Unit, LifeTime>()
     private var recordId = 20060210L
     val undoRecordsMap: MutableMap<Long, PlayerData.UndoRecord> = HashMap()
+
+    /**
+     * 非常非常危险的变量，如果没有十足把握请不要直接操作
+     *
+     * 这会带来不经检查的访问
+     */
     var recording: PlayerData.UndoRecord? = null
     enum class LifeTime {
         PERMANENT,
@@ -61,17 +67,13 @@ object UpdateMonitorHelper {
         }
     }
 
-    private var monitoringPlayerCache: ServerPlayerEntity? = null
     @JvmStatic
     fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
-        if (monitoringPlayerCache?.data()?.isRecording != true) {
-            monitoringPlayerCache = world.server.playerManager.playerList.firstOrNull { it.data().isRecording }
-        }
         if (isPlayerRecording()) {
             if (DEBUG_LOGGER.booleanValue) {
                 MinecraftClient.getInstance().player?.sendMessage(Text.literal("set$pos, ${world.getBlockState(pos)} -> $blockState"))
             }
-            monitoringPlayerCache!!.data().undo.lastOrNull()?.data?.computeIfAbsent(pos.asLong()) {
+            recording?.data?.computeIfAbsent(pos.asLong()) {
                 PlayerData.Entry.fromWorld(world, pos)
             }
         }
@@ -121,6 +123,6 @@ object UpdateMonitorHelper {
 
     @JvmStatic
     fun isPlayerRecording(): Boolean {
-        return monitoringPlayerCache?.data()?.isRecording == true
+        return recording != null
     }
 }

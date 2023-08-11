@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinClientCoon {
     @Inject(method = "handlePacket", at = @At("HEAD"))
     private static <T extends PacketListener> void onPacket(Packet<T> packet, PacketListener listener, CallbackInfo ci) {
-        if (MalilibSettingsKt.debug()) {
+        if (MalilibSettingsKt.DEBUG_PACKET_LOGGER.getBooleanValue()) {
             System.out.println("Client received packet: " + packet.getClass().getName());
         }
     }
