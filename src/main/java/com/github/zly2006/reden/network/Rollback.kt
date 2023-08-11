@@ -3,6 +3,7 @@ package com.github.zly2006.reden.network
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.setBlockNoPP
@@ -32,7 +33,7 @@ class Rollback(
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, res ->
                 val view = player.data()
-                view.isRecording = false
+                UpdateMonitorHelper.playerStopRecording(player)
                 fun operate(record: PlayerData.UndoRecord): PlayerData.UndoRecord {
                     val ret = PlayerData.UndoRecord(record.id, record.data.keys.associateWith {
                         PlayerData.Entry.fromWorld(

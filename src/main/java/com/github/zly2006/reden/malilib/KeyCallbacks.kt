@@ -44,7 +44,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
             BlockBorder.tags.clear()
             val view = mc.server!!.playerManager.playerList[0].data()
-            view.undo.lastOrNull()?.keys?.forEach {
+            view.undo.lastOrNull()?.data?.keys?.forEach {
                 BlockBorder.tags[it] = 1
             }
             return@setCallback true

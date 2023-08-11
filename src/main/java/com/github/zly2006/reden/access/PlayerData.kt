@@ -9,7 +9,7 @@ import net.minecraft.world.World
 
 
 class PlayerData(
-    player: ServerPlayerEntity,
+    val player: ServerPlayerEntity,
 ) {
     val undo: MutableList<UndoRecord> = mutableListOf()
     val redo: MutableList<UndoRecord> = mutableListOf()
@@ -17,14 +17,7 @@ class PlayerData(
     var pearlListening: Boolean = false
 
     fun stopRecording(world: World) {
-        isRecording = false
-        redo.clear()
-        if (undo.lastOrNull() != null) {
-            if (undo.last().data.isEmpty()) {
-                UpdateMonitorHelper.removeRecord(undo.last().id)
-                undo.removeLast()
-            }
-        }
+        UpdateMonitorHelper.playerStopRecording(player)
     }
 
     data class Entry(

@@ -15,8 +15,8 @@ import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 object UpdateMonitorHelper {
     private val listeners: MutableMap<World.(ChainRestrictedNeighborUpdater.Entry) -> Unit, LifeTime> = mutableMapOf()
     private val chainFinishListeners = mutableMapOf<World.() -> Unit, LifeTime>()
-    private var recordId = 0L
-    val undoRecordsMap: MutableMap<Long, MutableMap<Long, PlayerData.Entry>> = HashMap()
+    private var recordId = 20060210L
+    val undoRecordsMap: MutableMap<Long, PlayerData.UndoRecord> = HashMap()
     var recording: PlayerData.UndoRecord? = null
     enum class LifeTime {
         PERMANENT,
@@ -85,22 +85,37 @@ object UpdateMonitorHelper {
      * 此缓存可能在没有确认的情况下不经检查直接调用
      */
     private fun addRecord(): PlayerData.UndoRecord {
-        undoRecordsMap[recordId] = hashMapOf()
-        recordId++
         recording = PlayerData.UndoRecord(
-            recordId - 1,
-            undoRecordsMap[recordId - 1]!!
+            recordId,
+            hashMapOf()
         )
+        undoRecordsMap[recordId] = recording!!
+        recordId++
         return recording!!
     }
 
-    fun removeRecord(id: Long) = undoRecordsMap.remove(id)
+    private fun removeRecord(id: Long) = undoRecordsMap.remove(id)
     @JvmStatic
     fun playerStartRecord(player: ServerPlayerEntity) {
         val playerView = player.data()
         if (!playerView.isRecording) {
             playerView.isRecording = true
             playerView.undo.add(addRecord())
+        }
+    }
+
+    fun playerStopRecording(player: ServerPlayerEntity) {
+        val playerView = player.data()
+        if (playerView.isRecording) {
+            playerView.isRecording = false
+            recording = null
+            playerView.redo.clear()
+            if (playerView.undo.lastOrNull() != null) {
+                if (playerView.undo.last().data.isEmpty()) {
+                    removeRecord(playerView.undo.last().id)
+                    playerView.undo.removeLast()
+                }
+            }
         }
     }
 

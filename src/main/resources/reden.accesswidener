@@ -25,3 +25,4 @@ mutable field net/minecraft/util/math/Vec3d z D
 accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientX D
 accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientY D
 accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientZ D
+extendable class net/minecraft/world/tick/OrderedTick
