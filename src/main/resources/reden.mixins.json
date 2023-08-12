@@ -16,10 +16,12 @@
     "pearl.MixinExplosion",
     "tick.MixinTick",
     "tick.MixinWatchdog",
+    "undo.MixinBlockEvent",
     "undo.MixinCommands",
     "undo.MixinPlayerMode",
     "undo.MixinSchedule",
     "undo.MixinScheduledTick",
+    "undo.MixinServerWorld",
     "undo.MixinServerWorldChunk",
     "undo.MixinUpdater"
   ],

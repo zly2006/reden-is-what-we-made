@@ -96,7 +96,7 @@ object UpdateMonitorHelper {
         return recording!!
     }
 
-    private fun removeRecord(id: Long) = undoRecordsMap.remove(id)
+    internal fun removeRecord(id: Long) = undoRecordsMap.remove(id)
     @JvmStatic
     fun playerStartRecord(player: ServerPlayerEntity) {
         val playerView = player.data()
@@ -111,7 +111,7 @@ object UpdateMonitorHelper {
         if (playerView.isRecording) {
             playerView.isRecording = false
             recording = null
-            playerView.redo.clear()
+            playerView.redo.onEach { removeRecord(it.id) }.clear()
             if (playerView.undo.lastOrNull() != null) {
                 if (playerView.undo.last().data.isEmpty()) {
                     removeRecord(playerView.undo.last().id)

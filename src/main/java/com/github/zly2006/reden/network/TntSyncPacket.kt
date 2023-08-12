@@ -51,7 +51,7 @@ class TntSyncPacket(
                 syncedTntPos.clear()
             }
             if (isClient) {
-                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, client, sender ->
+                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, client, _ ->
                     pearlTask?.onTntSyncPacket(packet)
                     if (DEBUG_LOGGER.booleanValue) {
                         client.sendMessage("TntSyncPacket: TNT${packet.tntPower} @ ${packet.tntPos}")

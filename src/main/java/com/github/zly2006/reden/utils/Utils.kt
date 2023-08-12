@@ -13,6 +13,9 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
+import kotlin.io.path.exists
+import kotlin.io.path.readBytes
+import kotlin.io.path.toPath
 
 lateinit var server: MinecraftServer
 
@@ -53,6 +56,14 @@ object ResourceLoader {
             return stream.readAllBytes()
         }
         else {
+            val e = this::class.java.classLoader.resources(".").map {
+                it.toURI().resolve(path)
+            }.filter {
+                it.toPath().exists()
+            }.findFirst().map {
+                it.toPath().readBytes()
+            }
+            if (e.isPresent) return e.get()
             throw RuntimeException("The specified resource $path was not found!")
         }
     }

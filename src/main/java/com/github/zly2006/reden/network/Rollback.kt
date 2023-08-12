@@ -35,6 +35,7 @@ class Rollback(
                 val view = player.data()
                 UpdateMonitorHelper.playerStopRecording(player)
                 fun operate(record: PlayerData.UndoRecord): PlayerData.UndoRecord {
+                    UpdateMonitorHelper.removeRecord(record.id) // no longer monitoring rollbacked record
                     val ret = PlayerData.UndoRecord(record.id, record.data.keys.associateWith {
                         PlayerData.Entry.fromWorld(
                             player.world,

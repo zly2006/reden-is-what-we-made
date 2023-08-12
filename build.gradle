@@ -31,6 +31,8 @@ dependencies {
     modImplementation "curse.maven:carpet-349239:4573334"
     // Game test
     testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+    include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
+    include(implementation("org.bouncycastle:bcpg-jdk18on:1.76"))
 }
 
 test {
