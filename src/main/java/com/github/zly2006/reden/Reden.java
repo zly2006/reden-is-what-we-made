@@ -4,6 +4,7 @@ import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.network.ChannelsKt;
 import com.github.zly2006.reden.pearl.PearlTask;
+import com.github.zly2006.reden.report.ReportKt;
 import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -36,6 +37,12 @@ public class Reden implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        if (!ReportKt.checkSignature()) {
+            throw new RuntimeException("Reden mod is broken, please re-download it.");
+        }
+        if (!ReportKt.checkSignature()) {
+            System.exit(1);
+        }
         ServerLifecycleEvents.SERVER_STARTING.register(UtilsKt::setServer);
         PearlTask.Companion.register();
         InitializationHandler.getInstance().registerInitializationHandler(() -> {
