@@ -18,11 +18,13 @@
     "tick.MixinWatchdog",
     "undo.MixinBlockEvent",
     "undo.MixinCommands",
+    "undo.MixinExplosion",
     "undo.MixinPlayerMode",
     "undo.MixinSchedule",
     "undo.MixinScheduledTick",
     "undo.MixinServerWorld",
     "undo.MixinServerWorldChunk",
+    "undo.MixinTntEntity",
     "undo.MixinUpdater"
   ],
   "client": [

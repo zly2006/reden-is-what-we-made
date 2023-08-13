@@ -30,10 +30,11 @@ public class MixinSchedule {
     )
     private <T> void onRunSchedule(BiConsumer<BlockPos, T> ticker, CallbackInfo ci, OrderedTick orderedTick) {
         long undoId = ((ScheduledTickAccess) orderedTick).getUndoId();
-        if (MalilibSettingsKt.DEBUG_LOGGER.getBooleanValue()) {
+        PlayerData.UndoRecord record = UpdateMonitorHelper.INSTANCE.getUndoRecordsMap().get(undoId);
+        if (MalilibSettingsKt.DEBUG_LOGGER.getBooleanValue() && record != null) {
             MinecraftClient.getInstance().player.sendMessage(Text.of("Scheduled tick at " + orderedTick.pos() + ", adding it into record " + undoId));
         }
-        UpdateMonitorHelper.INSTANCE.setRecording(UpdateMonitorHelper.INSTANCE.getUndoRecordsMap().get(undoId));
+        UpdateMonitorHelper.INSTANCE.setRecording(record);
     }
     @Inject(
             method = "tick(Ljava/util/function/BiConsumer;)V",

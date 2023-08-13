@@ -27,3 +27,5 @@ accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientY D
 accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientZ D
 extendable class net/minecraft/world/tick/OrderedTick
 extendable class net/minecraft/server/world/BlockEvent
+accessible method net/minecraft/world/World getDestructionType (Lnet/minecraft/world/GameRules$Key;)Lnet/minecraft/world/explosion/Explosion$DestructionType;
+accessible field net/minecraft/world/chunk/Chunk heightmaps Ljava/util/Map;

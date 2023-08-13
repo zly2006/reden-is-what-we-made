@@ -13,6 +13,7 @@ class PlayerData(
 ) {
     val undo: MutableList<UndoRecord> = mutableListOf()
     val redo: MutableList<UndoRecord> = mutableListOf()
+    var undoUsedBytes: Int = 0
     var isRecording: Boolean = false
     var pearlListening: Boolean = false
 
@@ -46,5 +47,9 @@ class PlayerData(
     class UndoRecord(
         val id: Long,
         val data: MutableMap<Long, Entry>
-    )
+    ) {
+        fun getMemorySize() = data.asSequence()
+            .map { it.value.blockState.sizeInBytes + (it.value.blockEntity?.sizeInBytes ?: 0) }
+            .sum()
+    }
 }

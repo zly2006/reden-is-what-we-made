@@ -1,5 +1,6 @@
 package com.github.zly2006.reden;
 
+import carpet.CarpetExtension;
 import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.network.ChannelsKt;
@@ -28,7 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public class Reden implements ModInitializer {
+public class Reden implements ModInitializer, CarpetExtension {
     public static final String MOD_ID = "reden";
     public static final String MOD_NAME = "Reden";
     public static final String CONFIG_FILE = "reden.json";

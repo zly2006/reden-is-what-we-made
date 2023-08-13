@@ -58,13 +58,26 @@ class Rollback(
                     }
                     return ret
                 }
+                fun MutableList<PlayerData.UndoRecord>.lastValid(): PlayerData.UndoRecord? {
+                    while (this.isNotEmpty()) {
+                        val last = this.last()
+                        if (last.data.isNotEmpty()) {
+                            return last
+                        }
+                        UpdateMonitorHelper.removeRecord(last.id)
+                        this.removeLast()
+                    }
+                    return null
+                }
                 res.sendPacket(Rollback(when (packet.status) {
-                    0 -> view.undo.removeLastOrNull()?.let {
+                    0 -> view.undo.lastValid()?.let {
+                        view.undo.removeLast()
                         view.redo.add(operate(it))
                         0
                     } ?: 2
 
-                    1 -> view.redo.removeLastOrNull()?.let {
+                    1 -> view.redo.lastValid()?.let {
+                        view.redo.removeLast()
                         view.undo.add(operate(it))
                         1
                     } ?: 2
@@ -76,13 +89,13 @@ class Rollback(
                 ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, res ->
                     player.sendMessage(
                         when (packet.status) {
-                            0 -> Text.literal("Rollback success")
-                            1 -> Text.literal("Restore success")
-                            2 -> Text.literal("No blocks info")
-                            16 -> Text.literal("No permission")
-                            32 -> Text.literal("Not recording")
-                            65536 -> Text.literal("Unknown error")
-                            else -> Text.literal("Unknown status")
+                            0 -> Text.literal("[Reden/Undo] Rollback success")
+                            1 -> Text.literal("[Reden/Undo] Restore success")
+                            2 -> Text.literal("[Reden/Undo] No blocks info")
+                            16 -> Text.literal("[Reden/Undo] No permission")
+                            32 -> Text.literal("[Reden/Undo] Not recording")
+                            65536 -> Text.literal("[Reden/Undo] Unknown error")
+                            else -> Text.literal("[Reden/Undo] Unknown status")
                         }
                     )
                 }

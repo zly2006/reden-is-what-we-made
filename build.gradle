@@ -33,6 +33,7 @@ dependencies {
     testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
     include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
     include(implementation("org.bouncycastle:bcpg-jdk18on:1.76"))
+    modImplementation "curse.maven:litematica-308892:4626718"
 }
 
 test {

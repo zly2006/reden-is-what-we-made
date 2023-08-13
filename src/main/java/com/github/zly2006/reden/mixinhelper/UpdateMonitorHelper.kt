@@ -2,7 +2,9 @@ package com.github.zly2006.reden.mixinhelper
 
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
+import com.github.zly2006.reden.carpet.CarpetSettings
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.server.network.ServerPlayerEntity
@@ -69,7 +71,7 @@ object UpdateMonitorHelper {
 
     @JvmStatic
     fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
-        if (isPlayerRecording()) {
+        if (recording != null) {
             if (DEBUG_LOGGER.booleanValue) {
                 MinecraftClient.getInstance().player?.sendMessage(Text.literal("set$pos, ${world.getBlockState(pos)} -> $blockState"))
             }
@@ -111,18 +113,28 @@ object UpdateMonitorHelper {
         if (playerView.isRecording) {
             playerView.isRecording = false
             recording = null
-            playerView.redo.onEach { removeRecord(it.id) }.clear()
-            if (playerView.undo.lastOrNull() != null) {
-                if (playerView.undo.last().data.isEmpty()) {
-                    removeRecord(playerView.undo.last().id)
-                    playerView.undo.removeLast()
+            playerView.redo
+                .onEach { removeRecord(it.id) }
+                .clear()
+            var sum = playerView.undo.map(PlayerData.UndoRecord::getMemorySize).sum()
+            if (DEBUG_LOGGER.booleanValue) {
+                MinecraftClient.getInstance().player?.sendMessage(Text.literal("Undo size: $sum"))
+            }
+            while (sum > CarpetSettings.allowedUndoSizeInBytes) {
+                removeRecord(playerView.undo.first().id)
+                playerView.undo.removeFirst()
+                if (DEBUG_LOGGER.booleanValue) {
+                    MinecraftClient.getInstance().player?.sendMessage(Text.literal("Undo size: $sum, removing."))
                 }
+                sum = playerView.undo.map(PlayerData.UndoRecord::getMemorySize).sum()
             }
         }
     }
 
-    @JvmStatic
-    fun isPlayerRecording(): Boolean {
-        return recording != null
+    private fun playerQuit(player: ServerPlayerEntity) =
+        player.data().undo.forEach { removeRecord(it.id) }
+
+    init {
+        ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> playerQuit(handler.player) }
     }
 }

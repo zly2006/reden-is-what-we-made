@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.utils
 
+import com.github.zly2006.reden.Reden
 import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.block.Block
@@ -12,6 +13,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
+import net.minecraft.world.Heightmap
 import net.minecraft.world.World
 import kotlin.io.path.exists
 import kotlin.io.path.readBytes
@@ -36,9 +38,18 @@ fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int) {
     if (isClient) {
 
     }
+    val stateBefore = getBlockState(pos)
+    if (stateBefore.hasBlockEntity()) {
+        removeBlockEntity(pos)
+    }
+    getChunk(pos).run { getSection(getSectionIndex(pos.y)) }
+        .setBlockState(pos.x and 15, pos.y and 15, pos.z and 15, state, false)
     getChunk(pos).run {
-        getSection(getSectionIndex(pos.y))
-    }.setBlockState(pos.x and 15, pos.y and 15, pos.z and 15, state, false)
+        this.heightmaps[Heightmap.Type.MOTION_BLOCKING]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
+        this.heightmaps[Heightmap.Type.MOTION_BLOCKING_NO_LEAVES]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
+        this.heightmaps[Heightmap.Type.OCEAN_FLOOR]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
+        this.heightmaps[Heightmap.Type.WORLD_SURFACE]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
+    }
     if (this is ServerWorld) {
         chunkManager.markForUpdate(pos)
     }
@@ -51,12 +62,13 @@ val isClient: Boolean get() = FabricLoader.getInstance().environmentType == EnvT
 
 object ResourceLoader {
     fun loadBytes(path: String): ByteArray {
-        val stream = this::class.java.getResourceAsStream(path)
+        val stream = Reden::class.java.getResourceAsStream(path)
         if (stream != null) {
             return stream.readAllBytes()
         }
         else {
-            val e = this::class.java.classLoader.resources(".").map {
+            println("Not Found")
+            val e = Reden::class.java.classLoader.resources(".").map {
                 it.toURI().resolve(path)
             }.filter {
                 it.toPath().exists()

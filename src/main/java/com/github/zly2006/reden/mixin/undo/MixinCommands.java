@@ -15,7 +15,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(CommandManager.class)
 public class MixinCommands {
-    @Inject(method = "execute", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/command/ServerCommandSource;getServer()Lnet/minecraft/server/MinecraftServer;"))
+    @Inject(
+            method = "execute",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lcom/mojang/brigadier/CommandDispatcher;execute(Lcom/mojang/brigadier/ParseResults;)I",
+                    shift = At.Shift.BEFORE,
+                    remap = false
+            )
+    )
     private void onExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfoReturnable<Integer> cir) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {
             if (MalilibSettingsKt.debug()) {
@@ -25,7 +33,15 @@ public class MixinCommands {
         }
     }
 
-    @Inject(method = "execute", at = @At("RETURN"))
+    @Inject(
+            method = "execute",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lcom/mojang/brigadier/CommandDispatcher;execute(Lcom/mojang/brigadier/ParseResults;)I",
+                    shift = At.Shift.AFTER,
+                    remap = false
+            )
+    )
     private void afterExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfoReturnable<Integer> cir) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {
             if (MalilibSettingsKt.debug()) {
