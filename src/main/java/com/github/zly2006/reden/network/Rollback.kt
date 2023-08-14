@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.block.Block
+import net.minecraft.entity.SpawnReason
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
@@ -54,6 +55,10 @@ class Rollback(
                         )
                         entry.blockEntity?.let { be ->
                             player.world.getBlockEntity(BlockPos.fromLong(pos))?.readNbt(be)
+                        }
+                        entry.entities.forEach {
+                            val entity = player.serverWorld.getEntity(it.key)?.readNbt(it.value.nbt)
+                                ?: it.value.entity.spawn(player.serverWorld, it.value.nbt, null, it.value.pos, SpawnReason.COMMAND, false, false)
                         }
                     }
                     return ret

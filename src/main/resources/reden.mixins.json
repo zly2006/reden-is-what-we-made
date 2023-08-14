@@ -18,6 +18,7 @@
     "tick.MixinWatchdog",
     "undo.MixinBlockEvent",
     "undo.MixinCommands",
+    "undo.MixinEntity",
     "undo.MixinExplosion",
     "undo.MixinPlayerMode",
     "undo.MixinSchedule",

@@ -4,9 +4,11 @@ import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.carpet.CarpetSettings
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
+import net.minecraft.entity.Entity
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
@@ -19,6 +21,12 @@ object UpdateMonitorHelper {
     private val chainFinishListeners = mutableMapOf<World.() -> Unit, LifeTime>()
     private var recordId = 20060210L
     val undoRecordsMap: MutableMap<Long, PlayerData.UndoRecord> = HashMap()
+    data class Changed(
+        val record: PlayerData.UndoRecord,
+        val pos: BlockPos
+    )
+    var lastTickChanged: MutableSet<Changed> = hashSetOf(); private set
+    var thisTickChanged: MutableSet<Changed> = hashSetOf(); private set
 
     /**
      * 非常非常危险的变量，如果没有十足把握请不要直接操作
@@ -134,7 +142,17 @@ object UpdateMonitorHelper {
     private fun playerQuit(player: ServerPlayerEntity) =
         player.data().undo.forEach { removeRecord(it.id) }
 
+    @JvmStatic
+    fun tryAddRelatedEntity(entity: Entity) {
+        if (entity.noClip) return
+        if (entity is ServerPlayerEntity) return
+    }
+
     init {
         ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> playerQuit(handler.player) }
+        ServerTickEvents.START_SERVER_TICK.register {
+            lastTickChanged = thisTickChanged
+            thisTickChanged = hashSetOf()
+        }
     }
 }

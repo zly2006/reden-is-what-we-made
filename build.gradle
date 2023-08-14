@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 plugins {
     id 'fabric-loom' version '1.2-SNAPSHOT'
     id 'maven-publish'
@@ -5,7 +7,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.8.10'
 }
 
-version = project.mod_version
+version = project.mod_version + "+" + new SimpleDateFormat("MMddhhmm").format(new Date())
 group = project.maven_group
 
 repositories {
@@ -33,7 +35,7 @@ dependencies {
     testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
     include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
     include(implementation("org.bouncycastle:bcpg-jdk18on:1.76"))
-    modImplementation "curse.maven:litematica-308892:4626718"
+    modRuntimeOnly "curse.maven:litematica-308892:4626718"
 }
 
 test {
