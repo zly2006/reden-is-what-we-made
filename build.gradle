@@ -8,7 +8,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
 }
 
-version = project.mod_version + "+" + new SimpleDateFormat("MMddhhmm").format(new Date())
+version = project.mod_version + "+" + new SimpleDateFormat("MMddHHmm").format(new Date())
 group = project.maven_group
 
 repositories {

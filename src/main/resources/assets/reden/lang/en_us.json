@@ -6,5 +6,5 @@
   "reden.widget.config.super_right": "Super Right",
   "reden.widget.config.title": "Reden Config",
   "carpet.rule.stackOverflowUpdates.desc": "TODO",
-  "carpet.rule.allowedUndoSizeInBytes.desc": "Memory size a player can use for undo. Default is 5MB, 0 to disable, 1 for infinite."
+  "carpet.rule.allowedUndoSizeInBytes.desc": "Memory size a player can use for undo. Default is 5MB, 0 to disable, -1 for infinite."
 }
