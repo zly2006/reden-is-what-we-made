@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
-import com.github.zly2006.reden.access.ScheduledTickAccess;
+import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.server.world.BlockEvent;
@@ -23,7 +23,7 @@ public class MixinServerWorld {
             )
     )
     private boolean onAddBlockEvent(ObjectLinkedOpenHashSet<BlockEvent> instance, Object curr) {
-        if (curr instanceof ScheduledTickAccess access) {
+        if (curr instanceof UndoableAccess access) {
             PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
             if (recording != null) {
                 access.setUndoId(recording.getId());
@@ -41,7 +41,7 @@ public class MixinServerWorld {
     )
     private void beforeProcessBlockEvent(BlockEvent event, CallbackInfoReturnable<Boolean> cir) {
         UpdateMonitorHelper.INSTANCE.setRecording(
-                UpdateMonitorHelper.INSTANCE.getUndoRecordsMap().get(((ScheduledTickAccess) event).getUndoId())
+                UpdateMonitorHelper.INSTANCE.getUndoRecordsMap().get(((UndoableAccess) event).getUndoId())
         );
     }
     @Inject(

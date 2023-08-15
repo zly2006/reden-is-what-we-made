@@ -1,5 +1,5 @@
 package com.github.zly2006.reden.access
 
-interface ScheduledTickAccess {
+interface UndoableAccess {
     var undoId: Long;
 }

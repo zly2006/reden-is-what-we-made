@@ -1,13 +1,13 @@
 package com.github.zly2006.reden.mixin.undo;
 
-import com.github.zly2006.reden.access.ScheduledTickAccess;
+import com.github.zly2006.reden.access.UndoableAccess;
 import net.minecraft.world.tick.OrderedTick;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(OrderedTick.class)
-public class MixinScheduledTick implements ScheduledTickAccess {
+public class MixinScheduledTick implements UndoableAccess {
     @Unique
     long undoId;
 

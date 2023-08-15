@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
-import com.github.zly2006.reden.access.ScheduledTickAccess;
+import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import net.minecraft.client.MinecraftClient;
@@ -29,7 +29,7 @@ public class MixinSchedule {
             locals = LocalCapture.CAPTURE_FAILSOFT
     )
     private <T> void onRunSchedule(BiConsumer<BlockPos, T> ticker, CallbackInfo ci, OrderedTick orderedTick) {
-        long undoId = ((ScheduledTickAccess) orderedTick).getUndoId();
+        long undoId = ((UndoableAccess) orderedTick).getUndoId();
         PlayerData.UndoRecord record = UpdateMonitorHelper.INSTANCE.getUndoRecordsMap().get(undoId);
         if (MalilibSettingsKt.DEBUG_LOGGER.getBooleanValue() && record != null) {
             MinecraftClient.getInstance().player.sendMessage(Text.of("Scheduled tick at " + orderedTick.pos() + ", adding it into record " + undoId));
@@ -54,7 +54,7 @@ public class MixinSchedule {
             )
     )
     private <T> void onAddSchedule(OrderedTick<T> orderedTick, CallbackInfo ci) {
-        ScheduledTickAccess access = (ScheduledTickAccess) orderedTick;
+        UndoableAccess access = (UndoableAccess) orderedTick;
         PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
         if (recording != null) {
             // inherit parent id

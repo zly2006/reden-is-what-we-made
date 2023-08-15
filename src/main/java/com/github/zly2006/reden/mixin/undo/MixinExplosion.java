@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.mixin.undo;
 
-import com.github.zly2006.reden.access.ScheduledTickAccess;
+import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(Explosion.class)
-public class MixinExplosion implements ScheduledTickAccess {
+public class MixinExplosion implements UndoableAccess {
     @Unique
     long undoId;
 

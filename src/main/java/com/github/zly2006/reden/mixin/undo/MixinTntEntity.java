@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
-import com.github.zly2006.reden.access.ScheduledTickAccess;
+import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import net.minecraft.client.MinecraftClient;
@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(TntEntity.class)
-public abstract class MixinTntEntity extends Entity implements ScheduledTickAccess {
+public abstract class MixinTntEntity extends Entity implements UndoableAccess {
     @Unique
     long undoId;
 
@@ -60,7 +60,7 @@ public abstract class MixinTntEntity extends Entity implements ScheduledTickAcce
             if (MalilibSettingsKt.DEBUG_LOGGER.getBooleanValue()) {
                 MinecraftClient.getInstance().player.sendMessage(Text.literal("TNT exploded, adding it into record "+ undoId));
             }
-            ((ScheduledTickAccess) explosion).setUndoId(undoId);
+            ((UndoableAccess) explosion).setUndoId(undoId);
         }
         explosion.collectBlocksAndDamageEntities();
         explosion.affectWorld(true);

@@ -20,6 +20,8 @@
     "undo.MixinCommands",
     "undo.MixinEntity",
     "undo.MixinExplosion",
+    "undo.MixinMovingPiston",
+    "undo.MixinPistonEntity",
     "undo.MixinPlayerMode",
     "undo.MixinSchedule",
     "undo.MixinScheduledTick",
