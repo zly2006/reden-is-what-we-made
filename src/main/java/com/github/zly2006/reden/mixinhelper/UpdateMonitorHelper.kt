@@ -79,13 +79,11 @@ object UpdateMonitorHelper {
 
     @JvmStatic
     fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
-        if (recording != null) {
-            if (DEBUG_LOGGER.booleanValue) {
-                MinecraftClient.getInstance().player?.sendMessage(Text.literal("set$pos, ${world.getBlockState(pos)} -> $blockState"))
-            }
-            recording?.data?.computeIfAbsent(pos.asLong()) {
-                PlayerData.Entry.fromWorld(world, pos)
-            }
+        if (DEBUG_LOGGER.booleanValue) {
+            MinecraftClient.getInstance().player?.sendMessage(Text.literal("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState"))
+        }
+        recording?.data?.computeIfAbsent(pos.asLong()) {
+            PlayerData.Entry.fromWorld(world, pos)
         }
     }
 
