@@ -16,6 +16,11 @@ repositories {
     maven {
         url "https://cursemaven.com"
     }
+    repositories {
+        maven {
+            url = "https://api.modrinth.com/maven"
+        }
+    }
 }
 
 dependencies {
@@ -37,6 +42,7 @@ dependencies {
     include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
     include(implementation("org.bouncycastle:bcpg-jdk18on:1.76"))
     modRuntimeOnly "curse.maven:litematica-308892:4626718"
+    modRuntimeOnly "maven.modrinth:modmenu:7.2.1"
 }
 
 test {

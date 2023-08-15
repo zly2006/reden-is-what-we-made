@@ -1,14 +1,10 @@
 package com.github.zly2006.reden.mixin.render;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.block.BlockModelRenderer;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
@@ -39,14 +35,6 @@ public class MixinBlockModelRenderer {
             argsOnly = true
     )
     private VertexConsumer render$Head(VertexConsumer vertexConsumer) {
-        if (vertexConsumer instanceof BufferBuilder bb) {
-            var mc = MinecraftClient.getInstance();
-            var outline = RenderLayer.getOutline(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE);
-            var outlineSource = mc.getBufferBuilders().getOutlineVertexConsumers();
-            var newBuffer = outlineSource.getBuffer(outline);
-            if (bb.format.equals(RenderLayer.getSolid().getVertexFormat()))
-                return newBuffer;
-        }
         return vertexConsumer;
     }
 }
