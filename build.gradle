@@ -5,6 +5,7 @@ plugins {
     id 'maven-publish'
     id "org.ajoberstar.grgit" version "4.1.0"
     id 'org.jetbrains.kotlin.jvm' version '1.8.10'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
 }
 
 version = project.mod_version + "+" + new SimpleDateFormat("MMddhhmm").format(new Date())

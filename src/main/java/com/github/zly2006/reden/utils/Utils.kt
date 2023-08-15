@@ -1,6 +1,9 @@
 package com.github.zly2006.reden.utils
 
 import com.github.zly2006.reden.Reden
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
 import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.block.Block
@@ -15,9 +18,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.Heightmap
 import net.minecraft.world.World
-import kotlin.io.path.exists
-import kotlin.io.path.readBytes
-import kotlin.io.path.toPath
 
 lateinit var server: MinecraftServer
 
@@ -61,32 +61,31 @@ fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int) {
 val isClient: Boolean get() = FabricLoader.getInstance().environmentType == EnvType.CLIENT
 
 object ResourceLoader {
-    fun loadBytes(path: String): ByteArray {
-        val stream = Reden::class.java.getResourceAsStream(path)
+    fun loadBytes(path: String): ByteArray? {
+        val stream = Reden::class.java.classLoader.getResourceAsStream(path)
         if (stream != null) {
             return stream.readAllBytes()
         }
-        else {
-            println("Not Found")
-            val e = Reden::class.java.classLoader.resources(".").map {
-                it.toURI().resolve(path)
-            }.filter {
-                it.toPath().exists()
-            }.findFirst().map {
-                it.toPath().readBytes()
-            }
-            if (e.isPresent) return e.get()
-            throw RuntimeException("The specified resource $path was not found!")
-        }
+        else return null
     }
 
     fun loadString(path: String): String {
-        return loadBytes(path).decodeToString()
+        return loadBytes(path)!!.decodeToString()
+    }
+
+    fun loadStringOrNull(path: String): String? {
+        return loadBytes(path)?.decodeToString()
     }
 
     fun loadTexture(path: String): Identifier {
         return Identifier("reden", path)
     }
+
+    @JvmStatic
+    fun loadLang(lang: String) =
+        loadStringOrNull("assets/reden/lang/$lang.json")?.let {
+            Json.decodeFromString(MapSerializer(String.serializer(), String.serializer()), it)
+        }
 }
 
 fun buttonWidget(x: Int, y: Int, width: Int, height: Int, message: Text, onPress: ButtonWidget.PressAction) =

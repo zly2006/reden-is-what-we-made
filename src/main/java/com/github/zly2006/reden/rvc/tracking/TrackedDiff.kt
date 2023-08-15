@@ -56,10 +56,10 @@ class TrackedDiff(
 
     fun getOrigin(storage: TrackedDiffStorage): BlockPos =
         if (parentIds.isEmpty()) BlockPos.ORIGIN
-        else storage[parentIds[0]].getOrigin(storage).add(originDiff[0])
+        else storage[parentIds[0]]!!.getOrigin(storage).add(originDiff[0])
 
     fun getTrackingPoses(storage: TrackedDiffStorage): Set<BlockPos> =
-        parentIds.map(storage::get).map { it.getTrackingPoses(storage) }.flatten().toMutableSet().apply {
+        parentIds.map(storage::get).map { it!!.getTrackingPoses(storage) }.flatten().toMutableSet().apply {
             addAll(changedBlocks.keys)
             removeAll(removedBlockPoses)
         }
@@ -67,11 +67,11 @@ class TrackedDiff(
     fun getBlockState(storage: TrackedDiffStorage, pos: BlockPos): BlockState? {
         return when (parentIds.size) {
             0 -> changedBlocks[pos]
-            1 -> changedBlocks[pos] ?: storage[parentIds[0]].getBlockState(storage, pos.subtract(originDiff[0]))
+            1 -> changedBlocks[pos] ?: storage[parentIds[0]]!!.getBlockState(storage, pos.subtract(originDiff[0]))
             else -> if (removedBlockPoses.contains(pos)) null
             else (changedBlocks[pos]) ?:
             parentIds.map(storage::get)
-                .mapIndexed { index, it -> it.getBlockState(storage, pos.subtract(originDiff[index])) }
+                .mapIndexed { index, it -> it!!.getBlockState(storage, pos.subtract(originDiff[index])) }
                 .filterNotNull()
                 .apply {
                     if (size > 1 && DO_ASSERTION_CHECKS.booleanValue) {
@@ -174,7 +174,7 @@ class TrackedDiff(
             val diffList = mutableListOf<TrackedDiff>()
             var currentId = lastId
             while (true) {
-                val diff = storage[currentId]
+                val diff = storage[currentId]!!
                 val shouldBreak = currentId == firstId
                 diffList.add(diff)
                 originDiffMap[currentId] = diff.originDiff[0]
@@ -199,11 +199,11 @@ class TrackedDiff(
         return when (parentIds.size) {
             0 -> null
             1 -> applyDiff(changedBlockEntities[pos] ?: DummyDiff){
-                storage[parentIds[0]].getBlockEntityData(storage, pos.subtract(originDiff[0]))
+                storage[parentIds[0]]!!.getBlockEntityData(storage, pos.subtract(originDiff[0]))
             }
             else -> applyDiff(changedBlockEntities[pos] ?: DummyDiff) {
                 parentIds.map(storage::get)
-                    .mapIndexed { index, it -> it.getBlockEntityData(storage, pos.subtract(originDiff[index])) }
+                    .mapIndexed { index, it -> it!!.getBlockEntityData(storage, pos.subtract(originDiff[index])) }
                     .filterNotNull()
                     .firstOrNull()
             }

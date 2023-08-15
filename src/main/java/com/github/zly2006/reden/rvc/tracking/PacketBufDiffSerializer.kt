@@ -53,7 +53,7 @@ object PacketBufDiffSerializer {
         }
     }
 
-    fun readPacketBuf(buf: PacketByteBuf) {
+    fun readPacketBuf(buf: PacketByteBuf): TrackedDiff {
         val parentIds = buf.readLongArray()
         val originDiff = Array(parentIds.size) { buf.readBlockPos() }
         val xSize = buf.readVarInt()
@@ -100,6 +100,7 @@ object PacketBufDiffSerializer {
             timestamp,
             Person("unknown", "unknown", null, "un")
         )
+        return diff
     }
 
     fun toByteArray(diff: TrackedDiff): ByteArray? {

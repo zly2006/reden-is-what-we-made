@@ -1,11 +1,13 @@
 package com.github.zly2006.reden;
 
 import carpet.CarpetExtension;
+import carpet.CarpetServer;
+import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.network.ChannelsKt;
 import com.github.zly2006.reden.pearl.PearlTask;
-import com.github.zly2006.reden.report.ReportKt;
+import com.github.zly2006.reden.utils.ResourceLoader;
 import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Map;
 
 public class Reden implements ModInitializer, CarpetExtension {
     public static final String MOD_ID = "reden";
@@ -37,13 +40,22 @@ public class Reden implements ModInitializer, CarpetExtension {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     @Override
+    public String version() {
+        return "reden";
+    }
+
+    @Override
+    public void onGameStarted() {
+        CarpetServer.settingsManager.parseSettingsClass(RedenCarpetSettings.class);
+    }
+
+    @Override
+    public Map<String, String> canHasTranslations(String lang) {
+        return ResourceLoader.loadLang(lang);
+    }
+
+    @Override
     public void onInitialize() {
-        if (!ReportKt.checkSignature()) {
-            throw new RuntimeException("Reden mod is broken, please re-download it.");
-        }
-        if (!ReportKt.checkSignature()) {
-            System.exit(1);
-        }
         ServerLifecycleEvents.SERVER_STARTING.register(UtilsKt::setServer);
         PearlTask.Companion.register();
         InitializationHandler.getInstance().registerInitializationHandler(() -> {
@@ -89,5 +101,6 @@ public class Reden implements ModInitializer, CarpetExtension {
             KeyCallbacksKt.configureKeyCallbacks(MinecraftClient.getInstance());
         });
         ChannelsKt.register();
+        CarpetServer.manageExtension(this);
     }
 }

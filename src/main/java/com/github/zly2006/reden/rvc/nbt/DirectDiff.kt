@@ -7,6 +7,7 @@ import java.util.function.Supplier
 class DirectDiff(
     private val after: NbtCompound
 ): NbtDiff {
+    override val type: Int = 1
     override fun apply(nbt: Supplier<NbtCompound>): NbtCompound {
         return after.copy()
     }

@@ -2,7 +2,7 @@ package com.github.zly2006.reden.mixinhelper
 
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
-import com.github.zly2006.reden.carpet.CarpetSettings
+import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
@@ -128,13 +128,15 @@ object UpdateMonitorHelper {
             if (DEBUG_LOGGER.booleanValue) {
                 MinecraftClient.getInstance().player?.sendMessage(Text.literal("Undo size: $sum"))
             }
-            while (sum > CarpetSettings.allowedUndoSizeInBytes) {
-                removeRecord(playerView.undo.first().id)
-                playerView.undo.removeFirst()
-                if (DEBUG_LOGGER.booleanValue) {
-                    MinecraftClient.getInstance().player?.sendMessage(Text.literal("Undo size: $sum, removing."))
+            if (RedenCarpetSettings.allowedUndoSizeInBytes >= 0) {
+                while (sum > RedenCarpetSettings.allowedUndoSizeInBytes) {
+                    removeRecord(playerView.undo.first().id)
+                    playerView.undo.removeFirst()
+                    if (DEBUG_LOGGER.booleanValue) {
+                        MinecraftClient.getInstance().player?.sendMessage(Text.literal("Undo size: $sum, removing."))
+                    }
+                    sum = playerView.undo.map(PlayerData.UndoRecord::getMemorySize).sum()
                 }
-                sum = playerView.undo.map(PlayerData.UndoRecord::getMemorySize).sum()
             }
         }
     }
