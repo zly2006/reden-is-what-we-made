@@ -70,6 +70,7 @@ class PlayerData(
 
     class UndoRecord(
         val id: Long,
+        var lastChangedTick: Int = 0,
         val data: MutableMap<Long, Entry>
     ) {
         fun getMemorySize() = data.asSequence()

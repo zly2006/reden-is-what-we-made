@@ -37,12 +37,16 @@ class Rollback(
                 UpdateMonitorHelper.playerStopRecording(player)
                 fun operate(record: PlayerData.UndoRecord): PlayerData.UndoRecord {
                     UpdateMonitorHelper.removeRecord(record.id) // no longer monitoring rollbacked record
-                    val ret = PlayerData.UndoRecord(record.id, record.data.keys.associateWith {
-                        PlayerData.Entry.fromWorld(
-                            player.world,
-                            BlockPos.fromLong(it)
-                        )
-                    }.toMutableMap())
+                    val ret = PlayerData.UndoRecord(
+                        record.id,
+                        -1,
+                        record.data.keys.associateWith {
+                            PlayerData.Entry.fromWorld(
+                                player.world,
+                                BlockPos.fromLong(it)
+                            )
+                        }.toMutableMap()
+                    )
                     record.data.forEach { (pos, entry) ->
                         val state = NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState)
                         if (DEBUG_LOGGER.booleanValue) {

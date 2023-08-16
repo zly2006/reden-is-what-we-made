@@ -4,6 +4,7 @@ import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
+import com.github.zly2006.reden.utils.server
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.block.BlockState
@@ -85,6 +86,7 @@ object UpdateMonitorHelper {
         recording?.data?.computeIfAbsent(pos.asLong()) {
             PlayerData.Entry.fromWorld(world, pos)
         }
+        recording?.lastChangedTick = server.ticks
     }
 
     /**
@@ -97,6 +99,7 @@ object UpdateMonitorHelper {
     private fun addRecord(): PlayerData.UndoRecord {
         recording = PlayerData.UndoRecord(
             recordId,
+            server.ticks,
             hashMapOf()
         )
         undoRecordsMap[recordId] = recording!!
