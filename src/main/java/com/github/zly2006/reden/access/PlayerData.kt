@@ -3,6 +3,8 @@ package com.github.zly2006.reden.access
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import net.minecraft.command.EntitySelector
 import net.minecraft.entity.EntityType
+import net.minecraft.entity.TntEntity
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.server.network.ServerPlayerEntity
@@ -47,7 +49,7 @@ class PlayerData(
                             world.getBlockState(pos).getCollisionShape(world, pos).boundingBox
                                 .offset(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
                                 .expand(0.1),
-                        ) { true }
+                        ) { x -> x !is PlayerEntity && x !is TntEntity }
                         list.forEach {
                             entities[it.uuid] = EntityEntry(it.type, NbtCompound().apply(it::writeNbt), it.blockPos)
                         }
