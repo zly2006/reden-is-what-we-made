@@ -70,8 +70,8 @@ object SchematicIO: StructureIO {
 class SchematicStructure: SchematicFormat() {
     override fun readFromNBT(tagCompound: NbtCompound): IStructure {
         val template = StructureTemplate()
-        val ret = SchematicImpl("", template.size.x, template.size.y, template.size.z)
         template.readNbt(Registries.BLOCK.readOnlyWrapper, tagCompound)
+        val ret = SchematicImpl("", template.size.x, template.size.y, template.size.z)
         template.blockInfoLists.flatMap { it.all }.forEach {
             ret.setBlockState(it.pos, it.state)
             if (it.nbt != null) {
