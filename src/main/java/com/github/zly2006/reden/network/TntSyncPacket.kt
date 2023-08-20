@@ -1,9 +1,8 @@
 package com.github.zly2006.reden.network
 
-import com.github.zly2006.reden.malilib.DEBUG_LOGGER
 import com.github.zly2006.reden.pearl.pearlTask
+import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.isClient
-import com.github.zly2006.reden.utils.sendMessage
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
@@ -53,9 +52,7 @@ class TntSyncPacket(
             if (isClient) {
                 ClientPlayNetworking.registerGlobalReceiver(pType) { packet, client, _ ->
                     pearlTask?.onTntSyncPacket(packet)
-                    if (DEBUG_LOGGER.booleanValue) {
-                        client.sendMessage("TntSyncPacket: TNT${packet.tntPower} @ ${packet.tntPos}")
-                    }
+                    debugLogger("TntSyncPacket: TNT${packet.tntPower} @ ${packet.tntPos}")
                 }
             }
         }

@@ -37,6 +37,10 @@ class PlayerData(
             val pos: BlockPos
         )
 
+        fun getMemorySize() =
+            blockState.sizeInBytes + (blockEntity?.sizeInBytes ?: 0) +
+                    entities.map { it.value.nbt.sizeInBytes }.sum()
+
         companion object {
             fun fromWorld(world: World, pos: BlockPos): Entry {
                 return Entry(
@@ -71,11 +75,10 @@ class PlayerData(
     class UndoRecord(
         val id: Long,
         var lastChangedTick: Int = 0,
-        val data: MutableMap<Long, Entry>
+        val entities: MutableMap<UUID, Entry.EntityEntry?> = hashMapOf(),
+        val data: MutableMap<Long, Entry> = hashMapOf()
     ) {
-        fun getMemorySize() = data.asSequence()
-            .map { it.value }
-            .map { it.blockState.sizeInBytes + (it.blockEntity?.sizeInBytes ?: 0) + it.entities.map { it.value.nbt.sizeInBytes }.sum() }
-            .sum()
+        fun getMemorySize() = data.asSequence().map { it.value.getMemorySize() }.sum() +
+                entities.map { 16 + (it.value?.nbt?.sizeInBytes ?: 0) }.sum()
     }
 }

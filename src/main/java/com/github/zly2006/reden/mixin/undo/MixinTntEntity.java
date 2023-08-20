@@ -2,13 +2,11 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.access.UndoableAccess;
-import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
-import net.minecraft.client.MinecraftClient;
+import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.TntEntity;
-import net.minecraft.text.Text;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
@@ -35,9 +33,7 @@ public abstract class MixinTntEntity extends Entity implements UndoableAccess {
     private void onInit(EntityType<?> entityType, World world, CallbackInfo ci) {
         PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
         if (recording != null) {
-            if (MalilibSettingsKt.DEBUG_LOGGER.getBooleanValue()) {
-                MinecraftClient.getInstance().player.sendMessage(Text.literal("TNT spawned, adding it into record "+ recording.getId()));
-            }
+            DebugKt.debugLogger.invoke("TNT spawned, adding it into record "+ recording.getId());
             undoId = recording.getId();
         }
     }
@@ -57,9 +53,7 @@ public abstract class MixinTntEntity extends Entity implements UndoableAccess {
                 this.getWorld().getDestructionType(GameRules.TNT_EXPLOSION_DROP_DECAY)
         );
         if (undoId != 0) {
-            if (MalilibSettingsKt.DEBUG_LOGGER.getBooleanValue()) {
-                MinecraftClient.getInstance().player.sendMessage(Text.literal("TNT exploded, adding it into record "+ undoId));
-            }
+            DebugKt.debugLogger.invoke("TNT exploded, adding it into record "+ undoId);
             ((UndoableAccess) explosion).setUndoId(undoId);
         }
         explosion.collectBlocksAndDamageEntities();

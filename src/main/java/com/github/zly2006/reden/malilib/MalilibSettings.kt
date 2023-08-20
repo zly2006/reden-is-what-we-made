@@ -76,8 +76,6 @@ fun ConfigHotkey.runCommand(commands: ConfigStringList) {
 @JvmField val COMMAND_9 = ConfigStringList("command9", ImmutableList.of(), "").sr()
 @JvmField val RUN_COMMAND_9 = ConfigHotkey("runCommand9", "", "Hotkey for executing command 9").hotkey().sr().runCommand(COMMAND_9)
 
-fun debug() = DEBUG_LOGGER.booleanValue
-
 fun getAllOptions() = GENERIC_TAB + RVC_TAB + MICRO_TICK_TAB + SUPER_RIGHT_TAB + DEBUG_TAB
 
 fun configScreen(): GuiConfigs {

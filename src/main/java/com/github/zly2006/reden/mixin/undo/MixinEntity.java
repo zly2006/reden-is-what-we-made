@@ -15,4 +15,9 @@ public class MixinEntity {
     private void onMove(MovementType movementType, Vec3d movement, CallbackInfo ci) {
         UpdateMonitorHelper.tryAddRelatedEntity((Entity) (Object) this);
     }
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void onEntitySpawn(CallbackInfo ci) {
+        UpdateMonitorHelper.entitySpawned((Entity) (Object) this);
+    }
 }

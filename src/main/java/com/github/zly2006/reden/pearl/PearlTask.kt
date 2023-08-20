@@ -1,9 +1,8 @@
 package com.github.zly2006.reden.pearl
 
-import com.github.zly2006.reden.malilib.DEBUG_LOGGER
 import com.github.zly2006.reden.malilib.HOTKEYS
 import com.github.zly2006.reden.network.TntSyncPacket
-import com.github.zly2006.reden.utils.sendMessage
+import com.github.zly2006.reden.utils.debugLogger
 import fi.dy.masa.malilib.config.options.ConfigHotkey
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.minecraft.client.MinecraftClient
@@ -58,12 +57,10 @@ class PearlTask {
             pearlPosSaved = true
             flags = 16
             tnts.fill(null)
-            if (DEBUG_LOGGER.booleanValue) {
-                MinecraftClient.getInstance().player?.sendMessage("PearlTask: refresh pearl pos")
-            }
+            debugLogger("PearlTask: refresh pearl pos")
         }
-        else if (DEBUG_LOGGER.booleanValue && pearlEntity.motion != packet.projectileMotion && !pearlPosSaved) {
-            MinecraftClient.getInstance().player?.sendMessage("PearlTask: pearl motion changed, and it is not caused by previous explosion.")
+        if (!pearlPosSaved && pearlEntity.motion != packet.projectileMotion) {
+            debugLogger("PearlTask: pearl motion changed, and it is not caused by previous explosion.")
         }
         if (packet.tntPos.distanceTo(packet.projectilePos) < 1.5) {
             // north-east = 0, north-west = 1, south-east = 2, south-west = 3
@@ -73,21 +70,17 @@ class PearlTask {
             if (tnts[index] == null) {
                 tnts[index] = MyTnt(packet.tntPos, 4)
                 flags = flags or (1 shl index)
-                if (DEBUG_LOGGER.booleanValue) {
-                    MinecraftClient.getInstance().player?.sendMessage("PearlTask: set tnt pos $index")
-                }
+                debugLogger("PearlTask: set tnt pos $index")
             }
             else {
-                if (DEBUG_LOGGER.booleanValue) {
-                    if (tnts[index]!!.pos != packet.tntPos) {
-                        MinecraftClient.getInstance().player?.sendMessage("PearlTask: tnt pos error $index")
-                    }
+                if (tnts[index]!!.pos != packet.tntPos) {
+                    debugLogger("PearlTask: tnt pos error $index")
                 }
             }
         }
         if (flags == 31) {
             mode = Mode.CALCULATING
-            MinecraftClient.getInstance().player?.sendMessage("PearlTask: start calculating")
+            debugLogger("PearlTask: start calculating")
         }
     }
 

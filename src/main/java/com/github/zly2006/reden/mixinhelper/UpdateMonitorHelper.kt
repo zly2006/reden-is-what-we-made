@@ -3,16 +3,14 @@ package com.github.zly2006.reden.mixinhelper
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
-import com.github.zly2006.reden.malilib.DEBUG_LOGGER
+import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.server
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.block.BlockState
-import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
@@ -49,9 +47,7 @@ object UpdateMonitorHelper {
 
     @JvmStatic
     fun onUpdate(world: World, entry: ChainRestrictedNeighborUpdater.Entry) {
-        if (DEBUG_LOGGER.booleanValue && listeners.isNotEmpty()) {
-            MinecraftClient.getInstance().player?.sendMessage(Text.literal("UpdateMonitorHelper.onUpdate"))
-        }
+        debugLogger("UpdateMonitorHelper.onUpdate")
         listeners.forEach { (k, v) ->
             k.invoke(world, entry)
             if (v == LifeTime.ONCE) {
@@ -62,9 +58,7 @@ object UpdateMonitorHelper {
 
     @JvmStatic
     fun onChainFinish(world: World) {
-        if (DEBUG_LOGGER.booleanValue && (listeners + chainFinishListeners).isNotEmpty()) {
-            MinecraftClient.getInstance().player?.sendMessage(Text.literal("UpdateMonitorHelper.finish"))
-        }
+        debugLogger("UpdateMonitorHelper.finish")
         listeners.forEach { (k, v) ->
             if (v == LifeTime.CHAIN) {
                 listeners.remove(k)
@@ -80,9 +74,7 @@ object UpdateMonitorHelper {
 
     @JvmStatic
     fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
-        if (DEBUG_LOGGER.booleanValue) {
-            MinecraftClient.getInstance().player?.sendMessage(Text.literal("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState"))
-        }
+        debugLogger("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState")
         recording?.data?.computeIfAbsent(pos.asLong()) {
             PlayerData.Entry.fromWorld(world, pos)
         }
@@ -98,9 +90,8 @@ object UpdateMonitorHelper {
      */
     private fun addRecord(): PlayerData.UndoRecord {
         recording = PlayerData.UndoRecord(
-            recordId,
-            server.ticks,
-            hashMapOf()
+            id = recordId,
+            lastChangedTick = server.ticks,
         )
         undoRecordsMap[recordId] = recording!!
         recordId++
@@ -126,16 +117,12 @@ object UpdateMonitorHelper {
                 .onEach { removeRecord(it.id) }
                 .clear()
             var sum = playerView.undo.map(PlayerData.UndoRecord::getMemorySize).sum()
-            if (DEBUG_LOGGER.booleanValue) {
-                MinecraftClient.getInstance().player?.sendMessage(Text.literal("Undo size: $sum"))
-            }
+            debugLogger("Undo size: $sum")
             if (RedenCarpetSettings.allowedUndoSizeInBytes >= 0) {
                 while (sum > RedenCarpetSettings.allowedUndoSizeInBytes) {
                     removeRecord(playerView.undo.first().id)
                     playerView.undo.removeFirst()
-                    if (DEBUG_LOGGER.booleanValue) {
-                        MinecraftClient.getInstance().player?.sendMessage(Text.literal("Undo size: $sum, removing."))
-                    }
+                    debugLogger("Undo size: $sum, removing.")
                     sum = playerView.undo.map(PlayerData.UndoRecord::getMemorySize).sum()
                 }
             }
@@ -149,6 +136,13 @@ object UpdateMonitorHelper {
     fun tryAddRelatedEntity(entity: Entity) {
         if (entity.noClip) return
         if (entity is ServerPlayerEntity) return
+        // not used
+    }
+
+    @JvmStatic
+    fun entitySpawned(entity: Entity) {
+        if (entity is ServerPlayerEntity) return
+        recording?.entities?.put(entity.uuid, null)
     }
 
     init {

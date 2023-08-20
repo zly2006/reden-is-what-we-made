@@ -2,10 +2,9 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
-import com.github.zly2006.reden.malilib.DEBUG_LOGGER
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
+import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.isClient
-import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.setBlockNoPP
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
@@ -38,9 +37,9 @@ class Rollback(
                 fun operate(record: PlayerData.UndoRecord): PlayerData.UndoRecord {
                     UpdateMonitorHelper.removeRecord(record.id) // no longer monitoring rollbacked record
                     val ret = PlayerData.UndoRecord(
-                        record.id,
-                        -1,
-                        record.data.keys.associateWith {
+                        id = record.id,
+                        lastChangedTick = -1,
+                        data = record.data.keys.associateWith {
                             PlayerData.Entry.fromWorld(
                                 player.world,
                                 BlockPos.fromLong(it)
@@ -49,9 +48,7 @@ class Rollback(
                     )
                     record.data.forEach { (pos, entry) ->
                         val state = NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState)
-                        if (DEBUG_LOGGER.booleanValue) {
-                            player.sendMessage("undo ${BlockPos.fromLong(pos)}, $state")
-                        }
+                        debugLogger("undo ${BlockPos.fromLong(pos)}, $state")
                         player.world.setBlockNoPP(
                             BlockPos.fromLong(pos),
                             state,
@@ -65,12 +62,22 @@ class Rollback(
                                 ?: it.value.entity.spawn(player.serverWorld, it.value.nbt, null, it.value.pos, SpawnReason.COMMAND, false, false)
                         }
                     }
+                    record.entities.forEach {
+                        if (it.value != null) {
+                            val entry = it.value!!
+                            val entity = player.serverWorld.getEntity(it.key)?.readNbt(entry.nbt)
+                                ?: entry.entity.spawn(player.serverWorld, entry.nbt, null, entry.pos, SpawnReason.COMMAND, false, false)
+                        }
+                        else {
+                            player.serverWorld.getEntity(it.key)?.discard()
+                        }
+                    }
                     return ret
                 }
                 fun MutableList<PlayerData.UndoRecord>.lastValid(): PlayerData.UndoRecord? {
                     while (this.isNotEmpty()) {
                         val last = this.last()
-                        if (last.data.isNotEmpty()) {
+                        if (last.data.isNotEmpty() || last.entities.isNotEmpty()) {
                             return last
                         }
                         UpdateMonitorHelper.removeRecord(last.id)

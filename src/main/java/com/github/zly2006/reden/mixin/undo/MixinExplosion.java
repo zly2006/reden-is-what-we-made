@@ -29,6 +29,20 @@ public class MixinExplosion implements UndoableAccess {
         }
     }
 
+    @Inject(method = "collectBlocksAndDamageEntities", at = @At("HEAD"))
+    private void beforeDamageEntities(CallbackInfo ci) {
+        if (undoId != 0) {
+            UpdateMonitorHelper.INSTANCE.setRecording(UpdateMonitorHelper.INSTANCE.getUndoRecordsMap().get(undoId));
+        }
+    }
+
+    @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
+    private void afterDamageEntities(CallbackInfo ci) {
+        if (undoId != 0) {
+            UpdateMonitorHelper.INSTANCE.setRecording(null);
+        }
+    }
+
     @Override
     public void setUndoId(long undoId) {
         this.undoId = undoId;

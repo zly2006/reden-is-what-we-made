@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.mixin.render;
 
-import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.render.StructureOutline;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -50,9 +49,6 @@ public class MixinChunkRebuildTask {
 
         if (true) return;
         if (hasOutline || true) {
-            if (MalilibSettingsKt.debug()) {
-                System.out.println("rendering outline at " + pos);
-            }
             /*
             var buffers = MinecraftClient.getInstance().getBufferBuilders();
             if (buffers.getBlockBufferBuilders().get(RenderLayer.getSolid()) == vertexConsumer) {
