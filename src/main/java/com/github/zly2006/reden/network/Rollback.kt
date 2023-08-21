@@ -34,18 +34,7 @@ class Rollback(
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, res ->
                 val view = player.data()
                 UpdateMonitorHelper.playerStopRecording(player)
-                fun operate(record: PlayerData.UndoRecord): PlayerData.UndoRecord {
-                    UpdateMonitorHelper.removeRecord(record.id) // no longer monitoring rollbacked record
-                    val ret = PlayerData.UndoRecord(
-                        id = record.id,
-                        lastChangedTick = -1,
-                        data = record.data.keys.associateWith {
-                            PlayerData.Entry.fromWorld(
-                                player.world,
-                                BlockPos.fromLong(it)
-                            )
-                        }.toMutableMap()
-                    )
+                fun operate(record: PlayerData.UndoRedoRecord) {
                     record.data.forEach { (pos, entry) ->
                         val state = NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState)
                         debugLogger("undo ${BlockPos.fromLong(pos)}, $state")
@@ -72,9 +61,8 @@ class Rollback(
                             player.serverWorld.getEntity(it.key)?.discard()
                         }
                     }
-                    return ret
                 }
-                fun MutableList<PlayerData.UndoRecord>.lastValid(): PlayerData.UndoRecord? {
+                fun <T: PlayerData.UndoRedoRecord> MutableList<T>.lastValid(): T? {
                     while (this.isNotEmpty()) {
                         val last = this.last()
                         if (last.data.isNotEmpty() || last.entities.isNotEmpty()) {
@@ -88,13 +76,28 @@ class Rollback(
                 res.sendPacket(Rollback(when (packet.status) {
                     0 -> view.undo.lastValid()?.let {
                         view.undo.removeLast()
-                        view.redo.add(operate(it))
+                        UpdateMonitorHelper.removeRecord(it.id) // no longer monitoring rollbacked record
+                        view.redo.add(
+                            PlayerData.RedoRecord(
+                                id = it.id,
+                                lastChangedTick = -1,
+                                data = it.data.keys.associateWith {
+                                    PlayerData.Entry.fromWorld(
+                                        player.world,
+                                        BlockPos.fromLong(it)
+                                    )
+                                }.toMutableMap(),
+                                undoRecord = it
+                            )
+                        )
+                        operate(it)
                         0
                     } ?: 2
 
                     1 -> view.redo.lastValid()?.let {
                         view.redo.removeLast()
-                        view.undo.add(operate(it))
+                        operate(it)
+                        view.undo.add(it.undoRecord)
                         1
                     } ?: 2
 

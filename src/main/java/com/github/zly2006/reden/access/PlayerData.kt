@@ -17,7 +17,7 @@ class PlayerData(
     val player: ServerPlayerEntity,
 ) {
     val undo: MutableList<UndoRecord> = mutableListOf()
-    val redo: MutableList<UndoRecord> = mutableListOf()
+    val redo: MutableList<RedoRecord> = mutableListOf()
     var undoUsedBytes: Int = 0
     var isRecording: Boolean = false
     var pearlListening: Boolean = false
@@ -72,13 +72,28 @@ class PlayerData(
         }
     }
 
-    class UndoRecord(
+    open class UndoRedoRecord(
         val id: Long,
         var lastChangedTick: Int = 0,
         val entities: MutableMap<UUID, Entry.EntityEntry?> = hashMapOf(),
         val data: MutableMap<Long, Entry> = hashMapOf()
     ) {
-        fun getMemorySize() = data.asSequence().map { it.value.getMemorySize() }.sum() +
+        open fun getMemorySize() = data.asSequence().map { it.value.getMemorySize() }.sum() +
                 entities.map { 16 + (it.value?.nbt?.sizeInBytes ?: 0) }.sum()
+    }
+    class UndoRecord(
+        id: Long,
+        lastChangedTick: Int = 0,
+        entities: MutableMap<UUID, Entry.EntityEntry?> = hashMapOf(),
+        data: MutableMap<Long, Entry> = hashMapOf()
+    ) : UndoRedoRecord(id, lastChangedTick, entities, data)
+    class RedoRecord(
+        id: Long,
+        lastChangedTick: Int = 0,
+        entities: MutableMap<UUID, Entry.EntityEntry?> = hashMapOf(),
+        data: MutableMap<Long, Entry> = hashMapOf(),
+        val undoRecord: UndoRecord
+    ): UndoRedoRecord(id, lastChangedTick, entities, data) {
+        override fun getMemorySize() = super.getMemorySize() + undoRecord.getMemorySize()
     }
 }

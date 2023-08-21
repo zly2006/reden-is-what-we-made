@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.mixin.undo;
 
-import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
@@ -21,10 +20,6 @@ public class MixinUpdater {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInit(World world, int maxChainDepth, CallbackInfo ci) {
-        int a = MalilibSettingsKt.MAX_CHAIN_UPDATES.getIntegerValue();
-        if (a != -1) {
-            this.maxChainDepth = a;
-        }
     }
     @Inject(method = "runQueuedUpdates", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/block/ChainRestrictedNeighborUpdater$Entry;update(Lnet/minecraft/world/World;)Z"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void onRunQueuedUpdates(CallbackInfo ci, ChainRestrictedNeighborUpdater.Entry entry) {
