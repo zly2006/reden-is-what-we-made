@@ -12,6 +12,7 @@ import net.minecraft.registry.Registries
 import net.minecraft.util.math.BlockPos
 import java.util.*
 
+@Deprecated("Deprecated because a new tracking & versioning system is being developed")
 object PacketBufDiffSerializer {
     fun toPacketBuf(buf: PacketByteBuf, diff: TrackedDiff) {
         buf.writeLongArray(diff.parentIds)

@@ -4,6 +4,7 @@ import io.netty.buffer.Unpooled
 import net.minecraft.network.PacketByteBuf
 import java.nio.file.Path
 
+@Deprecated("Deprecated because a new tracking & versioning system is being developed")
 class FileSystemStorage(
     private val root: Path
 ): TrackedDiffStorage {

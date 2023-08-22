@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.tracking
 
+@Deprecated("Deprecated because a new tracking & versioning system is being developed")
 // TODO: Serialization and deserialization for `TrackedDiff`s.
 class TrackedDiffStorageImpl : TrackedDiffStorage {
     private var pDiffs: MutableMap<Long, TrackedDiff> = mutableMapOf()

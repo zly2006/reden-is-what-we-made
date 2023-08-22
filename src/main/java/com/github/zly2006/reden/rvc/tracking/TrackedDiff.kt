@@ -20,6 +20,7 @@ val diffProvider = DiffProvider { _, b ->
     DirectDiff(b)
 }
 
+@Deprecated("Deprecated because a new tracking & versioning system is being developed")
 @Serializable(with = DiffSerializer::class)
 class TrackedDiff(
     val parentIds: LongArray,

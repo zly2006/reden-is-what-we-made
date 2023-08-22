@@ -17,6 +17,8 @@ import net.minecraft.util.math.BlockPos
 /**
  * Dont use
  */
+
+@Deprecated("Deprecated because a new tracking & versioning system is being developed")
 object DiffSerializer: KSerializer<TrackedDiff> {
     @OptIn(ExperimentalSerializationApi::class)
     override val descriptor: SerialDescriptor
