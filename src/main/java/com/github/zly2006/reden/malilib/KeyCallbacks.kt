@@ -14,7 +14,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         mc.setScreen(configScreen())
         true
     }
-    ROLLBACK_KEY.keybind.setCallback { _, _ ->
+    UNDO_KEY.keybind.setCallback { _, _ ->
         if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
             ClientPlayNetworking.send(Rollback(0))
             true

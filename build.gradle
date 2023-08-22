@@ -16,11 +16,10 @@ repositories {
     maven {
         url "https://cursemaven.com"
     }
-    repositories {
-        maven {
-            url = "https://api.modrinth.com/maven"
-        }
+    maven {
+        url = "https://api.modrinth.com/maven"
     }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -39,9 +38,11 @@ dependencies {
     modImplementation "curse.maven:carpet-349239:4573334"
     // Game test
     testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+    // Conditional Mixin
+    include(modImplementation("com.github.Fallen-Breath:conditional-mixin:v0.3.2"))
     include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
     include(implementation("org.bouncycastle:bcpg-jdk18on:1.76"))
-    modRuntimeOnly "curse.maven:litematica-308892:4626718"
+    modImplementation "curse.maven:litematica-308892:4626718"
     modRuntimeOnly "maven.modrinth:modmenu:7.2.1"
 }
 

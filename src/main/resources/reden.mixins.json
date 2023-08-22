@@ -33,10 +33,11 @@
     "chat.ChatScreenMixin",
     "chat.VisibleChatHudLineMixin",
     "fix.NoTimeOut",
-    "log.MixinClientCoon",
     "fix.forceSyncEntityPos.MixinClientNetwork",
     "fix.forceSyncEntityPos.MixinTracker",
     "fix.forceSyncEntityPos.MixinWorldRenderer",
+    "log.MixinClientCoon",
+    "otherMods.litematica.undo.MixinTaskScheduler",
     "render.MixinBlockModelRenderer",
     "render.MixinChunkRebuildTask",
     "render.MixinWorldRenderer"
