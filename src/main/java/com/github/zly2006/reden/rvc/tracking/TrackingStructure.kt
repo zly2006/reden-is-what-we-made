@@ -18,7 +18,7 @@ import java.nio.file.Path
  * Only used for tracking changes, exporting and showing changes when rolling back changes.
  * It should NOT be used either for version control or save data/network.
  */
-@Deprecated("Deprecated because a new tracking & versioning system is being developed")
+@Deprecated("Deprecated because a new tracking & versioning system is being developed. Replaced (I guess?) by TrackedStructure.")
 class TrackingStructure(
     name: String
 ): ReadWriteStructure(name), IPlacement {
