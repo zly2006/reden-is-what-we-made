@@ -43,7 +43,7 @@ dependencies {
     include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
     include(implementation("org.bouncycastle:bcpg-jdk18on:1.76"))
     modImplementation "curse.maven:litematica-308892:4626718"
-    modRuntimeOnly "maven.modrinth:modmenu:7.2.1"
+    modImplementation "maven.modrinth:modmenu:7.2.1"
 }
 
 test {
