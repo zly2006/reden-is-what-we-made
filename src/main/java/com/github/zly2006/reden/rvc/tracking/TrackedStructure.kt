@@ -3,8 +3,10 @@ package com.github.zly2006.reden.rvc.tracking
 import com.github.zly2006.reden.rvc.IPlacement
 import com.github.zly2006.reden.rvc.ReadWriteStructure
 import com.github.zly2006.reden.rvc.io.RvcIO
+import net.minecraft.server.world.BlockEvent
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import net.minecraft.world.tick.Tick
 
 class TrackedStructure (
     name: String
@@ -18,6 +20,9 @@ class TrackedStructure (
     override val origin: BlockPos.Mutable = BlockPos.ORIGIN.mutableCopy()
     override fun createPlacement(world: World, origin: BlockPos) = this
     val trackPoints = mutableListOf<TrackPoint>()
+    val blockEvents = mutableSetOf<BlockEvent>()
+    val blockScheduledTicks = mutableSetOf<Tick<*>>()
+    val fluidScheduledTicks = mutableSetOf<Tick<*>>()
 
     class TrackPoint(
         val pos: BlockPos,
