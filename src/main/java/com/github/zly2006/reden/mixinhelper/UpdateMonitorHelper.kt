@@ -102,6 +102,7 @@ object UpdateMonitorHelper {
     @JvmStatic
     fun playerStartRecord(player: ServerPlayerEntity) {
         val playerView = player.data()
+        if (!playerView.canRecord) return
         if (!playerView.isRecording) {
             playerView.isRecording = true
             playerView.undo.add(addRecord())

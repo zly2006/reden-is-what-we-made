@@ -33,6 +33,10 @@ class Rollback(
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, res ->
                 val view = player.data()
+                if (!view.canRecord) {
+                    res.sendPacket(Rollback(16))
+                    return@registerGlobalReceiver
+                }
                 UpdateMonitorHelper.playerStopRecording(player)
                 fun operate(record: PlayerData.UndoRedoRecord) {
                     record.data.forEach { (pos, entry) ->

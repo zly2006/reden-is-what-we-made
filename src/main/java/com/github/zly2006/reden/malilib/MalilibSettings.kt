@@ -32,6 +32,7 @@ private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add
 @JvmField val UNDO_KEY = ConfigHotkey("rollbackKey", "LEFT_CONTROL,Z", "").generic().hotkey()
 @JvmField val REDO_KEY = ConfigHotkey("redoKey", "LEFT_CONTROL,Y", "").generic().hotkey()
 @JvmField val UNDO_SUPPORT_LITEMATICA_OPERATION = ConfigBoolean("undoSupportLitematicaOperation", true, "").generic()
+@JvmField val UNDO_CHEATING_ONLY = ConfigBoolean("undoCheatingOnly", true, "Only enable undo feature if cheating enabled.").generic()
 @JvmField val MAX_RENDER_DISTANCE = ConfigInteger("maxRenderDistance", 48, "").generic()
 @JvmField val TOGGLE_NC_BREAKPOINT = ConfigHotkey("toggleNcBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,Z", "Neighbor Changed Event").mt().hotkey()
 @JvmField val TOGGLE_PP_BREAKPOINT = ConfigHotkey("togglePpBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,X", "Post Placement Event").mt().hotkey()
