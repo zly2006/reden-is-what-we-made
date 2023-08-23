@@ -5,6 +5,7 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import java.nio.file.Path
+import java.util.*
 
 interface IStructure {
     var name: String
@@ -18,5 +19,5 @@ interface IStructure {
     fun getBlockState(pos: BlockPos): BlockState
     fun getBlockEntityData(pos: BlockPos): NbtCompound?
     fun getOrCreateBlockEntityData(pos: BlockPos): NbtCompound
-    val entities: List<NbtCompound>
+    val entities: Map<UUID, NbtCompound>
 }

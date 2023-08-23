@@ -6,12 +6,13 @@ import net.minecraft.block.Blocks
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.math.BlockPos
 import java.nio.file.Path
+import java.util.*
 
 abstract class ReadWriteStructure(override var name: String) : IWritableStructure {
     protected var io: StructureIO? = null
     val blocks = mutableMapOf<BlockPos, BlockState>()
     val blockEntities = mutableMapOf<BlockPos, NbtCompound>()
-    override val entities = mutableListOf<NbtCompound>()
+    override val entities = mutableMapOf<UUID, NbtCompound>()
     override fun setBlockState(pos: BlockPos, state: BlockState) { blocks[pos] = state }
     override fun getBlockState(pos: BlockPos) = blocks[pos] ?: Blocks.AIR.defaultState!!
     override fun getBlockEntityData(pos: BlockPos) = blockEntities[pos]
@@ -26,7 +27,7 @@ abstract class ReadWriteStructure(override var name: String) : IWritableStructur
             blockEntities.clear()
             blockEntities.putAll(another.blockEntities)
             entities.clear()
-            entities.addAll(another.entities)
+            entities.putAll(another.entities)
         } else super.assign(another)
     }
 }

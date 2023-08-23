@@ -3,11 +3,12 @@ package com.github.zly2006.reden.rvc
 import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.math.BlockPos
+import java.util.*
 
 interface IWritableStructure: IStructure {
     fun setBlockState(pos: BlockPos, state: BlockState)
 
-    override val entities: MutableList<NbtCompound>
+    override val entities: MutableMap<UUID, NbtCompound>
 
     /**
      * copy block & entity data
@@ -27,7 +28,7 @@ interface IWritableStructure: IStructure {
                     }
                 }
         entities.clear()
-        entities.addAll(another.entities)
+        entities.putAll(another.entities)
     }
 }
 
