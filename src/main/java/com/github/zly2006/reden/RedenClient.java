@@ -4,6 +4,7 @@ import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.pearl.PearlTask;
 import com.github.zly2006.reden.report.ReportKt;
+import com.github.zly2006.reden.sponsor.SponsorKt;
 import com.github.zly2006.reden.utils.DebugKt;
 import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigManager;
@@ -27,7 +28,11 @@ import java.nio.file.Files;
 public class RedenClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        ReportKt.initReport();
+        new Thread(() -> {
+            // Http IOs
+            ReportKt.initReport();
+            SponsorKt.updateSponsors();
+        }).start();
         PearlTask.Companion.register();
         InitializationHandler.getInstance().registerInitializationHandler(() -> {
             ConfigManager.getInstance().registerConfigHandler("reden", new IConfigHandler() {

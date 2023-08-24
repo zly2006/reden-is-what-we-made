@@ -76,7 +76,7 @@ object UpdateMonitorHelper {
     fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
         debugLogger("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState")
         recording?.data?.computeIfAbsent(pos.asLong()) {
-            PlayerData.Entry.fromWorld(world, pos)
+            recording!!.fromWorld(world, pos)
         }
         recording?.lastChangedTick = server.ticks
     }

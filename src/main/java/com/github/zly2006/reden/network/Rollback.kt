@@ -38,7 +38,7 @@ class Rollback(
                     return@registerGlobalReceiver
                 }
                 UpdateMonitorHelper.playerStopRecording(player)
-                fun operate(record: PlayerData.UndoRedoRecord) {
+                fun operate(record: PlayerData.UndoRedoRecord, redoRecord: PlayerData.RedoRecord?) {
                     record.data.forEach { (pos, entry) ->
                         val state = NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState)
                         debugLogger("undo ${BlockPos.fromLong(pos)}, $state")
@@ -50,16 +50,17 @@ class Rollback(
                         entry.blockEntity?.let { be ->
                             player.world.getBlockEntity(BlockPos.fromLong(pos))?.readNbt(be)
                         }
-                        entry.entities.forEach {
-                            val entity = player.serverWorld.getEntity(it.key)?.readNbt(it.value.nbt)
-                                ?: it.value.entity.spawn(player.serverWorld, it.value.nbt, null, it.value.pos, SpawnReason.COMMAND, false, false)
-                        }
                     }
                     record.entities.forEach {
                         if (it.value != null) {
                             val entry = it.value!!
-                            val entity = player.serverWorld.getEntity(it.key)?.readNbt(entry.nbt)
-                                ?: entry.entity.spawn(player.serverWorld, entry.nbt, null, entry.pos, SpawnReason.COMMAND, false, false)
+                            val entity = player.serverWorld.getEntity(it.key)
+                            if (entity != null) {
+                                entity.readNbt(entry.nbt)
+                            } else {
+                                entry.entity.spawn(player.serverWorld, entry.nbt, null, entry.pos, SpawnReason.COMMAND, false, false)
+                                redoRecord?.entities?.put(it.key, null) // add entity info to redo record
+                            }
                         }
                         else {
                             player.serverWorld.getEntity(it.key)?.discard()
@@ -78,29 +79,30 @@ class Rollback(
                     return null
                 }
                 res.sendPacket(Rollback(when (packet.status) {
-                    0 -> view.undo.lastValid()?.let {
+                    0 -> view.undo.lastValid()?.let { undoRecord ->
                         view.undo.removeLast()
-                        UpdateMonitorHelper.removeRecord(it.id) // no longer monitoring rollbacked record
+                        UpdateMonitorHelper.removeRecord(undoRecord.id) // no longer monitoring rollbacked record
                         view.redo.add(
                             PlayerData.RedoRecord(
-                                id = it.id,
+                                id = undoRecord.id,
                                 lastChangedTick = -1,
-                                data = it.data.keys.associateWith {
-                                    PlayerData.Entry.fromWorld(
+                                undoRecord = undoRecord
+                            ).apply {
+                                data.putAll(undoRecord.data.keys.associateWith { posLong ->
+                                    this.fromWorld( // add entity info to this redo record
                                         player.world,
-                                        BlockPos.fromLong(it)
+                                        BlockPos.fromLong(posLong)
                                     )
-                                }.toMutableMap(),
-                                undoRecord = it
-                            )
+                                })
+                            }
                         )
-                        operate(it)
+                        operate(undoRecord, view.redo.last())
                         0
                     } ?: 2
 
                     1 -> view.redo.lastValid()?.let {
                         view.redo.removeLast()
-                        operate(it)
+                        operate(it, null)
                         view.undo.add(it.undoRecord)
                         1
                     } ?: 2
