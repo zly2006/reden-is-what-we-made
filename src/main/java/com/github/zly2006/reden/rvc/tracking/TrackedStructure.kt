@@ -2,6 +2,8 @@ package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.rvc.IPlacement
 import com.github.zly2006.reden.rvc.ReadWriteStructure
+import com.github.zly2006.reden.rvc.io.RvcFileIO
+import com.github.zly2006.reden.rvc.io.RvcGitIO
 import com.github.zly2006.reden.rvc.io.RvcIO
 import net.minecraft.server.world.BlockEvent
 import net.minecraft.util.math.BlockPos
@@ -63,7 +65,7 @@ class TrackedStructure (
     }
 
     init {
-        io = RvcIO
+        io = RvcIO(RvcFileIO, RvcGitIO)
     }
 
     override fun isInArea(pos: BlockPos): Boolean {
