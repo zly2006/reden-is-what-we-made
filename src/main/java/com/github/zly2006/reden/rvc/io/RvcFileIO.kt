@@ -12,6 +12,29 @@ import java.nio.file.Path
 object RvcFileIO: StructureIO {
     private fun rvcFile(name: String) = "$name.rvc"
 
+    private fun writeRvcHeader(path: Path, name: String) {
+        path.resolve(rvcFile(name)).toFile().writeText(
+            "RVC; Version 1.0.0; Platform: MCMod/Reden; Data: $name\n"
+        )
+    }
+
+    private fun writeRvcFile(path: Path, name: String, data: String) {
+        writeRvcHeader(path, name)
+        path.resolve(rvcFile(name)).toFile().writeText(data)
+    }
+
+    private fun readRvcHeader(path: Path, name: String) {
+        TODO("Not yet implemented")
+    }
+
+    private fun readRvcFile(path: Path, name: String): List<String> {
+        readRvcHeader(path, name)
+        if (path.resolve(rvcFile("blockEvents")).toFile().exists()) {
+            return path.resolve(rvcFile(name)).toFile().readLines()
+        }
+        return emptyList()
+    }
+
     override fun save(path: Path, structure: IStructure) {
         // ================================ Check Saving Structure Type ================================
         if (structure !is TrackedStructure) {
@@ -40,7 +63,7 @@ object RvcFileIO: StructureIO {
         val blockEventStr = structure.blockEvents.joinToString("\n") {
             "${it.pos.x},${it.pos.y},${it.pos.z},${it.type},${it.data},${Registries.BLOCK.getId(it.block)}"
         }
-        path.resolve(rvcFile("blockEvents")).toFile().writeText(blockEventStr)
+        writeRvcFile(path, "blockEvents", blockEventStr)
 
         // ================================ Save Block Scheduled Ticks =================================
         // public final val blockScheduledTicks: MutableList<Tick<*>>
@@ -77,18 +100,16 @@ object RvcFileIO: StructureIO {
         // public final val blockEvents: MutableList<BlockEvent>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.blockEvents.clear()
-        if (path.resolve(rvcFile("blockEvents")).toFile().exists()) {
-            path.resolve(rvcFile("blockEvents")).toFile().readLines().forEach {
-                val split = it.split(",")
-                structure.blockEvents.add(
-                    BlockEvent(
-                        BlockPos(split[0].toInt(), split[1].toInt(), split[2].toInt()),
-                        Registries.BLOCK.get(Identifier(split[5])),
-                        split[3].toInt(),
-                        split[4].toInt()
-                    )
+        readRvcFile(path, "blockEvents").forEach {
+            val split = it.split(",")
+            structure.blockEvents.add(
+                BlockEvent(
+                    BlockPos(split[0].toInt(), split[1].toInt(), split[2].toInt()),
+                    Registries.BLOCK.get(Identifier(split[5])),
+                    split[3].toInt(),
+                    split[4].toInt()
                 )
-            }
+            )
         }
 
         // ================================ Load Block Scheduled Ticks =================================
