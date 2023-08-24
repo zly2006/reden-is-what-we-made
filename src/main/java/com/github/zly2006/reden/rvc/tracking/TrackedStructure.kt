@@ -22,9 +22,9 @@ class TrackedStructure (
     override val origin: BlockPos.Mutable = BlockPos.ORIGIN.mutableCopy()
     override fun createPlacement(world: World, origin: BlockPos) = this
     val trackPoints = mutableListOf<TrackPoint>()
-    val blockEvents = mutableSetOf<BlockEvent>()
-    val blockScheduledTicks = mutableSetOf<Tick<*>>()
-    val fluidScheduledTicks = mutableSetOf<Tick<*>>()
+    val blockEvents = mutableListOf<BlockEvent>() // order sensitive
+    val blockScheduledTicks = mutableListOf<Tick<*>>() // order sensitive
+    val fluidScheduledTicks = mutableListOf<Tick<*>>() // order sensitive
 
     class TrackPoint(
         val pos: BlockPos,
