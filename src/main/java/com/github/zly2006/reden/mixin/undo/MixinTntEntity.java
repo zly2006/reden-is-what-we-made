@@ -7,9 +7,7 @@ import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.TntEntity;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,6 +36,17 @@ public abstract class MixinTntEntity extends Entity implements UndoableAccess {
         }
     }
 
+    @Inject(method = "explode", at = @At("HEAD"))
+    private void beforeExplode(CallbackInfo ci) {
+        UpdateMonitorHelper.INSTANCE.setRecording(UpdateMonitorHelper.INSTANCE.getUndoRecordsMap().get(undoId));
+    }
+
+    @Inject(method = "explode", at = @At("TAIL"))
+    private void afterExplode(CallbackInfo ci) {
+        UpdateMonitorHelper.INSTANCE.setRecording(null);
+    }
+
+    /*
     @Inject(method = "explode", at = @At("HEAD"), cancellable = true)
     private void onExplode(CallbackInfo ci) {
         Explosion explosion = new Explosion(
@@ -60,6 +69,7 @@ public abstract class MixinTntEntity extends Entity implements UndoableAccess {
         explosion.affectWorld(true);
         ci.cancel();
     }
+    */
 
     @Override
     public long getUndoId() {
