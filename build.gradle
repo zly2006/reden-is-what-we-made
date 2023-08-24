@@ -42,6 +42,7 @@ dependencies {
     include(modImplementation("com.github.Fallen-Breath:conditional-mixin:v0.3.2"))
     include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
     include(implementation("org.bouncycastle:bcpg-jdk18on:1.76"))
+    include(implementation("com.squareup.okhttp3:okhttp:4.11.0"))
     modImplementation "curse.maven:litematica-308892:4626718"
     modImplementation "maven.modrinth:modmenu:7.2.1"
 }

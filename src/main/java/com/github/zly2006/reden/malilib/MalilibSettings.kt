@@ -59,24 +59,12 @@ fun ConfigHotkey.runCommand(commands: ConfigStringList) {
     }
 }
 
-@JvmField val COMMAND_1 = ConfigStringList("command1", ImmutableList.of(), "").sr()
-@JvmField val RUN_COMMAND_1 = ConfigHotkey("runCommand1", "", "Hotkey for executing command 1").hotkey().sr().runCommand(COMMAND_1)
-@JvmField val COMMAND_2 = ConfigStringList("command2", ImmutableList.of(), "").sr()
-@JvmField val RUN_COMMAND_2 = ConfigHotkey("runCommand2", "", "Hotkey for executing command 2").hotkey().sr().runCommand(COMMAND_2)
-@JvmField val COMMAND_3 = ConfigStringList("command3", ImmutableList.of(), "").sr()
-@JvmField val RUN_COMMAND_3 = ConfigHotkey("runCommand3", "", "Hotkey for executing command 3").hotkey().sr().runCommand(COMMAND_3)
-@JvmField val COMMAND_4 = ConfigStringList("command4", ImmutableList.of(), "").sr()
-@JvmField val RUN_COMMAND_4 = ConfigHotkey("runCommand4", "", "Hotkey for executing command 4").hotkey().sr().runCommand(COMMAND_4)
-@JvmField val COMMAND_5 = ConfigStringList("command5", ImmutableList.of(), "").sr()
-@JvmField val RUN_COMMAND_5 = ConfigHotkey("runCommand5", "", "Hotkey for executing command 5").hotkey().sr().runCommand(COMMAND_5)
-@JvmField val COMMAND_6 = ConfigStringList("command6", ImmutableList.of(), "").sr()
-@JvmField val RUN_COMMAND_6 = ConfigHotkey("runCommand6", "", "Hotkey for executing command 6").hotkey().sr().runCommand(COMMAND_6)
-@JvmField val COMMAND_7 = ConfigStringList("command7", ImmutableList.of(), "").sr()
-@JvmField val RUN_COMMAND_7 = ConfigHotkey("runCommand7", "", "Hotkey for executing command 7").hotkey().sr().runCommand(COMMAND_7)
-@JvmField val COMMAND_8 = ConfigStringList("command8", ImmutableList.of(), "").sr()
-@JvmField val RUN_COMMAND_8 = ConfigHotkey("runCommand8", "", "Hotkey for executing command 8").hotkey().sr().runCommand(COMMAND_8)
-@JvmField val COMMAND_9 = ConfigStringList("command9", ImmutableList.of(), "").sr()
-@JvmField val RUN_COMMAND_9 = ConfigHotkey("runCommand9", "", "Hotkey for executing command 9").hotkey().sr().runCommand(COMMAND_9)
+fun createCommandHotkey(index: Int) {
+    val commands = ConfigStringList("command$index", ImmutableList.of(), "").sr()
+    val hotkey = ConfigHotkey("runCommand$index", "", "Hotkey for executing command $index").hotkey().sr().runCommand(commands)
+}
+
+private val commands = (1..20).map(::createCommandHotkey)
 
 fun getAllOptions() = GENERIC_TAB + RVC_TAB + MICRO_TICK_TAB + SUPER_RIGHT_TAB + DEBUG_TAB
 

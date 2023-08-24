@@ -62,11 +62,7 @@ val isClient: Boolean get() = FabricLoader.getInstance().environmentType == EnvT
 
 object ResourceLoader {
     fun loadBytes(path: String): ByteArray? {
-        val stream = Reden::class.java.classLoader.getResourceAsStream(path)
-        if (stream != null) {
-            return stream.readAllBytes()
-        }
-        else return null
+        return Reden::class.java.classLoader.getResourceAsStream(path)?.readAllBytes()
     }
 
     fun loadString(path: String): String {
