@@ -10,6 +10,8 @@ import net.minecraft.util.math.BlockPos
 import java.nio.file.Path
 
 object RvcFileIO: StructureIO {
+    private fun rvcFile(name: String) = "$name.rvc"
+
     override fun save(path: Path, structure: IStructure) {
         if (structure !is TrackedStructure) {
             throw IllegalArgumentException("Structure is not a TrackedStructure")
@@ -17,7 +19,7 @@ object RvcFileIO: StructureIO {
         val blockEventStr = structure.blockEvents.joinToString("\n") {
             "${it.pos.x},${it.pos.y},${it.pos.z},${it.type},${it.data},${Registries.BLOCK.getId(it.block)}"
         }
-        path.resolve("blockEvents.txt").toFile().writeText(blockEventStr)
+        path.resolve(rvcFile("blockEvents")).toFile().writeText(blockEventStr)
     }
 
     override fun load(path: Path, structure: IWritableStructure) {
@@ -25,8 +27,8 @@ object RvcFileIO: StructureIO {
             throw IllegalArgumentException("Structure is not a TrackedStructure")
         }
         structure.blockEvents.clear()
-        if (path.resolve("blockEvents.txt").toFile().exists()) {
-            path.resolve("blockEvents.txt").toFile().readLines().forEach {
+        if (path.resolve(rvcFile("blockEvents")).toFile().exists()) {
+            path.resolve(rvcFile("blockEvents")).toFile().readLines().forEach {
                 val split = it.split(",")
                 structure.blockEvents.add(
                     BlockEvent(
