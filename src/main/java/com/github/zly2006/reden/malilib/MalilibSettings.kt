@@ -26,7 +26,7 @@ private fun <T : IConfigBase?> ConfigBase<T>.sr() = this.apply(SUPER_RIGHT_TAB::
 @Suppress("UNCHECKED_CAST")
 private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add) as T
 
-@JvmField val REDEN_CONFIG_KEY = ConfigHotkey("redenConfigKey", "R,C", "").generic().hotkey()
+@JvmField val REDEN_CONFIG_KEY = ConfigHotkey("打开面板", "R,C", "").generic().hotkey()
 @JvmField val ALLOW_COPYRIGHT_CHECK = ConfigBoolean("allowCopyrightCheck", true, "").generic()
 @JvmField val SECURITY_COMMIT = ConfigBoolean("securityCommit", false, "").generic()
 @JvmField val UNDO_KEY = ConfigHotkey("rollbackKey", "LEFT_CONTROL,Z", "").generic().hotkey()
