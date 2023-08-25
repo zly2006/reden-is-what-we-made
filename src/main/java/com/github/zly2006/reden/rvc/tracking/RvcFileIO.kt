@@ -1,8 +1,8 @@
-package com.github.zly2006.reden.rvc.io
+package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.IWritableStructure
-import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.io.StructureIO
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.registry.Registries
 import net.minecraft.server.world.BlockEvent

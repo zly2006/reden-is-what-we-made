@@ -1,7 +1,8 @@
-package com.github.zly2006.reden.rvc.io
+package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.IWritableStructure
+import com.github.zly2006.reden.rvc.io.StructureIO
 import java.nio.file.Path
 
 object RvcGitIO: StructureIO {

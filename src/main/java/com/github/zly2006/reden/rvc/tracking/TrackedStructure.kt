@@ -2,7 +2,6 @@ package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.rvc.IPlacement
 import com.github.zly2006.reden.rvc.ReadWriteStructure
-import com.github.zly2006.reden.rvc.io.RvcFileIO
 import net.minecraft.block.Block
 import net.minecraft.fluid.Fluid
 import net.minecraft.nbt.NbtCompound
