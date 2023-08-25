@@ -31,3 +31,4 @@ accessible method net/minecraft/world/World getDestructionType (Lnet/minecraft/w
 accessible field net/minecraft/world/chunk/Chunk heightmaps Ljava/util/Map;
 accessible field net/minecraft/command/EntitySelector PASSTHROUGH_FILTER Lnet/minecraft/util/TypeFilter;
 accessible field net/minecraft/server/integrated/IntegratedServer localPlayerUuid Ljava/util/UUID;
+accessible field net/minecraft/server/world/ServerWorld syncedBlockEventQueue Lit/unimi/dsi/fastutil/objects/ObjectLinkedOpenHashSet;

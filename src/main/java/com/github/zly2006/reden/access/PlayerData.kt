@@ -4,7 +4,7 @@ import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.malilib.UNDO_CHEATING_ONLY
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import com.github.zly2006.reden.utils.isClient
-import net.minecraft.client.MinecraftClient
+import com.github.zly2006.reden.utils.isSinglePlayerAndCheating
 import net.minecraft.command.EntitySelector
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.TntEntity
@@ -20,12 +20,12 @@ import java.util.*
 class PlayerData(
     val player: ServerPlayerEntity,
 ) {
-    private infix fun Boolean?.and(other: Boolean?) = this ?: false && other ?: false
     val canRecord: Boolean
-        get() = (!isClient && RedenCarpetSettings.allowedUndoSizeInBytes == 0) ||
-                (UNDO_CHEATING_ONLY.booleanValue && MinecraftClient.getInstance()?.let {
-                    (it.server?.isSingleplayer and it.player?.hasPermissionLevel(2))
-                } == true)
+        get() = if (!isClient) {
+            RedenCarpetSettings.allowedUndoSizeInBytes != 0
+        } else if (UNDO_CHEATING_ONLY.booleanValue) {
+            true
+        } else isSinglePlayerAndCheating
     val undo: MutableList<UndoRecord> = mutableListOf()
     val redo: MutableList<RedoRecord> = mutableListOf()
     var undoUsedBytes: Int = 0

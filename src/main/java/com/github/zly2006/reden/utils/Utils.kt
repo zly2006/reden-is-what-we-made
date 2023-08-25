@@ -8,6 +8,7 @@ import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.MinecraftServer
@@ -86,3 +87,10 @@ object ResourceLoader {
 
 fun buttonWidget(x: Int, y: Int, width: Int, height: Int, message: Text, onPress: ButtonWidget.PressAction) =
     ButtonWidget(x, y, width, height, message, onPress) { it.get() }
+
+val isSinglePlayerAndCheating: Boolean get() {
+    infix fun Boolean?.and(other: Boolean?) = this ?: false && other ?: false
+    return MinecraftClient.getInstance()?.let {
+        (it.server?.isSingleplayer and it.player?.hasPermissionLevel(2))
+    } == true
+}
