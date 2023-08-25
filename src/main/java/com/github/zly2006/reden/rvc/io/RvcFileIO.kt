@@ -3,12 +3,11 @@ package com.github.zly2006.reden.rvc.io
 import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.IWritableStructure
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import net.minecraft.nbt.NbtHelper
 import net.minecraft.registry.Registries
 import net.minecraft.server.world.BlockEvent
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import net.minecraft.world.tick.Tick
-import net.minecraft.world.tick.TickPriority
 import java.nio.file.Path
 
 object RvcFileIO: StructureIO {
@@ -74,17 +73,15 @@ object RvcFileIO: StructureIO {
         // ================================ Save Block Scheduled Ticks =================================
         // public final val blockScheduledTicks: MutableList<Tick<*>>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        val blockScheduledTickStr = structure.blockScheduledTicks.joinToString("\n") {
-            "${it.type},${it.pos.x},${it.pos.y},${it.pos.z},${it.delay},${it.priority.index}"
-        }
+        val blockScheduledTickStr = structure.blockScheduledTicks
+            .joinToString("\n") { NbtHelper.toNbtProviderString(it) }
         writeRvcFile(path, "blockScheduledTicks", blockScheduledTickStr)
 
         // ================================ Save Fluid Scheduled Ticks =================================
         // public final val fluidScheduledTicks: MutableList<Tick<*>>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        val fluidScheduledTickStr = structure.fluidScheduledTicks.joinToString("\n") {
-            "${it.type},${it.pos.x},${it.pos.y},${it.pos.z},${it.delay},${it.priority.index}"
-        }
+        val fluidScheduledTickStr = structure.fluidScheduledTicks
+            .joinToString("\n") { NbtHelper.toNbtProviderString(it) }
         writeRvcFile(path, "fluidScheduledTicks", fluidScheduledTickStr)
     }
 
@@ -135,15 +132,7 @@ object RvcFileIO: StructureIO {
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.blockScheduledTicks.clear()
         readRvcFile(path, "blockScheduledTicks").forEach {
-            val split = it.split(",")
-            structure.blockScheduledTicks.add(
-                Tick(
-                    split[0],
-                    BlockPos(split[1].toInt(), split[2].toInt(), split[3].toInt()),
-                    split[4].toInt(),
-                    TickPriority.byIndex(split[5].toInt())
-                )
-            )
+            structure.blockScheduledTicks.add(NbtHelper.fromNbtProviderString(it))
         }
 
         // ================================ Load Fluid Scheduled Ticks =================================
@@ -151,15 +140,7 @@ object RvcFileIO: StructureIO {
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.fluidScheduledTicks.clear()
         readRvcFile(path, "fluidScheduledTicks").forEach {
-            val split = it.split(",")
-            structure.fluidScheduledTicks.add(
-                Tick(
-                    split[0],
-                    BlockPos(split[1].toInt(), split[2].toInt(), split[3].toInt()),
-                    split[4].toInt(),
-                    TickPriority.byIndex(split[5].toInt())
-                )
-            )
+            structure.fluidScheduledTicks.add(NbtHelper.fromNbtProviderString(it))
         }
     }
 }
