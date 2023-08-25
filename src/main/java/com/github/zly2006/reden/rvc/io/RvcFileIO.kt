@@ -56,6 +56,10 @@ object RvcFileIO: StructureIO {
         // ===================================== Save Track Points =====================================
         // public final val trackPoints: MutableList<TrackedStructure.TrackPoint>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
+        val trackPointStr = structure.trackPoints.joinToString("\n") {
+            "${it.pos.x},${it.pos.y},${it.pos.z},${it.predicate},${it.mode}"
+        }
+        writeRvcFile(path, "trackPoints", trackPointStr)
 
         // ===================================== Save Block Events =====================================
         // public final val blockEvents: MutableList<BlockEvent>
@@ -68,10 +72,18 @@ object RvcFileIO: StructureIO {
         // ================================ Save Block Scheduled Ticks =================================
         // public final val blockScheduledTicks: MutableList<Tick<*>>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
+        val blockScheduledTickStr = structure.blockScheduledTicks.joinToString("\n") {
+            "${it.pos.x},${it.pos.y},${it.pos.z},${it.type},${it.delay},${it.priority}"
+        }
+        writeRvcFile(path, "blockScheduledTicks", blockScheduledTickStr)
 
         // ================================ Save Fluid Scheduled Ticks =================================
         // public final val fluidScheduledTicks: MutableList<Tick<*>>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
+        val fluidScheduledTickStr = structure.fluidScheduledTicks.joinToString("\n") {
+            "${it.pos.x},${it.pos.y},${it.pos.z},${it.type},${it.delay},${it.priority}"
+        }
+        writeRvcFile(path, "fluidScheduledTicks", fluidScheduledTickStr)
     }
 
     override fun load(path: Path, structure: IWritableStructure) {
@@ -83,18 +95,22 @@ object RvcFileIO: StructureIO {
         // ======================================== Load Blocks ========================================
         // public final val blocks: MutableMap<BlockPos, BlockState>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
+        structure.blocks.clear()
 
         // ==================================== Load Block Entities ====================================
         // public final val blockEntities: MutableMap<BlockPos, NbtCompound>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
+        structure.blockEntities.clear()
 
         // ======================================= Load Entities =======================================
         // public open val entities: MutableMap<UUID, NbtCompound>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
+        structure.entities.clear()
 
         // ===================================== Load Track Points =====================================
         // public final val trackPoints: MutableList<TrackedStructure.TrackPoint>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
+        structure.trackPoints.clear()
 
         // ===================================== Load Block Events =====================================
         // public final val blockEvents: MutableList<BlockEvent>
@@ -115,9 +131,11 @@ object RvcFileIO: StructureIO {
         // ================================ Load Block Scheduled Ticks =================================
         // public final val blockScheduledTicks: MutableList<Tick<*>>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
+        structure.blockScheduledTicks.clear()
 
         // ================================ Load Fluid Scheduled Ticks =================================
         // public final val fluidScheduledTicks: MutableList<Tick<*>>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
+        structure.fluidScheduledTicks.clear()
     }
 }
