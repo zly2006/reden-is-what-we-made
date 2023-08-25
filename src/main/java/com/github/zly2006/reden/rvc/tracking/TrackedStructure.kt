@@ -3,7 +3,6 @@ package com.github.zly2006.reden.rvc.tracking
 import com.github.zly2006.reden.rvc.IPlacement
 import com.github.zly2006.reden.rvc.ReadWriteStructure
 import com.github.zly2006.reden.rvc.io.RvcFileIO
-import com.github.zly2006.reden.rvc.io.RvcGitIO
 import net.minecraft.server.world.BlockEvent
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
