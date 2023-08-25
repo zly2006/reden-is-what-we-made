@@ -94,3 +94,14 @@ val isSinglePlayerAndCheating: Boolean get() {
         (it.server?.isSingleplayer and it.player?.hasPermissionLevel(2))
     } == true
 }
+
+fun memorySizeToString(size: Int) {
+    val unit = arrayOf("B", "KB", "MB", "GB", "TB")
+    var i = 0
+    var s = size.toDouble()
+    while (s > 1024) {
+        s /= 1024
+        i++
+    }
+    println("%2d".format(s) + unit[i])
+}

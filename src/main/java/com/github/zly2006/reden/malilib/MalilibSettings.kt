@@ -2,11 +2,23 @@
 
 package com.github.zly2006.reden.malilib
 
+import com.github.zly2006.reden.utils.isClient
 import com.google.common.collect.ImmutableList
 import fi.dy.masa.malilib.config.IConfigBase
 import fi.dy.masa.malilib.config.options.*
 import fi.dy.masa.malilib.hotkeys.IHotkey
 import net.minecraft.client.MinecraftClient
+
+private val loadingGuard = run {
+    if (!isClient) {
+        try {
+            throw IllegalStateException("MalilibSettings must be loaded on client side.")
+        } catch (e: IllegalStateException) {
+            e.stackTraceToString()
+            throw e
+        }
+    }
+}
 
 @JvmField val HOTKEYS = mutableListOf<IHotkey>()
 @JvmField val GENERIC_TAB = mutableListOf<ConfigBase<*>>()
