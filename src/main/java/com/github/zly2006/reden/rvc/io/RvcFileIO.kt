@@ -73,7 +73,7 @@ object RvcFileIO: StructureIO {
         // public final val blockScheduledTicks: MutableList<Tick<*>>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         val blockScheduledTickStr = structure.blockScheduledTicks.joinToString("\n") {
-            "${it.pos.x},${it.pos.y},${it.pos.z},${it.type},${it.delay},${it.priority}"
+            "${it.pos.x},${it.pos.y},${it.pos.z},${it.type},${it.delay},${it.priority.index}"
         }
         writeRvcFile(path, "blockScheduledTicks", blockScheduledTickStr)
 
@@ -81,7 +81,7 @@ object RvcFileIO: StructureIO {
         // public final val fluidScheduledTicks: MutableList<Tick<*>>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         val fluidScheduledTickStr = structure.fluidScheduledTicks.joinToString("\n") {
-            "${it.pos.x},${it.pos.y},${it.pos.z},${it.type},${it.delay},${it.priority}"
+            "${it.pos.x},${it.pos.y},${it.pos.z},${it.type},${it.delay},${it.priority.index}"
         }
         writeRvcFile(path, "fluidScheduledTicks", fluidScheduledTickStr)
     }
