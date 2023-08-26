@@ -57,56 +57,52 @@ object RvcFileIO: StructureIO {
         // ======================================== Save Blocks ========================================
         // public final val blocks: MutableMap<BlockPos, BlockState>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
-        val blocksStr = structure.blocks.entries.joinToString("\n") { (pos, state) ->
+        structure.blocks.entries.joinToString("\n") { (pos, state) ->
             "${pos.x},${pos.y},${pos.z},${NbtHelper.toNbtProviderString(NbtHelper.fromBlockState(state))}"
-        }
-        writeRvcFile(path, "blocks", RVC_HEADER, blocksStr)
+        }.let { data -> writeRvcFile(path, "blocks", RVC_HEADER, data) }
 
         // ==================================== Save Block Entities ====================================
         // public final val blockEntities: MutableMap<BlockPos, NbtCompound>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
-        val blockEntitiesStr = structure.blockEntities.entries.joinToString("\n") { (pos, nbt) ->
+        structure.blockEntities.entries.joinToString("\n") { (pos, nbt) ->
             "${pos.x},${pos.y},${pos.z},${NbtHelper.toNbtProviderString(nbt)}"
-        }
-        writeRvcFile(path, "blockEntities", RVC_HEADER, blockEntitiesStr)
+        }.let { data -> writeRvcFile(path, "blockEntities", RVC_HEADER, data) }
 
         // ======================================= Save Entities =======================================
         // public open val entities: MutableMap<UUID, NbtCompound>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
-        val entitiesStr = structure.entities.entries.joinToString("\n") { (uuid, nbt) ->
+        structure.entities.entries.joinToString("\n") { (uuid, nbt) ->
             "$uuid,${NbtHelper.toNbtProviderString(nbt)}"
-        }
-        writeRvcFile(path, "entities", RVC_HEADER, entitiesStr)
+        }.let { data -> writeRvcFile(path, "entities", RVC_HEADER, data) }
 
         // ===================================== Save Track Points =====================================
         // public final val trackPoints: MutableList<TrackedStructure.TrackPoint>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        val trackPointsStr = structure.trackPoints.joinToString("\n") {
-            "${it.pos.x},${it.pos.y},${it.pos.z},${it.predicate},${it.mode}"
-        }
-        writeRvcFile(path, "trackPoints", RVC_HEADER, trackPointsStr)
+        structure.trackPoints.joinToString("\n") { trackPoint ->
+            "${trackPoint.pos.x},${trackPoint.pos.y},${trackPoint.pos.z},${trackPoint.predicate},${trackPoint.mode}"
+        }.let { data -> writeRvcFile(path, "trackPoints", RVC_HEADER, data) }
 
         // ===================================== Save Block Events =====================================
         // public final val blockEvents: MutableList<BlockEvent>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        val blockEventsStr = structure.blockEvents.joinToString("\n") {
-            "${it.pos.x},${it.pos.y},${it.pos.z},${it.type},${it.data},${Registries.BLOCK.getId(it.block)}"
-        }
-        writeRvcFile(path, "blockEvents", RVC_HEADER, blockEventsStr)
+        structure.blockEvents.joinToString("\n") { blockEvent ->
+            "${blockEvent.pos.x},${blockEvent.pos.y},${blockEvent.pos.z}," +
+                    "${blockEvent.type},${blockEvent.data},${Registries.BLOCK.getId(blockEvent.block)}"
+        }.let { data -> writeRvcFile(path, "blockEvents", RVC_HEADER, data) }
 
         // ================================ Save Block Scheduled Ticks =================================
-        // public final val blockScheduledTicks: MutableList<Tick<*>>
+        // public final val blockScheduledTicks: MutableList<NbtCompound>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        val blockScheduledTicksStr = structure.blockScheduledTicks
-            .joinToString("\n") { NbtHelper.toNbtProviderString(it) }
-        writeRvcFile(path, "blockScheduledTicks", RVC_HEADER, blockScheduledTicksStr)
+        structure.blockScheduledTicks.joinToString("\n") { nbt ->
+            NbtHelper.toNbtProviderString(nbt)
+        }.let { data -> writeRvcFile(path, "blockScheduledTicks", RVC_HEADER, data) }
 
         // ================================ Save Fluid Scheduled Ticks =================================
-        // public final val fluidScheduledTicks: MutableList<Tick<*>>
+        // public final val fluidScheduledTicks: MutableList<NbtCompound>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        val fluidScheduledTicksStr = structure.fluidScheduledTicks
-            .joinToString("\n") { NbtHelper.toNbtProviderString(it) }
-        writeRvcFile(path, "fluidScheduledTicks", RVC_HEADER, fluidScheduledTicksStr)
+        structure.fluidScheduledTicks.joinToString("\n") { nbt ->
+            NbtHelper.toNbtProviderString(nbt)
+        }.let { data -> writeRvcFile(path, "fluidScheduledTicks", RVC_HEADER, data) }
     }
 
     override fun load(path: Path, structure: IWritableStructure) {
