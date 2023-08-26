@@ -50,6 +50,9 @@ public class MixinSchedule {
             )
     )
     private <T> void onAddSchedule(OrderedTick<T> orderedTick, CallbackInfo ci) {
+        if (orderedTick.pos().equals(new BlockPos(5, -57, -4))) {
+            System.out.println("bbbbb");
+        }
         UndoableAccess access = (UndoableAccess) orderedTick;
         PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
         if (recording != null) {

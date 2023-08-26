@@ -73,6 +73,11 @@ class PlayerData(
                             .expand(0.1),
                     ) { x -> x !is PlayerEntity && x !is TntEntity }
                     list.forEach { entity ->
+                        if (lastThread == null) lastThread = Thread.currentThread()
+                        else if (lastThread!!.id != Thread.currentThread().id) {
+                            println("aaaaaaaaaaa")
+                            throw IllegalStateException("Not thread safe")
+                        }
                         entities.computeIfAbsent(entity.uuid) {
                             EntityEntry(entity.type, NbtCompound().apply(entity::writeNbt), entity.blockPos)
                         }
@@ -106,3 +111,5 @@ class PlayerData(
         val pos: BlockPos
     )
 }
+
+var lastThread: Thread? = null

@@ -47,7 +47,7 @@ object UpdateMonitorHelper {
 
     @JvmStatic
     fun onUpdate(world: World, entry: ChainRestrictedNeighborUpdater.Entry) {
-        debugLogger("UpdateMonitorHelper.onUpdate")
+        //debugLogger("UpdateMonitorHelper.onUpdate")
         listeners.forEach { (k, v) ->
             k.invoke(world, entry)
             if (v == LifeTime.ONCE) {
@@ -58,7 +58,7 @@ object UpdateMonitorHelper {
 
     @JvmStatic
     fun onChainFinish(world: World) {
-        debugLogger("UpdateMonitorHelper.finish")
+        //debugLogger("UpdateMonitorHelper.finish")
         listeners.forEach { (k, v) ->
             if (v == LifeTime.CHAIN) {
                 listeners.remove(k)

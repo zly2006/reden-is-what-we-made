@@ -2,9 +2,9 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.PistonExtensionBlock;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
@@ -21,13 +21,22 @@ public class MixinMovingPiston {
      */
     @Overwrite
     @Nullable
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+    public <T extends PistonBlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         return (type == BlockEntityType.PISTON) ? (world1, pos, state1, be) -> {
-            if (be instanceof UndoableAccess access) {
-                UpdateMonitorHelper.INSTANCE.setRecording(UpdateMonitorHelper.INSTANCE.getUndoRecordsMap().get(access.getUndoId()));
+            boolean shouldTick = be.progress >= 1.0f;
+            if (shouldTick) {
+                if (be instanceof UndoableAccess access) {
+                    DebugKt.debugLogger.invoke("Before piston block entity tick: " + pos.toShortString() + ", id" + access.getUndoId());
+                    UpdateMonitorHelper.INSTANCE.setRecording(UpdateMonitorHelper.INSTANCE.getUndoRecordsMap().get(access.getUndoId()));
+                }
             }
-            PistonBlockEntity.tick(world1, pos, state1, (PistonBlockEntity) be);
-            UpdateMonitorHelper.INSTANCE.setRecording(null);
+            PistonBlockEntity.tick(world1, pos, state1, be);
+            if (shouldTick) {
+                if (be instanceof UndoableAccess access) {
+                    DebugKt.debugLogger.invoke("After piston block entity tick: " + pos.toShortString() + ", id" + access.getUndoId());
+                    UpdateMonitorHelper.INSTANCE.setRecording(null);
+                }
+            }
         } : null;
     }
 }
