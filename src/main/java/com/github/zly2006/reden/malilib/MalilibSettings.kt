@@ -79,7 +79,3 @@ fun createCommandHotkey(index: Int) {
 private val commands = (1..20).map(::createCommandHotkey)
 
 fun getAllOptions() = GENERIC_TAB + RVC_TAB + MICRO_TICK_TAB + SUPER_RIGHT_TAB + DEBUG_TAB
-
-fun configScreen(): GuiConfigs {
-    return GuiConfigs()
-}

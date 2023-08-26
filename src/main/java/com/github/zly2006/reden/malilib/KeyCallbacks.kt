@@ -3,6 +3,7 @@ package com.github.zly2006.reden.malilib
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.network.Rollback
 import com.github.zly2006.reden.render.BlockBorder
+import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.toBlockPos
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
@@ -11,16 +12,18 @@ import net.minecraft.world.GameMode
 
 fun configureKeyCallbacks(mc: MinecraftClient) {
     REDEN_CONFIG_KEY.keybind.setCallback { _, _ ->
-        mc.setScreen(configScreen())
+        mc.setScreen(GuiConfigs())
         true
     }
     UNDO_KEY.keybind.setCallback { _, _ ->
+        onFunctionUsed("undo")
         if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
             ClientPlayNetworking.send(Rollback(0))
             true
         } else false
     }
     REDO_KEY.keybind.setCallback { _, _ ->
+        onFunctionUsed("redo")
         if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
             ClientPlayNetworking.send(Rollback(1))
             true
