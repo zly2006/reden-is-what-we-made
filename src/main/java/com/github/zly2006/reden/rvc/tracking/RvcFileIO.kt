@@ -18,11 +18,13 @@ import java.util.*
 object RvcFileIO: StructureIO {
     private fun rvcFile(name: String): String = "$name.rvc"
     private const val CURRENT_VERSION = "1.0.0"
-    private val RVC_HEADER = IRvcFileReader.RvcHeader(mutableMapOf(
-        "Version" to CURRENT_VERSION,
-        "Platform" to "MCMod/Reden"
-    ))
-    private val VERSION_TO_READER = mapOf<String, (IRvcFileReader.RvcHeader) -> IRvcFileReader> (
+    private val RVC_HEADER = IRvcFileReader.RvcHeader(
+        mutableMapOf(
+            "Version" to CURRENT_VERSION,
+            "Platform" to "MCMod/Reden"
+        )
+    )
+    private val VERSION_TO_READER = mapOf<String, (IRvcFileReader.RvcHeader) -> IRvcFileReader>(
         "1.0.0" to { RvcReaderV1(it) }
     )
 
@@ -164,9 +166,12 @@ object RvcFileIO: StructureIO {
             val blockPos = BlockPos(data.readNext().toInt(), data.readNext().toInt(), data.readNext().toInt())
             val predicate = data.readNext()
             val mode = data.readNext()
-            TrackedStructure.TrackPoint(blockPos, TrackedStructure.TrackPoint.TrackPredicate.valueOf(predicate), TrackedStructure.TrackPoint.TrackMode.valueOf(mode))
+            TrackedStructure.TrackPoint(
+                blockPos,
+                TrackedStructure.TrackPoint.TrackPredicate.valueOf(predicate),
+                TrackedStructure.TrackPoint.TrackMode.valueOf(mode)
+            )
         })
-        // TODO: TrackPoint deserialization needs to be implemented.
 
         // ===================================== Load Block Events =====================================
         // public final val blockEvents: MutableList<BlockEvent>
