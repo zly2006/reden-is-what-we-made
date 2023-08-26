@@ -22,14 +22,14 @@ object RvcFileIO: StructureIO {
         path.resolve(rvcFile(name)).toFile().writeText(rvcHeader(name) + data)
     }
 
-    private fun readRvcHeader(path: Path, name: String) {
+    private fun readRvcHeader(header: String) {
         TODO("Not yet implemented")
     }
 
     private fun readRvcFile(path: Path, name: String): List<String> {
         if (path.resolve(rvcFile(name)).toFile().exists()) {
-            readRvcHeader(path, name)
             val lines = path.resolve(rvcFile(name)).toFile().readLines()
+            readRvcHeader(lines[0])
             return lines.subList(1, lines.size)
         }
         return emptyList()
