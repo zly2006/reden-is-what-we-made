@@ -57,30 +57,24 @@ object RvcFileIO: StructureIO {
         // ======================================== Save Blocks ========================================
         // public final val blocks: MutableMap<BlockPos, BlockState>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
-        var blocksStr = ""
-        structure.blocks.forEach { (pos, state) ->
-            blocksStr += "${pos.x},${pos.y},${pos.z},${
-                NbtHelper.toNbtProviderString(NbtHelper.fromBlockState(state))
-            }\n"
+        val blocksStr = structure.blocks.entries.joinToString("\n") { (pos, state) ->
+            "${pos.x},${pos.y},${pos.z},${NbtHelper.toNbtProviderString(NbtHelper.fromBlockState(state))}"
         }
         writeRvcFile(path, "blocks", RVC_HEADER, blocksStr)
 
         // ==================================== Save Block Entities ====================================
         // public final val blockEntities: MutableMap<BlockPos, NbtCompound>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
-        var blockEntitiesStr = ""
-        // fixme: pla use .entries.joinToString instead of .forEach
-        structure.blockEntities.forEach { (pos, nbt) ->
-            blockEntitiesStr += "${pos.x},${pos.y},${pos.z},${NbtHelper.toNbtProviderString(nbt)}\n"
+        val blockEntitiesStr = structure.blockEntities.entries.joinToString("\n") { (pos, nbt) ->
+            "${pos.x},${pos.y},${pos.z},${NbtHelper.toNbtProviderString(nbt)}"
         }
         writeRvcFile(path, "blockEntities", RVC_HEADER, blockEntitiesStr)
 
         // ======================================= Save Entities =======================================
         // public open val entities: MutableMap<UUID, NbtCompound>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
-        var entitiesStr = ""
-        structure.entities.forEach { (uuid, nbt) ->
-            entitiesStr += "$uuid,${NbtHelper.toNbtProviderString(nbt)}\n"
+        val entitiesStr = structure.entities.entries.joinToString("\n") { (uuid, nbt) ->
+            "$uuid,${NbtHelper.toNbtProviderString(nbt)}"
         }
         writeRvcFile(path, "entities", RVC_HEADER, entitiesStr)
 
