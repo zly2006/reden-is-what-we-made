@@ -5,6 +5,9 @@ import com.github.zly2006.reden.rvc.IWritableStructure
 import com.github.zly2006.reden.rvc.io.StructureIO
 import java.nio.file.Path
 
+/**
+ * Perform git operations on RVC files operated by [RvcFileIO] saving and loading [TrackedStructure]s.
+ */
 object RvcGitIO: StructureIO {
     override fun save(path: Path, structure: IStructure) {
         // Preform git push operation

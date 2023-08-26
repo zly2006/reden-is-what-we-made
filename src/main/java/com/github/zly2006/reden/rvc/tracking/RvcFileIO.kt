@@ -11,6 +11,9 @@ import net.minecraft.util.math.BlockPos
 import java.nio.file.Path
 import java.util.UUID
 
+/**
+ * Save and load [TrackedStructure]s into and from RVC files.
+ */
 object RvcFileIO: StructureIO {
     private fun rvcFile(name: String): String = "$name.rvc"
     private fun rvcHeader(name: String): String = "RVC; Version 1.0.0; Platform: MCMod/Reden; Data: $name\n"
@@ -109,11 +112,13 @@ object RvcFileIO: StructureIO {
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.blocks.clear()
         readRvcFile(path, "blocks").forEach {
-            val split = it.split(",")
-            structure.blocks[BlockPos(split[0].toInt(), split[1].toInt(), split[2].toInt())] = NbtHelper.toBlockState(
+            val data = RvcDataReader(it, ",")
+            val blockPos = BlockPos(data.readNext().toInt(), data.readNext().toInt(), data.readNext().toInt())
+            val blockState = NbtHelper.toBlockState(
                 Registries.BLOCK.readOnlyWrapper,
-                NbtHelper.fromNbtProviderString(split[3])
+                NbtHelper.fromNbtProviderString(data.readGreedy())
             )
+            structure.blocks[blockPos] = blockState
         }
 
         // ==================================== Load Block Entities ====================================
@@ -121,10 +126,10 @@ object RvcFileIO: StructureIO {
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.blockEntities.clear()
         readRvcFile(path, "blockEntities").forEach {
-            val split = it.split(",")
-            structure.blockEntities[BlockPos(split[0].toInt(), split[1].toInt(), split[2].toInt())] = NbtHelper.fromNbtProviderString(
-                split[3]
-            )
+            val data = RvcDataReader(it, ",")
+            val blockPos = BlockPos(data.readNext().toInt(), data.readNext().toInt(), data.readNext().toInt())
+            val nbt = NbtHelper.fromNbtProviderString(data.readGreedy())
+            structure.blockEntities[blockPos] = nbt
         }
 
         // ======================================= Load Entities =======================================
@@ -132,8 +137,10 @@ object RvcFileIO: StructureIO {
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.entities.clear()
         readRvcFile(path, "entities").forEach {
-            val split = it.split(",")
-            structure.entities[UUID.fromString(split[0])] = NbtHelper.fromNbtProviderString(split[1])
+            val data = RvcDataReader(it, ",")
+            val uuid = UUID.fromString(data.readNext())
+            val nbt = NbtHelper.fromNbtProviderString(data.readGreedy())
+            structure.entities[uuid] = nbt
         }
 
         // ===================================== Load Track Points =====================================
