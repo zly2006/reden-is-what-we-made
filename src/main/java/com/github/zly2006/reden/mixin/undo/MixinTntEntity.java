@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
+import com.github.zly2006.reden.access.UndoRecordContainerImpl;
 import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
@@ -19,6 +20,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinTntEntity extends Entity implements UndoableAccess {
     @Unique
     long undoId;
+    @Unique
+    UndoRecordContainerImpl recordContainer = new UndoRecordContainerImpl();
 
     public MixinTntEntity(EntityType<?> type, World world) {
         super(type, world);
@@ -38,12 +41,15 @@ public abstract class MixinTntEntity extends Entity implements UndoableAccess {
 
     @Inject(method = "explode", at = @At("HEAD"))
     private void beforeExplode(CallbackInfo ci) {
-        UpdateMonitorHelper.INSTANCE.setRecording(UpdateMonitorHelper.INSTANCE.getUndoRecordsMap().get(undoId));
+        DebugKt.debugLogger.invoke("TNT explode start, undoId=" + undoId);
+        recordContainer.setId(undoId);
+        UpdateMonitorHelper.INSTANCE.swap(recordContainer);
     }
 
     @Inject(method = "explode", at = @At("TAIL"))
     private void afterExplode(CallbackInfo ci) {
-        UpdateMonitorHelper.INSTANCE.setRecording(null);
+        DebugKt.debugLogger.invoke("TNT explode end, undoId=" + undoId);
+        UpdateMonitorHelper.INSTANCE.swap(recordContainer);
     }
 
     /*

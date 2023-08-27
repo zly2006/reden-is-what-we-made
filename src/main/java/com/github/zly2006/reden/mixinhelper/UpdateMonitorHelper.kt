@@ -2,6 +2,7 @@ package com.github.zly2006.reden.mixinhelper
 
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
+import com.github.zly2006.reden.access.UndoRecordContainer
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.server
@@ -15,7 +16,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 
-object UpdateMonitorHelper {
+object UpdateMonitorHelper: UndoRecordContainer {
     private val listeners: MutableMap<World.(ChainRestrictedNeighborUpdater.Entry) -> Unit, LifeTime> = mutableMapOf()
     private val chainFinishListeners = mutableMapOf<World.() -> Unit, LifeTime>()
     private var recordId = 20060210L
@@ -32,7 +33,19 @@ object UpdateMonitorHelper {
      *
      * 这会带来不经检查的访问
      */
-    var recording: PlayerData.UndoRecord? = null
+    override var recording: PlayerData.UndoRecord? = null
+        set(value) {
+            synchronized (this) {
+                if (field != value) {
+                    field = value
+                    if (value == null) {
+                        debugLogger("record canceled")
+                    } else {
+                        debugLogger("record start")
+                    }
+                }
+            }
+        }
     enum class LifeTime {
         PERMANENT,
         TICK,
@@ -74,11 +87,13 @@ object UpdateMonitorHelper {
 
     @JvmStatic
     fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
-        debugLogger("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState")
-        recording?.data?.computeIfAbsent(pos.asLong()) {
-            recording!!.fromWorld(world, pos)
+        synchronized(this) {
+            debugLogger("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState")
+            recording?.data?.computeIfAbsent(pos.asLong()) {
+                recording!!.fromWorld(world, pos)
+            }
+            recording?.lastChangedTick = server.ticks
         }
-        recording?.lastChangedTick = server.ticks
     }
 
     /**
@@ -143,7 +158,11 @@ object UpdateMonitorHelper {
     @JvmStatic
     fun entitySpawned(entity: Entity) {
         if (entity is ServerPlayerEntity) return
-        recording?.entities?.put(entity.uuid, null)
+        recording?.let {
+            synchronized(it) {
+                it.entities.put(entity.uuid, null)
+            }
+        }
     }
 
     init {

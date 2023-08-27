@@ -5,7 +5,6 @@ import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.pearl.PearlTask;
 import com.github.zly2006.reden.report.ReportKt;
 import com.github.zly2006.reden.sponsor.SponsorKt;
-import com.github.zly2006.reden.utils.DebugKt;
 import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.config.ConfigUtils;
@@ -16,10 +15,8 @@ import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.malilib.hotkeys.IKeybindManager;
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.util.FileUtils;
-import kotlin.Unit;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,11 +73,11 @@ public class RedenClient implements ClientModInitializer {
             });
             KeyCallbacksKt.configureKeyCallbacks(MinecraftClient.getInstance());
         });
-        DebugKt.debugLogger = str -> {
+        /*DebugKt.debugLogger = str -> {
             if (MinecraftClient.getInstance().player != null && MalilibSettingsKt.DEBUG_LOGGER.getBooleanValue()) {
                 MinecraftClient.getInstance().player.sendMessage(Text.of(str));
             }
             return Unit.INSTANCE;
-        };
+        };*/
     }
 }

@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
+import com.github.zly2006.reden.access.UndoRecordContainerImpl;
 import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
@@ -19,6 +20,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Explosion.class)
 public class MixinExplosion implements UndoableAccess {
     @Unique
+    UndoRecordContainerImpl recordContainer = new UndoRecordContainerImpl();
+    @Unique
     long undoId;
 
     @Inject(
@@ -35,29 +38,35 @@ public class MixinExplosion implements UndoableAccess {
 
     @Inject(method = "affectWorld", at = @At("HEAD"))
     private void beforeAffectWorld(boolean particles, CallbackInfo ci) {
+        DebugKt.debugLogger.invoke("Explosion affect world start, undoID=" + undoId);
         if (undoId != 0) {
-            UpdateMonitorHelper.INSTANCE.setRecording(UpdateMonitorHelper.INSTANCE.getUndoRecordsMap().get(undoId));
+            recordContainer.setId(undoId);
+            UpdateMonitorHelper.INSTANCE.swap(recordContainer);
         }
     }
 
     @Inject(method = "affectWorld", at = @At("TAIL"))
     private void afterAffectWorld(boolean particles, CallbackInfo ci) {
+        DebugKt.debugLogger.invoke("Explosion affect world end, undoID=" + undoId);
         if (undoId != 0) {
-            UpdateMonitorHelper.INSTANCE.setRecording(null);
+            UpdateMonitorHelper.INSTANCE.swap(recordContainer);
         }
     }
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("HEAD"))
     private void beforeDamageEntities(CallbackInfo ci) {
+        DebugKt.debugLogger.invoke("Explosion damage entities start, undoID=" + undoId);
         if (undoId != 0) {
-            UpdateMonitorHelper.INSTANCE.setRecording(UpdateMonitorHelper.INSTANCE.getUndoRecordsMap().get(undoId));
+            recordContainer.setId(undoId);
+            UpdateMonitorHelper.INSTANCE.swap(recordContainer);
         }
     }
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
     private void afterDamageEntities(CallbackInfo ci) {
+        DebugKt.debugLogger.invoke("Explosion damage entities end, undoID=" + undoId);
         if (undoId != 0) {
-            UpdateMonitorHelper.INSTANCE.setRecording(null);
+            UpdateMonitorHelper.INSTANCE.swap(recordContainer);
         }
     }
 
