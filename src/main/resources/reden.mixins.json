@@ -29,8 +29,7 @@
     "undo.MixinUpdater"
   ],
   "client": [
-    "debug.MWC",
-    "debug.undo.MixinTntEntity",
+    "debug.undoReportUnTrackedTnt.MixinTntEntity",
     "chat.ChatHudMixin",
     "chat.ChatScreenMixin",
     "chat.VisibleChatHudLineMixin",

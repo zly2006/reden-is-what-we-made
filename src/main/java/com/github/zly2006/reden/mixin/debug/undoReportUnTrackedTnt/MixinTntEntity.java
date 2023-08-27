@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.mixin.debug.undo;
+package com.github.zly2006.reden.mixin.debug.undoReportUnTrackedTnt;
 
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.PlayerData;
