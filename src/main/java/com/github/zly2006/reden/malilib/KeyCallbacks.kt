@@ -4,6 +4,7 @@ import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.network.Rollback
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.report.onFunctionUsed
+import com.github.zly2006.reden.rvc.remote.github.GithubAuthScreen
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.toBlockPos
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
@@ -53,5 +54,10 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             return@setCallback true
         }
         return@setCallback false
+    }
+    OPEN_GITHUB_AUTH_SCREEN.keybind.setCallback { _, _ ->
+        onFunctionUsed("rvc.github")
+        mc.setScreen(GithubAuthScreen())
+        true
     }
 }

@@ -60,6 +60,8 @@ private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add
 @JvmField val MAX_CHAIN_UPDATES = ConfigInteger("maxChainUpdates", -1, "Max chain updates, affects after reopening").debug()
 @JvmField val DO_ASSERTION_CHECKS = ConfigBoolean("doAssertionChecks", false, "").debug()
 @JvmField val UNDO_REPORT_UN_TRACKED_TNT = ConfigBoolean("undoReportUnTrackedTnt", false, "").debug()
+@JvmField val OPEN_GITHUB_AUTH_SCREEN = ConfigHotkey("openGithubAuthScreen", "R,G", "").debug().hotkey()
+@JvmField val GITHUB_TOKEN = ConfigString("githubToken", "", "Keep it secure! You should not modify it unless you know what you are doing.").debug()
 
 fun ConfigHotkey.runCommand(commands: ConfigStringList) {
     this.keybind.setCallback { _, _ ->
