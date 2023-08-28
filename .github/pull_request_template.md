@@ -42,3 +42,5 @@
 
 <!--- IMPORTANT: Fill out all required fields. Otherwise we might close this PR temporarily -->
 <!--- 重要：请填写所有必填内容。否则我们可能会暂时关闭此 PR -->
+<!--- Make sure to mark the PR as draft if you are still working on it, and mark it as "ready for review" when you are done -->
+<!--- 如果你仍未完成此 PR，请将其标记为草稿（GitHub PR 中的 draft 功能）。当你完成时，请点击 "ready for review" -->
