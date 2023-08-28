@@ -27,8 +27,9 @@ public class MixinMovingPiston {
     @Nullable
     public <T extends PistonBlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         return (type == BlockEntityType.PISTON) ? (world1, pos, state1, be) -> {
-            boolean shouldTick = be.getProgress(1) >= 1.0f; // current progress, delta=1
-            if (shouldTick) {
+            boolean shouldTrack = be.getProgress(1) >= 1.0f // current progress, delta=1
+                    && !world1.isClient; // server side
+            if (shouldTrack) {
                 if (be instanceof UndoableAccess access) {
                     DebugKt.debugLogger.invoke("Before piston block entity tick: " + pos.toShortString() + ", id" + access.getUndoId());
                     recordContainer.setId(access.getUndoId());
@@ -36,7 +37,7 @@ public class MixinMovingPiston {
                 }
             }
             PistonBlockEntity.tick(world1, pos, state1, be);
-            if (shouldTick) {
+            if (shouldTrack) {
                 if (be instanceof UndoableAccess access) {
                     DebugKt.debugLogger.invoke("After piston block entity tick: " + pos.toShortString() + ", id" + access.getUndoId());
                     UpdateMonitorHelper.INSTANCE.swap(recordContainer);

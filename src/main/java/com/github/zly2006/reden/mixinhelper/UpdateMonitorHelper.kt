@@ -35,14 +35,12 @@ object UpdateMonitorHelper: UndoRecordContainer {
      */
     override var recording: PlayerData.UndoRecord? = null
         set(value) {
-            synchronized (this) {
-                if (field != value) {
-                    field = value
-                    if (value == null) {
-                        debugLogger("record canceled")
-                    } else {
-                        debugLogger("record start")
-                    }
+            if (field != value) {
+                field = value
+                if (value == null) {
+                    debugLogger("record canceled")
+                } else {
+                    debugLogger("record start")
                 }
             }
         }
@@ -87,13 +85,11 @@ object UpdateMonitorHelper: UndoRecordContainer {
 
     @JvmStatic
     fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
-        synchronized(this) {
-            debugLogger("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState")
-            recording?.data?.computeIfAbsent(pos.asLong()) {
-                recording!!.fromWorld(world, pos)
-            }
-            recording?.lastChangedTick = server.ticks
+        debugLogger("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState")
+        recording?.data?.computeIfAbsent(pos.asLong()) {
+            recording!!.fromWorld(world, pos)
         }
+        recording?.lastChangedTick = server.ticks
     }
 
     /**
@@ -158,11 +154,7 @@ object UpdateMonitorHelper: UndoRecordContainer {
     @JvmStatic
     fun entitySpawned(entity: Entity) {
         if (entity is ServerPlayerEntity) return
-        recording?.let {
-            synchronized(it) {
-                it.entities.put(entity.uuid, null)
-            }
-        }
+        recording?.entities?.put(entity.uuid, null)
     }
 
     init {

@@ -73,10 +73,8 @@ class PlayerData(
                             .expand(0.1),
                     ) { x -> x !is PlayerEntity && x !is TntEntity }
                     list.forEach { entity ->
-                        synchronized(this@UndoRedoRecord) {
-                            this@UndoRedoRecord.entities.computeIfAbsent(entity.uuid) {
-                                EntityEntry(entity.type, NbtCompound().apply(entity::writeNbt), entity.blockPos)
-                            }
+                        this@UndoRedoRecord.entities.computeIfAbsent(entity.uuid) {
+                            EntityEntry(entity.type, NbtCompound().apply(entity::writeNbt), entity.blockPos)
                         }
                     }
                 }

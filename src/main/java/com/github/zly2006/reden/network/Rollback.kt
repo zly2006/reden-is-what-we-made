@@ -77,48 +77,46 @@ class Rollback(
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, res ->
                 val view = player.data()
-                synchronized(UpdateMonitorHelper) {
-                    fun sendStatus(status: Int) = res.sendPacket(Rollback(status))
-                    if (!view.canRecord) {
-                        sendStatus(16)
-                        return@registerGlobalReceiver
-                    }
-                    UpdateMonitorHelper.playerStopRecording(player)
-                    when (packet.status) {
-                        0 -> view.undo.lastValid()?.let { undoRecord ->
-                            view.undo.removeLast()
-                            UpdateMonitorHelper.removeRecord(undoRecord.id) // no longer monitoring rollbacked record
-                            server.execute {
-                                view.redo.add(
-                                    PlayerData.RedoRecord(
-                                        id = undoRecord.id,
-                                        lastChangedTick = -1,
-                                        undoRecord = undoRecord
-                                    ).apply {
-                                        data.putAll(undoRecord.data.keys.associateWith { posLong ->
-                                            this.fromWorld( // add entity info to this redo record
-                                                player.world,
-                                                BlockPos.fromLong(posLong)
-                                            )
-                                        })
-                                    }
-                                )
-                                operate(player.serverWorld, undoRecord, view.redo.last())
-                                sendStatus(0)
-                            }
-                        } ?: sendStatus(2)
+                fun sendStatus(status: Int) = res.sendPacket(Rollback(status))
+                if (!view.canRecord) {
+                    sendStatus(16)
+                    return@registerGlobalReceiver
+                }
+                UpdateMonitorHelper.playerStopRecording(player)
+                when (packet.status) {
+                    0 -> view.undo.lastValid()?.let { undoRecord ->
+                        view.undo.removeLast()
+                        UpdateMonitorHelper.removeRecord(undoRecord.id) // no longer monitoring rollbacked record
+                        server.execute {
+                            view.redo.add(
+                                PlayerData.RedoRecord(
+                                    id = undoRecord.id,
+                                    lastChangedTick = -1,
+                                    undoRecord = undoRecord
+                                ).apply {
+                                    data.putAll(undoRecord.data.keys.associateWith { posLong ->
+                                        this.fromWorld( // add entity info to this redo record
+                                            player.world,
+                                            BlockPos.fromLong(posLong)
+                                        )
+                                    })
+                                }
+                            )
+                            operate(player.serverWorld, undoRecord, view.redo.last())
+                            sendStatus(0)
+                        }
+                    } ?: sendStatus(2)
 
-                        1 -> view.redo.lastValid()?.let {
-                            view.redo.removeLast()
-                            server.execute {
-                                operate(player.serverWorld, it, null)
-                                view.undo.add(it.undoRecord)
-                                sendStatus(1)
-                            }
-                        } ?: sendStatus(2)
+                    1 -> view.redo.lastValid()?.let {
+                        view.redo.removeLast()
+                        server.execute {
+                            operate(player.serverWorld, it, null)
+                            view.undo.add(it.undoRecord)
+                            sendStatus(1)
+                        }
+                    } ?: sendStatus(2)
 
-                        else -> sendStatus(65536)
-                    }
+                    else -> sendStatus(65536)
                 }
             }
             if (isClient) {
