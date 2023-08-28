@@ -3,6 +3,7 @@ package com.github.zly2006.reden.mixinhelper
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.access.UndoRecordContainer
+import com.github.zly2006.reden.access.UndoRecordContainerImpl
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.server
@@ -65,6 +66,17 @@ object UpdateMonitorHelper: UndoRecordContainer {
                 listeners.remove(k)
             }
         }
+    }
+
+    var depth = 0; private set
+    override fun swap(another: UndoRecordContainer) {
+        if (another is UndoRecordContainerImpl) {
+            if (another.swapped) depth--
+            else depth++
+            another.swapped = !another.swapped
+        }
+        debugLogger("swap, depth=$depth")
+        super.swap(another)
     }
 
     @JvmStatic

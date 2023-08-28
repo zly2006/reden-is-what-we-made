@@ -48,6 +48,7 @@ public class MixinSchedule {
     private void afterRunSchedule(CallbackInfo ci) {
         DebugKt.debugLogger.invoke("scheduled tick finished, removing it from record");
         UpdateMonitorHelper.INSTANCE.swap(recordContainer);
+        recordContainer.setRecording(null);
     }
     @Inject(
             method = "scheduleTick",

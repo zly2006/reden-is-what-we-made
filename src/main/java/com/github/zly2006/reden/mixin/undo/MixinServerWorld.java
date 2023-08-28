@@ -65,5 +65,6 @@ public abstract class MixinServerWorld {
     private void afterProcessBlockEvent(BlockEvent event, CallbackInfoReturnable<Boolean> cir) {
         DebugKt.debugLogger.invoke("block event end");
         UpdateMonitorHelper.INSTANCE.swap(recordContainer);
+        recordContainer.setRecording(null);
     }
 }

@@ -50,6 +50,7 @@ public class MixinExplosion implements UndoableAccess {
         DebugKt.debugLogger.invoke("Explosion affect world end, undoID=" + undoId);
         if (undoId != 0) {
             UpdateMonitorHelper.INSTANCE.swap(recordContainer);
+            recordContainer.setRecording(null);
         }
     }
 
@@ -67,6 +68,7 @@ public class MixinExplosion implements UndoableAccess {
         DebugKt.debugLogger.invoke("Explosion damage entities end, undoID=" + undoId);
         if (undoId != 0) {
             UpdateMonitorHelper.INSTANCE.swap(recordContainer);
+            recordContainer.setRecording(null);
         }
     }
 

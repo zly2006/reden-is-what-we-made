@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.network
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
@@ -19,7 +20,6 @@ import net.minecraft.registry.Registries
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
-import okhttp3.internal.toImmutableMap
 
 private val pType = PacketType.create(ROLLBACK) {
     Rollback(it.readVarInt())
@@ -46,8 +46,7 @@ class Rollback(
                     world.getBlockEntity(BlockPos.fromLong(pos))?.readNbt(be)
                 }
             }
-            // 这里不用forEach是因为要避免ConcurrentModificationException，堆屎山ing
-            record.entities.toImmutableMap().forEach {
+            record.entities.forEach {
                 if (it.value != null) {
                     val entry = it.value!!
                     val entity = world.getEntity(it.key)
@@ -83,6 +82,11 @@ class Rollback(
                     return@registerGlobalReceiver
                 }
                 UpdateMonitorHelper.playerStopRecording(player)
+                if (UpdateMonitorHelper.recording != null) {
+                    Reden.LOGGER.warn("Undo when a record is still active, id=" + UpdateMonitorHelper.recording?.id)
+                    // 不取消跟踪会导致undo的更改也被记录，边读边写异常
+                    UpdateMonitorHelper.recording = null
+                }
                 when (packet.status) {
                     0 -> view.undo.lastValid()?.let { undoRecord ->
                         view.undo.removeLast()

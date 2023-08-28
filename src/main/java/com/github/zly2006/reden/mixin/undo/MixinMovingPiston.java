@@ -41,6 +41,7 @@ public class MixinMovingPiston {
                 if (be instanceof UndoableAccess access) {
                     DebugKt.debugLogger.invoke("After piston block entity tick: " + pos.toShortString() + ", id" + access.getUndoId());
                     UpdateMonitorHelper.INSTANCE.swap(recordContainer);
+                    recordContainer.setRecording(null);
                 }
             }
         } : null;

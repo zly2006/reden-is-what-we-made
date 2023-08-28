@@ -50,32 +50,8 @@ public abstract class MixinTntEntity extends Entity implements UndoableAccess {
     private void afterExplode(CallbackInfo ci) {
         DebugKt.debugLogger.invoke("TNT explode end, undoId=" + undoId);
         UpdateMonitorHelper.INSTANCE.swap(recordContainer);
+        recordContainer.setRecording(null);
     }
-
-    /*
-    @Inject(method = "explode", at = @At("HEAD"), cancellable = true)
-    private void onExplode(CallbackInfo ci) {
-        Explosion explosion = new Explosion(
-                this.getWorld(),
-                this,
-                null,
-                null,
-                this.getX(),
-                this.getBodyY(0.0625),
-                this.getZ(),
-                4.0f,
-                false,
-                this.getWorld().getDestructionType(GameRules.TNT_EXPLOSION_DROP_DECAY)
-        );
-        if (undoId != 0) {
-            DebugKt.debugLogger.invoke("TNT exploded, adding it into record "+ undoId);
-            ((UndoableAccess) explosion).setUndoId(undoId);
-        }
-        explosion.collectBlocksAndDamageEntities();
-        explosion.affectWorld(true);
-        ci.cancel();
-    }
-    */
 
     @Override
     public long getUndoId() {
