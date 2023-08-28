@@ -1,0 +1,124 @@
+name: "Bug 反馈"
+description: "创建一个报告帮助我们改进 Reden Mod"
+title: "[Bug]: <在此处简单描述一些你将要反馈的 Bug>"
+labels: ["bug"]
+assignees: ["zly2006", "Cubik65536"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您参与反馈问题。
+        
+        > ### 重要！ :warning:
+        > 
+        > issue 专为报告问题以及请求新功能而设。这意味着我们不会在此处接受任何关于使用的问题。
+        > 如果您打开的 issue 不符合要求，它将被关闭。
+        >
+        > 对于使用上的问题，请参考以下资源：
+        > * [加入 QQ 群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=FydjtxbXtobkK9aYrLt9zwW_CVi4Ep2n&authKey=%2BLarhXwt%2BZF2K9GpL9obcswcHff3A%2BkwekRQ9S4wxu0teuFqXIR9Pi5FrJXnv3Bc&noverify=0&group_code=708842363)
+        > * [加入 Discord 服务器](https://discord.gg/jUUPjgyAz5)
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 请选择：
+      description: 如果您是开发者并且愿意为 Reden Mod 贡献代码来修复这个问题，请勾选以下选项。
+      options:
+        - label: 我正在着手修复这个问题
+          required: false
+
+  - type: textarea
+    id: issue-description
+    validations:
+      required: true
+    attributes:
+      label: 问题描述
+      description: |
+        清晰简洁的描述您遇到的错误。
+        请告诉我们它是构建时错误还是运行时错误。
+      placeholder: |
+        当我执行 <X> 时，会发生 <Y> 并且我看到以下错误消息：
+        
+        ```
+        <错误信息>
+        ```
+        
+        预期行为：
+        
+        当我执行 <X> 时，应该发生 <Z>。
+
+  - type: textarea
+    id: reproduction
+    validations:
+      required: true
+    attributes:
+      label: 重现
+      description: |
+        添加用于重现行为的命令或采取的步骤。
+        包括链接、参考资料以及其他任何可以帮助我们了解您遇到的问题的内容。
+      placeholder: |
+        1. 从 Release 下载应用
+        2. 点击 '...' 并将 <X> 设置为 '...'
+        3. 看到错误
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相关日志输出（如果有）
+      description: |
+        请复制并粘贴任何相关的日志输出。您的内容会自动被格式化为代码。
+        粘贴详细日志时，请确保删除所有敏感信息。
+        如果日志过长，请使用 [Pastebin](https://pastebin.com/) 或 [GitHub Gist](https://gist.github.com/) 并将链接粘贴在此处。
+        或者考虑使用其他允许您直接上传日志 zip 文件的服务。
+      render: Shell
+
+  - type: textarea
+    id: environment
+    validations:
+      required: true
+    attributes:
+      label: 环境
+      description: |
+        请告诉我们您遇到问题的环境（操作系统、Reden Mod 版本等）。
+        示例：
+          - **操作系统**: macOS 14.0 Beta (23A5328b)
+          - **Minecraft 版本**: 1.20.1
+          - **Reden Mod 版本（或 commit SHA）**: 0.1+08272323
+      value: |
+        - **操作系统**：
+        - **Minecraft 版本**：
+        - **Reden Mod 版本（或 commit SHA）：**：
+
+  - type: markdown
+    attributes:
+      value: |
+        ---------
+        
+        在您提交本 issue 之前，请确认以下内容：
+        
+        **1. 本问题是否已经被反馈过了？**
+        
+        请确认是否已经有 issue 反馈过了本问题。
+        
+        **2. 确认您提交的是错误报告**
+        
+        请确认您提交的是错误报告，而不是使用上的问题。
+        
+        **3. 确认本错误仍然存在于最新版本的 Reden Mod 中**
+        
+        请确认本错误仍然存在于最新版本（或提交）的 Reden Mod 中。
+        
+        ---------
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 请确认以下条款
+      options:
+        - label: 我已经查看了 [已有 issue](https://github.com/zly2006/reden-is-what-we-made/issues) 并确定我提交的问题并没有重复
+          required: true
+        - label: 本 issue 是 bug 反馈
+          required: true
+        - label: 本 bug 在最新版本中仍存在
+          required: true
