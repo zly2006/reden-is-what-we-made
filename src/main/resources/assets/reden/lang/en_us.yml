@@ -1,0 +1,20 @@
+reden:
+  widget:
+    config:
+      debug: Debug
+      generic: Generic
+      micro_tick: Micro Tick
+      rvc: RVC
+      super_right: Super Right
+      title: Reden Config
+
+carpet:
+  rule:
+    stackOverflowUpdates:
+      desc: |-
+        TODO
+
+    allowedUndoSizeInBytes:
+      desc: |-
+        Memory size a player can use for undo. Default is 5MB, 0 to disable, -1 for infinite.
+    
