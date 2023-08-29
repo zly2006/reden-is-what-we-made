@@ -6,11 +6,7 @@ import com.github.zly2006.reden.rvc.io.StructureIO
 import com.github.zly2006.reden.rvc.tracking.reader.RvcReaderV1
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.registry.Registries
-import net.minecraft.server.world.BlockEvent
-import net.minecraft.util.Identifier
-import net.minecraft.util.math.BlockPos
 import java.nio.file.Path
-import java.util.*
 
 /**
  * Save and load [TrackedStructure]s into and from RVC files.
@@ -24,30 +20,60 @@ object RvcFileIO: StructureIO {
             "Platform" to "MCMod/Reden"
         )
     )
+
+    /**
+     * Map of data version number to [IRvcFileReader] for reading data from RVC files.
+     */
     private val VERSION_TO_READER = mapOf<String, (IRvcFileReader.RvcHeader) -> IRvcFileReader>(
         "1.0.0" to { RvcReaderV1(it) }
     )
 
+    /**
+     * Write to a RVC file.
+     * @param path Path to the RVC file to write to
+     * @param name Name of the RVC file to write to
+     * @param header The header of the RVC file containing the metadata
+     * @param data The data to write to the RVC file
+     */
     private fun writeRvcFile(path: Path, name: String, header: IRvcFileReader.RvcHeader, data: String) {
         path.resolve(rvcFile(name)).toFile().writeText("$header\n$data")
     }
 
-    private fun readRvcHeader(header: String) {
+    /**
+     * Get the [IRvcFileReader] for the RVC file with its data version number.
+     * @param header The header of the RVC file containing the data version number
+     * @return [IRvcFileReader] for the RVC file with its data version number
+     */
+    private fun getRvcFileReader(header: String): IRvcFileReader {
         val header = IRvcFileReader.RvcHeader(header)
         val version = header.metadata["Version"] ?: CURRENT_VERSION
         val reader = VERSION_TO_READER[version] ?: throw IllegalArgumentException("Invalid RVC version")
-        reader(header)
+        return reader(header)
     }
 
-    private fun readRvcFile(path: Path, name: String): List<String> {
+    /**
+     * Load the RVC file to read data from.
+     * @param path Path to the RVC file to load from
+     * @param name Name of the RVC file to load from
+     * @return [IRvcFileReader.RvcFile] that contains the correct [IRvcFileReader]
+     * for its data version and the data to read
+     */
+    private fun loadRvcFile(path: Path, name: String): IRvcFileReader.RvcFile? {
         if (path.resolve(rvcFile(name)).toFile().exists()) {
             val lines = path.resolve(rvcFile(name)).toFile().readLines()
-            readRvcHeader(lines[0])
-            return lines.subList(1, lines.size)
+            val rvcReader = getRvcFileReader(lines[0])
+            val data = lines.subList(1, lines.size)
+            return IRvcFileReader.RvcFile(rvcReader, data)
         }
-        return emptyList()
+        return null
     }
 
+    /**
+     * Save a [TrackedStructure] to a RVC file.
+     * @param path Path to the RVC file to save to
+     * @param structure The [TrackedStructure] to save data from
+     * @throws IllegalArgumentException if the structure is not a [TrackedStructure]
+     */
     override fun save(path: Path, structure: IStructure) {
         // ================================ Check Saving Structure Type ================================
         if (structure !is TrackedStructure) {
@@ -105,6 +131,19 @@ object RvcFileIO: StructureIO {
         }.let { data -> writeRvcFile(path, "fluidScheduledTicks", RVC_HEADER, data) }
     }
 
+    /**
+     * Load a [TrackedStructure] from a RVC file.
+     * @param path Path to the RVC file to load from
+     * @param structure The [TrackedStructure] to load data into
+     * @throws IllegalArgumentException if the structure is not a [TrackedStructure]
+     */
+    /*
+     * Note from @Cubik65536: This kind of design is not necessary for now as we only have one version of data,
+     *                        but it is good as it will allow us to read even from different versions of data
+     *                        at the same time in the future.
+     *                        If you have any suggestions on how to improve this or have a new design,
+     *                        please let me know or make a pull request.
+     */
     override fun load(path: Path, structure: IWritableStructure) {
         // =============================== Check Loading Structure Type ================================
         if (structure !is TrackedStructure) {
@@ -115,84 +154,56 @@ object RvcFileIO: StructureIO {
         // public final val blocks: MutableMap<BlockPos, BlockState>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.blocks.clear()
-        readRvcFile(path, "blocks").forEach {
-            val data = RvcDataReader(it, ",")
-            val blockPos = BlockPos(data.readNext().toInt(), data.readNext().toInt(), data.readNext().toInt())
-            val blockState = NbtHelper.toBlockState(
-                Registries.BLOCK.readOnlyWrapper,
-                NbtHelper.fromNbtProviderString(data.readGreedy())
-            )
-            structure.blocks[blockPos] = blockState
+        loadRvcFile(path, "blocks")?.let { rvcFile ->
+            structure.blocks.putAll(rvcFile.reader.readBlocksData(rvcFile.data))
         }
 
         // ==================================== Load Block Entities ====================================
         // public final val blockEntities: MutableMap<BlockPos, NbtCompound>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.blockEntities.clear()
-        readRvcFile(path, "blockEntities").forEach {
-            val data = RvcDataReader(it, ",")
-            val blockPos = BlockPos(data.readNext().toInt(), data.readNext().toInt(), data.readNext().toInt())
-            val nbt = NbtHelper.fromNbtProviderString(data.readGreedy())
-            structure.blockEntities[blockPos] = nbt
+        loadRvcFile(path, "blockEntities")?.let { rvcFile ->
+            structure.blockEntities.putAll(rvcFile.reader.readBlockEntitiesData(rvcFile.data))
         }
 
         // ======================================= Load Entities =======================================
         // public open val entities: MutableMap<UUID, NbtCompound>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.entities.clear()
-        readRvcFile(path, "entities").forEach {
-            val data = RvcDataReader(it, ",")
-            val uuid = UUID.fromString(data.readNext())
-            val nbt = NbtHelper.fromNbtProviderString(data.readGreedy())
-            structure.entities[uuid] = nbt
+        loadRvcFile(path, "entities")?.let { rvcFile ->
+            structure.entities.putAll(rvcFile.reader.readEntitiesData(rvcFile.data))
         }
 
         // ===================================== Load Track Points =====================================
         // public final val trackPoints: MutableList<TrackedStructure.TrackPoint>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.trackPoints.clear()
-        structure.trackPoints.addAll(readRvcFile(path, "trackPoints").map {
-            val data = RvcDataReader(it, ",")
-            val blockPos = BlockPos(data.readNext().toInt(), data.readNext().toInt(), data.readNext().toInt())
-            val predicate = data.readNext()
-            val mode = data.readNext()
-            TrackedStructure.TrackPoint(
-                blockPos,
-                TrackedStructure.TrackPoint.TrackPredicate.valueOf(predicate),
-                TrackedStructure.TrackPoint.TrackMode.valueOf(mode)
-            )
-        })
+        loadRvcFile(path, "trackPoints")?.let { rvcFile ->
+            structure.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data))
+        }
 
         // ===================================== Load Block Events =====================================
         // public final val blockEvents: MutableList<BlockEvent>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.blockEvents.clear()
-        readRvcFile(path, "blockEvents").forEach {
-            val split = it.split(",")
-            structure.blockEvents.add(
-                BlockEvent(
-                    BlockPos(split[0].toInt(), split[1].toInt(), split[2].toInt()),
-                    Registries.BLOCK.get(Identifier(split[5])),
-                    split[3].toInt(),
-                    split[4].toInt()
-                )
-            )
+        loadRvcFile(path, "blockEvents")?.let { rvcFile ->
+            structure.blockEvents.addAll(rvcFile.reader.readBlockEventsData(rvcFile.data))
         }
 
         // ================================ Load Block Scheduled Ticks =================================
-        // public final val blockScheduledTicks: MutableList<Tick<*>>
+        // public final val blockScheduledTicks: MutableList<NbtCompound>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.blockScheduledTicks.clear()
-        readRvcFile(path, "blockScheduledTicks").forEach {
-            structure.blockScheduledTicks.add(NbtHelper.fromNbtProviderString(it))
+        loadRvcFile(path, "blockScheduledTicks")?.let { rvcFile ->
+            structure.blockScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data))
         }
 
         // ================================ Load Fluid Scheduled Ticks =================================
-        // public final val fluidScheduledTicks: MutableList<Tick<*>>
+        // public final val fluidScheduledTicks: MutableList<NbtCompound>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.fluidScheduledTicks.clear()
-        readRvcFile(path, "fluidScheduledTicks").forEach {
-            structure.fluidScheduledTicks.add(NbtHelper.fromNbtProviderString(it))
+        loadRvcFile(path, "fluidScheduledTicks")?.let { rvcFile ->
+            structure.fluidScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data))
         }
     }
 }
