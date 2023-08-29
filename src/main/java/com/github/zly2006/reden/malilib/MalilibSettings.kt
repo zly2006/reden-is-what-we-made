@@ -2,14 +2,13 @@
 
 package com.github.zly2006.reden.malilib
 
-import com.github.zly2006.reden.malilib.options.RedenConfigBoolean
-import com.github.zly2006.reden.malilib.options.RedenConfigBooleanHotkeyed
-import com.github.zly2006.reden.malilib.options.RedenConfigHotkey
-import com.github.zly2006.reden.malilib.options.RedenConfigInteger
+import com.github.zly2006.reden.malilib.options.*
 import com.github.zly2006.reden.utils.isClient
 import com.google.common.collect.ImmutableList
 import fi.dy.masa.malilib.config.IConfigBase
-import fi.dy.masa.malilib.config.options.*
+import fi.dy.masa.malilib.config.options.ConfigBase
+import fi.dy.masa.malilib.config.options.ConfigHotkey
+import fi.dy.masa.malilib.config.options.ConfigStringList
 import fi.dy.masa.malilib.hotkeys.IHotkey
 import net.minecraft.client.MinecraftClient
 
@@ -64,8 +63,8 @@ private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add
 @JvmField val MAX_CHAIN_UPDATES = RedenConfigInteger("maxChainUpdates", -1).debug()
 @JvmField val DO_ASSERTION_CHECKS = RedenConfigBoolean("doAssertionChecks", false).debug()
 @JvmField val UNDO_REPORT_UN_TRACKED_TNT = RedenConfigBoolean("undoReportUnTrackedTnt", false).debug()
-@JvmField val OPEN_GITHUB_AUTH_SCREEN = ConfigHotkey("openGithubAuthScreen", "R,G", "").debug().hotkey()
-@JvmField val GITHUB_TOKEN = ConfigString("githubToken", "", "Keep it secure! You should not modify it unless you know what you are doing.").debug()
+@JvmField val OPEN_GITHUB_AUTH_SCREEN = RedenConfigHotkey("openGithubAuthScreen", "R,G").debug().hotkey()
+@JvmField val GITHUB_TOKEN = RedenConfigString("githubToken", "").debug()
 
 fun ConfigHotkey.runCommand(commands: ConfigStringList) {
     this.keybind.setCallback { _, _ ->

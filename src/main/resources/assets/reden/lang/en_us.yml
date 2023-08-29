@@ -114,6 +114,15 @@ reden:
       .: undoReportUnTrackedTnt
       comment: |-
 
+    openGithubAuthScreen:
+      .: openGithubAuthScreen
+      comment: |-
+
+    githubToken:
+      .: githubToken
+      comment: |-
+        Keep it secure! You should not modify it unless you know what you are doing.
+
 
 carpet:
   rule:
