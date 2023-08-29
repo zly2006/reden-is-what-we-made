@@ -1,0 +1,136 @@
+reden:
+  widget:
+    config:
+      debug: Debug
+      generic: Generic
+      micro_tick: Micro Tick
+      rvc: RVC
+      super_right: Super Right
+      title: Reden Config
+
+  config:
+    # ===== Generic =====
+    redenConfigKey:
+      .: redenConfigKey
+      comment: |-
+
+    allowCopyrightCheck:
+      .: allowCopyrightCheck
+      comment: |-
+
+    securityCommit:
+      .: securityCommit
+      comment: |-
+
+    rollbackKey:
+      .: rollbackKey
+      comment: |-
+
+    redoKey:
+      .: redoKey
+      comment: |-
+
+    undoSupportLitematicaOperation:
+      .: undoSupportLitematicaOperation
+      comment: |-
+
+    undoCheatingOnly:
+      .: undoCheatingOnly
+      comment: |-
+        Only enable undo feature if cheating enabled.
+
+    maxRenderDistance:
+      .: maxRenderDistance
+      comment: |-
+
+    # ===== Micro Tick =====
+    toggleNcBreakpoint:
+      .: toggleNcBreakpoint
+      comment: |-
+        Neighbor Changed Event
+
+    togglePpBreakpoint:
+      .: togglePpBreakpoint
+      comment: |-
+        Post Placement Event
+
+    toggleCuBreakpoint:
+      .: toggleCuBreakpoint
+      comment: |-
+        Comparator Update Event
+
+    toggleForceEntityPosSync:
+      .: toggleForceEntityPosSync
+      comment: |-
+        Force Entity Pos Sync
+
+    # ===== RVC =====
+    rvcRecordMultiplayer:
+      .: rvcRecordMultiplayer
+      comment: |-
+        Enable RVC in multiplayer
+
+    rvcForceLocally:
+      .: rvcForceLocally
+      comment: |-
+        Force RVC to run locally even the remote server enabled RVC
+
+    # ===== Super Right =====
+    chatRightClickMenu:
+      .: chatRightClickMenu
+      comment: |-
+        Enable right click menu in chat
+
+    # ===== Debug =====
+    debugLogger:
+      .: debugLogger
+      comment: |-
+        Enable debug logger
+
+    debugPacketLogger:
+      .: debugPacketLogger
+      comment: |-
+
+    debugTagBlockPos:
+      .: debugTagBlockPos
+      comment: |-
+        Tag block position
+
+    debugPreviewUndo:
+      .: debugPreviewUndo
+      comment: |-
+        Preview undo
+
+    maxChainUpdates:
+      .: maxChainUpdates
+      comment: |-
+        Max chain updates, affects after reopening
+
+    doAssertionChecks:
+      .: doAssertionChecks
+      comment: |-
+
+    undoReportUnTrackedTnt:
+      .: undoReportUnTrackedTnt
+      comment: |-
+
+    openGithubAuthScreen:
+      .: openGithubAuthScreen
+      comment: |-
+
+    githubToken:
+      .: githubToken
+      comment: |-
+        Keep it secure! You should not modify it unless you know what you are doing.
+
+
+carpet:
+  rule:
+    stackOverflowUpdates:
+      desc: |-
+        TODO
+
+    allowedUndoSizeInBytes:
+      desc: |-
+        Memory size a player can use for undo. Default is 5MB, 0 to disable, -1 for infinite.
+    

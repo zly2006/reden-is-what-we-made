@@ -2,10 +2,13 @@
 
 package com.github.zly2006.reden.malilib
 
+import com.github.zly2006.reden.malilib.options.*
 import com.github.zly2006.reden.utils.isClient
 import com.google.common.collect.ImmutableList
 import fi.dy.masa.malilib.config.IConfigBase
-import fi.dy.masa.malilib.config.options.*
+import fi.dy.masa.malilib.config.options.ConfigBase
+import fi.dy.masa.malilib.config.options.ConfigHotkey
+import fi.dy.masa.malilib.config.options.ConfigStringList
 import fi.dy.masa.malilib.hotkeys.IHotkey
 import net.minecraft.client.MinecraftClient
 
@@ -38,30 +41,30 @@ private fun <T : IConfigBase?> ConfigBase<T>.sr() = this.apply(SUPER_RIGHT_TAB::
 @Suppress("UNCHECKED_CAST")
 private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add) as T
 
-@JvmField val REDEN_CONFIG_KEY = ConfigHotkey("redenConfigKey", "R,C", "").generic().hotkey()
-@JvmField val ALLOW_COPYRIGHT_CHECK = ConfigBoolean("allowCopyrightCheck", true, "").generic()
-@JvmField val SECURITY_COMMIT = ConfigBoolean("securityCommit", false, "").generic()
-@JvmField val UNDO_KEY = ConfigHotkey("rollbackKey", "LEFT_CONTROL,Z", "").generic().hotkey()
-@JvmField val REDO_KEY = ConfigHotkey("redoKey", "LEFT_CONTROL,Y", "").generic().hotkey()
-@JvmField val UNDO_SUPPORT_LITEMATICA_OPERATION = ConfigBoolean("undoSupportLitematicaOperation", true, "").generic()
-@JvmField val UNDO_CHEATING_ONLY = ConfigBoolean("undoCheatingOnly", true, "Only enable undo feature if cheating enabled.").generic()
-@JvmField val MAX_RENDER_DISTANCE = ConfigInteger("maxRenderDistance", 48, "").generic()
-@JvmField val TOGGLE_NC_BREAKPOINT = ConfigHotkey("toggleNcBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,Z", "Neighbor Changed Event").mt().hotkey()
-@JvmField val TOGGLE_PP_BREAKPOINT = ConfigHotkey("togglePpBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,X", "Post Placement Event").mt().hotkey()
-@JvmField val TOGGLE_CU_BREAKPOINT = ConfigHotkey("toggleCuBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,C", "Comparator Update Event").mt().hotkey()
-@JvmField val TOGGLE_FORCE_ENTITY_POS_SYNC = ConfigBooleanHotkeyed("toggleForceEntityPosSync", false, "LEFT_CONTROL,LEFT_SHIFT,V", "Force Entity Pos Sync").hotkey().mt()
-@JvmField val RVC_RECORD_MULTIPLAYER = ConfigBoolean("rvcRecordMultiplayer", true, "Enable RVC in multiplayer").rvc()
-@JvmField val RVC_FORCE_LOCALLY = ConfigBoolean("rvcForceLocally", false, "Force RVC to run locally even the remote server enabled RVC").rvc()
-@JvmField val CHAT_RIGHT_CLICK_MENU = ConfigBoolean("chatRightClickMenu", true, "Enable right click menu in chat").sr()
-@JvmField val DEBUG_LOGGER = ConfigBoolean("debugLogger", false, "Enable debug logger").debug()
-@JvmField val DEBUG_PACKET_LOGGER = ConfigBoolean("debugPacketLogger", false, "").debug()
-@JvmField val DEBUG_TAG_BLOCK_POS = ConfigHotkey("debugTagBlockPos", "LEFT_CONTROL,LEFT_SHIFT,T", "Tag block position").debug().hotkey()
-@JvmField val DEBUG_PREVIEW_UNDO = ConfigHotkey("debugPreviewUndo", "LEFT_CONTROL,LEFT_SHIFT,Z", "Preview undo").debug().hotkey()
-@JvmField val MAX_CHAIN_UPDATES = ConfigInteger("maxChainUpdates", -1, "Max chain updates, affects after reopening").debug()
-@JvmField val DO_ASSERTION_CHECKS = ConfigBoolean("doAssertionChecks", false, "").debug()
-@JvmField val UNDO_REPORT_UN_TRACKED_TNT = ConfigBoolean("undoReportUnTrackedTnt", false, "").debug()
-@JvmField val OPEN_GITHUB_AUTH_SCREEN = ConfigHotkey("openGithubAuthScreen", "R,G", "").debug().hotkey()
-@JvmField val GITHUB_TOKEN = ConfigString("githubToken", "", "Keep it secure! You should not modify it unless you know what you are doing.").debug()
+@JvmField val REDEN_CONFIG_KEY = RedenConfigHotkey("redenConfigKey", "R,C").generic().hotkey()
+@JvmField val ALLOW_COPYRIGHT_CHECK = RedenConfigBoolean("allowCopyrightCheck", true).generic()
+@JvmField val SECURITY_COMMIT = RedenConfigBoolean("securityCommit", false).generic()
+@JvmField val UNDO_KEY = RedenConfigHotkey("rollbackKey", "LEFT_CONTROL,Z").generic().hotkey()
+@JvmField val REDO_KEY = RedenConfigHotkey("redoKey", "LEFT_CONTROL,Y").generic().hotkey()
+@JvmField val UNDO_SUPPORT_LITEMATICA_OPERATION = RedenConfigBoolean("undoSupportLitematicaOperation", true).generic()
+@JvmField val UNDO_CHEATING_ONLY = RedenConfigBoolean("undoCheatingOnly", true).generic()
+@JvmField val MAX_RENDER_DISTANCE = RedenConfigInteger("maxRenderDistance", 48).generic()
+@JvmField val TOGGLE_NC_BREAKPOINT = RedenConfigHotkey("toggleNcBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,Z").mt().hotkey()
+@JvmField val TOGGLE_PP_BREAKPOINT = RedenConfigHotkey("togglePpBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,X").mt().hotkey()
+@JvmField val TOGGLE_CU_BREAKPOINT = RedenConfigHotkey("toggleCuBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,C").mt().hotkey()
+@JvmField val TOGGLE_FORCE_ENTITY_POS_SYNC = RedenConfigBooleanHotkeyed("toggleForceEntityPosSync", false, "LEFT_CONTROL,LEFT_SHIFT,V").hotkey().mt()
+@JvmField val RVC_RECORD_MULTIPLAYER = RedenConfigBoolean("rvcRecordMultiplayer", true).rvc()
+@JvmField val RVC_FORCE_LOCALLY = RedenConfigBoolean("rvcForceLocally", false).rvc()
+@JvmField val CHAT_RIGHT_CLICK_MENU = RedenConfigBoolean("chatRightClickMenu", true).sr()
+@JvmField val DEBUG_LOGGER = RedenConfigBoolean("debugLogger", false).debug()
+@JvmField val DEBUG_PACKET_LOGGER = RedenConfigBoolean("debugPacketLogger", false).debug()
+@JvmField val DEBUG_TAG_BLOCK_POS = RedenConfigHotkey("debugTagBlockPos", "LEFT_CONTROL,LEFT_SHIFT,T").debug().hotkey()
+@JvmField val DEBUG_PREVIEW_UNDO = RedenConfigHotkey("debugPreviewUndo", "LEFT_CONTROL,LEFT_SHIFT,Z").debug().hotkey()
+@JvmField val MAX_CHAIN_UPDATES = RedenConfigInteger("maxChainUpdates", -1).debug()
+@JvmField val DO_ASSERTION_CHECKS = RedenConfigBoolean("doAssertionChecks", false).debug()
+@JvmField val UNDO_REPORT_UN_TRACKED_TNT = RedenConfigBoolean("undoReportUnTrackedTnt", false).debug()
+@JvmField val OPEN_GITHUB_AUTH_SCREEN = RedenConfigHotkey("openGithubAuthScreen", "R,G").debug().hotkey()
+@JvmField val GITHUB_TOKEN = RedenConfigString("githubToken", "").debug()
 
 fun ConfigHotkey.runCommand(commands: ConfigStringList) {
     this.keybind.setCallback { _, _ ->
@@ -75,6 +78,7 @@ fun ConfigHotkey.runCommand(commands: ConfigStringList) {
 }
 
 fun createCommandHotkey(index: Int) {
+    // We should find a better way to implement this. It should be refactored.
     val commands = ConfigStringList("command$index", ImmutableList.of(), "").sr()
     val hotkey = ConfigHotkey("runCommand$index", "", "Hotkey for executing command $index").hotkey().sr().runCommand(commands)
 }
