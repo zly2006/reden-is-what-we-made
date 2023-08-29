@@ -103,5 +103,5 @@ fun memorySizeToString(size: Int) {
         s /= 1024
         i++
     }
-    println("%2d".format(s) + unit[i])
+    println("%.2f".format(s) + unit[i])
 }

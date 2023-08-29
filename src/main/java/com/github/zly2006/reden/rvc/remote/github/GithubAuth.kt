@@ -16,6 +16,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
 const val CLIENT_ID = "ef981ecc09953f8c6563"
+const val CONNECTION = "https://github.com/settings/connections/applications/:$CLIENT_ID"
 class GithubAuth {
     val canRelogin: Boolean
         get() = authState == AuthState.EXPIRED || authState == AuthState.FAILED || authState == AuthState.NONE || authState == AuthState.FINISHED
