@@ -38,3 +38,4 @@ accessible field net/minecraft/world/tick/WorldTickScheduler copiedTickableTicks
 accessible field net/minecraft/world/tick/ChunkTickScheduler queuedTicks Ljava/util/Set;
 accessible field net/minecraft/block/entity/PistonBlockEntity progress F
 accessible field net/minecraft/block/entity/PistonBlockEntity lastProgress F
+accessible field net/minecraft/registry/Registries ROOT Lnet/minecraft/registry/MutableRegistry;

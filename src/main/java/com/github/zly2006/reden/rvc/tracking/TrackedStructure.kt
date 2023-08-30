@@ -13,6 +13,7 @@ import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.World
 import net.minecraft.world.tick.ChunkTickScheduler
 import net.minecraft.world.tick.Tick
+import java.util.*
 
 class TrackedStructure (
     name: String
@@ -30,21 +31,11 @@ class TrackedStructure (
     val blockScheduledTicks = mutableListOf<NbtCompound>() // order sensitive
     val fluidScheduledTicks = mutableListOf<NbtCompound>() // order sensitive
 
-    class TrackPoint(
+    open class SpreadEntry(
         val pos: BlockPos,
-        val predicate: TrackPredicate,
-        val mode: TrackMode,
+        val predicate: TrackPredicate
     ) {
-        enum class TrackMode {
-            NOOP,
-            TRACK,
-            IGNORE;
-
-            fun isTrack(): Boolean {
-                return this == TRACK
-            }
-        }
-        enum class TrackPredicate(distance: Int, same: Boolean) {
+        enum class TrackPredicate(val distance: Int, val same: Boolean) {
             SAME(1, true),
             NEAR(1, false),
             QC(2, false),
@@ -52,12 +43,43 @@ class TrackedStructure (
 
             fun match(world: World, pos1: BlockPos, pos2: BlockPos): Boolean {
                 val distance = pos1.getManhattanDistance(pos2)
-                return when (this) {
-                    SAME -> distance == 1 && world.getBlockState(pos1).block == world.getBlockState(pos2).block
-                    NEAR -> distance <= 1
-                    QC -> distance <= 2
-                    FAR -> distance <= 3
+                return distance <= this.distance &&
+                        (!this.same || world.getBlockState(pos1).block == world.getBlockState(pos2).block)
+            }
+        }
+
+        fun spreadAround(world: World, successConsumer: (BlockPos) -> Unit, failConsumer: ((BlockPos) -> Unit)? = null) {
+            val x = pos.x
+            val y = pos.y
+            val z = pos.z
+            val deltaRange = -predicate.distance .. predicate.distance
+            for (dx in deltaRange) {
+                for (dy in deltaRange) {
+                    for (dz in deltaRange) {
+                        val pos = BlockPos(x + dx, y + dy, z + dz)
+                        if (predicate.match(world, this.pos, pos)) {
+                            successConsumer(pos)
+                        } else {
+                            failConsumer?.invoke(pos)
+                        }
+                    }
                 }
+            }
+        }
+    }
+
+    class TrackPoint(
+        pos: BlockPos,
+        predicate: TrackPredicate,
+        val mode: TrackMode,
+    ): SpreadEntry(pos, predicate) {
+        enum class TrackMode {
+            NOOP,
+            TRACK,
+            IGNORE;
+
+            fun isTrack(): Boolean {
+                return this == TRACK
             }
         }
     }
@@ -78,8 +100,54 @@ class TrackedStructure (
             ?: false
     }
 
-    val blockIterator: Iterator<BlockPos> get() {
-        TODO()
+    val blockIterator: Iterator<BlockPos> get() = object: Iterator<BlockPos> {
+        private val trackPointIter = trackPoints.asSequence().filter { it.mode == TrackPoint.TrackMode.TRACK }.iterator()
+        val readPos = hashSetOf<BlockPos>()
+        val ignored = hashSetOf<BlockPos>()
+        val currentPointPoses = hashSetOf<BlockPos>()
+
+        init {
+            // add ignored blocks
+            val queue = trackPoints.filter { it.mode == TrackPoint.TrackMode.IGNORE }.map { SpreadEntry(it.pos, it.predicate) }.toMutableList()
+            var maxElements = 100000
+            while (queue.isNotEmpty() && maxElements > 0) {
+                val entry = queue.removeFirst()
+                entry.spreadAround(world, { pos ->
+                    if (ignored.add(pos)) {
+                        maxElements--
+                        queue.add(SpreadEntry(pos, entry.predicate))
+                    }
+                })
+            }
+        }
+
+        override fun hasNext() = currentPointPoses.isNotEmpty() // still have some poses to read
+                || trackPointIter.hasNext()
+
+        override fun next(): BlockPos {
+            if (currentPointPoses.isEmpty()) {
+                // first, add all blocks recursively
+                val queue = LinkedList<SpreadEntry>()
+                queue.add(trackPointIter.next())
+                var maxElements = 1000
+                while (queue.isNotEmpty() && maxElements > 0) {
+                    val entry = queue.removeFirst()
+                    if (entry.pos in ignored) continue
+                    entry.spreadAround(world, { newPos ->
+                        if (readPos.add(newPos)) {
+                            currentPointPoses.add(newPos)
+                            maxElements--
+                            queue.add(SpreadEntry(newPos, entry.predicate))
+                        }
+                    })
+                }
+            }
+
+            val iter = currentPointPoses.iterator()
+            val pos = iter.next()
+            iter.remove()
+            return pos
+        }
     }
 
     fun clearSchedules() {
