@@ -31,6 +31,8 @@ jobs:
 
 
       - name: Build with Gradle
+        env:
+          REDEN_BUILD_TYPE: "BETA"
         run: gradle build --stacktrace
 
       - name: Get Mod Info
