@@ -54,7 +54,7 @@ jobs:
         if: ${{ matrix.java }} == 17 # Only publish the version built with Java LTS
         uses: actions/upload-artifact@v3
         with:
-          name: "[CI#${{ github.run_number }}] ${{ steps.mod_info.outputs.mod_name }} ${{ steps.mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
+          name: "[CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
           path: build/libs/*.jar
 
       - name: Publish to GitHub Pre-Releases
@@ -64,6 +64,6 @@ jobs:
           allowUpdates: true
           artifacts: build/libs/*.jar
           generateReleaseNotes: true
-          name: "[CI#${{ github.run_number }}] ${{ steps.mod_info.outputs.mod_name }} Mod Pre-Release ${{ steps.mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
+          name: "[CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} Mod Pre-Release ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
           prerelease: true
           tag: "beta/${{ steps.get_commit_sha.outputs.short_sha }}"
