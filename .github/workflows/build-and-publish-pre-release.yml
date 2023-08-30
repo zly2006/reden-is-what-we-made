@@ -31,7 +31,7 @@ jobs:
 
 
       - name: Build with Gradle
-        run: gradle build
+        run: gradle build --stacktrace
 
       - name: Get Mod Info
         id: get_mod_info
