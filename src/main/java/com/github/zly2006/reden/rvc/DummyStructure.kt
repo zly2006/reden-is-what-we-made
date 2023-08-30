@@ -49,13 +49,9 @@ open class DummyStructure(
         override val origin: BlockPos
             get() = origin
 
-        override fun clearArea() {
-            TODO("Not yet implemented")
-        }
+        override fun clearArea() { }
 
-        override fun paste() {
-            TODO("Not yet implemented")
-        }
+        override fun paste() { }
     }
 
     final override fun getBlockState(pos: BlockPos): BlockState = pBlockStateMap[pos] ?: Blocks.AIR.defaultState
@@ -68,6 +64,5 @@ open class DummyStructure(
     }
 
     override val entities: Map<UUID, NbtCompound>
-        get() = TODO("Not yet implemented")
-
+        get() = emptyMap()
 }
