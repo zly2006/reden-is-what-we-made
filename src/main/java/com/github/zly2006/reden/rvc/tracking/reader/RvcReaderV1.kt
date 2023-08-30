@@ -61,7 +61,7 @@ class RvcReaderV1(
             trackPoints.add(
                 TrackedStructure.TrackPoint(
                     blockPos,
-                    TrackedStructure.TrackPoint.TrackPredicate.valueOf(predicate),
+                    TrackedStructure.TrackPredicate.valueOf(predicate),
                     TrackedStructure.TrackPoint.TrackMode.valueOf(mode)
                 )
             )

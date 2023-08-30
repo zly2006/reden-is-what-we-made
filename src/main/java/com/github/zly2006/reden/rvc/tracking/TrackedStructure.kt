@@ -35,18 +35,6 @@ class TrackedStructure (
         val pos: BlockPos,
         val predicate: TrackPredicate
     ) {
-        enum class TrackPredicate(val distance: Int, val same: Boolean) {
-            SAME(1, true),
-            NEAR(1, false),
-            QC(2, false),
-            FAR(3, false);
-
-            fun match(world: World, pos1: BlockPos, pos2: BlockPos): Boolean {
-                val distance = pos1.getManhattanDistance(pos2)
-                return distance <= this.distance &&
-                        (!this.same || world.getBlockState(pos1).block == world.getBlockState(pos2).block)
-            }
-        }
 
         fun spreadAround(world: World, successConsumer: (BlockPos) -> Unit, failConsumer: ((BlockPos) -> Unit)? = null) {
             val x = pos.x
@@ -184,6 +172,19 @@ class TrackedStructure (
                 .flatMap { it.queuedTicks.filter { isInArea(it.pos) } }
                 .map { Tick.orderedTickToNbt(it, { Registries.FLUID.getId(it as Fluid).toString() }, time) }
                 .let { fluidScheduledTicks.addAll(it) }
+        }
+    }
+
+    enum class TrackPredicate(val distance: Int, val same: Boolean) {
+        SAME(1, true),
+        NEAR(1, false),
+        QC(2, false),
+        FAR(3, false);
+
+        fun match(world: World, pos1: BlockPos, pos2: BlockPos): Boolean {
+            val distance = pos1.getManhattanDistance(pos2)
+            return distance <= this.distance &&
+                    (!this.same || world.getBlockState(pos1).block == world.getBlockState(pos2).block)
         }
     }
 }
