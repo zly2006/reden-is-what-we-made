@@ -1,6 +1,6 @@
 name: Build Pre-Release version and Publish to GitHub Releases
 
-on: [push, pull_request, workflow_dispatch]
+on: [push, workflow_dispatch]
 
 jobs:
   build-and-publish-pre-release:
