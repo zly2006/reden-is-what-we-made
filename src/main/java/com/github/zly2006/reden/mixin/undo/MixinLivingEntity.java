@@ -26,6 +26,8 @@ public abstract class MixinLivingEntity extends Entity {
             )
     )
     private void onDeath(DamageSource damageSource, CallbackInfo ci) {
-        ServerWorld world = (ServerWorld) getWorld();
+        if (getWorld() instanceof ServerWorld serverWorld) {
+
+        }
     }
 }

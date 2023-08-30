@@ -29,10 +29,12 @@
     "undo.MixinUpdater"
   ],
   "client": [
+    "debug.undoReportUnTrackedTnt.MixinTntEntity",
     "chat.ChatHudMixin",
     "chat.ChatScreenMixin",
     "chat.VisibleChatHudLineMixin",
     "fix.NoTimeOut",
+    "fix.chatCrash.MixinChatHud",
     "fix.forceSyncEntityPos.MixinClientNetwork",
     "fix.forceSyncEntityPos.MixinTracker",
     "fix.forceSyncEntityPos.MixinWorldRenderer",

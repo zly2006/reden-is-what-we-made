@@ -1,0 +1,23 @@
+name: "Others"
+description: "Others type of issue"
+title: "[Others]: "
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > ### Important! :warning:
+        > 
+        > The issue list is reserved exclusively for bug reports and feature requests. That means we do not accept usage questions.
+        > If you open an issue that does not conform to the requirements, it will be closed.
+        >
+        > For usage questions, please refer to the following resources:
+        > * [Join our QQ Group](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=FydjtxbXtobkK9aYrLt9zwW_CVi4Ep2n&authKey=%2BLarhXwt%2BZF2K9GpL9obcswcHff3A%2BkwekRQ9S4wxu0teuFqXIR9Pi5FrJXnv3Bc&noverify=0&group_code=708842363)
+        > * [Join our Discord Server](https://discord.gg/jUUPjgyAz5)
+
+  - type: textarea
+    id: description
+    validations:
+      required: true
+    attributes:
+      label: Description

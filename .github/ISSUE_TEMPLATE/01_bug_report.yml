@@ -1,0 +1,126 @@
+name: "Bug Report"
+description: "Create a report to help us improve Reden Mod"
+title: "[Bug]: <Write A Short Description On The Bug Here>"
+labels: ["bug"]
+assignees: ["zly2006", "Cubik65536"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue.
+        
+        > ### Important! :warning:
+        > 
+        > The issue list is reserved exclusively for bug reports and feature requests. That means we do not accept usage questions.
+        > If you open an issue that does not conform to the requirements, it will be closed.
+        >
+        > For usage questions, please refer to the following resources:
+        > * [Join our QQ Group](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=FydjtxbXtobkK9aYrLt9zwW_CVi4Ep2n&authKey=%2BLarhXwt%2BZF2K9GpL9obcswcHff3A%2BkwekRQ9S4wxu0teuFqXIR9Pi5FrJXnv3Bc&noverify=0&group_code=708842363)
+        > * [Join our Discord Server](https://discord.gg/jUUPjgyAz5)
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: "Please choose if applies:"
+      description: If you are a developer and you are willing to contribute codes to fix this issue, please check the following option.
+      options:
+        - label: I'm currently working on a fix.
+          required: false
+
+  - type: textarea
+    id: issue-description
+    validations:
+      required: true
+    attributes:
+      label: Issue Description
+      description: |
+        A clear and concise description of what the bug is.
+        Please, explain whether it's a build-time error or a runtime error.
+      placeholder: |
+        When I do <X>, <Y> happens and I see the following error message:
+        
+        ```
+        <error message>
+        ```
+        
+        Expected behavior:
+        
+        When I do <X>, <Z> should happen instead.
+
+  - type: textarea
+    id: reproduction
+    validations:
+      required: true
+    attributes:
+      label: Reproduction
+      description: |
+        Add commands used or steps taken to reproduce the behaviour.
+        Include links, references or anything else that will give us more context about the issue you are encountering.
+      placeholder: |
+        1. Download application from Release
+        2. Click '...' after setting <X> to '...'
+        3. See error
+
+  - type: textarea
+    id: logs
+    validations:
+      required: true
+    attributes:
+      label: Relevant log output (if applicable)
+      description: |
+        Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+        When pasting verbose logs, please make sure you remove any sensitive information.
+        If they are too long, please use [Pastebin](https://pastebin.com/) or [GitHub Gist](https://gist.github.com/) and paste the link here.
+        Or consider using some other services that allows you to directly upload log zip files.
+      render: Shell
+
+  - type: textarea
+    id: environment
+    validations:
+      required: true
+    attributes:
+      label: Environment
+      description: |
+        Environment (Operating System, Reden Mod Version, etc.) in which the issue was encountered.
+        examples:
+          - **Operating System**: macOS 14.0 Beta (23A5328b)
+          - **Minecraft Version**: 1.20.1
+          - **Reden Mod Version (or commit number)**: 0.1+08272323
+      value: |
+        - **Operating System**:
+        - **Minecraft Version**:
+        - **Reden Mod Version (or commit number)**:
+
+  - type: markdown
+    attributes:
+      value: |
+        ---------
+        
+        Before you submit this issue, please confirm the following:
+        
+        **1. Is there an existing issue for this?**
+        
+        Please search to see if an issue already exists for the bug you encountered.
+        
+        **2. Confirm you are submitting a bug report**
+        
+        Please confirm you are submitting a bug report and not a usage question.
+        
+        **3. Confirm this bug still exists in the newest version of Reden Mod**
+        
+        Please confirm that the bug still exists in the newest version (commit) of Reden Mod.
+        
+        ---------
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Please accept these terms
+      options:
+        - label: I have searched the [existing issues](https://github.com/zly2006/reden-is-what-we-made/issues) and this has not been posted before
+          required: true
+        - label: This is a bug report
+          required: true
+        - label: This bug still exists
+          required: true

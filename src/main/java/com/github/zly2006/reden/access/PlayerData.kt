@@ -57,8 +57,8 @@ class PlayerData(
     open class UndoRedoRecord(
         val id: Long,
         var lastChangedTick: Int = 0,
-        val entities: MutableMap<UUID, EntityEntry?> = hashMapOf(),
-        val data: MutableMap<Long, Entry> = hashMapOf()
+        val entities: MutableMap<UUID, EntityEntry?> = mutableMapOf(),
+        val data: MutableMap<Long, Entry> = mutableMapOf()
     ) {
         fun fromWorld(world: World, pos: BlockPos): Entry {
             return Entry(
@@ -73,7 +73,7 @@ class PlayerData(
                             .expand(0.1),
                     ) { x -> x !is PlayerEntity && x !is TntEntity }
                     list.forEach { entity ->
-                        entities.computeIfAbsent(entity.uuid) {
+                        this@UndoRedoRecord.entities.computeIfAbsent(entity.uuid) {
                             EntityEntry(entity.type, NbtCompound().apply(entity::writeNbt), entity.blockPos)
                         }
                     }
@@ -87,14 +87,14 @@ class PlayerData(
     class UndoRecord(
         id: Long,
         lastChangedTick: Int = 0,
-        entities: MutableMap<UUID, EntityEntry?> = hashMapOf(),
-        data: MutableMap<Long, Entry> = hashMapOf()
+        entities: MutableMap<UUID, EntityEntry?> = mutableMapOf(),
+        data: MutableMap<Long, Entry> = mutableMapOf()
     ) : UndoRedoRecord(id, lastChangedTick, entities, data)
     class RedoRecord(
         id: Long,
         lastChangedTick: Int = 0,
-        entities: MutableMap<UUID, EntityEntry?> = hashMapOf(),
-        data: MutableMap<Long, Entry> = hashMapOf(),
+        entities: MutableMap<UUID, EntityEntry?> = mutableMapOf(),
+        data: MutableMap<Long, Entry> = mutableMapOf(),
         val undoRecord: UndoRecord
     ): UndoRedoRecord(id, lastChangedTick, entities, data) {
         override fun getMemorySize() = super.getMemorySize() + undoRecord.getMemorySize()

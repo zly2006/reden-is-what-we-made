@@ -1,10 +1,10 @@
-package com.github.zly2006.reden.mixin.undo;
+package com.github.zly2006.reden.mixin.debug.undoReportUnTrackedTnt;
 
+import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.PlayerData;
-import com.github.zly2006.reden.access.UndoRecordContainerImpl;
 import com.github.zly2006.reden.access.UndoableAccess;
+import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
-import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.TntEntity;
@@ -20,8 +20,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinTntEntity extends Entity implements UndoableAccess {
     @Unique
     long undoId;
-    @Unique
-    UndoRecordContainerImpl recordContainer = new UndoRecordContainerImpl();
 
     public MixinTntEntity(EntityType<?> type, World world) {
         super(type, world);
@@ -33,33 +31,10 @@ public abstract class MixinTntEntity extends Entity implements UndoableAccess {
     )
     private void onInit(EntityType<?> entityType, World world, CallbackInfo ci) {
         PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
-        if (recording != null) {
-            DebugKt.debugLogger.invoke("TNT spawned, adding it into record "+ recording.getId());
-            undoId = recording.getId();
+        if (recording == null) {
+            if (MalilibSettingsKt.UNDO_REPORT_UN_TRACKED_TNT.getBooleanValue()) {
+                Reden.LOGGER.error("TNT spawned, but no recording found");
+            }
         }
-    }
-
-    @Inject(method = "explode", at = @At("HEAD"))
-    private void beforeExplode(CallbackInfo ci) {
-        DebugKt.debugLogger.invoke("TNT explode start, undoId=" + undoId);
-        recordContainer.setId(undoId);
-        UpdateMonitorHelper.INSTANCE.swap(recordContainer);
-    }
-
-    @Inject(method = "explode", at = @At("TAIL"))
-    private void afterExplode(CallbackInfo ci) {
-        DebugKt.debugLogger.invoke("TNT explode end, undoId=" + undoId);
-        UpdateMonitorHelper.INSTANCE.swap(recordContainer);
-        recordContainer.setRecording(null);
-    }
-
-    @Override
-    public long getUndoId() {
-        return undoId;
-    }
-
-    @Override
-    public void setUndoId(long undoId) {
-        this.undoId = undoId;
     }
 }
