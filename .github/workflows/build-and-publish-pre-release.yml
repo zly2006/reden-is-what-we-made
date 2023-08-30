@@ -1,0 +1,69 @@
+name: Build Pre-Release version and Publish to GitHub Releases
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build-and-publish-pre-release:
+    strategy:
+      matrix:
+        # Use thses Java versions:
+        java: [17, 20] # Current Java LTS and current latest Java version
+        # Use these operating systems:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - name: Show Java version
+        run: java -version
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          cache-disabled: true
+      - name: Show Gradle version
+        run: gradle --version
+
+
+      - name: Build with Gradle
+        run: gradle build
+
+      - name: Get Mod Info
+        id: get_mod_info
+        uses: christian-draeger/read-properties@1.1.1
+        with:
+          path: gradle.properties
+          properties: 'mod_name mod_version'
+      - name: Get commit SHA
+        id: get_commit_sha
+        run: |
+          short_sha=$(echo ${GITHUB_SHA} | cut -c1-7)
+          echo "short_sha=$short_sha" >> $GITHUB_OUTPUT
+      - name: Get commit count
+        id: get_commit_count
+        run: |
+          commit_count=$(git log | grep -e '^commit [a-zA-Z0-9]*' | wc -l)
+          echo "commit_count=$commit_count" >> $GITHUB_OUTPUT
+
+      - name: Upload assets to GitHub Action
+        if: ${{ matrix.java }} == 17 # Only publish the version built with Java LTS
+        uses: actions/upload-artifact@v3
+        with:
+          name: "[CI#${{ github.run_number }}] ${{ steps.mod_info.outputs.mod_name }} ${{ steps.mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
+          path: build/libs/*.jar
+
+      - name: Publish to GitHub Pre-Releases
+        if: contains(github.event.head_commit.message, '[publish skip]') == false && contains(github.event.ref, 'refs/heads/exp') == false && ${{ matrix.java }} == 17 # Only publish the version built with Java LTS
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifacts: build/libs/*.jar
+          generateReleaseNotes: true
+          name: "[CI#${{ github.run_number }}] ${{ steps.mod_info.outputs.mod_name }} Mod Pre-Release ${{ steps.mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
+          prerelease: true
+          tag: "beta/${{ steps.get_commit_sha.outputs.short_sha }}"
