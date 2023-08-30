@@ -105,3 +105,34 @@ fun memorySizeToString(size: Int) {
     }
     println("%.2f".format(s) + unit[i])
 }
+
+fun ULong.toByteArray(): ByteArray =
+    arrayOf(
+        ((this and 0xff00000000000000uL) shr (7 * 8)).toByte(),
+        ((this and 0x00ff000000000000uL) shr (6 * 8)).toByte(),
+        ((this and 0x0000ff0000000000uL) shr (5 * 8)).toByte(),
+        ((this and 0x000000ff00000000uL) shr (4 * 8)).toByte(),
+        ((this and 0x00000000ff000000uL) shr (3 * 8)).toByte(),
+        ((this and 0x0000000000ff0000uL) shr (2 * 8)).toByte(),
+        ((this and 0x000000000000ff00uL) shr (1 * 8)).toByte(),
+        ((this and 0x00000000000000ffuL) shr (0 * 8)).toByte(),
+    ).toByteArray()
+
+fun Long.toByteArray(): ByteArray = this.toULong().toByteArray()
+
+fun ulongFromByteArray(data: ByteArray): ULong? {
+    if (data.size < 8) {
+        return null
+    }
+    return ((data[0].toULong() shl (7 * 8)) +
+            (data[1].toULong() shl (6 * 8)) +
+            (data[2].toULong() shl (5 * 8)) +
+            (data[3].toULong() shl (4 * 8)) +
+            (data[4].toULong() shl (3 * 8)) +
+            (data[5].toULong() shl (2 * 8)) +
+            (data[6].toULong() shl (1 * 8)) +
+            (data[7].toULong() shl (0 * 8)))
+}
+
+fun longFromByteArray(data: ByteArray): Long? = ulongFromByteArray(data)?.toLong()
+
