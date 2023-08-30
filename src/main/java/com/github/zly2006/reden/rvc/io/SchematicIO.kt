@@ -102,12 +102,12 @@ class SchematicStructure: SchematicFormat() {
         template.blockInfoLists.add(StructureTemplate.PalettedBlockInfoList(list))
         template.entities.clear()
         template.entities.addAll(schematic.entities.map {
-            val posNbt = it.getList("Pos", NbtElement.DOUBLE_TYPE.toInt())
+            val posNbt = it.value.getList("Pos", NbtElement.DOUBLE_TYPE.toInt())
             val pos = Vec3d(posNbt.getDouble(0), posNbt.getDouble(1), posNbt.getDouble(2))
             StructureTemplate.StructureEntityInfo(
                 pos,
                 BlockPos.ofFloored(pos),
-                it
+                it.value
             )
         })
         template.writeNbt(tagCompound)

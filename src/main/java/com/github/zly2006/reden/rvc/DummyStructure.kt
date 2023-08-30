@@ -9,6 +9,7 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import java.nio.file.Path
+import java.util.*
 
 open class DummyStructure(
     final override var name: String,
@@ -66,7 +67,7 @@ open class DummyStructure(
         return (blockState.block as BlockEntityProvider).createBlockEntity(pos, blockState)!!.createNbt()
     }
 
-    override val entities: List<NbtCompound>
+    override val entities: Map<UUID, NbtCompound>
         get() = TODO("Not yet implemented")
 
 }
