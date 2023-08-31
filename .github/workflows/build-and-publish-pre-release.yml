@@ -1,15 +1,15 @@
 name: Build Pre-Release version and Publish
 
 on:
-  push:
-    branches:
-      - * # All branches
   workflow_dispatch:
     inputs:
       release-beta:
         description: 'Publish a beta release?'
         required: true
         type: boolean
+  push:
+    branches:
+      - '**' # Pushes to any branch
 
 jobs:
   build-and-publish-pre-release:

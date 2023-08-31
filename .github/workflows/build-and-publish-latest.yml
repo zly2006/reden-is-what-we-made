@@ -57,8 +57,7 @@ jobs:
           name: "${{ steps.get_mod_info.outputs.mod_name }} ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
           path: build/libs/*.jar
 
-      - name: Publish to GitHub Pre-Releases
-        if: ${{ env.PUBLISH_BETA == 'true' && matrix.java == 17 }} # Only publish the version built with Java LTS
+      - name: Publish to GitHub Releases
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
