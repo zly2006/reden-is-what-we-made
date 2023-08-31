@@ -57,10 +57,7 @@ jobs:
           path: build/libs/*.jar
 
       - name: Publish to GitHub Pre-Releases
-        if: |
-          contains(github.event.head_commit.message, '[publish skip]') == false &&
-          contains(github.event.ref, 'refs/heads/exp') == false &&
-          ${{ matrix.java }} == 17 # Only publish the version built with Java LTS
+        if: ${{ contains(github.event.head_commit.message, '[publish skip]') == false && matrix.java == 17 }} # Only publish the version built with Java LTS
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
