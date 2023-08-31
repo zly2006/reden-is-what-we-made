@@ -1,34 +1,19 @@
-name: Build Pre-Release version and Publish
+name: Build Stable Release version and Publish
 
 on:
-  push:
-    branches:
-      - * # All branches
-  workflow_dispatch:
-    inputs:
-      release-beta:
-        description: 'Publish a beta release?'
-        required: true
-        type: boolean
+  release:
+    types: [released]
 
 jobs:
   build-and-publish-pre-release:
     strategy:
       matrix:
         # Use thses Java versions:
-        java: [17, 20] # Current Java LTS and current latest Java version
+        java: [17] # Only use the latest Java LTS
         # Use these operating systems:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Store all lowercase commit message
-        run: |
-          echo "COMMIT_MESSAGE=$(echo ${github.event.head_commit.message} | tr '[:upper:]' '[:lower:]')" >> ${GITHUB_ENV}
-      - name: Detect if a beta release should be published
-        if: ${{ contains(env.COMMIT_MESSAGE, '[publish beta]') || inputs.release-beta }}
-        run: |
-          echo "PUBLISH_BETA=true" >> ${GITHUB_ENV}
-
       - uses: actions/checkout@v3
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v3
@@ -44,14 +29,9 @@ jobs:
       - name: Show Gradle version
         run: gradle --version
 
-
-      - name: Build with Gradle (DEV)
-        if : ${{ env.PUBLISH_BETA != 'true' }}
-        run: gradle build --stacktrace
-      - name: Build with Gradle (BETA)
-        if : ${{ env.PUBLISH_BETA == 'true' }}
+      - name: Build with Gradle
         env:
-          REDEN_BUILD_TYPE: "BETA"
+          REDEN_BUILD_TYPE: "RELEASE"
         run: gradle build --stacktrace
 
       - name: Get Mod Info
@@ -74,7 +54,7 @@ jobs:
       - name: Upload assets to GitHub Action
         uses: actions/upload-artifact@v3
         with:
-          name: "[DEV-CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }} - Java ${{ matrix.java }}"
+          name: "${{ steps.get_mod_info.outputs.mod_name }} ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
           path: build/libs/*.jar
 
       - name: Publish to GitHub Pre-Releases
@@ -83,7 +63,7 @@ jobs:
         with:
           allowUpdates: true
           artifacts: build/libs/*.jar
+          body: "[RELEASE-CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} Mod Stable Release ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
           generateReleaseNotes: true
-          name: "[CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} Mod Pre-Release ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
-          prerelease: true
-          tag: "beta/${{ steps.get_commit_sha.outputs.short_sha }}"
+          makeLatest: true
+          tag: "v${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
