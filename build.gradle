@@ -48,7 +48,7 @@ ext {
     }
 
     getModVersion = {
-        if (isOnGithubActions()) {
+        if (isOnGithubActions() && environmentMap.REDEN_BUILD_TYPE == "BETA") {
             return "${project.mod_version}.${getVersionPatch([])}+${getVersionGit([])}-${getVersionType()}+dev-ci-build.${getGitHubActionID()}"
         } else {
             return "${project.mod_version}.${getVersionPatch([])}+${getVersionGit([])}-${getVersionType()}"
