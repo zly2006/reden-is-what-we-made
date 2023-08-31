@@ -53,14 +53,16 @@ jobs:
           echo "commit_count=$commit_count" >> $GITHUB_OUTPUT
 
       - name: Upload assets to GitHub Action
-        if: ${{ matrix.java }} == 17 # Only publish the version built with Java LTS
         uses: actions/upload-artifact@v3
         with:
-          name: "[CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
+          name: "[DEV-CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }} - Java ${{ matrix.java }}"
           path: build/libs/*.jar
 
       - name: Publish to GitHub Pre-Releases
-        if: contains(github.event.head_commit.message, '[publish skip]') == false && contains(github.event.ref, 'refs/heads/exp') == false && ${{ matrix.java }} == 17 # Only publish the version built with Java LTS
+        if: |
+          contains(github.event.head_commit.message, '[publish skip]') == false &&
+          contains(github.event.ref, 'refs/heads/exp') == false &&
+          ${{ matrix.java }} == 17 # Only publish the version built with Java LTS
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
