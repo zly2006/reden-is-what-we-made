@@ -2,6 +2,7 @@ name: Build Stable Release version and Publish
 
 on:
   release:
+    # It is recommended to set the release tag as "v.<major>.<minor>-patch.<patch>" (e.g. "v.1.0-patch.1") when creating a release.
     types: [released]
 
 jobs:
@@ -65,4 +66,4 @@ jobs:
           body: "[RELEASE-CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} Mod Stable Release ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
           generateReleaseNotes: true
           makeLatest: true
-          tag: "v${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
+          tag: ${{ github.event.ref }}
