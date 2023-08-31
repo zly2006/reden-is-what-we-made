@@ -1,6 +1,13 @@
 name: Build Pre-Release version and Publish to GitHub Releases
 
-on: [push, workflow_dispatch]
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      release-beta:
+        description: 'Publish a beta release?'
+        required: true
+        type: boolean
 
 jobs:
   build-and-publish-pre-release:
@@ -15,6 +22,10 @@ jobs:
       - name: Store all lowercase commit message
         run: |
           echo "COMMIT_MESSAGE=$(echo ${github.event.head_commit.message} | tr '[:upper:]' '[:lower:]')" >> ${GITHUB_ENV}
+      - name: Detect if a beta release should be published
+        if: ${{ contains(env.COMMIT_MESSAGE, '[publish beta]') || inputs.release-beta }}
+        run: |
+          echo "PUBLISH_BETA=true" >> ${GITHUB_ENV}
 
       - uses: actions/checkout@v3
       - name: Set up JDK ${{ matrix.java }}
@@ -33,10 +44,10 @@ jobs:
 
 
       - name: Build with Gradle (DEV)
-        if : ${{ contains(env.COMMIT_MESSAGE, '[publish beta]') == false }}
+        if : ${{ env.PUBLISH_BETA != 'true' }}
         run: gradle build --stacktrace
       - name: Build with Gradle (BETA)
-        if : ${{ contains(env.COMMIT_MESSAGE, '[publish beta]') }}
+        if : ${{ env.PUBLISH_BETA == 'true' }}
         env:
           REDEN_BUILD_TYPE: "BETA"
         run: gradle build --stacktrace
@@ -65,7 +76,7 @@ jobs:
           path: build/libs/*.jar
 
       - name: Publish to GitHub Pre-Releases
-        if: ${{ contains(env.COMMIT_MESSAGE, '[publish beta]') && matrix.java == 17 }} # Only publish the version built with Java LTS
+        if: ${{ env.PUBLISH_BETA == 'true' && matrix.java == 17 }} # Only publish the version built with Java LTS
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
