@@ -1,7 +1,6 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
-import com.github.zly2006.reden.access.UndoRecordContainerImpl;
 import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
@@ -19,10 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(Explosion.class)
 public class MixinExplosion implements UndoableAccess {
-    @Unique
-    UndoRecordContainerImpl recordContainer = new UndoRecordContainerImpl();
-    @Unique
-    long undoId;
+    @Unique long undoId;
 
     @Inject(
             method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/damage/DamageSource;Lnet/minecraft/world/explosion/ExplosionBehavior;DDDFZLnet/minecraft/world/explosion/Explosion$DestructionType;)V",
@@ -40,8 +36,7 @@ public class MixinExplosion implements UndoableAccess {
     private void beforeAffectWorld(boolean particles, CallbackInfo ci) {
         DebugKt.debugLogger.invoke("Explosion affect world start, undoID=" + undoId);
         if (undoId != 0) {
-            recordContainer.setId(undoId);
-            UpdateMonitorHelper.INSTANCE.swap(recordContainer);
+            UpdateMonitorHelper.pushRecord(undoId);
         }
     }
 
@@ -49,8 +44,7 @@ public class MixinExplosion implements UndoableAccess {
     private void afterAffectWorld(boolean particles, CallbackInfo ci) {
         DebugKt.debugLogger.invoke("Explosion affect world end, undoID=" + undoId);
         if (undoId != 0) {
-            UpdateMonitorHelper.INSTANCE.swap(recordContainer);
-            recordContainer.setRecording(null);
+            UpdateMonitorHelper.popRecord();
         }
     }
 
@@ -58,8 +52,7 @@ public class MixinExplosion implements UndoableAccess {
     private void beforeDamageEntities(CallbackInfo ci) {
         DebugKt.debugLogger.invoke("Explosion damage entities start, undoID=" + undoId);
         if (undoId != 0) {
-            recordContainer.setId(undoId);
-            UpdateMonitorHelper.INSTANCE.swap(recordContainer);
+            UpdateMonitorHelper.pushRecord(undoId);
         }
     }
 
@@ -67,8 +60,7 @@ public class MixinExplosion implements UndoableAccess {
     private void afterDamageEntities(CallbackInfo ci) {
         DebugKt.debugLogger.invoke("Explosion damage entities end, undoID=" + undoId);
         if (undoId != 0) {
-            UpdateMonitorHelper.INSTANCE.swap(recordContainer);
-            recordContainer.setRecording(null);
+            UpdateMonitorHelper.popRecord();
         }
     }
 

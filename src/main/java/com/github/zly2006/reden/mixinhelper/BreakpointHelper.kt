@@ -5,13 +5,46 @@ import net.minecraft.block.BlockState
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
+import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 import net.minecraft.world.block.NeighborUpdater
 
 class BreakpointHelper(
-    world: World
+    val world: World
 ) {
+    private val listeners: MutableMap<World.(ChainRestrictedNeighborUpdater.Entry) -> Unit, UpdateMonitorHelper.LifeTime> = mutableMapOf()
+    private val chainFinishListeners = mutableMapOf<World.() -> Unit, UpdateMonitorHelper.LifeTime>()
     var isInterrupted = false
         private set
+
+    fun onChainFinish() {
+        //debugLogger("UpdateMonitorHelper.finish")
+        listeners.forEach { (k, v) ->
+            if (v == UpdateMonitorHelper.LifeTime.CHAIN) {
+                listeners.remove(k)
+            }
+        }
+        chainFinishListeners.forEach { (k, v) ->
+            k.invoke(world)
+            if (v == UpdateMonitorHelper.LifeTime.ONCE || v == UpdateMonitorHelper.LifeTime.CHAIN) {
+                chainFinishListeners.remove(k)
+            }
+        }
+    }
+
+    fun startMonitor(onUpdate: World.(ChainRestrictedNeighborUpdater.Entry) -> Unit, lifeTime: UpdateMonitorHelper.LifeTime) {
+        listeners[onUpdate] = lifeTime
+    }
+
+    fun onUpdate(entry: ChainRestrictedNeighborUpdater.Entry) {
+        //debugLogger("UpdateMonitorHelper.onUpdate")
+        listeners.forEach { (k, v) ->
+            k.invoke(world, entry)
+            if (v == UpdateMonitorHelper.LifeTime.ONCE) {
+                listeners.remove(k)
+            }
+        }
+    }
+
     fun handle(entry: Entry): Boolean {
         return false
     }

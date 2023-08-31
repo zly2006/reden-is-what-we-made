@@ -1,7 +1,6 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.ChainedUpdaterView;
-import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.item.ItemStack;
@@ -40,8 +39,7 @@ public class MixinPlayerMode {
     @Inject(method = "tryBreakBlock", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/world/ServerWorld;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
     private void afterDestroy(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         DebugKt.debugLogger.invoke("Stop monitoring of CHAIN - Break block");
-        PlayerData playerView = PlayerData.Companion.data(player);
-        playerView.stopRecording(world);
+        UpdateMonitorHelper.playerStartRecord(player);
     }
 
     @Inject(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
@@ -53,8 +51,7 @@ public class MixinPlayerMode {
     @Inject(method = "interactBlock", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
     private void afterUseBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         DebugKt.debugLogger.invoke("Stop monitoring of CHAIN - Interact block");
-        PlayerData playerView = PlayerData.Companion.data(player);
-        playerView.stopRecording(world);
+        UpdateMonitorHelper.playerStartRecord(player);
     }
 
     @Inject(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;useOnBlock(Lnet/minecraft/item/ItemUsageContext;)Lnet/minecraft/util/ActionResult;"))
@@ -66,8 +63,7 @@ public class MixinPlayerMode {
     @Inject(method = "interactBlock", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/item/ItemStack;useOnBlock(Lnet/minecraft/item/ItemUsageContext;)Lnet/minecraft/util/ActionResult;"))
     private void afterUseItemOnBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         DebugKt.debugLogger.invoke("Stop monitoring of CHAIN - Interact block with item");
-        PlayerData playerView = PlayerData.Companion.data(player);
-        playerView.stopRecording(world);
+        UpdateMonitorHelper.playerStartRecord(player);
     }
 
     @Inject(method = "interactItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;"))
@@ -79,7 +75,6 @@ public class MixinPlayerMode {
     @Inject(method = "interactItem", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;"))
     private void afterUseItem(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         DebugKt.debugLogger.invoke("Stop monitoring of CHAIN - Interact item");
-        PlayerData playerView = PlayerData.Companion.data(player);
-        playerView.stopRecording(world);
+        UpdateMonitorHelper.playerStartRecord(player);
     }
 }

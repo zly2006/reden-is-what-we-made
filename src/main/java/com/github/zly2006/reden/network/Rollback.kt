@@ -85,7 +85,7 @@ class Rollback(
                 if (UpdateMonitorHelper.recording != null) {
                     Reden.LOGGER.warn("Undo when a record is still active, id=" + UpdateMonitorHelper.recording?.id)
                     // 不取消跟踪会导致undo的更改也被记录，边读边写异常
-                    UpdateMonitorHelper.recording = null
+                    UpdateMonitorHelper.undoRecords.clear()
                 }
                 when (packet.status) {
                     0 -> view.undo.lastValid()?.let { undoRecord ->

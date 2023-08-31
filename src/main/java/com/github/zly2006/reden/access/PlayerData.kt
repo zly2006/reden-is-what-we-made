@@ -2,7 +2,6 @@ package com.github.zly2006.reden.access
 
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.malilib.UNDO_CHEATING_ONLY
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.isSinglePlayerAndCheating
 import net.minecraft.command.EntitySelector
@@ -31,10 +30,6 @@ class PlayerData(
     var undoUsedBytes: Int = 0
     var isRecording: Boolean = false
     var pearlListening: Boolean = false
-
-    fun stopRecording(world: World) {
-        UpdateMonitorHelper.playerStopRecording(player)
-    }
 
     data class Entry(
         val blockState: NbtCompound,

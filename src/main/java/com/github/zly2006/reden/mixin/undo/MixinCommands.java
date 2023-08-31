@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.mixin.undo;
 
-import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
 import com.mojang.brigadier.ParseResults;
@@ -42,10 +41,7 @@ public class MixinCommands {
     private void afterExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfoReturnable<Integer> cir) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {
             DebugKt.debugLogger.invoke("Stop monitoring of CHAIN - Command");
-            PlayerData playerView = PlayerData.Companion.data(player);
-            if (playerView.isRecording()) {
-                playerView.stopRecording(player.getWorld());
-            }
+            UpdateMonitorHelper.playerStartRecord(player);
         }
     }
 }

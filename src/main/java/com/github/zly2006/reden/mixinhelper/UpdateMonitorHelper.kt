@@ -2,8 +2,6 @@ package com.github.zly2006.reden.mixinhelper
 
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
-import com.github.zly2006.reden.access.UndoRecordContainer
-import com.github.zly2006.reden.access.UndoRecordContainerImpl
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.server
@@ -14,14 +12,13 @@ import net.minecraft.entity.Entity
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
-import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 
-object UpdateMonitorHelper: UndoRecordContainer {
-    private val listeners: MutableMap<World.(ChainRestrictedNeighborUpdater.Entry) -> Unit, LifeTime> = mutableMapOf()
-    private val chainFinishListeners = mutableMapOf<World.() -> Unit, LifeTime>()
+object UpdateMonitorHelper {
     private var recordId = 20060210L
     val undoRecordsMap: MutableMap<Long, PlayerData.UndoRecord> = HashMap()
+    val undoRecords = mutableListOf<PlayerData.UndoRecord?>()
+    @JvmStatic fun pushRecord(id: Long) = undoRecords.add(undoRecordsMap[id])
+    @JvmStatic fun popRecord() = undoRecords.removeLast()
     data class Changed(
         val record: PlayerData.UndoRecord,
         val pos: BlockPos
@@ -29,70 +26,12 @@ object UpdateMonitorHelper: UndoRecordContainer {
     var lastTickChanged: MutableSet<Changed> = hashSetOf(); private set
     var thisTickChanged: MutableSet<Changed> = hashSetOf(); private set
 
-    /**
-     * 非常非常危险的变量，如果没有十足把握请不要直接操作
-     *
-     * 这会带来不经检查的访问
-     */
-    override var recording: PlayerData.UndoRecord? = null
-        set(value) {
-            if (field != value) {
-                field = value
-                if (value == null) {
-                    debugLogger("record canceled")
-                } else {
-                    debugLogger("record start")
-                }
-            }
-        }
+    val recording: PlayerData.UndoRecord? get() = undoRecords.lastOrNull()
     enum class LifeTime {
         PERMANENT,
         TICK,
         CHAIN,
         ONCE
-    }
-
-    @JvmStatic
-    fun startMonitor(onUpdate: World.(ChainRestrictedNeighborUpdater.Entry) -> Unit, lifeTime: LifeTime) {
-        listeners[onUpdate] = lifeTime
-    }
-
-    @JvmStatic
-    fun onUpdate(world: World, entry: ChainRestrictedNeighborUpdater.Entry) {
-        //debugLogger("UpdateMonitorHelper.onUpdate")
-        listeners.forEach { (k, v) ->
-            k.invoke(world, entry)
-            if (v == LifeTime.ONCE) {
-                listeners.remove(k)
-            }
-        }
-    }
-
-    var depth = 0; private set
-    override fun swap(another: UndoRecordContainer) {
-        if (another is UndoRecordContainerImpl) {
-            if (another.swapped) depth--
-            else depth++
-            another.swapped = !another.swapped
-        }
-        debugLogger("swap, depth=$depth")
-        super.swap(another)
-    }
-
-    @JvmStatic
-    fun onChainFinish(world: World) {
-        //debugLogger("UpdateMonitorHelper.finish")
-        listeners.forEach { (k, v) ->
-            if (v == LifeTime.CHAIN) {
-                listeners.remove(k)
-            }
-        }
-        chainFinishListeners.forEach { (k, v) ->
-            k.invoke(world)
-            if (v == LifeTime.ONCE || v == LifeTime.CHAIN) {
-                chainFinishListeners.remove(k)
-            }
-        }
     }
 
     @JvmStatic
@@ -112,13 +51,17 @@ object UpdateMonitorHelper: UndoRecordContainer {
      * 此缓存可能在没有确认的情况下不经检查直接调用
      */
     private fun addRecord(): PlayerData.UndoRecord {
-        recording = PlayerData.UndoRecord(
+        if (undoRecords.size != 0) {
+            throw IllegalStateException("Cannot add record when there is already one.")
+        }
+        val undoRecord = PlayerData.UndoRecord(
             id = recordId,
             lastChangedTick = server.ticks,
         )
-        undoRecordsMap[recordId] = recording!!
+        undoRecords.add(undoRecord)
+        undoRecordsMap[recordId] = undoRecord
         recordId++
-        return recording!!
+        return undoRecord
     }
 
     internal fun removeRecord(id: Long) = undoRecordsMap.remove(id)
@@ -136,7 +79,8 @@ object UpdateMonitorHelper: UndoRecordContainer {
         val playerView = player.data()
         if (playerView.isRecording) {
             playerView.isRecording = false
-            recording = null
+            undoRecords.removeLast()
+            debugLogger("Stop recording, undo depth=" + undoRecords.size)
             playerView.redo
                 .onEach { removeRecord(it.id) }
                 .clear()

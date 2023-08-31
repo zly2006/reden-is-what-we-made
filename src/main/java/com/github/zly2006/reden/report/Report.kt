@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.report
 
+import com.github.zly2006.reden.malilib.ALLOW_SOCIAL_FOLLOW
 import com.google.gson.Gson
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.MinecraftVersion
@@ -70,6 +71,7 @@ fun initReport() {
 private var usedTimes = 0
 
 private fun requestFollow() {
+    if (!ALLOW_SOCIAL_FOLLOW.booleanValue) return
     val mc = MinecraftClient.getInstance()
     val text = Text.literal(
         if (mc.languageManager.language == "zh_cn")

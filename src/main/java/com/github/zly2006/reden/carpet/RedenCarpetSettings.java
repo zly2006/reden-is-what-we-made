@@ -24,4 +24,16 @@ public class RedenCarpetSettings {
             strict = false
     )
     public static int allowedUndoSizeInBytes = 52428800;
+
+    @Rule(
+            categories = {CATEGORY_REDEN, RuleCategory.CREATIVE},
+            options = {"0", "100"},
+            strict = false
+    )
+    public static int tickBackMaxTicks = 100;
+
+    @Rule(
+            categories = {CATEGORY_REDEN, RuleCategory.CREATIVE}
+    )
+    public static boolean undoScheduledTicks = false;
 }

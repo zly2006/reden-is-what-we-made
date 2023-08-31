@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.mixin.undo;
 
-import com.github.zly2006.reden.access.UndoRecordContainerImpl;
 import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
@@ -13,12 +12,9 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(PistonExtensionBlock.class)
 public class MixinMovingPiston {
-    @Unique UndoRecordContainerImpl recordContainer = new UndoRecordContainerImpl();
-
     /**
      * @author zly2006
      * @reason track undo, block entity tick is not the same time as block event tick
@@ -32,16 +28,14 @@ public class MixinMovingPiston {
             if (shouldTrack) {
                 if (be instanceof UndoableAccess access) {
                     DebugKt.debugLogger.invoke("Before piston block entity tick: " + pos.toShortString() + ", id" + access.getUndoId());
-                    recordContainer.setId(access.getUndoId());
-                    UpdateMonitorHelper.INSTANCE.swap(recordContainer);
+                    UpdateMonitorHelper.pushRecord(access.getUndoId());
                 }
             }
             PistonBlockEntity.tick(world1, pos, state1, be);
             if (shouldTrack) {
                 if (be instanceof UndoableAccess access) {
                     DebugKt.debugLogger.invoke("After piston block entity tick: " + pos.toShortString() + ", id" + access.getUndoId());
-                    UpdateMonitorHelper.INSTANCE.swap(recordContainer);
-                    recordContainer.setRecording(null);
+                    UpdateMonitorHelper.popRecord();
                 }
             }
         } : null;

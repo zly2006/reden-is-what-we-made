@@ -65,6 +65,7 @@ private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add
 @JvmField val UNDO_REPORT_UN_TRACKED_TNT = RedenConfigBoolean("undoReportUnTrackedTnt", false).debug()
 @JvmField val OPEN_GITHUB_AUTH_SCREEN = RedenConfigHotkey("openGithubAuthScreen", "R,G").debug().hotkey()
 @JvmField val GITHUB_TOKEN = RedenConfigString("githubToken", "").debug()
+@JvmField val ALLOW_SOCIAL_FOLLOW = RedenConfigBoolean("allowSocialFollow", true).debug()
 
 fun ConfigHotkey.runCommand(commands: ConfigStringList) {
     this.keybind.setCallback { _, _ ->

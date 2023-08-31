@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.mixin.undo;
 
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.access.WorldData;
 import net.minecraft.world.World;
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
 import org.spongepowered.asm.mixin.Final;
@@ -23,10 +23,16 @@ public class MixinUpdater {
     }
     @Inject(method = "runQueuedUpdates", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/block/ChainRestrictedNeighborUpdater$Entry;update(Lnet/minecraft/world/World;)Z"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void onRunQueuedUpdates(CallbackInfo ci, ChainRestrictedNeighborUpdater.Entry entry) {
-        UpdateMonitorHelper.onUpdate(world, entry);
+        WorldData data = WorldData.Companion.data(world);
+        if (data != null) {
+            data.getBreakpointHelper().onUpdate(entry);
+        }
     }
     @Inject(method = "runQueuedUpdates", at = @At("RETURN"))
     private void finishUpdates(CallbackInfo ci) {
-        UpdateMonitorHelper.onChainFinish(world);
+        WorldData data = WorldData.Companion.data(world);
+        if (data != null) {
+            data.getBreakpointHelper().onChainFinish();
+        }
     }
 }
