@@ -87,3 +87,33 @@ jobs:
           name: "[CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} Mod Pre-Release ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
           prerelease: true
           tag: "beta/${{ steps.get_commit_sha.outputs.short_sha }}"
+
+      - name: Publish to Modrinth & CurseForge
+        if: ${{ env.PUBLISH_BETA == 'true' && matrix.java == 17 }} # Only publish the version built with Java LTS
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          # Publish to Modrinth
+          modrinth-id: xRu8OXEJ
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          # Publish to CurseForge
+          curseforge-id: 903236
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          # Universal Configurations
+          files: |
+            build/libs/!(*-@(dev|sources|javadoc)).jar
+            build/libs/*-@(dev|sources|javadocs).jar
+
+          name: "${{ steps.get_mod_info.outputs.mod_name }} Pre-Release ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
+          version: "beta/${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
+          version-type: beta
+
+          loaders: fabric
+          game-versions: 1.20.1
+          game-version-filter: any
+          java: |
+            17
+            18
+            19
+            20
+          retry-attempts: 2
+          retry-delay: 10000
