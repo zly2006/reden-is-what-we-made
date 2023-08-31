@@ -10,6 +10,14 @@ plugins {
 ext {
     Map<String, String> environmentMap = System.getenv()
 
+    isOnGithubActions = {
+        return environmentMap.GITHUB_ACTIONS == "true"
+    }
+
+    getGitHubActionID = {
+        return environmentMap.GITHUB_RUN_NUMBER
+    }
+
     getVersionType = {
         switch (environmentMap.REDEN_BUILD_TYPE) {
             case "RELEASE":
@@ -40,7 +48,11 @@ ext {
     }
 
     getModVersion = {
-        return "${project.mod_version}.${getVersionPatch([])}+${getVersionGit([])}-${getVersionType()}"
+        if (isOnGithubActions()) {
+            return "${project.mod_version}.${getVersionPatch([])}+${getVersionGit([])}-${getVersionType()}+dev-ci-build.${getGitHubActionID()}"
+        } else {
+            return "${project.mod_version}.${getVersionPatch([])}+${getVersionGit([])}-${getVersionType()}"
+        }
     }
 }
 
