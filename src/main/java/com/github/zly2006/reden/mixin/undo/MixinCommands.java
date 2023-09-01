@@ -25,7 +25,7 @@ public class MixinCommands {
     private void onExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfoReturnable<Integer> cir) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {
             DebugKt.debugLogger.invoke("Start monitoring of CHAIN - Command");
-            UpdateMonitorHelper.playerStartRecord(player);
+            UpdateMonitorHelper.playerStartRecording(player);
         }
     }
 
@@ -41,7 +41,7 @@ public class MixinCommands {
     private void afterExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfoReturnable<Integer> cir) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {
             DebugKt.debugLogger.invoke("Stop monitoring of CHAIN - Command");
-            UpdateMonitorHelper.playerStartRecord(player);
+            UpdateMonitorHelper.playerStopRecording(player);
         }
     }
 }

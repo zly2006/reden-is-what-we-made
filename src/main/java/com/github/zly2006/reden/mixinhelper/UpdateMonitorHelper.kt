@@ -66,7 +66,7 @@ object UpdateMonitorHelper {
 
     internal fun removeRecord(id: Long) = undoRecordsMap.remove(id)
     @JvmStatic
-    fun playerStartRecord(player: ServerPlayerEntity) {
+    fun playerStartRecording(player: ServerPlayerEntity) {
         val playerView = player.data()
         if (!playerView.canRecord) return
         if (!playerView.isRecording) {
@@ -75,6 +75,7 @@ object UpdateMonitorHelper {
         }
     }
 
+    @JvmStatic
     fun playerStopRecording(player: ServerPlayerEntity) {
         val playerView = player.data()
         if (playerView.isRecording) {

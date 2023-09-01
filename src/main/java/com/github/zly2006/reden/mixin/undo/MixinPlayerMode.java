@@ -30,48 +30,48 @@ public class MixinPlayerMode {
     @Inject(method = "tryBreakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
     private void onDestroy(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         DebugKt.debugLogger.invoke("Start monitoring of CHAIN - Break block");
-        UpdateMonitorHelper.playerStartRecord(player);
+        UpdateMonitorHelper.playerStartRecording(player);
     }
 
     @Inject(method = "tryBreakBlock", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/world/ServerWorld;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
     private void afterDestroy(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         DebugKt.debugLogger.invoke("Stop monitoring of CHAIN - Break block");
-        UpdateMonitorHelper.playerStartRecord(player);
+        UpdateMonitorHelper.playerStopRecording(player);
     }
 
     @Inject(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
     private void onUseBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         DebugKt.debugLogger.invoke("Start monitoring of CHAIN - Interact block");
-        UpdateMonitorHelper.playerStartRecord(player);
+        UpdateMonitorHelper.playerStartRecording(player);
     }
 
     @Inject(method = "interactBlock", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
     private void afterUseBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         DebugKt.debugLogger.invoke("Stop monitoring of CHAIN - Interact block");
-        UpdateMonitorHelper.playerStartRecord(player);
+        UpdateMonitorHelper.playerStopRecording(player);
     }
 
     @Inject(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;useOnBlock(Lnet/minecraft/item/ItemUsageContext;)Lnet/minecraft/util/ActionResult;"))
     private void onUseItemOnBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         DebugKt.debugLogger.invoke("Start monitoring of CHAIN - Interact block with item");
-        UpdateMonitorHelper.playerStartRecord(player);
+        UpdateMonitorHelper.playerStartRecording(player);
     }
 
     @Inject(method = "interactBlock", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/item/ItemStack;useOnBlock(Lnet/minecraft/item/ItemUsageContext;)Lnet/minecraft/util/ActionResult;"))
     private void afterUseItemOnBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         DebugKt.debugLogger.invoke("Stop monitoring of CHAIN - Interact block with item");
-        UpdateMonitorHelper.playerStartRecord(player);
+        UpdateMonitorHelper.playerStopRecording(player);
     }
 
     @Inject(method = "interactItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;"))
     private void onUseItem(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         DebugKt.debugLogger.invoke("Start monitoring of CHAIN - Interact item");
-        UpdateMonitorHelper.playerStartRecord(player);
+        UpdateMonitorHelper.playerStartRecording(player);
     }
 
     @Inject(method = "interactItem", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;"))
     private void afterUseItem(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         DebugKt.debugLogger.invoke("Stop monitoring of CHAIN - Interact item");
-        UpdateMonitorHelper.playerStartRecord(player);
+        UpdateMonitorHelper.playerStopRecording(player);
     }
 }
