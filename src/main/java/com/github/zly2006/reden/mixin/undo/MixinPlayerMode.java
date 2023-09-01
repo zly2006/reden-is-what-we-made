@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.mixin.undo;
 
-import com.github.zly2006.reden.access.ChainedUpdaterView;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.item.ItemStack;
@@ -30,10 +29,8 @@ public class MixinPlayerMode {
 
     @Inject(method = "tryBreakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
     private void onDestroy(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        if (world.neighborUpdater instanceof ChainedUpdaterView) {
-            DebugKt.debugLogger.invoke("Start monitoring of CHAIN - Break block");
-            UpdateMonitorHelper.playerStartRecord(player);
-        }
+        DebugKt.debugLogger.invoke("Start monitoring of CHAIN - Break block");
+        UpdateMonitorHelper.playerStartRecord(player);
     }
 
     @Inject(method = "tryBreakBlock", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/world/ServerWorld;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
