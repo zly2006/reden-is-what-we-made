@@ -16,7 +16,7 @@ import net.minecraft.util.math.BlockPos
 object UpdateMonitorHelper {
     private var recordId = 20060210L
     val undoRecordsMap: MutableMap<Long, PlayerData.UndoRecord> = HashMap()
-    val undoRecords = mutableListOf<PlayerData.UndoRecord?>()
+    internal val undoRecords = mutableListOf<PlayerData.UndoRecord?>()
     @JvmStatic fun pushRecord(id: Long) = undoRecords.add(undoRecordsMap[id])
     @JvmStatic fun popRecord() = undoRecords.removeLast()
     data class Changed(

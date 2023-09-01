@@ -96,8 +96,8 @@ jobs:
           modrinth-id: xRu8OXEJ
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           # Publish to CurseForge
-          curseforge-id: 903236
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          #curseforge-id: 903236
+          #curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           # Universal Configurations
           files: |
             build/libs/!(*-@(dev|sources|javadoc)).jar
@@ -107,7 +107,9 @@ jobs:
           version: "beta/${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
           version-type: beta
 
-          loaders: fabric
+          loaders: |
+            fabric
+            quilt
           game-versions: 1.20.1
           game-version-filter: any
           java: |
@@ -117,3 +119,7 @@ jobs:
             20
           retry-attempts: 2
           retry-delay: 10000
+          dependencies:
+            carpet
+            fabric-api
+            fabric-language-kotlin

@@ -26,8 +26,7 @@
     "undo.MixinScheduledTick",
     "undo.MixinServerWorld",
     "undo.MixinServerWorldChunk",
-    "undo.MixinTntEntity",
-    "undo.MixinUpdater"
+    "undo.MixinTntEntity"
   ],
   "client": [
     "chat.ChatHudMixin",
