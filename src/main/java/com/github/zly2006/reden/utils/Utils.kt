@@ -50,6 +50,7 @@ fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int) {
         this.heightmaps[Heightmap.Type.MOTION_BLOCKING_NO_LEAVES]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
         this.heightmaps[Heightmap.Type.OCEAN_FLOOR]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
         this.heightmaps[Heightmap.Type.WORLD_SURFACE]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
+        setNeedsSaving(true)
     }
     if (this is ServerWorld) {
         chunkManager.markForUpdate(pos)
