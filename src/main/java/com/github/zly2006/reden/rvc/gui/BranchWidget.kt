@@ -39,4 +39,15 @@ class BranchWidget(
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         TODO("Not yet implemented")
     }
+
+    class CommitGraphElement(
+        
+    ): Drawable, Element {
+        @JvmField var isFocused = false
+        override fun setFocused(focused: Boolean) { isFocused = focused }
+        override fun isFocused(): Boolean { return isFocused }
+        override fun render(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
+            TODO("Not yet implemented")
+        }
+    }
 }

@@ -11,6 +11,7 @@
     "common.MixinServerPlayer",
     "common.MixinServerWorld",
     "pearl.MixinExplosion",
+    "sctuctureBlock.MixinStructureBlock",
     "tick.MixinTick",
     "tick.MixinWatchdog",
     "tickBack.MixinTickCommand",
