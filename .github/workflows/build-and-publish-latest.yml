@@ -96,3 +96,7 @@ jobs:
             20
           retry-attempts: 2
           retry-delay: 10000
+          dependencies:
+            carpet
+            fabric-api
+            fabric-language-kotlin
