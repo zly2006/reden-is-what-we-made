@@ -65,12 +65,21 @@ repositories {
         url 'https://masa.dy.fi/maven'
     }
     maven {
-        url "https://cursemaven.com"
+        name = "CurseForge"
+        url = "https://cursemaven.com"
     }
     maven {
+        name = "Modrinth"
         url = "https://api.modrinth.com/maven"
     }
-    maven { url 'https://jitpack.io' }
+    maven {
+        name = "CottonMC"
+        url = "https://server.bbkr.space/artifactory/libs-release"
+    }
+    maven {
+        name = "jitpack"
+        url = 'https://jitpack.io'
+    }
 }
 
 dependencies {
@@ -91,11 +100,12 @@ dependencies {
     testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
     // Conditional Mixin
     include(modImplementation("com.github.Fallen-Breath:conditional-mixin:v0.3.2"))
-    include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
-    include(implementation("org.bouncycastle:bcpg-jdk18on:1.76"))
+    //include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
+    //include(implementation("org.bouncycastle:bcpg-jdk18on:1.76"))
     include(implementation("com.squareup.okhttp3:okhttp:4.11.0"))
     include(implementation("org.eclipse.jgit:org.eclipse.jgit:6.6.0.202305301015-r"))
     include(implementation("com.squareup.okio:okio-jvm:3.2.0"))
+    include(modImplementation("io.github.cottonmc:LibGui:8.0.2+1.20"))
     modImplementation "curse.maven:litematica-308892:4626718"
     modImplementation "maven.modrinth:modmenu:7.2.1"
 }

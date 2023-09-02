@@ -1,10 +1,13 @@
 package com.github.zly2006.reden.rvc.gui
 
+import io.github.cottonmc.cotton.gui.widget.WLabel
+import io.github.cottonmc.cotton.gui.widget.WWidget
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.Drawable
 import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
+import net.minecraft.text.Text
 import org.eclipse.jgit.internal.storage.commitgraph.CommitGraph
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Repository
@@ -41,13 +44,11 @@ class BranchWidget(
     }
 
     class CommitGraphElement(
-        
-    ): Drawable, Element {
+    ): WWidget() {
         @JvmField var isFocused = false
-        override fun setFocused(focused: Boolean) { isFocused = focused }
-        override fun isFocused(): Boolean { return isFocused }
-        override fun render(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
-            TODO("Not yet implemented")
+        override fun paint(context: DrawContext?, x: Int, y: Int, mouseX: Int, mouseY: Int) {
+            WLabel(Text.of("")).height
+            super.paint(context, x, y, mouseX, mouseY)
         }
     }
 }

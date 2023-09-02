@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.rvc.gui.hub.paused
+package com.github.zly2006.reden.rvc.gui.hud.paused
 
 // bottom: timeline
 // left: commit data
