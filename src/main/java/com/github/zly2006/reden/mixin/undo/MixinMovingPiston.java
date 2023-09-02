@@ -28,14 +28,14 @@ public class MixinMovingPiston {
             if (shouldTrack) {
                 if (be instanceof UndoableAccess access) {
                     DebugKt.debugLogger.invoke("Before piston block entity tick: " + pos.toShortString() + ", id" + access.getUndoId());
-                    UpdateMonitorHelper.pushRecord(access.getUndoId());
+                    UpdateMonitorHelper.pushRecord(access.getUndoId(), "piston block entity tick");
                 }
             }
             PistonBlockEntity.tick(world1, pos, state1, be);
             if (shouldTrack) {
                 if (be instanceof UndoableAccess access) {
                     DebugKt.debugLogger.invoke("After piston block entity tick: " + pos.toShortString() + ", id" + access.getUndoId());
-                    UpdateMonitorHelper.popRecord();
+                    UpdateMonitorHelper.popRecord("piston block entity tick");
                 }
             }
         } : null;

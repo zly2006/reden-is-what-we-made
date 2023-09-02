@@ -29,7 +29,7 @@ public class MixinSchedule {
     private <T> void onRunSchedule(BiConsumer<BlockPos, T> ticker, CallbackInfo ci, OrderedTick orderedTick) {
         long undoId = ((UndoableAccess) orderedTick).getUndoId();
         DebugKt.debugLogger.invoke("Running scheduled tick at " + orderedTick.pos() + ", record=" + undoId);
-        UpdateMonitorHelper.pushRecord(undoId);
+        UpdateMonitorHelper.pushRecord(undoId, "scheduled tick");
     }
     @Inject(
             method = "tick(Ljava/util/function/BiConsumer;)V",
@@ -41,7 +41,7 @@ public class MixinSchedule {
     )
     private void afterRunSchedule(CallbackInfo ci) {
         DebugKt.debugLogger.invoke("scheduled tick finished, removing it from record");
-        UpdateMonitorHelper.popRecord();
+        UpdateMonitorHelper.popRecord("scheduled tick");
     }
     @Inject(
             method = "scheduleTick",

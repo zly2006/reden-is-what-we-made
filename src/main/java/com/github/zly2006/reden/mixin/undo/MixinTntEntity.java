@@ -38,13 +38,13 @@ public abstract class MixinTntEntity extends Entity implements UndoableAccess {
     @Inject(method = "explode", at = @At("HEAD"))
     private void beforeExplode(CallbackInfo ci) {
         DebugKt.debugLogger.invoke("TNT explode start, undoId=" + undoId);
-        UpdateMonitorHelper.pushRecord(undoId);
+        UpdateMonitorHelper.pushRecord(undoId, "tnt explode/" + getId());
     }
 
     @Inject(method = "explode", at = @At("TAIL"))
     private void afterExplode(CallbackInfo ci) {
         DebugKt.debugLogger.invoke("TNT explode end, undoId=" + undoId);
-        UpdateMonitorHelper.popRecord();
+        UpdateMonitorHelper.popRecord("tnt explode/" + getId());
     }
 
     @Override

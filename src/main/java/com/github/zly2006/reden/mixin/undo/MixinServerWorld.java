@@ -48,7 +48,7 @@ public abstract class MixinServerWorld {
     private void beforeProcessBlockEvent(BlockEvent event, CallbackInfoReturnable<Boolean> cir) {
         long undoId = ((UndoableAccess) event).getUndoId();
         DebugKt.debugLogger.invoke("block event start at " + event.pos().toShortString() + event.block().toString() + ", data=" + event.data() + ", type=" + event.type() + ", record "+ undoId);
-        UpdateMonitorHelper.pushRecord(undoId);
+        UpdateMonitorHelper.pushRecord(undoId, "block event");
     }
     @Inject(
             method = "processBlockEvent",
@@ -60,6 +60,6 @@ public abstract class MixinServerWorld {
     )
     private void afterProcessBlockEvent(BlockEvent event, CallbackInfoReturnable<Boolean> cir) {
         DebugKt.debugLogger.invoke("block event end");
-        UpdateMonitorHelper.popRecord();
+        UpdateMonitorHelper.popRecord("block event");
     }
 }

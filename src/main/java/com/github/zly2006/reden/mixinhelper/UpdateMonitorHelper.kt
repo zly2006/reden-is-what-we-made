@@ -14,19 +14,36 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 
 object UpdateMonitorHelper {
+    class UndoRecordEntry(val id: Long, val record: PlayerData.UndoRecord?, val reason: String)
     private var recordId = 20060210L
     val undoRecordsMap: MutableMap<Long, PlayerData.UndoRecord> = HashMap()
-    internal val undoRecords = mutableListOf<PlayerData.UndoRecord?>()
-    @JvmStatic fun pushRecord(id: Long) = undoRecords.add(undoRecordsMap[id])
-    @JvmStatic fun popRecord() = undoRecords.removeLast()
+    internal val undoRecords = mutableListOf<UndoRecordEntry>()
+    @JvmStatic
+    fun pushRecord(id: Long, reason: String): Boolean {
+        debugLogger("[${undoRecords.size + 1}] id $id: push, $reason")
+        return undoRecords.add(
+            UndoRecordEntry(
+                id,
+                undoRecordsMap[id],
+                reason
+            )
+        )
+    }
+    @JvmStatic
+    fun popRecord(reason: String): UndoRecordEntry {
+        debugLogger("[${undoRecords.size}] id ${undoRecords.last().id}: pop, $reason")
+        if (reason != undoRecords.last().reason) {
+            throw IllegalStateException("Cannot pop record with different reason: $reason != ${undoRecords.last().reason}")
+        }
+        return undoRecords.removeLast()
+    }
     data class Changed(
         val record: PlayerData.UndoRecord,
         val pos: BlockPos
     )
     var lastTickChanged: MutableSet<Changed> = hashSetOf(); private set
     var thisTickChanged: MutableSet<Changed> = hashSetOf(); private set
-
-    val recording: PlayerData.UndoRecord? get() = undoRecords.lastOrNull()
+    val recording: PlayerData.UndoRecord? get() = undoRecords.lastOrNull()?.record
     enum class LifeTime {
         PERMANENT,
         TICK,
@@ -58,13 +75,14 @@ object UpdateMonitorHelper {
             id = recordId,
             lastChangedTick = server.ticks,
         )
-        undoRecords.add(undoRecord)
+        undoRecords.add(UndoRecordEntry(recordId, undoRecord, "player recording"))
         undoRecordsMap[recordId] = undoRecord
         recordId++
         return undoRecord
     }
 
     internal fun removeRecord(id: Long) = undoRecordsMap.remove(id)
+
     @JvmStatic
     fun playerStartRecording(player: ServerPlayerEntity) {
         val playerView = player.data()
@@ -80,8 +98,7 @@ object UpdateMonitorHelper {
         val playerView = player.data()
         if (playerView.isRecording) {
             playerView.isRecording = false
-            undoRecords.removeLast()
-            debugLogger("Stop recording, undo depth=" + undoRecords.size)
+            popRecord("player recording")
             playerView.redo
                 .onEach { removeRecord(it.id) }
                 .clear()
