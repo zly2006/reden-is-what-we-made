@@ -124,5 +124,5 @@ body:
           required: true
         - label: This bug still exists
           required: true
-        - label: I enabled `redenDebug` in carpet of `debugLogger` options in malilib screen for my log
+        - label: I enabled `redenDebug` in carpet or `debugLogger` options in malilib screen for my log
           required: true
