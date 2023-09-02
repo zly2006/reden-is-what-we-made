@@ -122,3 +122,5 @@ body:
           required: true
         - label: 本 bug 在最新版本中仍存在
           required: true
+        - label: 我在carpet中启用了`redenDebug`选项或在malilib配置中启用了`debugLogger`选项
+          required: true
