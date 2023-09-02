@@ -9,7 +9,11 @@ import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,5 +46,19 @@ public class Reden implements ModInitializer, CarpetExtension {
         ServerLifecycleEvents.SERVER_STARTING.register(UtilsKt::setServer);
         ChannelsKt.register();
         CarpetServer.manageExtension(this);
+        CommandRegistrationCallback.EVENT.register((dispatcher, access, environment) -> {
+            if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+                dispatcher.register(CommandManager.literal("reden")
+                        .then(CommandManager.literal("delay-test")
+                                .executes(context -> {
+                                    try {
+                                        Thread.sleep(35 * 1000);
+                                    } catch (InterruptedException ignored) {
+                                    }
+                                    context.getSource().sendMessage(Text.of("35 seconds passed"));
+                                    return 1;
+                                })));
+            }
+        });
     }
 }

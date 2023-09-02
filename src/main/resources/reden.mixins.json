@@ -40,6 +40,7 @@
     "fix.forceSyncEntityPos.MixinTracker",
     "fix.forceSyncEntityPos.MixinWorldRenderer",
     "log.MixinClientCoon",
+    "noTimeOut.MixinReadTimeoutHandler",
     "otherMods.litematica.undo.MixinTaskScheduler",
     "render.MixinBlockModelRenderer",
     "render.MixinChunkRebuildTask",
