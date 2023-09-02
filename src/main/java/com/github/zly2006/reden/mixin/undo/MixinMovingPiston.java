@@ -2,7 +2,6 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
-import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.PistonExtensionBlock;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -27,15 +26,13 @@ public class MixinMovingPiston {
                     && !world1.isClient; // server side
             if (shouldTrack) {
                 if (be instanceof UndoableAccess access) {
-                    DebugKt.debugLogger.invoke("Before piston block entity tick: " + pos.toShortString() + ", id" + access.getUndoId());
-                    UpdateMonitorHelper.pushRecord(access.getUndoId(), "piston block entity tick");
+                    UpdateMonitorHelper.pushRecord(access.getUndoId(), () -> "piston block entity tick/" + pos.toShortString());
                 }
             }
             PistonBlockEntity.tick(world1, pos, state1, be);
             if (shouldTrack) {
                 if (be instanceof UndoableAccess access) {
-                    DebugKt.debugLogger.invoke("After piston block entity tick: " + pos.toShortString() + ", id" + access.getUndoId());
-                    UpdateMonitorHelper.popRecord("piston block entity tick");
+                    UpdateMonitorHelper.popRecord(() -> "piston block entity tick/" + pos.toShortString());
                 }
             }
         } : null;

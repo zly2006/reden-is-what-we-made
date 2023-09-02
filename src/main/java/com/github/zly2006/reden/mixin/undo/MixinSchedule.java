@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.function.BiConsumer;
 
 @Mixin(WorldTickScheduler.class)
+@SuppressWarnings("rawtypes")
 public class MixinSchedule {
-    @SuppressWarnings("rawtypes")
     @Inject(
             method = "tick(Ljava/util/function/BiConsumer;)V",
             at = @At(
@@ -28,8 +28,7 @@ public class MixinSchedule {
     )
     private <T> void onRunSchedule(BiConsumer<BlockPos, T> ticker, CallbackInfo ci, OrderedTick orderedTick) {
         long undoId = ((UndoableAccess) orderedTick).getUndoId();
-        DebugKt.debugLogger.invoke("Running scheduled tick at " + orderedTick.pos() + ", record=" + undoId);
-        UpdateMonitorHelper.pushRecord(undoId, "scheduled tick");
+        UpdateMonitorHelper.pushRecord(undoId, () -> "scheduled tick/" + orderedTick.pos().toShortString());
     }
     @Inject(
             method = "tick(Ljava/util/function/BiConsumer;)V",
@@ -37,11 +36,11 @@ public class MixinSchedule {
                     value = "INVOKE",
                     shift = At.Shift.AFTER,
                     target = "Ljava/util/function/BiConsumer;accept(Ljava/lang/Object;Ljava/lang/Object;)V"
-            )
+            ),
+            locals = LocalCapture.CAPTURE_FAILSOFT
     )
-    private void afterRunSchedule(CallbackInfo ci) {
-        DebugKt.debugLogger.invoke("scheduled tick finished, removing it from record");
-        UpdateMonitorHelper.popRecord("scheduled tick");
+    private void afterRunSchedule(BiConsumer<BlockPos, ?> ticker, CallbackInfo ci, OrderedTick orderedTick) {
+        UpdateMonitorHelper.popRecord(() -> "scheduled tick/" + orderedTick.pos().toShortString());
     }
     @Inject(
             method = "scheduleTick",

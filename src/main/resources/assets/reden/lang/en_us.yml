@@ -141,3 +141,7 @@ carpet:
     undoScheduledTicks:
       desc: |-
         Allow undo record scheduled ticks. Default is false.
+
+    redenDebug:
+      desc: |-
+        Enable Reden debug mode. Default is false. Used for bug report etc.
