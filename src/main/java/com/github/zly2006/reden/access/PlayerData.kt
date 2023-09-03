@@ -2,8 +2,11 @@ package com.github.zly2006.reden.access
 
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.malilib.UNDO_CHEATING_ONLY
+import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.isSinglePlayerAndCheating
+import net.minecraft.block.Blocks
+import net.minecraft.block.entity.BlockEntity
 import net.minecraft.command.EntitySelector
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.TntEntity
@@ -32,6 +35,7 @@ class PlayerData(
 
     data class Entry(
         val blockState: NbtCompound,
+        val blockEntityClazz: Class<BlockEntity>?,
         val blockEntity: NbtCompound?,
     ) {
 
@@ -55,10 +59,16 @@ class PlayerData(
         val data: MutableMap<Long, Entry> = mutableMapOf()
     ) {
         fun fromWorld(world: World, pos: BlockPos): Entry {
+            val be = world.getBlockEntity(pos)
             return Entry(
                 NbtHelper.fromBlockState(world.getBlockState(pos)),
+                be?.javaClass,
                 world.getBlockEntity(pos)?.createNbt()
             ).apply {
+                if (world.getBlockState(pos).isOf(Blocks.MOVING_PISTON) &&
+                    blockEntity == null) {
+                    debugLogger("OHHHHHHHHH")
+                }
                 if (world.getBlockState(pos).getCollisionShape(world, pos).boundingBoxes.size != 0) {
                     val list = world.getEntitiesByType(
                         EntitySelector.PASSTHROUGH_FILTER,

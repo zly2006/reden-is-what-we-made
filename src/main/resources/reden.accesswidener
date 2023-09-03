@@ -39,3 +39,4 @@ accessible field net/minecraft/world/tick/ChunkTickScheduler queuedTicks Ljava/u
 accessible field net/minecraft/block/entity/PistonBlockEntity progress F
 accessible field net/minecraft/block/entity/PistonBlockEntity lastProgress F
 accessible method net/minecraft/client/network/ClientPlayerInteractionManager sendSequencedPacket (Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/client/network/SequencedPacketCreator;)V
+accessible field net/minecraft/world/tick/ChunkTickScheduler tickQueue Ljava/util/Queue;

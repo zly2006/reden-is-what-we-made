@@ -13,6 +13,7 @@ import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.block.Block
+import net.minecraft.block.BlockState
 import net.minecraft.entity.SpawnReason
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.network.PacketByteBuf
@@ -49,7 +50,18 @@ class Rollback(
                 fluidTickScheduler.removeTicksIf { it.pos == pos }
                 // apply block entity
                 entry.blockEntity?.let { be ->
-                    world.getBlockEntity(BlockPos.fromLong(posLong))?.readNbt(be)
+                    var blockEntity = world.getBlockEntity(BlockPos.fromLong(posLong))
+                    if (blockEntity == null) {
+                        try {
+                            // force add block entities, got blocks like piston.
+                            blockEntity = entry.blockEntityClazz!!
+                                .getConstructor(BlockPos::class.java, BlockState::class.java)
+                                .newInstance(pos, state).also(world::addBlockEntity)
+                        } catch (e: Exception) {
+                            Reden.LOGGER.error("Failed to create block entity for $pos, $state", e)
+                        }
+                    }
+                    blockEntity?.readNbt(be)
                 }
             }
             record.entities.forEach {
@@ -74,6 +86,7 @@ class Rollback(
                 if (last.data.isNotEmpty() || last.entities.isNotEmpty()) {
                     return last
                 }
+                // if the last record is empty, remove it
                 UpdateMonitorHelper.removeRecord(last.id)
                 this.removeLast()
             }
