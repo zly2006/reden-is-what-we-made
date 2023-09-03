@@ -20,6 +20,7 @@ import net.minecraft.registry.Registries
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
+import net.minecraft.world.tick.ChunkTickScheduler
 
 private val pType = PacketType.create(ROLLBACK) {
     Rollback(it.readVarInt())
@@ -34,16 +35,21 @@ class Rollback(
 
     companion object {
         private fun operate(world: ServerWorld, record: PlayerData.UndoRedoRecord, redoRecord: PlayerData.RedoRecord?) {
-            record.data.forEach { (pos, entry) ->
+            record.data.forEach { (posLong, entry) ->
+                val pos = BlockPos.fromLong(posLong)
                 val state = NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState)
-                debugLogger("undo ${BlockPos.fromLong(pos)}, $state")
-                world.setBlockNoPP(
-                    BlockPos.fromLong(pos),
-                    state,
-                    Block.NOTIFY_LISTENERS
-                )
+                debugLogger("undo ${BlockPos.fromLong(posLong)}, $state")
+                // set block
+                world.setBlockNoPP(pos, state, Block.NOTIFY_LISTENERS)
+                // clear schedules
+                world.syncedBlockEventQueue.removeIf { it.pos == pos }
+                val blockTickScheduler = world.getChunk(pos).blockTickScheduler as ChunkTickScheduler
+                val fluidTickScheduler = world.getChunk(pos).fluidTickScheduler as ChunkTickScheduler
+                blockTickScheduler.removeTicksIf { it.pos == pos }
+                fluidTickScheduler.removeTicksIf { it.pos == pos }
+                // apply block entity
                 entry.blockEntity?.let { be ->
-                    world.getBlockEntity(BlockPos.fromLong(pos))?.readNbt(be)
+                    world.getBlockEntity(BlockPos.fromLong(posLong))?.readNbt(be)
                 }
             }
             record.entities.forEach {

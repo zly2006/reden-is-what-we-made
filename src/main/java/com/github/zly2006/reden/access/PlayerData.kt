@@ -27,7 +27,6 @@ class PlayerData(
         } else isSinglePlayerAndCheating
     val undo: MutableList<UndoRecord> = mutableListOf()
     val redo: MutableList<RedoRecord> = mutableListOf()
-    var undoUsedBytes: Int = 0
     var isRecording: Boolean = false
     var pearlListening: Boolean = false
 
