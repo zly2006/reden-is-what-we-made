@@ -78,7 +78,6 @@ object UpdateMonitorHelper {
             id = recordId,
             lastChangedTick = server.ticks,
         )
-        undoRecords.add(UndoRecordEntry(recordId, undoRecord, "player recording"))
         undoRecordsMap[recordId] = undoRecord
         recordId++
         return undoRecord
@@ -92,7 +91,9 @@ object UpdateMonitorHelper {
         if (!playerView.canRecord) return
         if (!playerView.isRecording) {
             playerView.isRecording = true
-            playerView.undo.add(addRecord())
+            val record = addRecord()
+            playerView.undo.add(record)
+            pushRecord(record.id) { "player recording/${player.entityName}" }
         }
     }
 
@@ -101,7 +102,7 @@ object UpdateMonitorHelper {
         val playerView = player.data()
         if (playerView.isRecording) {
             playerView.isRecording = false
-            popRecord { "player recording" }
+            popRecord { "player recording/${player.entityName}" }
             playerView.redo
                 .onEach { removeRecord(it.id) }
                 .clear()
