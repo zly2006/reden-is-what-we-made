@@ -29,7 +29,7 @@ public class RedenClient implements ClientModInitializer {
             // Http IOs
             ReportKt.initReport();
             SponsorKt.updateSponsors();
-        }).start();
+        }, "Report Worker").start();
         PearlTask.Companion.register();
         InitializationHandler.getInstance().registerInitializationHandler(() -> {
             ConfigManager.getInstance().registerConfigHandler("reden", new IConfigHandler() {

@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
+import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
-import com.github.zly2006.reden.utils.DebugKt;
 import com.mojang.brigadier.ParseResults;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -24,8 +24,7 @@ public class MixinCommands {
     )
     private void onExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfoReturnable<Integer> cir) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {
-            DebugKt.debugLogger.invoke("Start monitoring of CHAIN - Command");
-            UpdateMonitorHelper.playerStartRecording(player);
+            UpdateMonitorHelper.playerStartRecording(player, PlayerData.UndoRecord.Cause.COMMAND);
         }
     }
 
@@ -40,7 +39,6 @@ public class MixinCommands {
     )
     private void afterExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfoReturnable<Integer> cir) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {
-            DebugKt.debugLogger.invoke("Stop monitoring of CHAIN - Command");
             UpdateMonitorHelper.playerStopRecording(player);
         }
     }
