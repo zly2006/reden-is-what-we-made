@@ -102,9 +102,7 @@ jobs:
           #curseforge-id: 903236
           #curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           # Universal Configurations
-          files: |
-            build/libs/!(*-@(dev|sources|javadoc)).jar
-            build/libs/*-@(dev|sources|javadocs).jar
+          files: build/libs/*-@(beta).jar
 
           name: "${{ steps.get_mod_info.outputs.mod_name }} Pre-Release ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}.github.ci.${{ github.run_number }}"
           version: "${{ steps.get_mod_info.outputs.mod_version }}-beta.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}.github.ci.${{ github.run_number }}"
@@ -115,6 +113,12 @@ jobs:
             quilt
           game-versions: 1.20.1
           game-version-filter: any
+
+          dependencies:
+            carpet
+            fabric-api
+            fabric-language-kotlin
+
           java: |
             17
             18
@@ -122,7 +126,3 @@ jobs:
             20
           retry-attempts: 2
           retry-delay: 10000
-          dependencies:
-            carpet
-            fabric-api
-            fabric-language-kotlin
