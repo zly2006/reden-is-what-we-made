@@ -14,6 +14,29 @@ reden:
     title:
       commandHotkeyListEdit: Edit command list
 
+    chat:
+      about: About SuperRight Chat
+      copy: Copy
+      copy_click_command: Copy Click Command
+      copy_click_file: Copy Click File
+      copy_hover_raw: Copy Hover Raw
+      copy_hover_uuid: Copy Hover UUID
+      copy_raw: Copy Raw
+      copy_url: Copy URL
+      give_hover_item: Give Hover Item
+      copied: Copied
+      done: Done
+
+  feature:
+    undo:
+      break_block: Break Block
+      use_block: Use Block
+      use_item: Use Item
+      attack_entity: Attack Entity
+      command: Command
+      litematica_task: Litematica Task
+      unknown: Unknown
+
   message:
     undo:
       base: "[Reden/Undo] %s"

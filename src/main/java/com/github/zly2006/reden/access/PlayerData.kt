@@ -91,13 +91,13 @@ class PlayerData(
         val cause: Cause = Cause.UNKNOWN
     ) : UndoRedoRecord(id, lastChangedTick, entities, data) {
         enum class Cause(message: Text? = null) {
-            BREAK_BLOCK(Text.of("Break Block")),
-            USE_BLOCK(Text.of("Use Block")),
-            USE_ITEM(Text.of("Use Item")),
-            ATTACK_ENTITY(Text.of("Attack Entity")),
-            COMMAND(Text.of("Command")),
-            LITEMATICA_TASK(Text.of("Litematica Task")),
-            UNKNOWN(Text.of("Unknown"));
+            BREAK_BLOCK(Text.translatable("reden.feature.undo.break_block")),
+            USE_BLOCK(Text.translatable("reden.feature.undo.use_block")),
+            USE_ITEM(Text.translatable("reden.feature.undo.use_item")),
+            ATTACK_ENTITY(Text.translatable("reden.feature.undo.attack_entity")),
+            COMMAND(Text.translatable("reden.feature.undo.command")),
+            LITEMATICA_TASK(Text.translatable("reden.feature.undo.litematica_task")),
+            UNKNOWN(Text.translatable("reden.feature.undo.unknown"));
 
             val message: Text = message ?: Text.translatable("reden.undo.cause.${name.lowercase()}")
         }
