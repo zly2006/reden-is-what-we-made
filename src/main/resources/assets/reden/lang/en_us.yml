@@ -28,6 +28,10 @@ reden:
       .: securityCommit
       comment: |-
 
+    noTimeOut:
+      .: noTimeOut
+      comment: |-
+
     rollbackKey:
       .: rollbackKey
       comment: |-
@@ -87,10 +91,17 @@ reden:
       comment: |-
         Enable right click menu in chat
 
+    structureBlockLoad:
+      .: structureBlockLoad
+      comment: |-
+
+    structureBlockSave:
+      .: structureBlockSave
+      comment: |-
+
     runCommand:
       .: runCommand
       comment: |-
-        
 
     # ===== Debug =====
     debugLogger:
@@ -133,6 +144,10 @@ reden:
       .: githubToken
       comment: |-
         Keep it secure! You should not modify it unless you know what you are doing.
+
+    allowSocialFollow:
+      .: allowSocialFollow
+      comment: |-
 
 
 carpet:
