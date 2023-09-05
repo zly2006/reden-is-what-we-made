@@ -14,6 +14,17 @@ reden:
     title:
       commandHotkeyListEdit: Edit command list
 
+  message:
+    undo:
+      base: "[Reden/Undo] %s"
+      rollback_success: Rollback success
+      restore_success: Restore success
+      no_blocks_info: No blocks info
+      no_permission: No permission
+      not_recording: Not recording
+      unknown_error: Unknown error
+      unknown_status: Unknown status
+
   config:
     # ===== Generic =====
     redenConfigKey:
