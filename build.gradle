@@ -1,30 +1,89 @@
-import java.text.SimpleDateFormat
-
 plugins {
     id 'fabric-loom' version '1.2-SNAPSHOT'
     id 'maven-publish'
-    id "org.ajoberstar.grgit" version "4.1.0"
+    id "org.ajoberstar.grgit" version "5.2.0"
     id 'org.jetbrains.kotlin.jvm' version '1.8.10'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
     id 'me.fallenbreath.yamlang' version '1.3.0'
 }
 
-version = project.mod_version + "+" + new SimpleDateFormat("MMddHHmm").format(new Date())
+ext {
+    Map<String, String> environmentMap = System.getenv()
+
+    isOnGithubActions = {
+        return environmentMap.GITHUB_ACTIONS == "true"
+    }
+
+    getGitHubActionID = {
+        return environmentMap.GITHUB_RUN_NUMBER
+    }
+
+    getVersionType = {
+        switch (environmentMap.REDEN_BUILD_TYPE) {
+            case "RELEASE":
+                return "stable"
+            case "BETA":
+                return "beta"
+            default:
+                return "dev"
+        }
+    }
+
+    getVersionPatch = { List paths ->
+        if (grgit == null) {
+            return 0
+        }
+
+        List latestCommits = paths.isEmpty() ? grgit.log() : grgit.log(paths: paths)
+        return latestCommits.size()
+    }
+
+    getVersionGit = { List paths ->
+        if (grgit == null) {
+            return "nogit"
+        }
+
+        List latestCommits = paths.isEmpty() ? grgit.log(maxCommits: 1) : grgit.log(paths: paths, maxCommits: 1)
+        return latestCommits.isEmpty() ? "uncommited" : "${latestCommits.get(0).id.substring(0, 7)}"
+    }
+
+    getModVersion = {
+        if (isOnGithubActions() && environmentMap.REDEN_BUILD_TYPE == "BETA") {
+            return "${project.mod_version}.${getVersionPatch([])}+${getVersionGit([])}-${getVersionType()}+dev-ci-build.${getGitHubActionID()}"
+        } else {
+            return "${project.mod_version}.${getVersionPatch([])}+${getVersionGit([])}-${getVersionType()}"
+        }
+    }
+}
+
+setVersion(project.getModVersion())
 group = project.maven_group
 
 repositories {
     mavenCentral()
     maven {
-        url "https://cursemaven.com"
+        url 'https://masa.dy.fi/maven'
     }
     maven {
+        name = "CurseForge"
+        url = "https://cursemaven.com"
+    }
+    maven {
+        name = "Modrinth"
         url = "https://api.modrinth.com/maven"
     }
-    maven { url 'https://jitpack.io' }
+    maven {
+        name = "CottonMC"
+        url = "https://server.bbkr.space/artifactory/libs-release"
+    }
+    maven {
+        name = "jitpack"
+        url = 'https://jitpack.io'
+    }
 }
 
 dependencies {
- //   implementation 'org.bouncycastle:'
+    // implementation 'org.bouncycastle:'
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
@@ -34,18 +93,19 @@ dependencies {
     // Kotlin support
     modImplementation("net.fabricmc:fabric-language-kotlin:1.9.2+kotlin.1.8.10")
     // MaLiLib, required on client
-    modImplementation "curse.maven:malilib-303119:4623483"
+    modImplementation "fi.dy.masa.malilib:malilib-fabric-1.20.1:0.16.2"
     // carpet, required on client & server
-    modImplementation "curse.maven:carpet-349239:4573334"
+    modImplementation "carpet:fabric-carpet:1.20-1.4.112+v230608"
     // Game test
     testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
     // Conditional Mixin
     include(modImplementation("com.github.Fallen-Breath:conditional-mixin:v0.3.2"))
-    include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
-    include(implementation("org.bouncycastle:bcpg-jdk18on:1.76"))
+    //include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
+    //include(implementation("org.bouncycastle:bcpg-jdk18on:1.76"))
     include(implementation("com.squareup.okhttp3:okhttp:4.11.0"))
     include(implementation("org.eclipse.jgit:org.eclipse.jgit:6.6.0.202305301015-r"))
     include(implementation("com.squareup.okio:okio-jvm:3.2.0"))
+    include(modImplementation("io.github.cottonmc:LibGui:8.0.2+1.20"))
     modImplementation "curse.maven:litematica-308892:4626718"
     modImplementation "maven.modrinth:modmenu:7.2.1"
 }

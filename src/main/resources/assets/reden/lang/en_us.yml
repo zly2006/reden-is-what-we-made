@@ -8,6 +8,12 @@ reden:
       super_right: Super Right
       title: Reden Config
 
+    button:
+      commandHotkeyListEdit: Edit
+
+    title:
+      commandHotkeyListEdit: Edit command list
+
   config:
     # ===== Generic =====
     redenConfigKey:
@@ -81,6 +87,11 @@ reden:
       comment: |-
         Enable right click menu in chat
 
+    runCommand:
+      .: runCommand
+      comment: |-
+        
+
     # ===== Debug =====
     debugLogger:
       .: debugLogger
@@ -133,4 +144,15 @@ carpet:
     allowedUndoSizeInBytes:
       desc: |-
         Memory size a player can use for undo. Default is 5MB, 0 to disable, -1 for infinite.
-    
+
+    tickBackMaxTicks:
+      desc: |-
+        Maximum ticks for tick back. Default is 100, 0 to disable.
+
+    undoScheduledTicks:
+      desc: |-
+        Allow undo record scheduled ticks. Default is false.
+
+    redenDebug:
+      desc: |-
+        Enable Reden debug mode. Default is false. Used for bug report etc.

@@ -4,13 +4,9 @@ package com.github.zly2006.reden.malilib
 
 import com.github.zly2006.reden.malilib.options.*
 import com.github.zly2006.reden.utils.isClient
-import com.google.common.collect.ImmutableList
 import fi.dy.masa.malilib.config.IConfigBase
 import fi.dy.masa.malilib.config.options.ConfigBase
-import fi.dy.masa.malilib.config.options.ConfigHotkey
-import fi.dy.masa.malilib.config.options.ConfigStringList
 import fi.dy.masa.malilib.hotkeys.IHotkey
-import net.minecraft.client.MinecraftClient
 
 private val loadingGuard = run {
     if (!isClient) {
@@ -42,8 +38,11 @@ private fun <T : IConfigBase?> ConfigBase<T>.sr() = this.apply(SUPER_RIGHT_TAB::
 private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add) as T
 
 @JvmField val REDEN_CONFIG_KEY = RedenConfigHotkey("redenConfigKey", "R,C").generic().hotkey()
+@JvmField val SELECTION_TOOL = RedenConfigString("selectionTool", "minecraft:blaze_rod").generic()
 @JvmField val ALLOW_COPYRIGHT_CHECK = RedenConfigBoolean("allowCopyrightCheck", true).generic()
 @JvmField val SECURITY_COMMIT = RedenConfigBoolean("securityCommit", false).generic()
+@JvmField val NO_TIME_OUT = RedenConfigBoolean("noTimeOut", false).generic()
+@JvmField val BLOCK_BORDER_ALPHA = RedenConfigFloat("blockBorderAlpha", 0.1f, 0f, 1f).generic()
 @JvmField val UNDO_KEY = RedenConfigHotkey("rollbackKey", "LEFT_CONTROL,Z").generic().hotkey()
 @JvmField val REDO_KEY = RedenConfigHotkey("redoKey", "LEFT_CONTROL,Y").generic().hotkey()
 @JvmField val UNDO_SUPPORT_LITEMATICA_OPERATION = RedenConfigBoolean("undoSupportLitematicaOperation", true).generic()
@@ -56,6 +55,9 @@ private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add
 @JvmField val RVC_RECORD_MULTIPLAYER = RedenConfigBoolean("rvcRecordMultiplayer", true).rvc()
 @JvmField val RVC_FORCE_LOCALLY = RedenConfigBoolean("rvcForceLocally", false).rvc()
 @JvmField val CHAT_RIGHT_CLICK_MENU = RedenConfigBoolean("chatRightClickMenu", true).sr()
+@JvmField val STRUCTURE_BLOCK_LOAD = RedenConfigHotkey("structureBlockLoad", "LEFT_CONTROL,L").sr().hotkey()
+@JvmField val STRUCTURE_BLOCK_SAVE = RedenConfigHotkey("structureBlockSave", "LEFT_CONTROL,S").sr().hotkey()
+@JvmField val RUN_COMMAND = RedenConfigCommandHotkeyList("runCommand").sr()
 @JvmField val DEBUG_LOGGER = RedenConfigBoolean("debugLogger", false).debug()
 @JvmField val DEBUG_PACKET_LOGGER = RedenConfigBoolean("debugPacketLogger", false).debug()
 @JvmField val DEBUG_TAG_BLOCK_POS = RedenConfigHotkey("debugTagBlockPos", "LEFT_CONTROL,LEFT_SHIFT,T").debug().hotkey()
@@ -65,24 +67,6 @@ private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add
 @JvmField val UNDO_REPORT_UN_TRACKED_TNT = RedenConfigBoolean("undoReportUnTrackedTnt", false).debug()
 @JvmField val OPEN_GITHUB_AUTH_SCREEN = RedenConfigHotkey("openGithubAuthScreen", "R,G").debug().hotkey()
 @JvmField val GITHUB_TOKEN = RedenConfigString("githubToken", "").debug()
-
-fun ConfigHotkey.runCommand(commands: ConfigStringList) {
-    this.keybind.setCallback { _, _ ->
-        val net = MinecraftClient.getInstance().networkHandler!!
-        commands.strings.forEach {
-            if (it.startsWith('/')) net.sendChatCommand(it.substring(1))
-            else net.sendChatMessage(it)
-        }
-        true
-    }
-}
-
-fun createCommandHotkey(index: Int) {
-    // We should find a better way to implement this. It should be refactored.
-    val commands = ConfigStringList("command$index", ImmutableList.of(), "").sr()
-    val hotkey = ConfigHotkey("runCommand$index", "", "Hotkey for executing command $index").hotkey().sr().runCommand(commands)
-}
-
-private val commands = (1..20).map(::createCommandHotkey)
+@JvmField val ALLOW_SOCIAL_FOLLOW = RedenConfigBoolean("allowSocialFollow", true).debug()
 
 fun getAllOptions() = GENERIC_TAB + RVC_TAB + MICRO_TICK_TAB + SUPER_RIGHT_TAB + DEBUG_TAB

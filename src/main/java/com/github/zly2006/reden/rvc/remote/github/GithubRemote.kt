@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.rvc.remote.github
 
 import com.github.zly2006.reden.malilib.GITHUB_TOKEN
+import com.github.zly2006.reden.rvc.remote.IRemote
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType

@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixin.otherMods.litematica.undo;
 
 import com.github.zly2006.reden.ModNames;
+import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import fi.dy.masa.litematica.scheduler.TaskScheduler;
@@ -34,7 +35,7 @@ public class MixinTaskScheduler {
         IntegratedServer server = mc.getServer();
         if (mc.isIntegratedServerRunning() && server != null && MalilibSettingsKt.UNDO_SUPPORT_LITEMATICA_OPERATION.getBooleanValue()) {
             //noinspection DataFlowIssue
-            UpdateMonitorHelper.playerStartRecord(server.getPlayerManager().getPlayer(server.localPlayerUuid));
+            UpdateMonitorHelper.playerStartRecording(server.getPlayerManager().getPlayer(server.localPlayerUuid), PlayerData.UndoRecord.Cause.LITEMATICA_TASK);
         }
     }
     @Inject(
@@ -52,7 +53,7 @@ public class MixinTaskScheduler {
         IntegratedServer server = mc.getServer();
         if (mc.isIntegratedServerRunning() && server != null && MalilibSettingsKt.UNDO_SUPPORT_LITEMATICA_OPERATION.getBooleanValue()) {
             //noinspection DataFlowIssue
-            UpdateMonitorHelper.INSTANCE.playerStopRecording(server.getPlayerManager().getPlayer(server.localPlayerUuid));
+            UpdateMonitorHelper.playerStopRecording(server.getPlayerManager().getPlayer(server.localPlayerUuid));
         }
     }
 }

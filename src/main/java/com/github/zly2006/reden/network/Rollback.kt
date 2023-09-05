@@ -13,6 +13,7 @@ import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.block.Block
+import net.minecraft.block.BlockState
 import net.minecraft.entity.SpawnReason
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.network.PacketByteBuf
@@ -20,6 +21,7 @@ import net.minecraft.registry.Registries
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
+import net.minecraft.world.tick.ChunkTickScheduler
 
 private val pType = PacketType.create(ROLLBACK) {
     Rollback(it.readVarInt())
@@ -34,16 +36,32 @@ class Rollback(
 
     companion object {
         private fun operate(world: ServerWorld, record: PlayerData.UndoRedoRecord, redoRecord: PlayerData.RedoRecord?) {
-            record.data.forEach { (pos, entry) ->
+            record.data.forEach { (posLong, entry) ->
+                val pos = BlockPos.fromLong(posLong)
                 val state = NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, entry.blockState)
-                debugLogger("undo ${BlockPos.fromLong(pos)}, $state")
-                world.setBlockNoPP(
-                    BlockPos.fromLong(pos),
-                    state,
-                    Block.NOTIFY_LISTENERS
-                )
+                debugLogger("undo ${BlockPos.fromLong(posLong)}, $state")
+                // set block
+                world.setBlockNoPP(pos, state, Block.NOTIFY_LISTENERS)
+                // clear schedules
+                world.syncedBlockEventQueue.removeIf { it.pos == pos }
+                val blockTickScheduler = world.getChunk(pos).blockTickScheduler as ChunkTickScheduler
+                val fluidTickScheduler = world.getChunk(pos).fluidTickScheduler as ChunkTickScheduler
+                blockTickScheduler.removeTicksIf { it.pos == pos }
+                fluidTickScheduler.removeTicksIf { it.pos == pos }
+                // apply block entity
                 entry.blockEntity?.let { be ->
-                    world.getBlockEntity(BlockPos.fromLong(pos))?.readNbt(be)
+                    var blockEntity = world.getBlockEntity(BlockPos.fromLong(posLong))
+                    if (blockEntity == null) {
+                        try {
+                            // force add block entities, got blocks like piston.
+                            blockEntity = entry.blockEntityClazz!!
+                                .getConstructor(BlockPos::class.java, BlockState::class.java)
+                                .newInstance(pos, state).also(world::addBlockEntity)
+                        } catch (e: Exception) {
+                            Reden.LOGGER.error("Failed to create block entity for $pos, $state", e)
+                        }
+                    }
+                    blockEntity?.readNbt(be)
                 }
             }
             record.entities.forEach {
@@ -68,6 +86,7 @@ class Rollback(
                 if (last.data.isNotEmpty() || last.entities.isNotEmpty()) {
                     return last
                 }
+                // if the last record is empty, remove it
                 UpdateMonitorHelper.removeRecord(last.id)
                 this.removeLast()
             }
@@ -83,9 +102,9 @@ class Rollback(
                 }
                 UpdateMonitorHelper.playerStopRecording(player)
                 if (UpdateMonitorHelper.recording != null) {
-                    Reden.LOGGER.warn("Undo when a record is still active, id=" + UpdateMonitorHelper.recording?.id)
+                    Reden.LOGGER.error("Undo when a record is still active, id=" + UpdateMonitorHelper.recording?.id)
                     // 不取消跟踪会导致undo的更改也被记录，边读边写异常
-                    UpdateMonitorHelper.recording = null
+                    UpdateMonitorHelper.undoRecords.clear()
                 }
                 when (packet.status) {
                     0 -> view.undo.lastValid()?.let { undoRecord ->

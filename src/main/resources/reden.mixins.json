@@ -11,8 +11,10 @@
     "common.MixinServerPlayer",
     "common.MixinServerWorld",
     "pearl.MixinExplosion",
+    "sctuctureBlock.MixinStructureBlock",
     "tick.MixinTick",
     "tick.MixinWatchdog",
+    "tickBack.MixinTickCommand",
     "undo.MixinBlockEvent",
     "undo.MixinCommands",
     "undo.MixinEntity",
@@ -25,8 +27,7 @@
     "undo.MixinScheduledTick",
     "undo.MixinServerWorld",
     "undo.MixinServerWorldChunk",
-    "undo.MixinTntEntity",
-    "undo.MixinUpdater"
+    "undo.MixinTntEntity"
   ],
   "client": [
     "chat.ChatHudMixin",
@@ -38,7 +39,9 @@
     "fix.forceSyncEntityPos.MixinClientNetwork",
     "fix.forceSyncEntityPos.MixinTracker",
     "fix.forceSyncEntityPos.MixinWorldRenderer",
+    "gui.MixinWidgetConfigOption",
     "log.MixinClientCoon",
+    "noTimeOut.MixinReadTimeoutHandler",
     "otherMods.litematica.undo.MixinTaskScheduler",
     "render.MixinBlockModelRenderer",
     "render.MixinChunkRebuildTask",

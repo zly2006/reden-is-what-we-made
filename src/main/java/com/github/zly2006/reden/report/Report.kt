@@ -1,10 +1,10 @@
 package com.github.zly2006.reden.report
 
+import com.github.zly2006.reden.malilib.ALLOW_SOCIAL_FOLLOW
 import com.google.gson.Gson
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.MinecraftVersion
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.network.MultiplayerServerListPinger
 import net.minecraft.client.option.ServerList
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.Text
@@ -12,9 +12,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.net.http.HttpClient
 import java.util.*
-import java.util.concurrent.CompletableFuture
 
 class ClientMetadataReq(
     val online_mode: Boolean,
@@ -25,35 +23,25 @@ class ClientMetadataReq(
 ) {
     class Server(
         val name: String,
-        val ip: String,
-        val motd: String
+        val ip: String
     )
 }
 
 fun initReport() {
-    val httpClient = HttpClient.newHttpClient()
     val mc = MinecraftClient.getInstance()
     val servers = ServerList(mc)
     servers.loadFile()
-    val serverPinger = MultiplayerServerListPinger()
     val metadata = ClientMetadataReq(
         online_mode = mc.session.accessToken != "FabricMC",
         uuid = mc.session.uuidOrNull,
         name = mc.session.username,
         mcversion = mc.gameVersion + " " + MinecraftVersion.create().name,
         servers = (0 until servers.size()).map { servers[it] }.map {
-            val future = CompletableFuture<ClientMetadataReq.Server>()
-            serverPinger.add(it) {
-                future.complete(
-                    ClientMetadataReq.Server(
-                        name = it.name,
-                        ip = it.address,
-                        motd = "${it.label}, online=${it.online}, players=${it.playerCountLabel}"
-                    )
-                )
-            }
-            future
-        }.map { it.join() }
+            ClientMetadataReq.Server(
+                name = it.name,
+                ip = it.address
+            )
+        }
     )
     try {
         if (!FabricLoader.getInstance().isDevelopmentEnvironment) {
@@ -70,6 +58,7 @@ fun initReport() {
 private var usedTimes = 0
 
 private fun requestFollow() {
+    if (!ALLOW_SOCIAL_FOLLOW.booleanValue) return
     val mc = MinecraftClient.getInstance()
     val text = Text.literal(
         if (mc.languageManager.language == "zh_cn")

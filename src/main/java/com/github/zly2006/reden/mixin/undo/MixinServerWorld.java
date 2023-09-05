@@ -1,18 +1,12 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
-import com.github.zly2006.reden.access.UndoRecordContainerImpl;
 import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
-import com.github.zly2006.reden.utils.DebugKt;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.BlockEvent;
 import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -20,9 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerWorld.class)
 public abstract class MixinServerWorld {
-    @Unique UndoRecordContainerImpl recordContainer = new UndoRecordContainerImpl();
-    @Shadow public abstract void removePlayer(ServerPlayerEntity player, Entity.RemovalReason reason);
-
     @Redirect(
             method = "addSyncedBlockEvent",
             at = @At(
@@ -50,9 +41,7 @@ public abstract class MixinServerWorld {
     )
     private void beforeProcessBlockEvent(BlockEvent event, CallbackInfoReturnable<Boolean> cir) {
         long undoId = ((UndoableAccess) event).getUndoId();
-        DebugKt.debugLogger.invoke("block event start at " + event.pos().toShortString() + event.block().toString() + ", data=" + event.data() + ", type=" + event.type() + ", record "+ undoId);
-        recordContainer.setId(undoId);
-        UpdateMonitorHelper.INSTANCE.swap(recordContainer);
+        UpdateMonitorHelper.pushRecord(undoId, () -> "block event/" + event.pos().toShortString());
     }
     @Inject(
             method = "processBlockEvent",
@@ -63,8 +52,6 @@ public abstract class MixinServerWorld {
             )
     )
     private void afterProcessBlockEvent(BlockEvent event, CallbackInfoReturnable<Boolean> cir) {
-        DebugKt.debugLogger.invoke("block event end");
-        UpdateMonitorHelper.INSTANCE.swap(recordContainer);
-        recordContainer.setRecording(null);
+        UpdateMonitorHelper.popRecord(() -> "block event/" + event.pos().toShortString());
     }
 }
