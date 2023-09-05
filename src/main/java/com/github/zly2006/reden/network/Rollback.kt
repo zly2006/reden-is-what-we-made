@@ -4,10 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
-import com.github.zly2006.reden.utils.debugLogger
-import com.github.zly2006.reden.utils.isClient
-import com.github.zly2006.reden.utils.server
-import com.github.zly2006.reden.utils.setBlockNoPP
+import com.github.zly2006.reden.utils.*
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
@@ -19,7 +16,6 @@ import net.minecraft.nbt.NbtHelper
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.tick.ChunkTickScheduler
 
@@ -146,13 +142,13 @@ class Rollback(
                 ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, res ->
                     player.sendMessage(
                         when (packet.status) {
-                            0 -> Text.literal("[Reden/Undo] Rollback success")
-                            1 -> Text.literal("[Reden/Undo] Restore success")
-                            2 -> Text.literal("[Reden/Undo] No blocks info")
-                            16 -> Text.literal("[Reden/Undo] No permission")
-                            32 -> Text.literal("[Reden/Undo] Not recording")
-                            65536 -> Text.literal("[Reden/Undo] Unknown error")
-                            else -> Text.literal("[Reden/Undo] Unknown status")
+                            0 -> translateMessage("undo", "rollback_success")
+                            1 -> translateMessage("undo", "restore_success")
+                            2 -> translateMessage("undo", "no_blocks_info")
+                            16 -> translateMessage("undo", "no_permission")
+                            32 -> translateMessage("undo", "not_recording")
+                            65536 -> translateMessage("undo", "unknown_error")
+                            else -> translateMessage("undo", "unknown_status")
                         }
                     )
                 }

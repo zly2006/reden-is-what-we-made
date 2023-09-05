@@ -90,16 +90,14 @@ class PlayerData(
         data: MutableMap<Long, Entry> = mutableMapOf(),
         val cause: Cause = Cause.UNKNOWN
     ) : UndoRedoRecord(id, lastChangedTick, entities, data) {
-        enum class Cause(message: Text? = null) {
-            BREAK_BLOCK(Text.of("Break Block")),
-            USE_BLOCK(Text.of("Use Block")),
-            USE_ITEM(Text.of("Use Item")),
-            ATTACK_ENTITY(Text.of("Attack Entity")),
-            COMMAND(Text.of("Command")),
-            LITEMATICA_TASK(Text.of("Litematica Task")),
-            UNKNOWN(Text.of("Unknown"));
-
-            val message: Text = message ?: Text.translatable("reden.undo.cause.${name.lowercase()}")
+        enum class Cause(message: Text) {
+            BREAK_BLOCK(Text.translatable("reden.feature.undo.cause.break_block")),
+            USE_BLOCK(Text.translatable("reden.feature.undo.cause.use_block")),
+            USE_ITEM(Text.translatable("reden.feature.undo.cause.use_item")),
+            ATTACK_ENTITY(Text.translatable("reden.feature.undo.cause.attack_entity")),
+            COMMAND(Text.translatable("reden.feature.undo.cause.command")),
+            LITEMATICA_TASK(Text.translatable("reden.feature.undo.cause.litematica_task")),
+            UNKNOWN(Text.translatable("reden.feature.undo.cause.unknown"))
         }
     }
     class RedoRecord(
