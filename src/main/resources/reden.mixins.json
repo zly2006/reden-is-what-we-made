@@ -10,6 +10,7 @@
     "common.MixinServer",
     "common.MixinServerPlayer",
     "common.MixinServerWorld",
+    "otherMods.carpet.MixinTickStep",
     "pearl.MixinExplosion",
     "sctuctureBlock.MixinStructureBlock",
     "tick.MixinTick",
