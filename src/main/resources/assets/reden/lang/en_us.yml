@@ -145,3 +145,7 @@ carpet:
     redenDebug:
       desc: |-
         Enable Reden debug mode. Default is false. Used for bug report etc.
+
+    solidFaceRenderer:
+      desc: |-
+        Draw markers on targeted solid faces. 

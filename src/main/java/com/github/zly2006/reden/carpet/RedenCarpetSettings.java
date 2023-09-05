@@ -41,4 +41,9 @@ public class RedenCarpetSettings {
             categories = {CATEGORY_REDEN}
     )
     public static boolean redenDebug = false;
+
+    @Rule(
+            categories = {CATEGORY_REDEN, RuleCategory.CREATIVE}
+    )
+    public static boolean solidFaceRenderer = false;
 }
