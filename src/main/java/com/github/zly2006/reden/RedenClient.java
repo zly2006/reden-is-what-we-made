@@ -2,6 +2,7 @@ package com.github.zly2006.reden;
 
 import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
+import com.github.zly2006.reden.malilib.data.CommandHotkey;
 import com.github.zly2006.reden.pearl.PearlTask;
 import com.github.zly2006.reden.report.ReportKt;
 import com.github.zly2006.reden.sponsor.SponsorKt;
@@ -17,6 +18,7 @@ import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.util.FileUtils;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,6 +66,22 @@ public class RedenClient implements ClientModInitializer {
                     MalilibSettingsKt.HOTKEYS.stream()
                             .map(IHotkey::getKeybind)
                             .forEach(iKeybindManager::addKeybindToMap);
+
+                    for (CommandHotkey commandHotkey : MalilibSettingsKt.RUN_COMMAND.getCommandHotkeyList()) {
+                        iKeybindManager.addKeybindToMap(commandHotkey.getKeybind());
+                        commandHotkey.getKeybind().setCallback((action, key) -> {
+                            ClientPlayNetworkHandler networkHandler = MinecraftClient.getInstance().getNetworkHandler();
+                            assert networkHandler != null;
+                            for (String command : commandHotkey.getCommands()) {
+                                if (command.startsWith("/")) {
+                                    networkHandler.sendChatCommand(command.substring(1));
+                                } else {
+                                    networkHandler.sendChatMessage(command);
+                                }
+                            }
+                            return true;
+                        });
+                    }
                 }
 
                 @Override

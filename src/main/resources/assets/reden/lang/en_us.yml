@@ -8,6 +8,12 @@ reden:
       super_right: Super Right
       title: Reden Config
 
+    button:
+      commandHotkeyListEdit: Edit
+
+    title:
+      commandHotkeyListEdit: Edit command list
+
   config:
     # ===== Generic =====
     redenConfigKey:
@@ -80,6 +86,11 @@ reden:
       .: chatRightClickMenu
       comment: |-
         Enable right click menu in chat
+
+    runCommand:
+      .: runCommand
+      comment: |-
+        
 
     # ===== Debug =====
     debugLogger:
