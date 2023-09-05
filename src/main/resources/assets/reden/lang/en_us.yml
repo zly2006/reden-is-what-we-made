@@ -149,3 +149,7 @@ carpet:
     solidFaceRenderer:
       desc: |-
         Draw markers on targeted solid faces. 
+
+    solidFaceShapePredicate:
+      desc: |-
+        Shape predicate type for solidFaceRenderer.
