@@ -29,13 +29,14 @@ reden:
 
   feature:
     undo:
-      break_block: Break Block
-      use_block: Use Block
-      use_item: Use Item
-      attack_entity: Attack Entity
-      command: Command
-      litematica_task: Litematica Task
-      unknown: Unknown
+      cause:
+        break_block: Break Block
+        use_block: Use Block
+        use_item: Use Item
+        attack_entity: Attack Entity
+        command: Command
+        litematica_task: Litematica Task
+        unknown: Unknown
 
   message:
     undo:
