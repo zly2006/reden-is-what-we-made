@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.rvc.IPlacement
+import com.github.zly2006.reden.rvc.PositionIterable
 import com.github.zly2006.reden.rvc.ReadWriteStructure
 import net.minecraft.block.Block
 import net.minecraft.fluid.Fluid
@@ -17,7 +18,7 @@ import java.util.*
 
 class TrackedStructure (
     name: String
-): ReadWriteStructure(name), IPlacement {
+): ReadWriteStructure(name), IPlacement, PositionIterable {
     override var xSize: Int = 0
     override var ySize: Int = 0
     override var zSize: Int = 0
@@ -83,12 +84,13 @@ class TrackedStructure (
     }
 
     override fun isInArea(pos: BlockPos): Boolean {
+        TODO("Fix spread, use a cached set of positions instead of computing it")
         return trackPoints
             .firstOrNull { it.predicate.match(world, it.pos, pos) }?.mode?.isTrack()
             ?: false
     }
 
-    val blockIterator: Iterator<BlockPos> get() = object: Iterator<BlockPos> {
+    override val blockIterator: Iterator<BlockPos> get() = object: Iterator<BlockPos> {
         private val trackPointIter = trackPoints.asSequence().filter { it.mode == TrackPoint.TrackMode.TRACK }.iterator()
         val readPos = hashSetOf<BlockPos>()
         val ignored = hashSetOf<BlockPos>()
