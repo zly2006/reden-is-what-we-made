@@ -33,7 +33,9 @@ class CuboidStructure(
     }
 
     override fun isInArea(pos: BlockPos): Boolean {
-        TODO("Not yet implemented")
+        return pos.x in 0 until xSize
+                && pos.y in 0 until ySize
+                && pos.z in 0 until zSize
     }
 
     override fun createPlacement(world: World, origin: BlockPos): IPlacement {

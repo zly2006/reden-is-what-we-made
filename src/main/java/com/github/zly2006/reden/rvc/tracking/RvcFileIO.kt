@@ -13,7 +13,7 @@ import java.nio.file.Path
  */
 object RvcFileIO: StructureIO {
     private fun rvcFile(name: String): String = "$name.rvc"
-    private const val CURRENT_VERSION = "1.0.0"
+    const val CURRENT_VERSION = "1.0.0"
     private val RVC_HEADER = IRvcFileReader.RvcHeader(
         mutableMapOf(
             "Version" to CURRENT_VERSION,
