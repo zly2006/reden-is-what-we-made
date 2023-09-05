@@ -4,6 +4,7 @@ import carpet.CarpetExtension;
 import carpet.CarpetServer;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.network.ChannelsKt;
+import com.github.zly2006.reden.rvc.RvcCommandKt;
 import com.github.zly2006.reden.utils.ResourceLoader;
 import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.Gson;
@@ -47,8 +48,9 @@ public class Reden implements ModInitializer, CarpetExtension {
         ChannelsKt.register();
         CarpetServer.manageExtension(this);
         CommandRegistrationCallback.EVENT.register((dispatcher, access, environment) -> {
+            // Debug command
             if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-                dispatcher.register(CommandManager.literal("reden")
+                dispatcher.register(CommandManager.literal("reden-debug")
                         .then(CommandManager.literal("delay-test")
                                 .executes(context -> {
                                     try {
@@ -59,6 +61,8 @@ public class Reden implements ModInitializer, CarpetExtension {
                                     return 1;
                                 })));
             }
+
+            RvcCommandKt.register(dispatcher);
         });
     }
 }

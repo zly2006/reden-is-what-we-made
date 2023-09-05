@@ -38,9 +38,11 @@ private fun <T : IConfigBase?> ConfigBase<T>.sr() = this.apply(SUPER_RIGHT_TAB::
 private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add) as T
 
 @JvmField val REDEN_CONFIG_KEY = RedenConfigHotkey("redenConfigKey", "R,C").generic().hotkey()
+@JvmField val SELECTION_TOOL = RedenConfigString("selectionTool", "minecraft:blaze_rod").generic()
 @JvmField val ALLOW_COPYRIGHT_CHECK = RedenConfigBoolean("allowCopyrightCheck", true).generic()
 @JvmField val SECURITY_COMMIT = RedenConfigBoolean("securityCommit", false).generic()
 @JvmField val NO_TIME_OUT = RedenConfigBoolean("noTimeOut", false).generic()
+@JvmField val BLOCK_BORDER_ALPHA = RedenConfigFloat("blockBorderAlpha", 0.1f, 0f, 1f).generic()
 @JvmField val UNDO_KEY = RedenConfigHotkey("rollbackKey", "LEFT_CONTROL,Z").generic().hotkey()
 @JvmField val REDO_KEY = RedenConfigHotkey("redoKey", "LEFT_CONTROL,Y").generic().hotkey()
 @JvmField val UNDO_SUPPORT_LITEMATICA_OPERATION = RedenConfigBoolean("undoSupportLitematicaOperation", true).generic()
