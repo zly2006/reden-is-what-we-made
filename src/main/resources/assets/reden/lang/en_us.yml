@@ -63,6 +63,10 @@ reden:
       .: redenConfigKey
       comment: |-
 
+    selectionTool:
+      .: selectionTool
+      comment: |-
+
     allowCopyrightCheck:
       .: allowCopyrightCheck
       comment: |-
@@ -77,6 +81,10 @@ reden:
 
     rollbackKey:
       .: rollbackKey
+      comment: |-
+
+    blockBorderAlpha:
+      .: blockBorderAlpha
       comment: |-
 
     redoKey:
