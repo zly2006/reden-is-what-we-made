@@ -198,7 +198,7 @@ class TrackedStructure (
     }
 
     enum class TrackPredicate(val distance: Int, val same: Boolean) {
-        SAME(1, true),
+        SAME(2, true),
         NEAR(1, false),
         QC(2, false),
         FAR(3, false);
