@@ -31,21 +31,24 @@ object RvcGitIO: StructureIO {
         Git.open(path.toFile()).use {
             io.save(path, structure)
             it.add().addFilepattern(".").call()
+            @Suppress("NAME_SHADOWING")
+            val message = message + "\n\n" + buildString {
+                appendLine("======BEGIN RVC COMMIT DATA======")
+                appendLine("Structure-Name: ${structure.name}")
+                appendLine("Structure-Size: ${structure.xSize}x${structure.ySize}x${structure.zSize}")
+                appendLine("Platform: Reden Mod")
+                appendLine("Reden-Environment: $environment")
+                appendLine("Reden-Version: ${RvcFileIO.CURRENT_VERSION}")
+                if (isClient) {
+                    val mc = MinecraftClient.getInstance()
+                    appendLine("MC-Username: ${mc.session.username}")
+                    appendLine("MC-UUID: ${mc.session.uuid}")
+                }
+                appendLine("======END RVC COMMIT DATA======")
+            }
             it.commit()
                 .setAuthor("PlayerName", "id@hub.redenmc.com")
-                .setMessage("""
-                    $message
-                    
-                    ======BEGIN RVC COMMIT DATA======
-                    Structure-Name: ${structure.name}
-                    Structure-Size: ${structure.xSize}x${structure.ySize}x${structure.zSize}
-                    Platform: Reden Mod
-                    Reden-Environment: $environment
-                    Reden-Version: ${RvcFileIO.CURRENT_VERSION}
-                    MC-Username: ${MinecraftClient.getInstance().session.username}
-                    MC-UUID: ${MinecraftClient.getInstance().session.uuid}
-                    ======END RVC COMMIT DATA======
-                """.trimIndent()).call()
+                .setMessage(message).call()
         }
     }
 

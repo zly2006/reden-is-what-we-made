@@ -3,7 +3,9 @@ package com.github.zly2006.reden.rvc.tracking
 import com.github.zly2006.reden.rvc.IPlacement
 import com.github.zly2006.reden.rvc.PositionIterable
 import com.github.zly2006.reden.rvc.ReadWriteStructure
+import com.github.zly2006.reden.utils.setBlockNoPP
 import net.minecraft.block.Block
+import net.minecraft.block.Blocks
 import net.minecraft.fluid.Fluid
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.registry.Registries
@@ -27,6 +29,7 @@ class TrackedStructure (
     override lateinit var world: World
     override val origin: BlockPos.Mutable = BlockPos.ORIGIN.mutableCopy()
     override fun createPlacement(world: World, origin: BlockPos) = this
+    private var cachedPositions = mutableMapOf<BlockPos, TrackPoint>()
     val trackPoints = mutableListOf<TrackPoint>()
     val blockEvents = mutableListOf<BlockEvent>() // order sensitive
     val blockScheduledTicks = mutableListOf<NbtCompound>() // order sensitive
@@ -84,19 +87,15 @@ class TrackedStructure (
     }
 
     override fun isInArea(pos: BlockPos): Boolean {
-        TODO("Fix spread, use a cached set of positions instead of computing it")
-        return trackPoints
-            .firstOrNull { it.predicate.match(world, it.pos, pos) }?.mode?.isTrack()
-            ?: false
+        return cachedPositions.contains(pos)
     }
 
-    override val blockIterator: Iterator<BlockPos> get() = object: Iterator<BlockPos> {
-        private val trackPointIter = trackPoints.asSequence().filter { it.mode == TrackPoint.TrackMode.TRACK }.iterator()
+    fun refreshPositions() {
+        cachedPositions.clear()
         val readPos = hashSetOf<BlockPos>()
         val ignored = hashSetOf<BlockPos>()
-        val currentPointPoses = hashSetOf<BlockPos>()
 
-        init {
+        run {
             // add ignored blocks
             val queue = trackPoints.filter { it.mode == TrackPoint.TrackMode.IGNORE }.map { SpreadEntry(it.pos, it.predicate) }.toMutableList()
             var maxElements = 100000
@@ -111,33 +110,37 @@ class TrackedStructure (
             }
         }
 
-        override fun hasNext() = currentPointPoses.isNotEmpty() // still have some poses to read
-                || trackPointIter.hasNext()
-
-        override fun next(): BlockPos {
-            if (currentPointPoses.isEmpty()) {
-                // first, add all blocks recursively
-                val queue = LinkedList<SpreadEntry>()
-                queue.add(trackPointIter.next())
-                var maxElements = 1000
-                while (queue.isNotEmpty() && maxElements > 0) {
-                    val entry = queue.removeFirst()
-                    if (entry.pos in ignored) continue
-                    entry.spreadAround(world, { newPos ->
-                        if (readPos.add(newPos)) {
-                            currentPointPoses.add(newPos)
-                            maxElements--
-                            queue.add(SpreadEntry(newPos, entry.predicate))
-                        }
-                    })
-                }
+        trackPoints.asSequence().filter { it.mode == TrackPoint.TrackMode.TRACK }.forEach { trackPoint ->
+            // first, add all blocks recursively
+            val queue = LinkedList<SpreadEntry>()
+            queue.add(trackPoint)
+            var maxElements = 1000
+            while (queue.isNotEmpty() && maxElements > 0) {
+                val entry = queue.removeFirst()
+                if (entry.pos in ignored) continue
+                entry.spreadAround(world, { newPos ->
+                    if (readPos.add(newPos)) {
+                        cachedPositions.put(newPos, trackPoint)
+                        maxElements--
+                        queue.add(SpreadEntry(newPos, entry.predicate))
+                    }
+                })
             }
-
-            val iter = currentPointPoses.iterator()
-            val pos = iter.next()
-            iter.remove()
-            return pos
         }
+    }
+
+    override val blockIterator: Iterator<BlockPos> get() = cachedPositions.keys.iterator()
+
+    override fun clearArea() {
+        clearSchedules()
+        blockIterator.forEach { pos ->
+            world.setBlockNoPP(pos, Blocks.AIR.defaultState, 0)
+        }
+    }
+
+    override fun paste() {
+        clearArea()
+        super.paste()
     }
 
     fun clearSchedules() {
