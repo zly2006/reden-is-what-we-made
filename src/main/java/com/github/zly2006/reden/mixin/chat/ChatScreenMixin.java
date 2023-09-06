@@ -28,12 +28,12 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.github.zly2006.reden.malilib.MalilibSettingsKt.*;
+import static com.github.zly2006.reden.malilib.MalilibSettingsKt.CHAT_RIGHT_CLICK_MENU;
 
 @Mixin(ChatScreen.class)
 public abstract class ChatScreenMixin extends Screen {
-    @Unique QuickMenuWidget quickMenuWidget;
     private static final Pattern urlPattern = Pattern.compile("(https?://)?[a-zA-Z0-9\\-.]+\\.[a-zA-Z]{2,8}(/\\S*)?");
+    @Unique QuickMenuWidget quickMenuWidget;
 
     protected ChatScreenMixin(Text title) {
         super(title);
@@ -79,7 +79,7 @@ public abstract class ChatScreenMixin extends Screen {
             quickMenuWidget.remove();
         }
         quickMenuWidget = new QuickMenuWidget(this, mouseX, mouseY);
-        quickMenuWidget.addEntry(Text.of("About SuperRight Chat"), (e, b) -> {
+        quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.about"), (e, b) -> {
             client.setScreen(new SuperRightIntro());
         });
         String message = text.getString();
@@ -91,31 +91,31 @@ public abstract class ChatScreenMixin extends Screen {
                 url = "http://" + url;
             }
             String finalUrl = url;
-            quickMenuWidget.addEntry(Text.literal("Copy URL"), (entry, button) -> {
+            quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_url"), (entry, button) -> {
                 client.keyboard.setClipboard(finalUrl);
-                entry.setName(Text.literal("Copied"));
+                entry.setName(Text.translatable("reden.widget.chat.copied"));
             });
         }
-        quickMenuWidget.addEntry(Text.literal("Copy Raw"), (entry, button) -> {
+        quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_raw"), (entry, button) -> {
             client.keyboard.setClipboard(Text.Serializer.toJson(text));
-            entry.setName(Text.literal("Copied"));
+            entry.setName(Text.translatable("reden.widget.chat.copied"));
         });
-        quickMenuWidget.addEntry(Text.literal("Copy"), (entry, button) -> {
+        quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy"), (entry, button) -> {
             client.keyboard.setClipboard(message);
-            entry.setName(Text.literal("Copied"));
+            entry.setName(Text.translatable("reden.widget.chat.copied"));
         });
         if (style != null) {
             if (style.getHoverEvent() != null) {
                 HoverEvent.Action<?> action = style.getHoverEvent().getAction();
                 if (action == HoverEvent.Action.SHOW_TEXT) {
-                    quickMenuWidget.addEntry(Text.literal("Copy Hover Raw"), (entry, button) -> {
+                    quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_hover_raw"), (entry, button) -> {
                         Text hoverText = style.getHoverEvent().getValue(HoverEvent.Action.SHOW_TEXT);
                         client.keyboard.setClipboard(Text.Serializer.toJson(hoverText));
-                        entry.setName(Text.literal("Copied"));
+                        entry.setName(Text.translatable("reden.widget.chat.copied"));
                     });
                 }
                 if (action == HoverEvent.Action.SHOW_ITEM) {
-                    quickMenuWidget.addEntry(Text.literal("Give Hover Item"), (entry, button) -> {
+                    quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.give_hover_item"), (entry, button) -> {
                         ItemStack stack = style.getHoverEvent().getValue(HoverEvent.Action.SHOW_ITEM).asStack();
                         if (stack.getNbt() == null) {
                             client.getNetworkHandler().sendChatCommand(
@@ -126,30 +126,30 @@ public abstract class ChatScreenMixin extends Screen {
                                 "give @s " + Registries.ITEM.getId(stack.getItem()) + stack.getNbt().toString()
                             );
                         }
-                        entry.setName(Text.literal("Done"));
+                        entry.setName(Text.translatable("reden.widget.chat.done"));
                     });
                 }
                 if (action == HoverEvent.Action.SHOW_ENTITY) {
-                    quickMenuWidget.addEntry(Text.literal("Copy Hover UUID"), (entry, button) -> {
+                    quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_hover_uuid"), (entry, button) -> {
                         UUID uuid = style.getHoverEvent().getValue(HoverEvent.Action.SHOW_ENTITY).uuid;
                         client.keyboard.setClipboard(uuid.toString());
-                        entry.setName(Text.literal("Copied"));
+                        entry.setName(Text.translatable("reden.widget.chat.copied"));
                     });
                 }
             }
             if (style.getClickEvent() != null) {
                 if (style.getClickEvent().getAction() == ClickEvent.Action.RUN_COMMAND) {
-                    quickMenuWidget.addEntry(Text.literal("Copy Click Command"), (entry, button) -> {
+                    quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_click_command"), (entry, button) -> {
                         String command = style.getClickEvent().getValue();
                         client.keyboard.setClipboard(command);
-                        entry.setName(Text.literal("Copied"));
+                        entry.setName(Text.translatable("reden.widget.chat.copied"));
                     });
                 }
                 if (style.getClickEvent().getAction() == ClickEvent.Action.OPEN_FILE) {
-                    quickMenuWidget.addEntry(Text.literal("Copy Click File"), (entry, button) -> {
+                    quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_click_file"), (entry, button) -> {
                         String file = style.getClickEvent().getValue();
                         client.keyboard.setClipboard(file);
-                        entry.setName(Text.literal("Copied"));
+                        entry.setName(Text.translatable("reden.widget.chat.copied"));
                     });
                 }
             }

@@ -22,6 +22,41 @@ reden:
         scheduled_tick_unstable: |
           This structure contains scheduled ticks or block events, which may cause unstable behavior.
 
+    chat:
+      about: About SuperRight Chat
+      copy: Copy
+      copy_click_command: Copy Click Command
+      copy_click_file: Copy Click File
+      copy_hover_raw: Copy Hover Raw
+      copy_hover_uuid: Copy Hover UUID
+      copy_raw: Copy Raw
+      copy_url: Copy URL
+      give_hover_item: Give Hover Item
+      copied: Copied
+      done: Done
+
+  feature:
+    undo:
+      cause:
+        break_block: Break Block
+        use_block: Use Block
+        use_item: Use Item
+        attack_entity: Attack Entity
+        command: Command
+        litematica_task: Litematica Task
+        unknown: Unknown
+
+  message:
+    undo:
+      base: "[Reden/Undo] %s"
+      rollback_success: Rollback success
+      restore_success: Restore success
+      no_blocks_info: No blocks info
+      no_permission: No permission
+      not_recording: Not recording
+      unknown_error: Unknown error
+      unknown_status: Unknown status
+
   config:
     # ===== Generic =====
     redenConfigKey:
@@ -34,6 +69,10 @@ reden:
 
     securityCommit:
       .: securityCommit
+      comment: |-
+
+    noTimeOut:
+      .: noTimeOut
       comment: |-
 
     rollbackKey:
@@ -105,10 +144,17 @@ reden:
       comment: |-
         Enable right click menu in chat
 
+    structureBlockLoad:
+      .: structureBlockLoad
+      comment: |-
+
+    structureBlockSave:
+      .: structureBlockSave
+      comment: |-
+
     runCommand:
       .: runCommand
       comment: |-
-        
 
     # ===== Debug =====
     debugLogger:
@@ -151,6 +197,10 @@ reden:
       .: githubToken
       comment: |-
         Keep it secure! You should not modify it unless you know what you are doing.
+
+    allowSocialFollow:
+      .: allowSocialFollow
+      comment: |-
 
 
 carpet:
