@@ -5,6 +5,7 @@ import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.malilib.data.CommandHotkey;
 import com.github.zly2006.reden.pearl.PearlTask;
 import com.github.zly2006.reden.report.ReportKt;
+import com.github.zly2006.reden.rvc.gui.RvcHudRenderer;
 import com.github.zly2006.reden.rvc.tracking.client.ClientTrackingKt;
 import com.github.zly2006.reden.sponsor.SponsorKt;
 import com.google.gson.JsonObject;
@@ -13,6 +14,7 @@ import fi.dy.masa.malilib.config.ConfigUtils;
 import fi.dy.masa.malilib.config.IConfigHandler;
 import fi.dy.masa.malilib.event.InitializationHandler;
 import fi.dy.masa.malilib.event.InputEventHandler;
+import fi.dy.masa.malilib.event.RenderEventHandler;
 import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.malilib.hotkeys.IKeybindManager;
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
@@ -35,6 +37,7 @@ public class RedenClient implements ClientModInitializer {
         }, "Report Worker").start();
         PearlTask.Companion.register();
         InitializationHandler.getInstance().registerInitializationHandler(() -> {
+            RenderEventHandler.getInstance().registerGameOverlayRenderer(RvcHudRenderer.INSTANCE);
             ConfigManager.getInstance().registerConfigHandler("reden", new IConfigHandler() {
                 @Override
                 public void load() {
