@@ -79,6 +79,16 @@ reden:
         Force Entity Pos Sync
 
     # ===== RVC =====
+    openRvcScreen:
+      .: openRvcScreen
+      comment: |-
+        Open RVC screen
+
+    openSelectionList:
+      .: openSelectionList
+      comment: |-
+        Open RVC selection list
+
     rvcRecordMultiplayer:
       .: rvcRecordMultiplayer
       comment: |-
