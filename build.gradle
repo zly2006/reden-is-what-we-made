@@ -64,6 +64,7 @@ repositories {
     maven {
         url 'https://masa.dy.fi/maven'
     }
+    maven { url 'https://maven.wispforest.io' }
     maven {
         name = "CurseForge"
         url = "https://cursemaven.com"
@@ -108,6 +109,8 @@ dependencies {
     include(modImplementation("io.github.cottonmc:LibGui:8.0.2+1.20"))
     modImplementation "curse.maven:litematica-308892:4626718"
     modImplementation "maven.modrinth:modmenu:7.2.1"
+    modImplementation "io.wispforest:owo-lib:${project.owo_version}"
+    include "io.wispforest:owo-sentinel:${project.owo_version}"
 }
 
 test {

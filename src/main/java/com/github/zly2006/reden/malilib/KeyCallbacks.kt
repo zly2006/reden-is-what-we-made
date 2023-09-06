@@ -5,6 +5,7 @@ import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
 import com.github.zly2006.reden.network.Rollback
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.report.onFunctionUsed
+import com.github.zly2006.reden.rvc.gui.SelectionListScreen
 import com.github.zly2006.reden.rvc.remote.github.GithubAuthScreen
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.toBlockPos
@@ -114,6 +115,10 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
                 )
             )
         }
+        true
+    }
+    OPEN_SELECTION_LIST.keybind.setCallback { _, _ ->
+        mc.setScreen(SelectionListScreen())
         true
     }
 }

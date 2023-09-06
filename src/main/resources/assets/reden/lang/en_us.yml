@@ -14,6 +14,14 @@ reden:
     title:
       commandHotkeyListEdit: Edit command list
 
+    rvc:
+      structure:
+        name: "Name: %s"
+        block_count: "%s blocks"
+        entity_count: "%s entities"
+        scheduled_tick_unstable: |
+          This structure contains scheduled ticks or block events, which may cause unstable behavior.
+
   config:
     # ===== Generic =====
     redenConfigKey:

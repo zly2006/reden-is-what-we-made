@@ -39,10 +39,12 @@ class TrackedStructure (
 
     fun debugRender() {
         cachedPositions.forEach {
-            BlockBorder[it.key] = 1
+            if (!world.isAir(it.key))
+                BlockBorder[it.key] = 1
         }
         cachedIgnoredPositions.forEach {
-            BlockBorder[it.key] = 2
+            if (!world.isAir(it.key))
+                BlockBorder[it.key] = 2
         }
     }
 

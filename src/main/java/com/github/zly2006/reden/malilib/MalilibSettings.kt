@@ -7,6 +7,7 @@ import com.github.zly2006.reden.utils.isClient
 import fi.dy.masa.malilib.config.IConfigBase
 import fi.dy.masa.malilib.config.options.ConfigBase
 import fi.dy.masa.malilib.hotkeys.IHotkey
+import fi.dy.masa.malilib.hotkeys.KeybindSettings
 
 private val loadingGuard = run {
     if (!isClient) {
@@ -52,6 +53,8 @@ private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add
 @JvmField val TOGGLE_PP_BREAKPOINT = RedenConfigHotkey("togglePpBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,X").mt().hotkey()
 @JvmField val TOGGLE_CU_BREAKPOINT = RedenConfigHotkey("toggleCuBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,C").mt().hotkey()
 @JvmField val TOGGLE_FORCE_ENTITY_POS_SYNC = RedenConfigBooleanHotkeyed("toggleForceEntityPosSync", false, "LEFT_CONTROL,LEFT_SHIFT,V").hotkey().mt()
+@JvmField val OPEN_RVC_SCREEN = RedenConfigHotkey("openRvcScreen", "R", KeybindSettings.RELEASE).rvc().hotkey()
+@JvmField val OPEN_SELECTION_LIST = RedenConfigHotkey("openSelectionList", "R,L").rvc().hotkey()
 @JvmField val RVC_RECORD_MULTIPLAYER = RedenConfigBoolean("rvcRecordMultiplayer", true).rvc()
 @JvmField val RVC_FORCE_LOCALLY = RedenConfigBoolean("rvcForceLocally", false).rvc()
 @JvmField val CHAT_RIGHT_CLICK_MENU = RedenConfigBoolean("chatRightClickMenu", true).sr()
