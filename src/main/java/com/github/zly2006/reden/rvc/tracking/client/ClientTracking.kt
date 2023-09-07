@@ -23,7 +23,6 @@ fun registerSelectionTool() {
             val raycast = mc.cameraEntity!!.raycast(256.0, 0f, false)
             if (raycast.type == HitResult.Type.BLOCK) {
                 val blockResult = raycast as BlockHitResult
-                // fixme: DEBUG
                 if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
                     selectedStructure?.addTrackPoint(
                         TrackedStructure.TrackPoint(

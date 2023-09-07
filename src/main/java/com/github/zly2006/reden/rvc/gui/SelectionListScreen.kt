@@ -3,6 +3,7 @@ package com.github.zly2006.reden.rvc.gui
 import com.github.zly2006.reden.rvc.io.LitematicaIO
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.litematicaInstalled
+import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.CheckboxComponent
 import io.wispforest.owo.ui.component.Components
@@ -12,12 +13,10 @@ import io.wispforest.owo.ui.container.GridLayout
 import io.wispforest.owo.ui.core.*
 import kotlinx.atomicfu.atomic
 import net.minecraft.client.MinecraftClient
-import net.minecraft.text.MutableText
 import net.minecraft.text.Text
-import net.minecraft.util.Formatting
 import java.nio.file.Path
 
-
+internal var onSelectedChanged = mutableListOf<(TrackedStructure?) -> Unit>()
 val trackedStructureList = mutableListOf<TrackedStructure>(
     TrackedStructure("Test1"),
     TrackedStructure("Test2"),
@@ -44,10 +43,16 @@ fun syncSelectionLocal() {
 }
 
 class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
+    var changeListener: ((TrackedStructure?) -> Unit)? = null
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
     init {
         val mc = MinecraftClient.getInstance()
         trackedStructureList.forEach { it.world = mc.world!! }
+    }
+
+    override fun removed() {
+        super.removed()
+        onSelectedChanged.remove(changeListener)
     }
 
     override fun build(rootComponent: FlowLayout) {
@@ -62,8 +67,8 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             ) { println("click") }
         )
         val listComponent = atomic<FlowLayout?>(null)
-        fun update(remove: Boolean = true) {
-            if (remove) rootComponent.removeChild(rootComponent.children().last())
+        changeListener = {
+            rootComponent.removeChild(rootComponent.children().last())
             rootComponent.child(
                 Containers.verticalScroll(
                     Sizing.fill(100),
@@ -81,6 +86,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
                 )
             )
         }
+        onSelectedChanged.add(changeListener!!)
         listComponent.value = Components.list(
             trackedStructureList,
             { },
@@ -96,14 +102,14 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
                                 component as GridLayout
                                 (component.children().first() as CheckboxComponent).checked(false)
                                 selectedStructure = data
-                                update()
+                                onSelectedChanged.forEach { it.invoke(data) }
                             }
                         }
                     }
                     else {
                         // cancel
                         selectedStructure = null
-                        update()
+                        onSelectedChanged.forEach { it.invoke(null) }
                     }
                 }
                 c.child(checkBox, 0, 0)
@@ -135,8 +141,6 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
                 listComponent.value
             )
         )
-        update(false)
+        rootComponent.child(Components.label(Text.empty()))
     }
 }
-
-private fun MutableText.red() = formatted(Formatting.RED)

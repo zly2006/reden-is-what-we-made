@@ -6,6 +6,7 @@ import com.github.zly2006.reden.malilib.data.CommandHotkey;
 import com.github.zly2006.reden.pearl.PearlTask;
 import com.github.zly2006.reden.report.ReportKt;
 import com.github.zly2006.reden.rvc.gui.RvcHudRenderer;
+import com.github.zly2006.reden.rvc.gui.hud.gameplay.SelectModeHudKt;
 import com.github.zly2006.reden.rvc.tracking.client.ClientTrackingKt;
 import com.github.zly2006.reden.sponsor.SponsorKt;
 import com.google.gson.JsonObject;
@@ -36,6 +37,7 @@ public class RedenClient implements ClientModInitializer {
             SponsorKt.updateSponsors();
         }, "Report Worker").start();
         PearlTask.Companion.register();
+        SelectModeHudKt.registerHud();
         InitializationHandler.getInstance().registerInitializationHandler(() -> {
             RenderEventHandler.getInstance().registerGameOverlayRenderer(RvcHudRenderer.INSTANCE);
             ConfigManager.getInstance().registerConfigHandler("reden", new IConfigHandler() {
