@@ -1,6 +1,8 @@
 package com.github.zly2006.reden.rvc.gui
 
+import com.github.zly2006.reden.rvc.tracking.LitematicaIO
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.utils.litematicaInstalled
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.CheckboxComponent
 import io.wispforest.owo.ui.component.Components
@@ -9,9 +11,11 @@ import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.GridLayout
 import io.wispforest.owo.ui.core.*
 import kotlinx.atomicfu.atomic
+import net.minecraft.client.MinecraftClient
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
+import java.nio.file.Path
 
 
 val trackedStructureList = mutableListOf<TrackedStructure>(
@@ -40,6 +44,10 @@ fun syncSelectionLocal() {
 }
 
 class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
+    init {
+        val mc = MinecraftClient.getInstance()
+        trackedStructureList.forEach { it.world = mc.world!! }
+    }
     override fun createAdapter(): OwoUIAdapter<FlowLayout> {
         return OwoUIAdapter.create(this) { horizontalSizing, verticalSizing ->
             Containers.verticalFlow(horizontalSizing, verticalSizing)
@@ -83,6 +91,8 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             { data ->
                 val c = Containers.grid(Sizing.content(), Sizing.content(), 1, 3)
                 val checkBox = Components.checkbox(Text.empty())
+                if (data == selectedStructure)
+                    checkBox.checked(true)
                 checkBox.onChanged {
                     if (it) {
                         listComponent.value?.children()?.forEach { component ->
@@ -102,13 +112,22 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
                 }
                 c.child(checkBox, 0, 0)
                 c.child(
-                    Components.button(
+                    Components.label(
                         Text.literal(data.name)
-                    ) {
-                      // todo
-                    },
+                    ),
                     0, 1
                 )
+                if (litematicaInstalled) {
+                    c.child(
+                        Components.button(
+                            Text.translatable("reden.widget.rvc.structure.export.litematica")
+                        ) {
+                            LitematicaIO.save(Path.of("schematics"), data)
+                        },
+                        0, 2
+                    )
+                }
+                c
             },
             true
         )

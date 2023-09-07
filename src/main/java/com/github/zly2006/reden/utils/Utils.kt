@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.utils
 
+import com.github.zly2006.reden.ModNames
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.malilib.SELECTION_TOOL
 import kotlinx.serialization.builtins.MapSerializer
@@ -115,3 +116,5 @@ fun memorySizeToString(size: Int) {
     }
     println("%.2f".format(s) + unit[i])
 }
+
+val litematicaInstalled get() = FabricLoader.getInstance().isModLoaded(ModNames.litematica)
