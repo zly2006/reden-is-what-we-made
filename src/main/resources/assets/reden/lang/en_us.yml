@@ -15,7 +15,16 @@ reden:
       commandHotkeyListEdit: Edit command list
 
     rvc:
+      hud:
+        selected: "Selected: %s"
+        selected_nothing: "Selected: Nothing"
+        trackpoints:
+          .: "Trackpoints: "
+          tracking: "%s Tracking"
+          ignoring: "%s Ignoring"
       structure:
+        export:
+          litematica: Export to Litematica
         name: "Name: %s"
         block_count: "%s blocks"
         entity_count: "%s entities"
@@ -65,6 +74,10 @@ reden:
 
     selectionTool:
       .: selectionTool
+      comment: |-
+
+    hudPosition:
+      .: hudPosition
       comment: |-
 
     allowCopyrightCheck:

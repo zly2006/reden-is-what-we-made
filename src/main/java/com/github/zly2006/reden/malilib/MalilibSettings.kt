@@ -4,8 +4,10 @@ package com.github.zly2006.reden.malilib
 
 import com.github.zly2006.reden.malilib.options.*
 import com.github.zly2006.reden.utils.isClient
+import fi.dy.masa.malilib.config.HudAlignment
 import fi.dy.masa.malilib.config.IConfigBase
 import fi.dy.masa.malilib.config.options.ConfigBase
+import fi.dy.masa.malilib.config.options.ConfigOptionList
 import fi.dy.masa.malilib.hotkeys.IHotkey
 import fi.dy.masa.malilib.hotkeys.KeybindSettings
 
@@ -40,6 +42,7 @@ private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add
 
 @JvmField val REDEN_CONFIG_KEY = RedenConfigHotkey("redenConfigKey", "R,C").generic().hotkey()
 @JvmField val SELECTION_TOOL = RedenConfigString("selectionTool", "minecraft:blaze_rod").generic()
+@JvmField val HUD_POSITION = ConfigOptionList("hudPosition", HudAlignment.BOTTOM_LEFT, "").generic()
 @JvmField val ALLOW_COPYRIGHT_CHECK = RedenConfigBoolean("allowCopyrightCheck", true).generic()
 @JvmField val SECURITY_COMMIT = RedenConfigBoolean("securityCommit", false).generic()
 @JvmField val NO_TIME_OUT = RedenConfigBoolean("noTimeOut", false).generic()

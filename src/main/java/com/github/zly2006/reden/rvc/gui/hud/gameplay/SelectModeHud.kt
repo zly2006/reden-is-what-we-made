@@ -20,16 +20,16 @@ fun registerHud() {
         val mc = MinecraftClient.getInstance()
         if (mc.player?.handToolItem == true) {
             if (selectedStructure == null) {
-                list.add(Text.literal("Selected Nothing.").red())
+                list.add(Text.literal("reden.widget.rvc.hud.selected_nothing").red())
             }
             else {
-                list.add(Text.translatable("Selecting: ", selectedStructure!!.name))
+                list.add(Text.translatable("reden.widget.rvc.hud.selected", selectedStructure!!.name))
                 val trackCount = selectedStructure!!.trackPoints.count { it.mode == TrackedStructure.TrackPoint.TrackMode.TRACK }
                 val ignoreCount = selectedStructure!!.trackPoints.count { it.mode == TrackedStructure.TrackPoint.TrackMode.IGNORE }
                 list.add(
-                    Text.literal("Trackpoints: ")
-                        .append(Text.literal("$trackCount Tracking").formatted(Formatting.GREEN))
-                        .append(Text.literal("$ignoreCount Ignoring").formatted(Formatting.RED))
+                    Text.translatable("reden.widget.rvc.hud.trackpoints")
+                        .append(Text.translatable("reden.widget.rvc.hud.trackpoints.tracking", trackCount).formatted(Formatting.GREEN))
+                        .append(Text.translatable("reden.widget.rvc.hud.trackpoints.ignoring", ignoreCount).formatted(Formatting.RED))
                 )
             }
         }
