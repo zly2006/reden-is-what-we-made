@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.rvc.gui
 
-import com.github.zly2006.reden.rvc.tracking.LitematicaIO
+import com.github.zly2006.reden.rvc.io.LitematicaIO
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.litematicaInstalled
 import io.wispforest.owo.ui.base.BaseOwoScreen
@@ -44,14 +44,10 @@ fun syncSelectionLocal() {
 }
 
 class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
+    override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
     init {
         val mc = MinecraftClient.getInstance()
         trackedStructureList.forEach { it.world = mc.world!! }
-    }
-    override fun createAdapter(): OwoUIAdapter<FlowLayout> {
-        return OwoUIAdapter.create(this) { horizontalSizing, verticalSizing ->
-            Containers.verticalFlow(horizontalSizing, verticalSizing)
-        }
     }
 
     override fun build(rootComponent: FlowLayout) {
@@ -122,6 +118,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
                         Components.button(
                             Text.translatable("reden.widget.rvc.structure.export.litematica")
                         ) {
+                            data.collectFromWorld()
                             LitematicaIO.save(Path.of("schematics"), data)
                         },
                         0, 2

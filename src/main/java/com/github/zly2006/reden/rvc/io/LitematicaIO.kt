@@ -1,8 +1,8 @@
-package com.github.zly2006.reden.rvc.tracking
+package com.github.zly2006.reden.rvc.io
 
 import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.IWritableStructure
-import com.github.zly2006.reden.rvc.io.StructureIO
+import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import fi.dy.masa.litematica.schematic.LitematicaSchematic
 import fi.dy.masa.litematica.selection.AreaSelection
 import fi.dy.masa.litematica.selection.Box
@@ -12,16 +12,6 @@ import net.minecraft.util.math.Vec3d
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
-
-private val BlockBox.minPos: BlockPos
-    get() {
-        return BlockPos(minX, minY, minZ)
-    }
-
-private val BlockBox.maxPos: BlockPos
-    get() {
-        return BlockPos(maxX, maxY, maxZ)
-    }
 
 object LitematicaIO: StructureIO {
     override fun save(path: Path, structure: IStructure) {
@@ -52,22 +42,24 @@ object LitematicaIO: StructureIO {
                 val blockTicks = litematica.getScheduledBlockTicksForRegion(index.toString())!!
                 val fluidTicks = litematica.getScheduledFluidTicksForRegion(index.toString())!!
                 val entityInfos = litematica.getEntityListForRegion(index.toString())!!
-                structure.cachedPositions.keys.filter { it in box }.forEach { pos ->
+                structure.blocks.filter { it.key in box }.forEach {
                     subRegionContainer.set(
-                        pos.x - box.minX,
-                        pos.y - box.minY,
-                        pos.z - box.minZ,
-                        structure.world.getBlockState(pos)
+                        it.key.x - box.minX,
+                        it.key.y - box.minY,
+                        it.key.z - box.minZ,
+                        it.value
                     )
                 }
                 structure.blockEntities.keys.filter { it in box }.forEach { pos ->
                     blockEntityMap[pos] = structure.blockEntities[pos]
                 }
                 structure.entities.forEach {
-                    entityInfos.add(LitematicaSchematic.EntityInfo(
-                        Vec3d.ZERO,
-                        it.value
-                    ))
+                    entityInfos.add(
+                        LitematicaSchematic.EntityInfo(
+                            Vec3d.ZERO,
+                            it.value
+                        )
+                    )
                 }
                 subRegionContainer
             }
@@ -103,10 +95,12 @@ object LitematicaIO: StructureIO {
                 }
             }
             structure.entities.forEach {
-                entityInfos.add(LitematicaSchematic.EntityInfo(
-                    Vec3d.ZERO,
-                    it.value
-                ))
+                entityInfos.add(
+                    LitematicaSchematic.EntityInfo(
+                        Vec3d.ZERO,
+                        it.value
+                    )
+                )
             }
         }
         litematica.metadata.description = "Reden Exported to Litematica"
@@ -121,3 +115,8 @@ object LitematicaIO: StructureIO {
 
     override fun load(path: Path, structure: IWritableStructure) = throw UnsupportedOperationException()
 }
+
+private val BlockBox.minPos: BlockPos
+    get() = BlockPos(minX, minY, minZ)
+private val BlockBox.maxPos: BlockPos
+    get() = BlockPos(maxX, maxY, maxZ)

@@ -7,6 +7,8 @@ import com.github.zly2006.reden.rvc.ReadWriteStructure
 import com.github.zly2006.reden.utils.setBlockNoPP
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks
+import net.minecraft.entity.Entity
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.fluid.Fluid
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.registry.Registries
@@ -14,6 +16,7 @@ import net.minecraft.server.world.BlockEvent
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Box
 import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.World
 import net.minecraft.world.tick.ChunkTickScheduler
@@ -341,6 +344,38 @@ class TrackedStructure (
                 .map { Tick.orderedTickToNbt(it, { Registries.FLUID.getId(it as Fluid).toString() }, time) }
                 .let { fluidScheduledTicks.addAll(it) }
         }
+    }
+
+    fun collectFromWorld() {
+        blocks.clear()
+        blockEntities.clear()
+        entities.clear()
+        refreshPositions()
+        collectSchedules()
+        val minPos = BlockPos.Mutable()
+        val maxPos = BlockPos.Mutable()
+        blockIterator.forEach { pos ->
+            if (pos.x < minPos.x) minPos.x = pos.x
+            if (pos.y < minPos.y) minPos.y = pos.y
+            if (pos.z < minPos.z) minPos.z = pos.z
+            if (pos.x > maxPos.x) maxPos.x = pos.x
+            if (pos.y > maxPos.y) maxPos.y = pos.y
+            if (pos.z > maxPos.z) maxPos.z = pos.z
+            val state = world.getBlockState(pos)
+            val beData = world.getBlockEntity(pos)?.createNbtWithId()
+            blocks[pos] = state
+            if (beData != null) blockEntities[pos] = beData
+        }
+        xSize = maxPos.x - minPos.x + 1
+        ySize = maxPos.y - minPos.y + 1
+        zSize = maxPos.z - minPos.z + 1
+        origin.set(minPos)
+        world.getNonSpectatingEntities(Entity::class.java, Box(minPos, maxPos)).asSequence()
+            .filter {
+                it !is PlayerEntity
+            }.forEach {
+                entities[it.uuid] = it.writeNbt(NbtCompound())
+            }
     }
 
     fun addTrackPoint(trackPoint: TrackPoint) {
