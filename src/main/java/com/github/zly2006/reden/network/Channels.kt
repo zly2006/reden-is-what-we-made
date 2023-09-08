@@ -7,6 +7,8 @@ val DISABLE_BREAK_POINT = Identifier("reden", "disable_break_point")
 val ROLLBACK = Identifier("reden", "rollback")
 val TAG_BLOCK_POS = Identifier("reden", "tag_block_pos")
 val TNT_SYNC_PACKET = Identifier("reden", "tnt_sync_packet")
+val RVC_DATA_SYNC = Identifier("reden", "rvc_data_sync")
+val RVC_TRACKPOINTS_C2S = Identifier("reden", "rvc_trackpoints_c2s")
 fun register() {
     TagBlockPos.register()
     Rollback.register()
