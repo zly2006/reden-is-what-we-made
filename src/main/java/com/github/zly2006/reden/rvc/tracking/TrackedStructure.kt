@@ -66,7 +66,7 @@ class TrackedStructure (
     fun splitCuboids(
         untrackedIsIgnored: Boolean = false,
     ): List<BlockBox> {
-        class IncludeEntry(
+        class SplitingContext(
             var cuboid: BlockBox?,
             val points: SortedSet<BlockPos> = sortedSetOf()
         ) {
@@ -87,56 +87,56 @@ class TrackedStructure (
                 cuboid = BlockBox(minX, minY, minZ, maxX, maxY, maxZ)
             }
         }
-        val result: MutableList<IncludeEntry>
+        val result: MutableList<SplitingContext>
 
         if (untrackedIsIgnored)
-            result = (cachedPositions.keys).map { IncludeEntry(listOf(it)) }.toMutableList()
+            result = (cachedPositions.keys).map { SplitingContext(listOf(it)) }.toMutableList()
         else {
-            result = mutableListOf(IncludeEntry(cachedPositions.keys))
-            cachedIgnoredPositions.forEach { ignored ->
+            result = mutableListOf(SplitingContext(cachedPositions.keys))
+            cachedIgnoredPositions.forEach { ignoredPos ->
                 val iter = result.listIterator()
                 while (iter.hasNext()) {
                     val entry = iter.next()
-                    if (entry.cuboid?.contains(ignored.key) == true) {
+                    if (entry.cuboid?.contains(ignoredPos.key) == true) {
                         // Note: in this block element[i] is always removing
                         // select if we can split by an axis without add more cuboids
-                        if (entry.points.none { it.x == ignored.key.x }) {
+                        if (entry.points.none { it.x == ignoredPos.key.x }) {
                             iter.remove()
                             // split by x
                             iter.add(
-                                IncludeEntry(
-                                    entry.points.filter { it.x < ignored.key.x }
+                                SplitingContext(
+                                    entry.points.filter { it.x < ignoredPos.key.x }
                                 )
                             )
                             iter.add(
-                                IncludeEntry(
-                                    entry.points.filter { it.x > ignored.key.x }
+                                SplitingContext(
+                                    entry.points.filter { it.x > ignoredPos.key.x }
                                 )
                             )
-                        } else if (entry.points.none { it.y == ignored.key.y }) {
+                        } else if (entry.points.none { it.y == ignoredPos.key.y }) {
                             iter.remove()
                             // split by y
                             iter.add(
-                                IncludeEntry(
-                                    entry.points.filter { it.y < ignored.key.y }
+                                SplitingContext(
+                                    entry.points.filter { it.y < ignoredPos.key.y }
                                 )
                             )
                             iter.add(
-                                IncludeEntry(
-                                    entry.points.filter { it.y > ignored.key.y }
+                                SplitingContext(
+                                    entry.points.filter { it.y > ignoredPos.key.y }
                                 )
                             )
-                        } else if (entry.points.none { it.z == ignored.key.z }) {
+                        } else if (entry.points.none { it.z == ignoredPos.key.z }) {
                             iter.remove()
                             // split by z
                             iter.add(
-                                IncludeEntry(
-                                    entry.points.filter { it.z < ignored.key.z }
+                                SplitingContext(
+                                    entry.points.filter { it.z < ignoredPos.key.z }
                                 )
                             )
                             iter.add(
-                                IncludeEntry(
-                                    entry.points.filter { it.z > ignored.key.z }
+                                SplitingContext(
+                                    entry.points.filter { it.z > ignoredPos.key.z }
                                 )
                             )
                         } else {
@@ -144,45 +144,45 @@ class TrackedStructure (
                             iter.remove()
                             // first, split by x
                             iter.add(
-                                IncludeEntry(
-                                    entryToSplit.points.filter { it.x < ignored.key.x }
+                                SplitingContext(
+                                    entryToSplit.points.filter { it.x < ignoredPos.key.x }
                                 )
                             )
                             iter.add(
-                                IncludeEntry(
-                                    entryToSplit.points.filter { it.x > ignored.key.x }
+                                SplitingContext(
+                                    entryToSplit.points.filter { it.x > ignoredPos.key.x }
                                 )
                             )
                             // then add same x points to the new cuboids
-                            entryToSplit = IncludeEntry(entryToSplit.points.filter { it.x == ignored.key.x })
-                            if (entryToSplit.cuboid?.contains(ignored.key) != true) {
+                            entryToSplit = SplitingContext(entryToSplit.points.filter { it.x == ignoredPos.key.x })
+                            if (entryToSplit.cuboid?.contains(ignoredPos.key) != true) {
                                 iter.add(entryToSplit)
                             }
                             // second, split by y
                             iter.add(
-                                IncludeEntry(
-                                    entryToSplit.points.filter { it.y < ignored.key.y }
+                                SplitingContext(
+                                    entryToSplit.points.filter { it.y < ignoredPos.key.y }
                                 )
                             )
                             iter.add(
-                                IncludeEntry(
-                                    entryToSplit.points.filter { it.y > ignored.key.y }
+                                SplitingContext(
+                                    entryToSplit.points.filter { it.y > ignoredPos.key.y }
                                 )
                             )
                             // then add same y points to the new cuboids
-                            entryToSplit = IncludeEntry(entryToSplit.points.filter { it.y == ignored.key.y })
-                            if (entryToSplit.cuboid?.contains(ignored.key) != true) {
+                            entryToSplit = SplitingContext(entryToSplit.points.filter { it.y == ignoredPos.key.y })
+                            if (entryToSplit.cuboid?.contains(ignoredPos.key) != true) {
                                 iter.add(entryToSplit)
                             }
                             // third, split by z
                             iter.add(
-                                IncludeEntry(
-                                    entryToSplit.points.filter { it.z < ignored.key.z }
+                                SplitingContext(
+                                    entryToSplit.points.filter { it.z < ignoredPos.key.z }
                                 )
                             )
                             iter.add(
-                                IncludeEntry(
-                                    entryToSplit.points.filter { it.z > ignored.key.z }
+                                SplitingContext(
+                                    entryToSplit.points.filter { it.z > ignoredPos.key.z }
                                 )
                             )
                             // then add same z point is ignored

@@ -37,7 +37,7 @@ fun PlayerEntity.sendMessage(s: String) {
     sendMessage(Text.literal(s))
 }
 
-val ClientPlayerEntity.handToolItem: Boolean get() {
+val ClientPlayerEntity.holdingToolItem: Boolean get() {
     val stack = getStackInHand(Hand.MAIN_HAND) ?: return false
     return Registries.ITEM.getId(stack.item) == Identifier.tryParse(SELECTION_TOOL.stringValue)
 }

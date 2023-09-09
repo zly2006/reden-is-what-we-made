@@ -3,7 +3,7 @@ package com.github.zly2006.reden.rvc.tracking.client
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
-import com.github.zly2006.reden.utils.handToolItem
+import com.github.zly2006.reden.utils.holdingToolItem
 import fi.dy.masa.malilib.event.InputEventHandler
 import fi.dy.masa.malilib.hotkeys.IMouseInputHandler
 import net.minecraft.client.MinecraftClient
@@ -17,7 +17,7 @@ fun registerSelectionTool() {
             if (!eventButtonState) return false // ensure mouse down
             val mc = MinecraftClient.getInstance()
             if (mc.currentScreen != null) return false // ensure no gui
-            mc.player?.handToolItem?.takeIf { it } ?: return false // ensure hand tool item
+            if (mc.player?.holdingToolItem != true) return false // ensure hand tool item
 
             // get clicked block
             val raycast = mc.cameraEntity!!.raycast(256.0, 0f, false)

@@ -4,7 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.rvc.gui.RvcHudRenderer
 import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
-import com.github.zly2006.reden.utils.handToolItem
+import com.github.zly2006.reden.utils.holdingToolItem
 import com.github.zly2006.reden.utils.red
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
@@ -18,7 +18,7 @@ fun registerHud() {
     RvcHudRenderer.supplierMap["select_mode_hud"] = {
         val list = mutableListOf<Text>()
         val mc = MinecraftClient.getInstance()
-        if (mc.player?.handToolItem == true) {
+        if (mc.player?.holdingToolItem == true) {
             if (selectedStructure == null) {
                 list.add(Text.literal("reden.widget.rvc.hud.selected_nothing").red())
             }
