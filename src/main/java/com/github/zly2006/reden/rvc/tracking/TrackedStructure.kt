@@ -14,10 +14,7 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.registry.Registries
 import net.minecraft.server.world.BlockEvent
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.util.math.BlockBox
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Box
-import net.minecraft.util.math.ChunkPos
+import net.minecraft.util.math.*
 import net.minecraft.world.World
 import net.minecraft.world.tick.ChunkTickScheduler
 import net.minecraft.world.tick.Tick
@@ -64,7 +61,7 @@ class TrackedStructure (
         }
 
     fun splitCuboids(
-        untrackedIsIgnored: Boolean = false,
+        includeUntracked: Boolean = true,
     ): List<BlockBox> {
         class SplitingContext(
             var cuboid: BlockBox?,
@@ -89,111 +86,67 @@ class TrackedStructure (
         }
         val result: MutableList<SplitingContext>
 
-        if (untrackedIsIgnored)
-            result = (cachedPositions.keys).map { SplitingContext(listOf(it)) }.toMutableList()
-        else {
+        if (includeUntracked) {
             result = mutableListOf(SplitingContext(cachedPositions.keys))
             cachedIgnoredPositions.forEach { ignoredPos ->
                 val iter = result.listIterator()
                 while (iter.hasNext()) {
                     val entry = iter.next()
+                    fun splitByAxis(
+                        entry: SplitingContext,
+                        axis: BlockPos.() -> Int
+                    ) {
+                        iter.add(
+                            SplitingContext(
+                                entry.points.filter { it.axis() < ignoredPos.key.axis() }
+                            )
+                        )
+                        iter.add(
+                            SplitingContext(
+                                entry.points.filter { it.axis() > ignoredPos.key.axis() }
+                            )
+                        )
+                    }
                     if (entry.cuboid?.contains(ignoredPos.key) == true) {
                         // Note: in this block element[i] is always removing
                         // select if we can split by an axis without add more cuboids
                         if (entry.points.none { it.x == ignoredPos.key.x }) {
                             iter.remove()
-                            // split by x
-                            iter.add(
-                                SplitingContext(
-                                    entry.points.filter { it.x < ignoredPos.key.x }
-                                )
-                            )
-                            iter.add(
-                                SplitingContext(
-                                    entry.points.filter { it.x > ignoredPos.key.x }
-                                )
-                            )
+                            splitByAxis(entry) { x }
                         } else if (entry.points.none { it.y == ignoredPos.key.y }) {
                             iter.remove()
-                            // split by y
-                            iter.add(
-                                SplitingContext(
-                                    entry.points.filter { it.y < ignoredPos.key.y }
-                                )
-                            )
-                            iter.add(
-                                SplitingContext(
-                                    entry.points.filter { it.y > ignoredPos.key.y }
-                                )
-                            )
+                            splitByAxis(entry) { y }
                         } else if (entry.points.none { it.z == ignoredPos.key.z }) {
                             iter.remove()
-                            // split by z
-                            iter.add(
-                                SplitingContext(
-                                    entry.points.filter { it.z < ignoredPos.key.z }
-                                )
-                            )
-                            iter.add(
-                                SplitingContext(
-                                    entry.points.filter { it.z > ignoredPos.key.z }
-                                )
-                            )
+                            splitByAxis(entry) { z }
                         } else {
                             var entryToSplit = entry
                             iter.remove()
                             // first, split by x
-                            iter.add(
-                                SplitingContext(
-                                    entryToSplit.points.filter { it.x < ignoredPos.key.x }
-                                )
-                            )
-                            iter.add(
-                                SplitingContext(
-                                    entryToSplit.points.filter { it.x > ignoredPos.key.x }
-                                )
-                            )
+                            splitByAxis(entryToSplit) { x }
                             // then add same x points to the new cuboids
                             entryToSplit = SplitingContext(entryToSplit.points.filter { it.x == ignoredPos.key.x })
                             if (entryToSplit.cuboid?.contains(ignoredPos.key) != true) {
                                 iter.add(entryToSplit)
                             }
-                            // second, split by y
-                            iter.add(
-                                SplitingContext(
-                                    entryToSplit.points.filter { it.y < ignoredPos.key.y }
-                                )
-                            )
-                            iter.add(
-                                SplitingContext(
-                                    entryToSplit.points.filter { it.y > ignoredPos.key.y }
-                                )
-                            )
-                            // then add same y points to the new cuboids
+                            // second, split by z
+                            splitByAxis(entryToSplit) { z }
+                            // then add same z points to the new cuboids
                             entryToSplit = SplitingContext(entryToSplit.points.filter { it.y == ignoredPos.key.y })
                             if (entryToSplit.cuboid?.contains(ignoredPos.key) != true) {
                                 iter.add(entryToSplit)
                             }
-                            // third, split by z
-                            iter.add(
-                                SplitingContext(
-                                    entryToSplit.points.filter { it.z < ignoredPos.key.z }
-                                )
-                            )
-                            iter.add(
-                                SplitingContext(
-                                    entryToSplit.points.filter { it.z > ignoredPos.key.z }
-                                )
-                            )
-                            // then add same z point is ignored
+                            // third, split by y
+                            splitByAxis(entryToSplit) { y }
                         }
                     }
                 }
                 result.removeIf { it.points.isEmpty() || it.cuboid == null }
             }
-        }
+        } else
+            result = (cachedPositions.keys).map { SplitingContext(listOf(it)) }.toMutableList()
 
-        return result.map { it.cuboid!! }
+        return result.mapNotNull { it.cuboid }
     }
 
     open class SpreadEntry(
@@ -237,6 +190,27 @@ class TrackedStructure (
     }
 
     fun onBlockAdded(pos: BlockPos) {
+        val trackPoint = Direction.stream().map(pos::offset).map { cachedIgnoredPositions[it] }.findFirst().getOrNull()
+        if (trackPoint != null) {
+            val readPos = mutableSetOf<BlockPos>()
+            val queue = LinkedList<SpreadEntry>()
+            queue.add(SpreadEntry(pos, trackPoint.predicate))
+            var maxElements = 80000
+            while (queue.isNotEmpty() && maxElements > 0) {
+                val entry = queue.removeFirst()
+                if (entry.pos in cachedIgnoredPositions || world.isAir(entry.pos)) continue
+                entry.spreadAround(world, { newPos ->
+                    if (readPos.add(newPos)) {
+                        if (newPos in cachedPositions) return@spreadAround
+                        if (!world.isAir(newPos)) {
+                            cachedPositions[newPos] = trackPoint
+                        }
+                        maxElements--
+                        queue.add(SpreadEntry(newPos, entry.predicate))
+                    }
+                })
+            }
+        }
     }
 
     fun onBlockRemoved(pos: BlockPos) {
@@ -397,3 +371,5 @@ class TrackedStructure (
         }
     }
 }
+
+private fun <T> Optional<T>.getOrNull() = if (isPresent) get() else null

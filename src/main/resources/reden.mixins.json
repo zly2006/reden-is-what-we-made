@@ -4,6 +4,8 @@
   "package": "com.github.zly2006.reden.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "MixinMinecraftServer",
+    "MixinServerWorld",
     "breakpoint.Mixin119Updater",
     "breakpoint.MixinUpdater",
     "common.MixinDataModify",
