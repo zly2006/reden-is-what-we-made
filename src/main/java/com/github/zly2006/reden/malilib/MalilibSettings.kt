@@ -74,5 +74,6 @@ private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add
 @JvmField val OPEN_GITHUB_AUTH_SCREEN = RedenConfigHotkey("openGithubAuthScreen", "R,G").debug().hotkey()
 @JvmField val GITHUB_TOKEN = RedenConfigString("githubToken", "").debug()
 @JvmField val ALLOW_SOCIAL_FOLLOW = RedenConfigBoolean("allowSocialFollow", true).debug()
+@JvmField val DEBUG_RVC_REQUEST_SYNC_DATA = RedenConfigHotkey("debugRvcRequestSyncData", "").debug().hotkey()
 
 fun getAllOptions() = GENERIC_TAB + RVC_TAB + MICRO_TICK_TAB + SUPER_RIGHT_TAB + DEBUG_TAB

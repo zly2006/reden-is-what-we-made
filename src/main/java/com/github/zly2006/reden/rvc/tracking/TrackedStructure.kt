@@ -304,11 +304,11 @@ class TrackedStructure (
             blockEvents.addAll(syncedBlockEventQueue.filter { isInArea(it.pos) })
             val chunks = blockIterator.asSequence()
                 .map(ChunkPos::toLong)
-                .distinct()
+                .toList().distinct()
                 .map { getChunk(ChunkPos.getPackedX(it), ChunkPos.getPackedZ(it)) }
             val time = world.levelProperties.time
-            val blockTickSchedulers = chunks.map { it.blockTickScheduler as ChunkTickScheduler }
-            val fluidTickSchedulers = chunks.map { it.fluidTickScheduler as ChunkTickScheduler }
+            val blockTickSchedulers = chunks.asSequence().map { it.blockTickScheduler as ChunkTickScheduler }
+            val fluidTickSchedulers = chunks.asSequence().map { it.fluidTickScheduler as ChunkTickScheduler }
             blockTickSchedulers
                 .flatMap { it.queuedTicks.filter { isInArea(it.pos) } }
                 .map { Tick.orderedTickToNbt(it, { Registries.BLOCK.getId(it as Block).toString() }, time) }

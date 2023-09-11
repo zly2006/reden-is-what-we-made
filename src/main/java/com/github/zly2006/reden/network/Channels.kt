@@ -16,4 +16,5 @@ fun register() {
     BreakPointInterrupt.register()
     StepUpdate.register()
     TntSyncPacket.register()
+    RvcTrackpointsC2SRequest.register()
 }

@@ -4,8 +4,8 @@
   "package": "com.github.zly2006.reden.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "MixinMinecraftServer",
-    "MixinServerWorld",
+    "common.access.MixinMinecraftServer",
+    "common.access.MixinServerWorld",
     "breakpoint.Mixin119Updater",
     "breakpoint.MixinUpdater",
     "common.MixinDataModify",
@@ -33,9 +33,9 @@
     "undo.MixinTntEntity"
   ],
   "client": [
-    "chat.ChatHudMixin",
-    "chat.ChatScreenMixin",
-    "chat.VisibleChatHudLineMixin",
+    "superRight.chat.ChatHudMixin",
+    "superRight.chat.ChatScreenMixin",
+    "superRight.chat.VisibleChatHudLineMixin",
     "debug.undoReportUnTrackedTnt.MixinTntEntity",
     "fix.NoTimeOut",
     "fix.forceSyncEntityPos.MixinClientNetwork",
