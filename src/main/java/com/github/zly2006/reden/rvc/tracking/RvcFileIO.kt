@@ -190,6 +190,7 @@ object RvcFileIO: StructureIO {
         loadRvcFile(path, "trackPoints")?.let { rvcFile ->
             structure.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data))
         }
+        structure.refreshPositions()
 
         // ===================================== Load Block Events =====================================
         // public final val blockEvents: MutableList<BlockEvent>
