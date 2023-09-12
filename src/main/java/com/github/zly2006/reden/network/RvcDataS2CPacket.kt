@@ -1,5 +1,7 @@
 package com.github.zly2006.reden.network
 
+import com.github.zly2006.reden.utils.isClient
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.minecraft.network.PacketByteBuf
@@ -17,6 +19,16 @@ class RvcDataS2CPacket(
             val decompressed = GzipCompressorInputStream(data.inputStream()).readAllBytes()
             RvcDataS2CPacket(decompressed)
         }!!
+        internal var consumer: ((ByteArray) -> Unit)? = null
+
+        fun register() {
+            if (isClient) {
+                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
+                    consumer?.invoke(packet.data)
+                    consumer = null
+                }
+            }
+        }
     }
 
     override fun write(buf: PacketByteBuf) {

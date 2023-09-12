@@ -2,7 +2,6 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.rvc.tracking.RvcFileIO
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
-import com.github.zly2006.reden.utils.sendMessage
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
@@ -42,7 +41,6 @@ class RvcTrackpointsC2SRequest(
 
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
-                player.sendMessage("ss")
                 fun sendStatus(status: Int) =
                     sender.sendPacket(RvcTrackpointsC2SRequest(listOf(), status))
                 when (packet.operation) {
