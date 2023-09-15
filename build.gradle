@@ -93,7 +93,7 @@ dependencies {
     // Kotlin support
     modImplementation("net.fabricmc:fabric-language-kotlin:1.9.2+kotlin.1.8.10")
     // MaLiLib, required on client
-    modImplementation "curse.maven:malilib-303119:4623483"
+    modImplementation "fi.dy.masa.malilib:malilib-fabric-1.20.1:0.16.2"
     // carpet, required on client & server
     modImplementation "carpet:fabric-carpet:1.20-1.4.112+v230608"
     // Game test

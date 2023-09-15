@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.render
 
+import com.github.zly2006.reden.malilib.BLOCK_BORDER_ALPHA
 import com.github.zly2006.reden.malilib.MAX_RENDER_DISTANCE
 import com.github.zly2006.reden.network.TagBlockPos
 import com.mojang.blaze3d.systems.RenderSystem
@@ -17,8 +18,20 @@ import net.minecraft.util.math.Vec3d
 object BlockBorder {
     internal val tags = mutableMapOf<Long, Int>()
 
+    @JvmStatic operator fun set(pos: BlockPos, status: Int?) {
+        if (status == null) {
+            tags.remove(pos.asLong())
+        } else {
+            tags[pos.asLong()] = status
+        }
+    }
+
+    @JvmStatic operator fun get(pos: BlockPos): Int {
+        return tags[pos.asLong()] ?: 0
+    }
+
     init {
-        WorldRenderEvents.AFTER_TRANSLUCENT.register { context ->
+        WorldRenderEvents.BEFORE_DEBUG_RENDER.register { context ->
             tags.filter { context.camera().pos.distanceTo(BlockPos.fromLong(it.key).toCenterPos()) < MAX_RENDER_DISTANCE.integerValue }
                 .forEach { (_pos, status) ->
                     if (status == 0) {
@@ -26,6 +39,7 @@ object BlockBorder {
                         return@register
                     }
                     val pos = BlockPos.fromLong(_pos)
+                    val alpha = BLOCK_BORDER_ALPHA.doubleValue.toFloat()
                     val matrix4f = context.matrixStack().peek().positionMatrix
                     RenderSystem.disableCull()
                     RenderSystem.disableScissor()
@@ -77,7 +91,7 @@ object BlockBorder {
                             0f,
                             1f,
                             0f,
-                            0.5f
+                            alpha
                         )
 
                         TagBlockPos.red -> drawBox(
@@ -86,7 +100,7 @@ object BlockBorder {
                             1f,
                             0f,
                             0f,
-                            0.5f
+                            alpha
                         )
 
                         else -> drawBox(
@@ -95,7 +109,7 @@ object BlockBorder {
                             0f,
                             0f,
                             0f,
-                            0.5f
+                            alpha
                         )
                     }
                     RenderSystem.enableCull()

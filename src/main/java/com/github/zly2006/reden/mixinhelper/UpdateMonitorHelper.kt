@@ -70,13 +70,16 @@ object UpdateMonitorHelper {
      *
      * 此缓存可能在没有确认的情况下不经检查直接调用
      */
-    private fun addRecord(): PlayerData.UndoRecord {
+    private fun addRecord(
+        cause: PlayerData.UndoRecord.Cause
+    ): PlayerData.UndoRecord {
         if (undoRecords.size != 0) {
             throw IllegalStateException("Cannot add record when there is already one.")
         }
         val undoRecord = PlayerData.UndoRecord(
             id = recordId,
             lastChangedTick = server.ticks,
+            cause = cause
         )
         undoRecordsMap[recordId] = undoRecord
         recordId++
@@ -85,15 +88,21 @@ object UpdateMonitorHelper {
 
     internal fun removeRecord(id: Long) = undoRecordsMap.remove(id)
 
+    @Suppress("unused")
     @JvmStatic
-    fun playerStartRecording(player: ServerPlayerEntity) {
+    fun playerStartRecording(player: ServerPlayerEntity) = playerStartRecording(player, PlayerData.UndoRecord.Cause.UNKNOWN)
+    @JvmStatic
+    fun playerStartRecording(
+        player: ServerPlayerEntity,
+        cause: PlayerData.UndoRecord.Cause
+    ) {
         val playerView = player.data()
         if (!playerView.canRecord) return
         if (!playerView.isRecording) {
             playerView.isRecording = true
-            val record = addRecord()
+            val record = addRecord(cause)
             playerView.undo.add(record)
-            pushRecord(record.id) { "player recording/${player.entityName}" }
+            pushRecord(record.id) { "player recording/${player.entityName}/$cause" }
         }
     }
 
@@ -102,7 +111,7 @@ object UpdateMonitorHelper {
         val playerView = player.data()
         if (playerView.isRecording) {
             playerView.isRecording = false
-            popRecord { "player recording/${player.entityName}" }
+            popRecord { "player recording/${player.entityName}/${recording?.cause}" }
             playerView.redo
                 .onEach { removeRecord(it.id) }
                 .clear()
