@@ -84,6 +84,16 @@ reden:
       comment: |-
         Only enable undo feature if cheating enabled.
 
+    solidFaceRenderer:
+      .: solidFaceRenderer
+      comment: |-
+        Draw markers on targeted solid faces. 
+
+    solidFaceShapePredicate:
+      .: solidFaceShapePredicate
+      comment: |-
+        Shape predicate type for solidFaceRenderer. Can be "full", "center" or "rigid".
+
     maxRenderDistance:
       .: maxRenderDistance
       comment: |-
@@ -206,11 +216,3 @@ carpet:
     redenDebug:
       desc: |-
         Enable Reden debug mode. Default is false. Used for bug report etc.
-
-    solidFaceRenderer:
-      desc: |-
-        Draw markers on targeted solid faces. 
-
-    solidFaceShapePredicate:
-      desc: |-
-        Shape predicate type for solidFaceRenderer.

@@ -2,7 +2,6 @@ package com.github.zly2006.reden.carpet;
 
 import carpet.api.settings.Rule;
 import carpet.api.settings.RuleCategory;
-import com.github.zly2006.reden.render.SolidFaceRenderer;
 
 public class RedenCarpetSettings {
     private static final String CATEGORY_REDEN = "Reden";
@@ -42,16 +41,4 @@ public class RedenCarpetSettings {
             categories = {CATEGORY_REDEN}
     )
     public static boolean redenDebug = false;
-
-    @Rule(
-            categories = {CATEGORY_REDEN, RuleCategory.CREATIVE}
-    )
-    public static boolean solidFaceRenderer = false;
-
-    @Rule(
-            categories = {CATEGORY_REDEN, RuleCategory.CREATIVE},
-            options = {"full", "center", "rigid"},
-            validators = SolidFaceRenderer.ShapePredicateValidator.class
-    )
-    public static String solidFaceShapePredicate = "full";
 }
