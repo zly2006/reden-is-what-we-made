@@ -47,6 +47,8 @@ jobs:
       - name: Show Gradle version
         run: gradle --version
 
+      - name: Disable Kotlin K2 Compiler
+        run: sed -i -e "s/tryK2=true/tryK2=false/g" gradle.properties
 
       - name: Build with Gradle (DEV)
         if : ${{ env.PUBLISH_BETA != 'true' }}
