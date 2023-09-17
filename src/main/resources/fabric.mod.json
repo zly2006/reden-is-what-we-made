@@ -17,7 +17,7 @@
     "sources": "https://github.com/zly2006/reden-is-what-we-made"
   },
 
-  "license": "GPL-v3",
+  "license": "LGPL-v3",
   "icon": "assets/reden/icon.png",
 
   "environment": "*",
