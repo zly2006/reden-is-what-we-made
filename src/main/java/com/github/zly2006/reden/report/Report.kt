@@ -158,20 +158,19 @@ fun reportOnlineMC(client: MinecraftClient) {
         }
     }
     catch (_: Exception) { }
-}
-
-fun stopClient(client: MinecraftClient) {
-    try {
-        @Serializable
-        class Req(
-            val key: String
-        )
-        OkHttpClient().newCall(Request.Builder().apply {
-            url("https://www.redenmc.com/api/mc/offline")
-            post(Json.encodeToString(Req(key)).toRequestBody("application/json".toMediaTypeOrNull()))
-            header("Content-Type", "application/json")
-        }.build()).execute().use {
+    Runtime.getRuntime().addShutdownHook(Thread {
+        try {
+            @Serializable
+            class Req(
+                val key: String
+            )
+            OkHttpClient().newCall(Request.Builder().apply {
+                url("https://www.redenmc.com/api/mc/offline")
+                post(Json.encodeToString(Req(key)).toRequestBody("application/json".toMediaTypeOrNull()))
+                header("Content-Type", "application/json")
+            }.build()).execute().use {
+            }
         }
-    }
-    catch (_: Exception) { }
+        catch (_: Exception) { }
+    })
 }

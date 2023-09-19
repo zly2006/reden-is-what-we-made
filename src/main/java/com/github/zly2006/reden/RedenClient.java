@@ -127,7 +127,6 @@ public class RedenClient implements ClientModInitializer {
             KeyCallbacksKt.configureKeyCallbacks(MinecraftClient.getInstance());
         });
         ClientLifecycleEvents.CLIENT_STARTED.register(ReportKt::reportOnlineMC);
-        ClientLifecycleEvents.CLIENT_STOPPING.register(ReportKt::stopClient);
         /*DebugKt.debugLogger = str -> {
             if (MinecraftClient.getInstance().player != null && MalilibSettingsKt.DEBUG_LOGGER.getBooleanValue()) {
                 MinecraftClient.getInstance().player.sendMessage(Text.of(str));
