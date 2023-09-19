@@ -15,6 +15,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okio.use
 import java.util.*
 
 var key = ""
@@ -89,7 +90,26 @@ private fun requestDonate() {
 
 fun onFunctionUsed(name: String) {
     Thread {
-        // usage report
+        @Serializable
+        class Req(
+            val key: String,
+            val name: String
+        )
+        OkHttpClient().newCall(Request.Builder().apply {
+            url("https://www.redenmc.com/api/mc/features/used")
+            post(Json.encodeToString(Req(key, name)).toRequestBody("application/json".toMediaTypeOrNull()))
+            header("Content-Type", "application/json")
+        }.build()).execute().use {
+            @Serializable
+            class Res(
+                val status: String,
+                val shutdown: Boolean
+            )
+            val res = jsonIgnoreUnknown.decodeFromString(Res.serializer(), it.body!!.string())
+            if (res.shutdown) {
+                throw Error("")
+            }
+        }
     }.start()
     usedTimes++
     if (usedTimes % 50 == 0 || usedTimes == 10) {
