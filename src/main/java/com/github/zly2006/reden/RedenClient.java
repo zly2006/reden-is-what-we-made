@@ -21,6 +21,7 @@ import fi.dy.masa.malilib.hotkeys.IKeybindManager;
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.util.FileUtils;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 
@@ -100,6 +101,8 @@ public class RedenClient implements ClientModInitializer {
             });
             KeyCallbacksKt.configureKeyCallbacks(MinecraftClient.getInstance());
         });
+        ClientLifecycleEvents.CLIENT_STARTED.register(ReportKt::reportOnlineMC);
+        ClientLifecycleEvents.CLIENT_STOPPING.register(ReportKt::stopClient);
         /*DebugKt.debugLogger = str -> {
             if (MinecraftClient.getInstance().player != null && MalilibSettingsKt.DEBUG_LOGGER.getBooleanValue()) {
                 MinecraftClient.getInstance().player.sendMessage(Text.of(str));
