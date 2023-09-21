@@ -91,26 +91,30 @@ private fun requestDonate() {
 
 fun onFunctionUsed(name: String) {
     Thread {
-        @Serializable
-        class Req(
-            val key: String,
-            val name: String
-        )
-        OkHttpClient().newCall(Request.Builder().apply {
-            url("https://www.redenmc.com/api/mc/features/used")
-            post(Json.encodeToString(Req(key, name)).toRequestBody("application/json".toMediaTypeOrNull()))
-            header("Content-Type", "application/json")
-        }.build()).execute().use {
+        try {
             @Serializable
-            class Res(
-                val status: String,
-                val shutdown: Boolean
+            class Req(
+                val key: String,
+                val name: String
             )
-            val res = jsonIgnoreUnknown.decodeFromString(Res.serializer(), it.body!!.string())
-            if (res.shutdown) {
-                throw Error("")
+            OkHttpClient().newCall(Request.Builder().apply {
+                url("https://www.redenmc.com/api/mc/features/used")
+                post(Json.encodeToString(Req(key, name)).toRequestBody("application/json".toMediaTypeOrNull()))
+                header("Content-Type", "application/json")
+            }.build()).execute().use {
+                @Serializable
+                class Res(
+                    val status: String,
+                    val shutdown: Boolean
+                )
+
+                val res = jsonIgnoreUnknown.decodeFromString(Res.serializer(), it.body!!.string())
+                if (res.shutdown) {
+                    throw Error("")
+                }
             }
         }
+        catch (_: Exception) { }
     }.start()
     usedTimes++
     if (usedTimes % 50 == 0 || usedTimes == 10) {
