@@ -4,14 +4,26 @@ Redstone EDEN
 
 **English** | [简体中文](./README.zh-CN.md)
 
-## Planned Features
+## Undo & Redo
 
-- [ ] RVC, Redstone Version Control, machine history and diff analysis
-- [ ] RVCHub, a universal machine sharing platform, and automatic recognition of whether the machine has been correctly marked with copyright
-- [ ] RVCSign, sign your machine, a simple step to ensure that your machine is not tampered with or forged
-- [ ] Micro-timing analysis and simulation: block update breakpoints (NC, PP, CU, BE), BED debugger, step-by-step update, step-by-step tick, update reset
-- [x] Ctrl+Z immediately undo the previous operation, machine development no longer needs to be backed up! (Waiting for more testing)
-- [ ] Automated unit testing of machines, divide your machine into modules and test them independently to ensure that each module runs correctly
+Ctrl+Z immediately undo the previous operation, making it much more convenient to develop redstone machines!
+
+## Tick Back
+> Early Access Stage
+
+If your game was frozen using `/tick freeze`, you can use `/tick back` to go back to the previous tick. This feature is implemented by making backups.
+
+## RVC
+> WIP
+
+RVC, Redstone Version Control, machine history and diff analysis
+
+RVCHub, a universal machine sharing platform, and automatic recognition of whether the machine has been correctly marked with copyright
+
+## RDebugger
+> Planned
+
+Micro-timing analysis and simulation: block update breakpoints (NC, PP, CU, BE), BED debugger, step-by-step update, step-by-step tick, update reset
 
 ## Original Intention
 

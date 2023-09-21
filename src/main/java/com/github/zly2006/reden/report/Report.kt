@@ -129,40 +129,44 @@ private val jsonIgnoreUnknown = Json { ignoreUnknownKeys = true }
 
 fun reportOnlineMC(client: MinecraftClient) {
     try {
-        client.sessionService.joinServer(
-            client.session.profile,
-            client.session.accessToken,
-            "3cb49a79c3af1f1dba6c56eddd760ac7d50c518a"
-        )
         @Serializable
         class Req(
             val name: String,
             val early_access: Boolean,
-            val online_mode: Boolean
+            var online_mode: Boolean
         )
-        OkHttpClient().newCall(Request.Builder().apply {
-            url("https://www.redenmc.com/api/mc/online")
-            post(Json.encodeToString(Req(client.session.username, false, client.userApiService != UserApiService.OFFLINE)).toRequestBody("application/json".toMediaTypeOrNull()))
-            header("Content-Type", "application/json")
-        }.build()).execute().use {
-            @Serializable
-            class Res(
-                val shutdown: Boolean,
-                val key: String,
-                val ip: String,
-                val id: String?,
-                val status: String,
-                val username: String,
-                val desc: String,
+        val req = Req(client.session.username, false, client.userApiService != UserApiService.OFFLINE)
+        try {
+            client.sessionService.joinServer(
+                client.session.profile,
+                client.session.accessToken,
+                "3cb49a79c3af1f1dba6c56eddd760ac7d50c518a"
             )
-            val res = jsonIgnoreUnknown.decodeFromString(Res.serializer(), it.body!!.string())
-            if (res.shutdown) {
-                throw Error("Client closing due to copyright reasons, please go to https://www.redenmc.com/policy/copyright gor more information")
-            }
-            key = res.key
-            Reden.LOGGER.info("RedenMC: ${res.desc}")
-            Reden.LOGGER.info("key=${res.key}, ip=${res.ip}, id=${res.id}, status=${res.status}, username=${res.username}")
+        } catch (_: Exception) {
+            req.online_mode = false
         }
+        @Serializable
+        class Res(
+            val shutdown: Boolean,
+            val key: String,
+            val ip: String,
+            val id: String?,
+            val status: String,
+            val username: String,
+            val desc: String,
+        )
+
+        val res = jsonIgnoreUnknown.decodeFromString(Res.serializer(), OkHttpClient().newCall(Request.Builder().apply {
+            url("https://www.redenmc.com/api/mc/online")
+            post(Json.encodeToString(req).toRequestBody("application/json".toMediaTypeOrNull()))
+            header("Content-Type", "application/json")
+        }.build()).execute().body!!.string())
+        if (res.shutdown) {
+            throw Error("Client closing due to copyright reasons, please go to https://www.redenmc.com/policy/copyright gor more information")
+        }
+        key = res.key
+        Reden.LOGGER.info("RedenMC: ${res.desc}")
+        Reden.LOGGER.info("key=${res.key}, ip=${res.ip}, id=${res.id}, status=${res.status}, username=${res.username}")
     }
     catch (_: Exception) { }
     Runtime.getRuntime().addShutdownHook(Thread {
