@@ -2,6 +2,7 @@ package com.github.zly2006.reden.report
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.malilib.ALLOW_SOCIAL_FOLLOW
+import com.mojang.authlib.minecraft.UserApiService
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -132,10 +133,12 @@ fun reportOnlineMC(client: MinecraftClient) {
         @Serializable
         class Req(
             val name: String,
+            val early_access: Boolean,
+            val online_mode: Boolean
         )
         OkHttpClient().newCall(Request.Builder().apply {
             url("https://www.redenmc.com/api/mc/online")
-            post(Json.encodeToString(Req(client.session.username)).toRequestBody("application/json".toMediaTypeOrNull()))
+            post(Json.encodeToString(Req(client.session.username, false, client.userApiService != UserApiService.OFFLINE)).toRequestBody("application/json".toMediaTypeOrNull()))
             header("Content-Type", "application/json")
         }.build()).execute().use {
             @Serializable
