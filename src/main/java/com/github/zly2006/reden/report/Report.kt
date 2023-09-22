@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.report
 
-import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.Reden.LOGGER
 import com.github.zly2006.reden.malilib.ALLOW_SOCIAL_FOLLOW
 import com.mojang.authlib.minecraft.UserApiService
 import kotlinx.serialization.Serializable
@@ -58,8 +58,7 @@ fun initReport() {
                 header("Content-Type", "application/json")
             }.build()).execute()
         }
-    } catch (_: Exception) {
-    }
+    } catch (e: Exception) { LOGGER.debug("", e) }
 }
 
 private var usedTimes = 0
@@ -114,7 +113,7 @@ fun onFunctionUsed(name: String) {
                 }
             }
         }
-        catch (_: Exception) { }
+        catch (e: Exception) { LOGGER.debug("", e) }
     }.start()
     usedTimes++
     if (usedTimes % 50 == 0 || usedTimes == 10) {
@@ -142,7 +141,8 @@ fun reportOnlineMC(client: MinecraftClient) {
                 client.session.accessToken,
                 "3cb49a79c3af1f1dba6c56eddd760ac7d50c518a"
             )
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            LOGGER.debug("", e)
             req.online_mode = false
         }
         @Serializable
@@ -150,7 +150,7 @@ fun reportOnlineMC(client: MinecraftClient) {
             val shutdown: Boolean,
             val key: String,
             val ip: String,
-            val id: String?,
+            val id: String? = null,
             val status: String,
             val username: String,
             val desc: String,
@@ -165,10 +165,10 @@ fun reportOnlineMC(client: MinecraftClient) {
             throw Error("Client closing due to copyright reasons, please go to https://www.redenmc.com/policy/copyright gor more information")
         }
         key = res.key
-        Reden.LOGGER.info("RedenMC: ${res.desc}")
-        Reden.LOGGER.info("key=${res.key}, ip=${res.ip}, id=${res.id}, status=${res.status}, username=${res.username}")
+        LOGGER.info("RedenMC: ${res.desc}")
+        LOGGER.info("key=${res.key}, ip=${res.ip}, id=${res.id}, status=${res.status}, username=${res.username}")
     }
-    catch (_: Exception) { }
+    catch (e: Exception) { LOGGER.debug("", e) }
     Runtime.getRuntime().addShutdownHook(Thread {
         try {
             @Serializable
@@ -182,6 +182,6 @@ fun reportOnlineMC(client: MinecraftClient) {
             }.build()).execute().use {
             }
         }
-        catch (_: Exception) { }
+        catch (e: Exception) { LOGGER.debug("", e) }
     })
 }
