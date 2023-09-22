@@ -4,16 +4,18 @@ import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.IWritableStructure
 import com.github.zly2006.reden.rvc.io.StructureIO
 import com.github.zly2006.reden.rvc.tracking.reader.RvcReaderV1
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.registry.Registries
 import java.nio.file.Path
+import kotlin.io.path.notExists
 
 /**
  * Save and load [TrackedStructure]s into and from RVC files.
  */
 object RvcFileIO: StructureIO {
     private fun rvcFile(name: String): String = "$name.rvc"
-    private const val CURRENT_VERSION = "1.0.0"
+    const val CURRENT_VERSION = "1.0.0"
     private val RVC_HEADER = IRvcFileReader.RvcHeader(
         mutableMapOf(
             "Version" to CURRENT_VERSION,
@@ -80,25 +82,29 @@ object RvcFileIO: StructureIO {
             throw IllegalArgumentException("Structure is not a TrackedStructure")
         }
 
+        if (path.notExists()) {
+            path.toFile().mkdirs()
+        }
+
         // ======================================== Save Blocks ========================================
         // public final val blocks: MutableMap<BlockPos, BlockState>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.blocks.entries.joinToString("\n") { (pos, state) ->
-            "${pos.x},${pos.y},${pos.z},${NbtHelper.toNbtProviderString(NbtHelper.fromBlockState(state))}"
+            "${pos.x},${pos.y},${pos.z},${toNbtString(NbtHelper.fromBlockState(state))}"
         }.let { data -> writeRvcFile(path, "blocks", RVC_HEADER, data) }
 
         // ==================================== Save Block Entities ====================================
         // public final val blockEntities: MutableMap<BlockPos, NbtCompound>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.blockEntities.entries.joinToString("\n") { (pos, nbt) ->
-            "${pos.x},${pos.y},${pos.z},${NbtHelper.toNbtProviderString(nbt)}"
+            "${pos.x},${pos.y},${pos.z},${toNbtString(nbt)}"
         }.let { data -> writeRvcFile(path, "blockEntities", RVC_HEADER, data) }
 
         // ======================================= Save Entities =======================================
         // public open val entities: MutableMap<UUID, NbtCompound>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.entities.entries.joinToString("\n") { (uuid, nbt) ->
-            "$uuid,${NbtHelper.toNbtProviderString(nbt)}"
+            "$uuid,${toNbtString(nbt)}"
         }.let { data -> writeRvcFile(path, "entities", RVC_HEADER, data) }
 
         // ===================================== Save Track Points =====================================
@@ -120,16 +126,19 @@ object RvcFileIO: StructureIO {
         // public final val blockScheduledTicks: MutableList<NbtCompound>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.blockScheduledTicks.joinToString("\n") { nbt ->
-            NbtHelper.toNbtProviderString(nbt)
+            toNbtString(nbt)
         }.let { data -> writeRvcFile(path, "blockScheduledTicks", RVC_HEADER, data) }
 
         // ================================ Save Fluid Scheduled Ticks =================================
         // public final val fluidScheduledTicks: MutableList<NbtCompound>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.fluidScheduledTicks.joinToString("\n") { nbt ->
-            NbtHelper.toNbtProviderString(nbt)
+            toNbtString(nbt)
         }.let { data -> writeRvcFile(path, "fluidScheduledTicks", RVC_HEADER, data) }
     }
+
+    private fun toNbtString(nbt: NbtCompound) =
+        NbtHelper.toNbtProviderString(nbt).replace("\n", "").replace(" ", "")
 
     /**
      * Load a [TrackedStructure] from a RVC file.
@@ -181,6 +190,7 @@ object RvcFileIO: StructureIO {
         loadRvcFile(path, "trackPoints")?.let { rvcFile ->
             structure.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data))
         }
+        structure.refreshPositions()
 
         // ===================================== Load Block Events =====================================
         // public final val blockEvents: MutableList<BlockEvent>

@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.network
 
-import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.render.BlockBorder
+import com.github.zly2006.reden.utils.isClient
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
@@ -10,17 +10,6 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
-
-private val pType = run {
-    PacketType.create(TAG_BLOCK_POS) {
-        TagBlockPos(
-            it.readIdentifier(),
-            it.readBlockPos(),
-            it.readVarInt()
-        )
-    }
-
-}
 
 class TagBlockPos(
     val world: Identifier,
@@ -38,6 +27,16 @@ class TagBlockPos(
         const val clear = 0
         const val green = 1
         const val red = 2
+
+        val pType = run {
+            PacketType.create(TAG_BLOCK_POS) {
+                TagBlockPos(
+                    it.readIdentifier(),
+                    it.readBlockPos(),
+                    it.readVarInt()
+                )
+            }
+        }
 
         fun register() {
             if (!isClient) return

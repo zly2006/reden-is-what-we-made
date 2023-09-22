@@ -14,6 +14,23 @@ reden:
     title:
       commandHotkeyListEdit: Edit command list
 
+    rvc:
+      hud:
+        selected: "Selected: %s"
+        selected_nothing: "Selected: Nothing"
+        trackpoints:
+          .: "Trackpoints: "
+          tracking: "%s Tracking"
+          ignoring: "%s Ignoring"
+      structure:
+        export:
+          litematica: Export to Litematica
+        name: "Name: %s"
+        block_count: "%s blocks"
+        entity_count: "%s entities"
+        scheduled_tick_unstable: |
+          This structure contains scheduled ticks or block events, which may cause unstable behavior.
+
     chat:
       about: About SuperRight Chat
       copy: Copy
@@ -55,6 +72,14 @@ reden:
       .: redenConfigKey
       comment: |-
 
+    selectionTool:
+      .: selectionTool
+      comment: |-
+
+    hudPosition:
+      .: hudPosition
+      comment: |-
+
     allowCopyrightCheck:
       .: allowCopyrightCheck
       comment: |-
@@ -69,6 +94,10 @@ reden:
 
     rollbackKey:
       .: rollbackKey
+      comment: |-
+
+    blockBorderAlpha:
+      .: blockBorderAlpha
       comment: |-
 
     redoKey:
@@ -120,6 +149,16 @@ reden:
         Force Entity Pos Sync
 
     # ===== RVC =====
+    openRvcScreen:
+      .: openRvcScreen
+      comment: |-
+        Open RVC screen
+
+    openSelectionList:
+      .: openSelectionList
+      comment: |-
+        Open RVC selection list
+
     rvcRecordMultiplayer:
       .: rvcRecordMultiplayer
       comment: |-

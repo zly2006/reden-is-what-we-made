@@ -3,6 +3,9 @@ package com.github.zly2006.reden.rvc.tracking
 import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.IWritableStructure
 import com.github.zly2006.reden.rvc.io.StructureIO
+import com.github.zly2006.reden.utils.isClient
+import net.minecraft.client.MinecraftClient
+import org.eclipse.jgit.api.Git
 import java.nio.file.Path
 
 /**
@@ -10,8 +13,43 @@ import java.nio.file.Path
  */
 object RvcGitIO: StructureIO {
     override fun save(path: Path, structure: IStructure) {
-        // Preform git push operation
-        TODO("Not yet implemented")
+        commit(path, structure, RvcFileIO, "RVC file saved by RVC Git IO")
+        // todo: Preform git push operation (require discussion)
+    }
+
+    fun commit(path: Path, structure: IStructure, io: StructureIO, message: String) {
+        val environment = if (!isClient) {
+            "Server"
+        } else {
+            val mc = MinecraftClient.getInstance()
+            if (mc.isInSingleplayer) {
+                "Singleplayer"
+            } else {
+                "Multiplayer"
+            }
+        }
+        Git.open(path.toFile()).use {
+            io.save(path, structure)
+            it.add().addFilepattern(".").call()
+            @Suppress("NAME_SHADOWING")
+            val message = message + "\n\n" + buildString {
+                appendLine("======BEGIN RVC COMMIT DATA======")
+                appendLine("Structure-Name: ${structure.name}")
+                appendLine("Structure-Size: ${structure.xSize}x${structure.ySize}x${structure.zSize}")
+                appendLine("Platform: Reden Mod")
+                appendLine("Reden-Environment: $environment")
+                appendLine("Reden-Version: ${RvcFileIO.CURRENT_VERSION}")
+                if (isClient) {
+                    val mc = MinecraftClient.getInstance()
+                    appendLine("MC-Username: ${mc.session.username}")
+                    appendLine("MC-UUID: ${mc.session.uuid}")
+                }
+                appendLine("======END RVC COMMIT DATA======")
+            }
+            it.commit()
+                .setAuthor("PlayerName", "id@hub.redenmc.com")
+                .setMessage(message).call()
+        }
     }
 
     override fun load(path: Path, structure: IWritableStructure) {

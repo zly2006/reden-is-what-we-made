@@ -38,6 +38,7 @@ accessible field net/minecraft/world/tick/WorldTickScheduler copiedTickableTicks
 accessible field net/minecraft/world/tick/ChunkTickScheduler queuedTicks Ljava/util/Set;
 accessible field net/minecraft/block/entity/PistonBlockEntity progress F
 accessible field net/minecraft/block/entity/PistonBlockEntity lastProgress F
+accessible field net/minecraft/registry/Registries ROOT Lnet/minecraft/registry/MutableRegistry;
 accessible method net/minecraft/client/network/ClientPlayerInteractionManager sendSequencedPacket (Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/client/network/SequencedPacketCreator;)V
 accessible field net/minecraft/world/tick/ChunkTickScheduler tickQueue Ljava/util/Queue;
 accessible field net/minecraft/server/world/ThreadedAnvilChunkStorage currentChunkHolders Lit/unimi/dsi/fastutil/longs/Long2ObjectLinkedOpenHashMap;

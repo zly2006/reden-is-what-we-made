@@ -10,16 +10,12 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(TntEntity.class)
 public abstract class MixinTntEntity extends Entity implements UndoableAccess {
-    @Unique
-    long undoId;
-
     public MixinTntEntity(EntityType<?> type, World world) {
         super(type, world);
     }

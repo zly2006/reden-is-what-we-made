@@ -3,8 +3,12 @@ package com.github.zly2006.reden.malilib
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
 import com.github.zly2006.reden.network.Rollback
+import com.github.zly2006.reden.network.RvcDataS2CPacket
+import com.github.zly2006.reden.network.RvcTrackpointsC2SRequest
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.report.onFunctionUsed
+import com.github.zly2006.reden.rvc.gui.SelectionListScreen
+import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.remote.github.GithubAuthScreen
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.toBlockPos
@@ -13,7 +17,9 @@ import net.minecraft.block.entity.StructureBlockBlockEntity
 import net.minecraft.block.enums.StructureBlockMode
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.packet.c2s.play.UpdateStructureBlockC2SPacket
+import net.minecraft.text.Text
 import net.minecraft.world.GameMode
+import java.util.zip.ZipInputStream
 
 fun configureKeyCallbacks(mc: MinecraftClient) {
     REDEN_CONFIG_KEY.keybind.setCallback { _, _ ->
@@ -114,6 +120,33 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
                 )
             )
         }
+        true
+    }
+    OPEN_SELECTION_LIST.keybind.setCallback { _, _ ->
+        mc.setScreen(SelectionListScreen())
+        true
+    }
+    DEBUG_RVC_REQUEST_SYNC_DATA.keybind.setCallback { _, _ ->
+        ClientPlayNetworking.send(RvcTrackpointsC2SRequest(
+            selectedStructure?.trackPoints ?: listOf(),
+            1,
+            "DEBUG_RVC_REQUEST_SYNC_DATA"
+        ))
+        RvcDataS2CPacket.consumer = {
+            ZipInputStream(it.inputStream()).use { zip ->
+                var entry = zip.nextEntry
+                while (entry != null) {
+                    val name = entry.name
+                    print(name)
+                    val file = mc.runDirectory.resolve("DEBUG_RVC_REQUEST_SYNC_DATA").resolve(name)
+                    file.parentFile.mkdirs()
+                    file.writeBytes(zip.readAllBytes())
+                    entry = zip.nextEntry
+                    print(file.absolutePath)
+                }
+            }
+        }
+        mc.messageHandler.onGameMessage(Text.literal("DEBUG_RVC_REQUEST_SYNC_DATA"), false)
         true
     }
 }

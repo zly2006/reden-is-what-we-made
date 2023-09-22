@@ -41,7 +41,7 @@ class SchematicImpl(
     }
 
     override fun createPlacement(world: World, origin: BlockPos): IPlacement {
-        TODO("Not yet implemented")
+        return DefaultPlacement(this, world, origin)
     }
 }
 

@@ -5,11 +5,13 @@ import carpet.CarpetServer;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.network.ChannelsKt;
 import com.github.zly2006.reden.rvc.RvcCommandKt;
+import com.github.zly2006.reden.rvc.RvcLocalCommandKt;
 import com.github.zly2006.reden.utils.ResourceLoader;
 import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -63,6 +65,9 @@ public class Reden implements ModInitializer, CarpetExtension {
             }
 
             RvcCommandKt.register(dispatcher);
+        });
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+            RvcLocalCommandKt.register(dispatcher);
         });
     }
 }

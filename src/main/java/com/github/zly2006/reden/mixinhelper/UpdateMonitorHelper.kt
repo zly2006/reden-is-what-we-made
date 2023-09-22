@@ -141,7 +141,8 @@ object UpdateMonitorHelper {
     @JvmStatic
     fun entitySpawned(entity: Entity) {
         if (entity is ServerPlayerEntity) return
-        recording?.entities?.put(entity.uuid, null)
+        debugLogger("id ${recording?.id ?: 0}: spawn ${entity.uuid}, type ${entity.type.name}")
+        recording?.entities?.putIfAbsent(entity.uuid, null)
     }
 
     init {

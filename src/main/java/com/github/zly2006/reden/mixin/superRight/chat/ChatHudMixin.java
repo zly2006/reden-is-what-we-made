@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.mixin.chat;
+package com.github.zly2006.reden.mixin.superRight.chat;
 
 import com.github.zly2006.reden.access.VisibleChatHudLineAccess;
 import net.minecraft.client.gui.hud.ChatHud;
