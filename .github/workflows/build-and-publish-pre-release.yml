@@ -23,8 +23,9 @@ jobs:
     steps:
       - name: Store all lowercase commit message
         run: |
-          echo "COMMIT_MESSAGE=$(echo ${github.event.head_commit.message} | tr '[:upper:]' '[:lower:]')" >> ${GITHUB_ENV}
-          echo "--DEBUG-- commit message=$(echo ${github.event.head_commit.message} | tr '[:upper:]' '[:lower:]')"
+          echo "COMMIT_MESSAGE=$(git log --format=%B --no-merges -n 1 | tr '[:upper:]' '[:lower:]' | tr -d '\n;')" >> ${GITHUB_ENV}
+          
+          echo "--DEBUG-- commit message=$(git log --format=%B --no-merges -n 1 | tr '[:upper:]' '[:lower:]' | tr -d '\n;')"
       - name: Detect if a beta release should be published
         if: ${{ contains(env.COMMIT_MESSAGE, '[publish beta]') || inputs.release-beta }}
         run: |
