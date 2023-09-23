@@ -21,18 +21,16 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Store all lowercase commit message
         run: |
-          echo "COMMIT_MESSAGE=$(echo ${github.event.head_commit.message} | tr '[:upper:]' '[:lower:]')" >> ${GITHUB_ENV}
+          echo "COMMIT_MESSAGE=$(git log --format=%B --no-merges -n 1 | tr '[:upper:]' '[:lower:]' | tr -d '\n;')" >> ${GITHUB_ENV}
       - name: Detect if a beta release should be published
         if: ${{ contains(env.COMMIT_MESSAGE, '[publish beta]') || inputs.release-beta }}
         run: |
           echo "PUBLISH_BETA=true" >> ${GITHUB_ENV}
-
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v3
         with:
