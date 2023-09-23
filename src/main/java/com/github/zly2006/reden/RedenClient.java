@@ -5,6 +5,7 @@ import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.malilib.data.CommandHotkey;
 import com.github.zly2006.reden.pearl.PearlTask;
 import com.github.zly2006.reden.report.ReportKt;
+import com.github.zly2006.reden.rvc.RvcLocalCommandKt;
 import com.github.zly2006.reden.rvc.gui.RvcHudRenderer;
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.SelectModeHudKt;
 import com.github.zly2006.reden.rvc.tracking.client.ClientTrackingKt;
@@ -21,6 +22,7 @@ import fi.dy.masa.malilib.hotkeys.IKeybindManager;
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.util.FileUtils;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -102,11 +104,8 @@ public class RedenClient implements ClientModInitializer {
             KeyCallbacksKt.configureKeyCallbacks(MinecraftClient.getInstance());
         });
         ClientLifecycleEvents.CLIENT_STARTED.register(ReportKt::reportOnlineMC);
-        /*DebugKt.debugLogger = str -> {
-            if (MinecraftClient.getInstance().player != null && MalilibSettingsKt.DEBUG_LOGGER.getBooleanValue()) {
-                MinecraftClient.getInstance().player.sendMessage(Text.of(str));
-            }
-            return Unit.INSTANCE;
-        };*/
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+            RvcLocalCommandKt.register(dispatcher);
+        });
     }
 }
