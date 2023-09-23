@@ -102,9 +102,9 @@ dependencies {
 
     implementation(project(":mineroutine"))
     include(project(":mineroutine"))
-    implementation(project(":mineroutine114"))
-    implementation(project(":mineroutine118"))
-    implementation(project(":mineroutine120"))
+    //implementation(project(":mineroutine114"))
+    //implementation(project(":mineroutine118"))
+    //implementation(project(":mineroutine120"))
     include(project(":mineroutine114"))
     include(project(":mineroutine118"))
     include(project(":mineroutine120"))
