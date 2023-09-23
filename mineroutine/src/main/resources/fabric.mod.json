@@ -22,7 +22,6 @@
   "mixins": [
     "mineroutine.mixins.json"
   ],
-  "accessWidener": "mineroutine.accesswidener",
   "depends": {
     "fabricloader": ">=0.14.19",
     "minecraft": "~1.20",
