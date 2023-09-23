@@ -24,8 +24,9 @@ jobs:
       - name: Store all lowercase commit message
         run: |
           echo "COMMIT_MESSAGE=$(echo ${github.event.head_commit.message} | tr '[:upper:]' '[:lower:]')" >> ${GITHUB_ENV}
+          echo "--DEBUG-- commit message=$(echo ${github.event.head_commit.message} | tr '[:upper:]' '[:lower:]')"
       - name: Detect if a beta release should be published
-        if: ${{ contains(env.COMMIT_MESSAGE, '[publish beta]') || inputs.release-beta }}
+        if: ${{ contains(env.COMMIT_MESSAGE, "[publish beta]") || inputs.release-beta }}
         run: |
           echo "PUBLISH_BETA=true" >> ${GITHUB_ENV}
 
