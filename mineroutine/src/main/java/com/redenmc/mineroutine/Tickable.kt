@@ -1,4 +1,4 @@
 package com.redenmc.mineroutine
 
-interface Runnable {
+interface Tickable {
 }
