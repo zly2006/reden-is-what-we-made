@@ -59,27 +59,37 @@ ext {
 setVersion(project.getModVersion())
 group = project.maven_group
 
-repositories {
-    mavenCentral()
-    maven {
-        url 'https://masa.dy.fi/maven'
+allprojects {
+    repositories {
+        mavenCentral()
+        maven {
+            url 'https://masa.dy.fi/maven'
+        }
+        maven { url 'https://maven.wispforest.io' }
+        maven {
+            name = "CurseForge"
+            url = "https://cursemaven.com"
+        }
+        maven {
+            name = "Modrinth"
+            url = "https://api.modrinth.com/maven"
+        }
+        maven {
+            name = "CottonMC"
+            url = "https://server.bbkr.space/artifactory/libs-release"
+        }
+        maven {
+            name = "jitpack"
+            url = 'https://jitpack.io'
+        }
     }
-    maven { url 'https://maven.wispforest.io' }
-    maven {
-        name = "CurseForge"
-        url = "https://cursemaven.com"
-    }
-    maven {
-        name = "Modrinth"
-        url = "https://api.modrinth.com/maven"
-    }
-    maven {
-        name = "CottonMC"
-        url = "https://server.bbkr.space/artifactory/libs-release"
-    }
-    maven {
-        name = "jitpack"
-        url = 'https://jitpack.io'
+
+    processResources {
+        inputs.property "version", project.version
+
+        filesMatching("fabric.mod.json") {
+            expand "version": project.version
+        }
     }
 }
 
@@ -92,6 +102,13 @@ dependencies {
 
     implementation(project(":mineroutine"))
     include(project(":mineroutine"))
+    implementation(project(":mineroutine114"))
+    implementation(project(":mineroutine118"))
+    implementation(project(":mineroutine120"))
+    include(project(":mineroutine114"))
+    include(project(":mineroutine118"))
+    include(project(":mineroutine120"))
+
     // Fabric API
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     // Kotlin support
@@ -125,14 +142,6 @@ base {
 
 loom {
     accessWidenerPath = file("src/main/resources/reden.accesswidener")
-}
-
-processResources {
-    inputs.property "version", project.version
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
-    }
 }
 
 yamlang {

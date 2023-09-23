@@ -1,0 +1,28 @@
+plugins {
+    id 'fabric-loom' version '1.2-SNAPSHOT'
+    id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm' version '1.8.10'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
+}
+
+dependencies {
+    implementation(project(":mineroutine"))
+
+    def minecraft_version="1.14.4"
+    def yarn_mappings="1.14.4+build.18"
+    def loader_version="0.14.22"
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+}
+
+kotlin {
+    jvmToolchain(17)
+}
+
+java {
+    withSourcesJar()
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}

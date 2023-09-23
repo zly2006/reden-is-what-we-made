@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "mine-routine-14",
+  "version": "${version}",
+
+  "name": "Mine Routine",
+  "description": "Bring coroutine to Minecraft!",
+  "authors": [
+    {
+      "name": "zly2006",
+      "contact": {
+        "homepage": "https://github.com/zly2006"
+      }
+    }
+  ],
+  "contact": {
+    "sources": "https://github.com/zly2006/reden-is-what-we-made"
+  },
+  "license": "LGPL-v3",
+  "environment": "*",
+  "entrypoints": {},
+  "mixins": [
+    "mineroutine14.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.19",
+    "minecraft": "~1.14",
+    "java": ">=8"
+  },
+  "custom": {
+    "modmanager": {
+
+    }
+  }
+}

@@ -4,7 +4,6 @@
   "package": "com.redenmc.mineroutine.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "update.Mixin119Update"
   ],
   "injectors": {
     "defaultRequire": 1
