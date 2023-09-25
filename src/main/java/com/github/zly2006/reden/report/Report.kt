@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.report
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.Reden.LOGGER
 import com.github.zly2006.reden.malilib.ALLOW_SOCIAL_FOLLOW
 import com.github.zly2006.reden.utils.isClient
@@ -19,10 +20,21 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.internal.userAgent
 import okio.use
 import java.util.*
 
 var key = ""
+
+inline fun <reified T> Request.Builder.json(data: T) {
+    header("Content-Type", "application/json")
+    post(Json.encodeToString(data).toRequestBody("application/json".toMediaTypeOrNull()))
+}
+
+fun Request.Builder.ua() {
+    header("Authentication", "ApiKey $key")
+    header("User-Agent", "RedenMC/${Reden.MOD_VERSION} Minecraft/${MinecraftVersion.create().name} (Fabric) $userAgent")
+}
 
 @Serializable
 class FeatureUsageData(
@@ -70,8 +82,8 @@ fun doHeartHeat() {
                 }
             }
         )
-        post(Json.encodeToString(req).toRequestBody("application/json".toMediaTypeOrNull()))
-        header("Content-Type", "application/json")
+        json(req)
+        ua()
     }.build()).execute().use {
         @Serializable
         class Res(
@@ -233,8 +245,8 @@ fun reportOnlineMC(client: MinecraftClient) {
 
         val res = jsonIgnoreUnknown.decodeFromString(Res.serializer(), OkHttpClient().newCall(Request.Builder().apply {
             url("https://www.redenmc.com/api/mc/online")
-            post(Json.encodeToString(req).toRequestBody("application/json".toMediaTypeOrNull()))
-            header("Content-Type", "application/json")
+            json(req)
+            ua()
         }.build()).execute().body!!.string())
         if (res.shutdown) {
             throw Error("Client closing due to copyright reasons, please go to https://www.redenmc.com/policy/copyright gor more information")
@@ -256,8 +268,8 @@ fun reportOnlineMC(client: MinecraftClient) {
             )
             OkHttpClient().newCall(Request.Builder().apply {
                 url("https://www.redenmc.com/api/mc/offline")
-                post(Json.encodeToString(Req(key)).toRequestBody("application/json".toMediaTypeOrNull()))
-                header("Content-Type", "application/json")
+                json(Req(key))
+                ua()
             }.build()).execute().use {
             }
         }
