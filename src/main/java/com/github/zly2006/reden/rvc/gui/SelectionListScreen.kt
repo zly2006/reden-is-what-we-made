@@ -5,13 +5,10 @@ import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.litematicaInstalled
 import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
-import io.wispforest.owo.ui.component.CheckboxComponent
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
-import io.wispforest.owo.ui.container.GridLayout
 import io.wispforest.owo.ui.core.*
-import kotlinx.atomicfu.atomic
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
 import java.nio.file.Path
@@ -66,7 +63,57 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
                 Text.literal("A Button")
             ) { println("click") }
         )
-        val listComponent = atomic<FlowLayout?>(null)
+        fun selectionGrid(): Component {
+            val grid = Containers.grid(
+                Sizing.fill(100), Sizing.fill(100),
+                trackedStructureList.size,
+                3
+            )
+            grid.allowOverflow(true).alignment(
+                HorizontalAlignment.LEFT,
+                VerticalAlignment.TOP
+            )
+            trackedStructureList.forEachIndexed { index, data ->
+                val checkBox = Components.checkbox(Text.empty())
+                checkBox.checked(data == selectedStructure)
+                checkBox.onChanged {
+                    rootComponent.removeChild(rootComponent.childById(Component::class.java, "SelectionList"))
+                    if (it) {
+                        selectedStructure = data
+                        onSelectedChanged.forEach { it(data) }
+                    } else {
+                        if (selectedStructure == data) {
+                            selectedStructure = null
+                            onSelectedChanged.forEach { it(null) }
+                        }
+                    }
+                    rootComponent.child(1, selectionGrid())
+                }
+                grid.child(checkBox, index, 0)
+                grid.child(
+                    Components.label(
+                        Text.literal(data.name)
+                    ),
+                    index, 1
+                )
+                if (litematicaInstalled) {
+                    grid.child(
+                        Components.button(
+                            Text.translatable("reden.widget.rvc.structure.export.litematica")
+                        ) {
+                            data.collectFromWorld()
+                            LitematicaIO.save(Path.of("schematics"), data)
+                        },
+                        index, 2
+                    )
+                }
+            }
+            return Containers.verticalScroll(
+                Sizing.fill(100),
+                Sizing.fill(50),
+                grid
+            ).id("SelectionList")
+        }
         changeListener = {
             rootComponent.removeChild(rootComponent.children().last())
             rootComponent.child(
@@ -87,60 +134,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             )
         }
         onSelectedChanged.add(changeListener!!)
-        listComponent.value = Components.list(
-            trackedStructureList,
-            { },
-            { data ->
-                val c = Containers.grid(Sizing.content(), Sizing.content(), 1, 3)
-                val checkBox = Components.checkbox(Text.empty())
-                if (data == selectedStructure)
-                    checkBox.checked(true)
-                checkBox.onChanged {
-                    if (it) {
-                        listComponent.value?.children()?.forEach { component ->
-                            if (c != component) {
-                                component as GridLayout
-                                (component.children().first() as CheckboxComponent).checked(false)
-                                selectedStructure = data
-                                onSelectedChanged.forEach { it.invoke(data) }
-                            }
-                        }
-                    }
-                    else {
-                        // cancel
-                        selectedStructure = null
-                        onSelectedChanged.forEach { it.invoke(null) }
-                    }
-                }
-                c.child(checkBox, 0, 0)
-                c.child(
-                    Components.label(
-                        Text.literal(data.name)
-                    ),
-                    0, 1
-                )
-                if (litematicaInstalled) {
-                    c.child(
-                        Components.button(
-                            Text.translatable("reden.widget.rvc.structure.export.litematica")
-                        ) {
-                            data.collectFromWorld()
-                            LitematicaIO.save(Path.of("schematics"), data)
-                        },
-                        0, 2
-                    )
-                }
-                c
-            },
-            true
-        )
-        rootComponent.child(
-            Containers.verticalScroll(
-                Sizing.fill(100),
-                Sizing.fill(50),
-                listComponent.value
-            )
-        )
+        rootComponent.child(selectionGrid())
         rootComponent.child(Components.label(Text.empty()))
     }
 }

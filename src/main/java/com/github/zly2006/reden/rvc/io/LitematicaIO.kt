@@ -35,7 +35,7 @@ object LitematicaIO: StructureIO {
                     }
                 },
                 "RVC"
-            )
+            ) ?: return
             boxes.mapIndexed { index, box ->
                 val subRegionContainer = litematica.getSubRegionContainer(index.toString())!!
                 val blockEntityMap = litematica.getBlockEntityMapForRegion(index.toString())!!
