@@ -7,6 +7,12 @@ kotlin {
     jvmToolchain(17)
 }
 
+dependencies {
+    // curoutine
+    println('dependencies: mineroutine')
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3")
+}
+
 java {
     withSourcesJar()
     toolchain {

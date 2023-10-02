@@ -26,12 +26,12 @@ import java.util.*
 
 var key = ""
 
-inline fun <reified T> Request.Builder.json(data: T) {
+inline fun <reified T> Request.Builder.json(data: T) = apply {
     header("Content-Type", "application/json")
     post(Json.encodeToString(data).toRequestBody("application/json".toMediaTypeOrNull()))
 }
 
-fun Request.Builder.ua() {
+fun Request.Builder.ua() = apply {
     header("Authentication", "ApiKey $key")
     header("User-Agent", "RedenMC/${Reden.MOD_VERSION} Minecraft/${MinecraftVersion.create().name} (Fabric) $userAgent")
 }

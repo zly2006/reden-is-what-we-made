@@ -93,6 +93,14 @@ allprojects {
     }
 }
 
+build {
+    dependsOn(
+            ":mineroutine114:build",
+            ":mineroutine118:build",
+            ":mineroutine120:build"
+    )
+}
+
 dependencies {
     // implementation 'org.bouncycastle:'
     // To change the versions see the gradle.properties file
@@ -102,9 +110,9 @@ dependencies {
 
     implementation(project(":mineroutine"))
     include(project(":mineroutine"))
-    //implementation(project(":mineroutine114"))
-    //implementation(project(":mineroutine118"))
-    //implementation(project(":mineroutine120"))
+    compileOnly(project(":mineroutine114"))
+    compileOnly(project(":mineroutine118"))
+    compileOnly(project(":mineroutine120"))
     include(project(":mineroutine114"))
     include(project(":mineroutine118"))
     include(project(":mineroutine120"))
