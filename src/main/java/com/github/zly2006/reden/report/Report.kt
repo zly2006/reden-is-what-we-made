@@ -104,10 +104,10 @@ var heartbeatThread: Thread? = null
 fun initHeartBeat() {
     heartbeatThread = Thread {
         while (true) {
+            Thread.sleep(1000 * 60 * 5)
             try {
                 doHeartHeat()
             } catch (e: Exception) { LOGGER.debug("", e) }
-            Thread.sleep(1000 * 60 * 5)
         }
     }
     heartbeatThread!!.start()
