@@ -239,7 +239,7 @@ fun reportOnlineMC(client: MinecraftClient) {
             val ip: String,
             val id: String? = null,
             val status: String,
-            val username: String,
+            val username: String? = null,
             val desc: String,
         )
 

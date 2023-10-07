@@ -18,4 +18,5 @@ fun register() {
     TntSyncPacket.register()
     RvcTrackpointsC2SRequest.register()
     RvcDataS2CPacket.register()
+    HopperCDSync.register()
 }

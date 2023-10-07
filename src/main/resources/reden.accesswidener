@@ -87,3 +87,6 @@ accessible field net/minecraft/server/world/ServerEntityManager managedStatuses 
 accessible field net/minecraft/server/world/ServerEntityManager cache Lnet/minecraft/world/entity/SectionedEntityCache;
 accessible method net/minecraft/server/world/ThreadedAnvilChunkStorage loadChunk (Lnet/minecraft/util/math/ChunkPos;)Ljava/util/concurrent/CompletableFuture;
 accessible field net/minecraft/client/MinecraftClient userApiService Lcom/mojang/authlib/minecraft/UserApiService;
+accessible field net/minecraft/screen/HopperScreenHandler inventory Lnet/minecraft/inventory/Inventory;
+accessible field net/minecraft/block/entity/HopperBlockEntity transferCooldown I
+mutable field net/minecraft/client/gui/screen/Screen title Lnet/minecraft/text/Text;

@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.mixin.fix.forceSyncEntityPos;
+package com.github.zly2006.reden.mixin.forceSyncEntityPos;
 
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import net.minecraft.client.render.VertexConsumerProvider;
