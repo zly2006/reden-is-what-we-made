@@ -5,6 +5,7 @@ import carpet.CarpetServer;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.network.ChannelsKt;
 import com.github.zly2006.reden.rvc.RvcCommandKt;
+import com.github.zly2006.reden.transformers.ThisIsReden;
 import com.github.zly2006.reden.utils.ResourceLoader;
 import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.Gson;
@@ -64,6 +65,11 @@ public class Reden implements ModInitializer, CarpetExtension {
                                 })));
             }
             RvcCommandKt.register(dispatcher);
+            if (!(dispatcher instanceof ThisIsReden)) {
+                throw new RuntimeException("This is not Reden!");
+            } else {
+                LOGGER.info("This is Reden!");
+            }
         });
     }
 }

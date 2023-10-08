@@ -30,6 +30,9 @@
     ],
     "modmenu": [
       "com.github.zly2006.reden.ModMenu"
+    ],
+    "preLaunch": [
+      "com.github.zly2006.reden.transformers.PreLaunch"
     ]
   },
   "mixins": [
