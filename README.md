@@ -36,3 +36,12 @@ Just run `./gradlew build` in the root directory of the project.
 ### Note: This project currently only support the yarn mapping! If you are using other mappings, use this mod in your development environment will crash the game!
 
 You can contribute a compiler plugin and rewrite some thing like
+
+## Debugging
+
+Debug Properties:
+
+| Property Name                     | Description                                                                 |
+|-----------------------------------|-----------------------------------------------------------------------------|
+| `reden.transformer.printBytecode` | Print final bytecode to stdout. This process runs at mixin postApply stage. |
+| `reden.transformer.export.pre`    | Export transformed class. This process runs at mixin preApply stage.        |

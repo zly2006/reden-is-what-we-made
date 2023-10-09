@@ -4,8 +4,6 @@ import net.fabricmc.loader.api.FabricLoader
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
-import java.io.File
-import kotlin.io.path.createDirectories
 
 object RedenInjectConfig {
     open class Target (
@@ -101,14 +99,10 @@ object RedenInjectConfig {
                         }
 
                         fun tryExport() {
-                            val exportFile = File("export/${classNode.name}.class")
-                            exportFile.toPath().parent.createDirectories()
-                            exportFile.writeBytes(
-                                ClassWriter(3).let {
-                                    classNode.accept(it)
-                                    it.toByteArray()
-                                }
-                            )
+                            ClassWriter(3).let {
+                                classNode.accept(it)
+                                it.toByteArray()
+                            }
                         }
 
                         val invalidLabelCode = invalidLabel()
