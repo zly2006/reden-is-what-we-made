@@ -82,10 +82,8 @@ object RedenInjectConfig {
                                 //   Lnet/minecraft/server/world/ServerWorld;tickWeather()V
                                 if (insn.name == mapIntermediaryMethodName("method_39501()V")) {
                                     // end of label 0
-                                    // invoke this method again
-                                    // fixme: ---DEBUG---
                                     node.instructions.insert(insn, InsnList().apply {
-                                        add(printString("Hello"))
+                                        // invoke this method again
                                         add(VarInsnNode(Opcodes.ALOAD, 0))
                                         add(VarInsnNode(Opcodes.ALOAD, 1))
                                         add(MethodInsnNode(

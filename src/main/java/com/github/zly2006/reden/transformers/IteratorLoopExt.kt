@@ -1,5 +1,7 @@
 package com.github.zly2006.reden.transformers
 
+import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
 import org.spongepowered.asm.mixin.MixinEnvironment
 import org.spongepowered.asm.mixin.transformer.ext.IExtension
@@ -30,16 +32,25 @@ class IteratorLoopExt: IExtension {
         }
     }
 
+    object MethodBytecodePrinter: MethodVisitor(Opcodes.ASM9) {
+        override fun visitCode() {
+            super.visitCode()
+        }
+
+        override fun visitInsn(opcode: Int) {
+            super.visitInsn(opcode)
+        }
+    }
+
     override fun postApply(context: ITargetClassContext) {
         val classToTransform = RedenInjectConfig.targets[context.classInfo.name]
         if (classToTransform != null) {
             LOGGER.info("Transformed class: " + context.classInfo.name)
-            classToTransform.node = context.classNode
-            context.classNode.interfaces.add("com/github/zly2006/reden/transformers/ThisIsReden")
             classToTransform.methodTransformers.forEach { (name, transformer) ->
                 val node = context.classNode.methods.firstOrNull { it.name == name }
                 if (node != null) {
                     // todo: print
+                    node.accept(MethodBytecodePrinter)
                 } else {
                     LOGGER.error("Method not found: ${transformer.interName}")
                 }
