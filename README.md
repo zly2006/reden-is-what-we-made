@@ -33,10 +33,6 @@ Provide a one-stop working environment for redstone machine developers and becom
 
 Just run `./gradlew build` in the root directory of the project.
 
-### Note: This project currently only support the yarn mapping! If you are using other mappings, use this mod in your development environment will crash the game!
-
-You can contribute a compiler plugin and rewrite some thing like
-
 ## Debugging
 
 Debug Properties:
