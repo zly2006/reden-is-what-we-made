@@ -1,7 +1,6 @@
 package com.github.zly2006.reden.transformers
 
 import net.fabricmc.loader.api.FabricLoader
-import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
 
@@ -34,7 +33,18 @@ object RedenInjectConfig {
     abstract class MethodToTransform(
         name: String
     ): Target(name) {
+        /**
+         * This method will be called before all mixins are applied.
+         *
+         * If you want to add code to the end/begin of the method, you should override [transformPost].
+         */
         abstract fun transform(node: MethodNode)
+
+        /**
+         * This method will be called after all mixins are applied.
+         *
+         * If you want to add code to the end/begin of the method, you should override this method.
+         */
         abstract fun transformPost(node: MethodNode)
     }
 
@@ -50,17 +60,11 @@ object RedenInjectConfig {
                 object : MethodToTransform(
                     "method_18765(Ljava/util/function/BooleanSupplier;)V",
                 ) {
+                    val labelMap = mutableMapOf<Int, LabelNode>()
+                    val field = FieldNode(Opcodes.ACC_PUBLIC, "reden_tickLabel", "I", null, 0)
                     override fun transform(node: MethodNode) {
                         val classNode = this@ClassToTransform.node!!
-                        val field = FieldNode(
-                            Opcodes.ACC_PUBLIC,
-                            "reden_tickLabel",
-                            "I",
-                            null,
-                            0
-                        )
                         classNode.fields.add(field)
-                        val labelMap = mutableMapOf<Int, LabelNode>()
 
                         fun setTickLabel(value: Int, addLabel: Boolean = true) = InsnList().apply {
                             // Java: this.tickLabel = {value}
@@ -142,14 +146,12 @@ object RedenInjectConfig {
                                 node.instructions.insertBefore(insn, setTickLabel(0, false))
                             }
                         }
+                    }
 
-                        fun tryExport() {
-                            ClassWriter(3).let {
-                                classNode.accept(it)
-                                it.toByteArray()
-                            }
-                        }
+                    override fun transformPost(node: MethodNode) {
+                        val classNode = this@ClassToTransform.node!!
 
+                        // add code for raising error and *switch*
                         val invalidLabelCode = invalidLabel()
                         val switchNode = LookupSwitchInsnNode(
                             invalidLabelCode.first as LabelNode,
@@ -159,7 +161,6 @@ object RedenInjectConfig {
                         )
                         // add our error block and switch at last
                         node.instructions.add(invalidLabelCode)
-                        tryExport()
                         // add our switch at first
                         node.instructions.insert(InsnList().apply {
                             add(LabelNode())
@@ -167,12 +168,8 @@ object RedenInjectConfig {
                             add(FieldInsnNode(Opcodes.GETFIELD, classNode.name, field.name, field.desc)) // get field
                             add(switchNode)
                         })
-                    //    node.instructions.insert(getProfiler())
-                        tryExport()
-                    }
 
-                    override fun transformPost(node: MethodNode) {
-                        val classNode = this@ClassToTransform.node!!
+                        // move instructions from vanilla tick to tickInternal
                         val method = MethodNode(
                             Opcodes.ACC_PUBLIC,
                             "reden_tickInternal",
@@ -187,8 +184,7 @@ object RedenInjectConfig {
                         method.localVariables = node.localVariables
                         node.localVariables = listOf()
 
-                        method.accept(MethodBytecodePrinter)
-
+                        // redirect to our internal method
                         node.instructions.insert(InsnList().apply {
                             repeat(2) {
                                 add(VarInsnNode(Opcodes.ALOAD, 0)) // this
