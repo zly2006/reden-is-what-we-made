@@ -93,14 +93,6 @@ allprojects {
     }
 }
 
-build {
-    dependsOn(
-            ":mineroutine114:build",
-            ":mineroutine118:build",
-            ":mineroutine120:build"
-    )
-}
-
 dependencies {
     // implementation 'org.bouncycastle:'
     // To change the versions see the gradle.properties file
