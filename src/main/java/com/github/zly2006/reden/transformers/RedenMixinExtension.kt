@@ -8,10 +8,9 @@ import org.spongepowered.asm.mixin.transformer.ext.ITargetClassContext
 import java.io.File
 import kotlin.io.path.createDirectories
 
-class IteratorLoopExt: IExtension {
+class RedenMixinExtension: IExtension {
     private val LOGGER = org.apache.logging.log4j.LogManager.getLogger("Reden/MixinExt")!!
     override fun checkActive(environment: MixinEnvironment): Boolean {
-        println(environment)
         return true
     }
 
@@ -71,9 +70,5 @@ class IteratorLoopExt: IExtension {
     }
 
     override fun export(env: MixinEnvironment, name: String, force: Boolean, classNode: ClassNode) {
-        if (force) {
-            throw RuntimeException("WTF???")
-        }
-        // do nothing
     }
 }

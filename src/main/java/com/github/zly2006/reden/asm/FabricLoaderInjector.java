@@ -1,6 +1,8 @@
 package com.github.zly2006.reden.asm;
 
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.tree.ClassNode;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -34,5 +36,11 @@ public class FabricLoaderInjector {
 
     public void addURL(URL url) throws InvocationTargetException, IllegalAccessException {
         auMethod.invoke(knotClassLoader, url);
+    }
+
+    public Class<?> defineClass(ClassNode node) throws InvocationTargetException, IllegalAccessException {
+        ClassWriter cw = new ClassWriter(3);
+        node.accept(cw);
+        return defineClass(cw.toByteArray());
     }
 }

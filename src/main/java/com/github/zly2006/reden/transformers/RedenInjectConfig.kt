@@ -1,10 +1,12 @@
 package com.github.zly2006.reden.transformers
 
+import com.github.zly2006.reden.asm.FabricLoaderInjector
 import net.fabricmc.loader.api.FabricLoader
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
 
 object RedenInjectConfig {
+    val injector = FabricLoaderInjector(PreLaunch::class.java.classLoader)
     open class Target (
         val interName: String,
     )
@@ -62,56 +64,24 @@ object RedenInjectConfig {
                 ) {
                     val labelMap = mutableMapOf<Int, LabelNode>()
                     val field = FieldNode(Opcodes.ACC_PUBLIC, "reden_tickLabel", "I", null, 0)
+                    private fun setTickLabel(value: Int, addLabel: Boolean = true) = InsnList().apply {
+                        // Java: this.tickLabel = {value}
+                        if (addLabel) {
+                            if (labelMap[value] != null) {
+                                error("Register label $value twice")
+                            }
+                            labelMap[value] = LabelNode()
+                            add(labelMap[value]!!)
+                        }
+                        add(VarInsnNode(Opcodes.ALOAD, 0)) // this
+                        add(LdcInsnNode(value)) // load constant value
+                        add(FieldInsnNode(Opcodes.PUTFIELD, mappedName, field.name, field.desc)) // set field
+                    }
+
                     override fun transform(node: MethodNode) {
                         val classNode = this@ClassToTransform.node!!
                         classNode.fields.add(field)
 
-                        fun setTickLabel(value: Int, addLabel: Boolean = true) = InsnList().apply {
-                            // Java: this.tickLabel = {value}
-                            if (addLabel) {
-                                if (labelMap[value] != null) {
-                                    error("Register label $value twice")
-                                }
-                                labelMap[value] = LabelNode()
-                                add(labelMap[value]!!)
-                            }
-                            add(VarInsnNode(Opcodes.ALOAD, 0)) // this
-                            add(LdcInsnNode(value)) // load constant value
-                            add(FieldInsnNode(Opcodes.PUTFIELD, mappedName, field.name, field.desc)) // set field
-                        }
-                        class MethodInfo(
-                            val owner: String,
-                            val name: String,
-                            val desc: String,
-                        ) {
-                            fun toInsn(opcode: Int) = MethodInsnNode(opcode, owner, name, desc)
-                        }
-                        fun getMappedMethod(info: MethodInfo): MethodInfo {
-                            val name = FabricLoader.getInstance().mappingResolver.mapMethodName(
-                                "intermediary",
-                                info.owner.replace('/', '.'),
-                                info.name,
-                                info.desc
-                            )
-                            var desc = info.desc
-                            val regex = Regex("""L([^;]+);""")
-                            val matches = regex.findAll(desc)
-                            for (match in matches) {
-                                val mapped = FabricLoader.getInstance().mappingResolver.mapClassName(
-                                    "intermediary",
-                                    match.groupValues[1].replace('/', '.')
-                                ).replace('.', '/')
-                                desc = desc.replace(match.value, "L$mapped;")
-                            }
-                            return MethodInfo(
-                                FabricLoader.getInstance().mappingResolver.mapClassName(
-                                    "intermediary",
-                                    info.owner.replace('/', '.')
-                                ).replace('.', '/'),
-                                name,
-                                desc
-                            )
-                        }
                         fun getProfiler() = InsnList().apply {
                             val method = getMappedMethod(
                                 MethodInfo(
@@ -125,6 +95,7 @@ object RedenInjectConfig {
                             add(method.toInsn(Opcodes.INVOKEVIRTUAL))
                             add(VarInsnNode(Opcodes.ASTORE, 2))
                         }
+
                         node.instructions.insert(setTickLabel(1))
                         for (insn in node.instructions) {
                             if (insn is MethodInsnNode) {
@@ -172,18 +143,47 @@ object RedenInjectConfig {
                         })
 
                         // move instructions from vanilla tick to tickInternal
-                        val method = MethodNode(
+                        val tickInternalMethod = MethodNode(
                             Opcodes.ACC_PUBLIC,
                             "reden_tickInternal",
                             "(Ljava/util/function/BooleanSupplier;)V",
                             null,
                             null
                         )
-                        classNode.methods.add(method)
+                        val invokeSuspendMethod = MethodNode(
+                            Opcodes.ACC_PUBLIC,
+                            "reden_tickSuspend",
+                            "(Ljava/lang/Object;)Ljava/lang/Object;",
+                            null,
+                            null
+                        ).apply {
+                            instructions.add(MethodInsnNode(
+                                Opcodes.INVOKESTATIC,
+                                "kotlin/coroutines/intrinsics/IntrinsicsKt",
+                                "getCOROUTINE_SUSPENDED",
+                                "()Ljava/lang/Object;"
+                            ))
+                            instructions.add(InsnNode(Opcodes.ARETURN))
+                        }
+                        val continuation = generateContinuation(
+                            "com/github/zly2006/reden/continuations/ServerWorld"
+                        ) {
+                            // local 0: this
+                            // local 1: result
+                            // local 2: COROUTINE_SUSPENDED
+                            // todo: finish continuation calling
+                        }
+
+                        print(node.attrs)
+                        print(tickInternalMethod.attrs)
+
+                        injector.defineClass(continuation)
+                        classNode.methods.add(invokeSuspendMethod)
+                        classNode.methods.add(tickInternalMethod)
                         // clear old method instructions, and add new method instructions
-                        method.instructions = node.instructions
+                        tickInternalMethod.instructions = node.instructions
                         node.instructions = InsnList()
-                        method.localVariables = node.localVariables
+                        tickInternalMethod.localVariables = node.localVariables
                         node.localVariables = listOf()
 
                         // redirect to our internal method
@@ -195,11 +195,16 @@ object RedenInjectConfig {
                                     MethodInsnNode(
                                         Opcodes.INVOKEVIRTUAL,
                                         classNode.name,
-                                        method.name,
-                                        method.desc
+                                        tickInternalMethod.name,
+                                        tickInternalMethod.desc
                                     )
                                 )
                             }
+                            // Java: this.tickLabel = 0
+                            add(VarInsnNode(Opcodes.ALOAD, 0))
+                            add(InsnNode(Opcodes.ICONST_0))
+                            add(FieldInsnNode(Opcodes.PUTFIELD, mappedName, field.name, field.desc))
+                            // Java: return
                             add(InsnNode(Opcodes.RETURN))
                         })
                     }

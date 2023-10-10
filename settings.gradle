@@ -8,8 +8,3 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-
-include('mineroutine120')
-include('mineroutine114')
-include('mineroutine118')
-include('mineroutine')

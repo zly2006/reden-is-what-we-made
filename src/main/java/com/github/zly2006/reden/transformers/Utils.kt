@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.transformers
 
+import net.fabricmc.loader.api.FabricLoader
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
 
@@ -54,4 +55,39 @@ fun ClassNode.findMixinMergedField(name: String, mixinPrefix: String = "com.gith
         throw RuntimeException("WTF??? = $filter")
     }
     return filter.first()
+}
+
+
+class MethodInfo(
+    val owner: String,
+    val name: String,
+    val desc: String,
+) {
+    fun toInsn(opcode: Int) = MethodInsnNode(opcode, owner, name, desc)
+}
+fun getMappedMethod(info: MethodInfo): MethodInfo {
+    val name = FabricLoader.getInstance().mappingResolver.mapMethodName(
+        "intermediary",
+        info.owner.replace('/', '.'),
+        info.name,
+        info.desc
+    )
+    var desc = info.desc
+    val regex = Regex("""L([^;]+);""")
+    val matches = regex.findAll(desc)
+    for (match in matches) {
+        val mapped = FabricLoader.getInstance().mappingResolver.mapClassName(
+            "intermediary",
+            match.groupValues[1].replace('/', '.')
+        ).replace('.', '/')
+        desc = desc.replace(match.value, "L$mapped;")
+    }
+    return MethodInfo(
+        FabricLoader.getInstance().mappingResolver.mapClassName(
+            "intermediary",
+            info.owner.replace('/', '.')
+        ).replace('.', '/'),
+        name,
+        desc
+    )
 }

@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.transformers;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint;
 import net.fabricmc.loader.impl.launch.knot.MixinServiceKnot;
 import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
@@ -23,7 +24,7 @@ public class PreLaunch implements PreLaunchEntrypoint {
                 fActiveExtensions.setAccessible(true);
                 fActiveExtensions.set(extensions, new ArrayList<>(extensions.getActiveExtensions()));
                 // force add my extension
-                IteratorLoopExt myExtension = new IteratorLoopExt();
+                RedenMixinExtension myExtension = new RedenMixinExtension();
                 extensions.add(myExtension);
                 extensions.getActiveExtensions().add(myExtension);
             }
