@@ -141,9 +141,11 @@ object RedenInjectConfig {
                                 }
                             }
                             if (insn.opcode == Opcodes.RETURN) {
+                                // Note: We don't need to inject here, just for test.
+
                                 // inject before
                                 //   return;
-                                node.instructions.insertBefore(insn, setTickLabel(0, false))
+                                // node.instructions.insertBefore(insn, setTickLabel(0, false))
                             }
                         }
                     }
