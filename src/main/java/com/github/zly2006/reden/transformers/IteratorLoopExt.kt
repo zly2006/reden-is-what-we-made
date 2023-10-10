@@ -51,6 +51,15 @@ class IteratorLoopExt: IExtension {
             classToTransform.methodTransformers.forEach { (name, transformer) ->
                 val node = context.classNode.methods.firstOrNull { it.name == name }
                 if (node != null) {
+                    LOGGER.info("Post transforming method: " + node.name)
+                    transformer.transformPost(node)
+                    if (System.getProperty("reden.transformer.export.post") == "true") {
+                        val classWriter = ClassWriter(3)
+                        context.classNode.accept(classWriter)
+                        val file = File("reden-transformer-export/post/${context.classInfo.name}.class")
+                        file.toPath().parent.createDirectories()
+                        file.writeBytes(classWriter.toByteArray())
+                    }
                     if (System.getProperty("reden.transformer.printBytecode") == "true") {
                         node.accept(MethodBytecodePrinter)
                     }

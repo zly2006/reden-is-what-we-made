@@ -35,6 +35,7 @@ object RedenInjectConfig {
         name: String
     ): Target(name) {
         abstract fun transform(node: MethodNode)
+        abstract fun transformPost(node: MethodNode)
     }
 
     val targetList = mutableListOf(
@@ -61,17 +62,64 @@ object RedenInjectConfig {
                         classNode.fields.add(field)
                         val labelMap = mutableMapOf<Int, LabelNode>()
 
-                        fun setTickLabel(value: Int) = InsnList().apply {
+                        fun setTickLabel(value: Int, addLabel: Boolean = true) = InsnList().apply {
                             // Java: this.tickLabel = {value}
-                            if (labelMap[value] != null) {
-                                error("Register label $value twice")
+                            if (addLabel) {
+                                if (labelMap[value] != null) {
+                                    error("Register label $value twice")
+                                }
+                                labelMap[value] = LabelNode()
+                                add(labelMap[value]!!)
                             }
-                            labelMap[value] = LabelNode()
-                            add(labelMap[value]!!)
-
                             add(VarInsnNode(Opcodes.ALOAD, 0)) // this
                             add(LdcInsnNode(value)) // load constant value
                             add(FieldInsnNode(Opcodes.PUTFIELD, mappedName, field.name, field.desc)) // set field
+                        }
+                        class MethodInfo(
+                            val owner: String,
+                            val name: String,
+                            val desc: String,
+                        ) {
+                            fun toInsn(opcode: Int) = MethodInsnNode(opcode, owner, name, desc)
+                        }
+                        fun getMappedMethod(info: MethodInfo): MethodInfo {
+                            val name = FabricLoader.getInstance().mappingResolver.mapMethodName(
+                                "intermediary",
+                                info.owner.replace('/', '.'),
+                                info.name,
+                                info.desc
+                            )
+                            var desc = info.desc
+                            val regex = Regex("""L([^;]+);""")
+                            val matches = regex.findAll(desc)
+                            for (match in matches) {
+                                val mapped = FabricLoader.getInstance().mappingResolver.mapClassName(
+                                    "intermediary",
+                                    match.groupValues[1].replace('/', '.')
+                                ).replace('.', '/')
+                                desc = desc.replace(match.value, "L$mapped;")
+                            }
+                            return MethodInfo(
+                                FabricLoader.getInstance().mappingResolver.mapClassName(
+                                    "intermediary",
+                                    info.owner.replace('/', '.')
+                                ).replace('.', '/'),
+                                name,
+                                desc
+                            )
+                        }
+                        fun getProfiler() = InsnList().apply {
+                            val method = getMappedMethod(
+                                MethodInfo(
+                                    "net/minecraft/class_1937",
+                                    "method_16107",
+                                    "()Lnet/minecraft/class_3695;"
+                                )
+                            )
+                            add(LabelNode())
+                            add(VarInsnNode(Opcodes.ALOAD, 0))
+                            add(method.toInsn(Opcodes.INVOKEVIRTUAL))
+                            add(VarInsnNode(Opcodes.ASTORE, 2))
                         }
                         node.instructions.insert(setTickLabel(1))
                         for (insn in node.instructions) {
@@ -81,20 +129,17 @@ object RedenInjectConfig {
                                 if (insn.name == mapIntermediaryMethodName("method_39501()V")) {
                                     // end of label 0
                                     node.instructions.insert(insn, InsnList().apply {
-                                        // invoke this method again
-                                        add(VarInsnNode(Opcodes.ALOAD, 0))
-                                        add(VarInsnNode(Opcodes.ALOAD, 1))
-                                        add(MethodInsnNode(
-                                            Opcodes.INVOKEVIRTUAL,
-                                            mappedName,
-                                            mapIntermediaryMethodName("method_18765(Ljava/util/function/BooleanSupplier;)V"),
-                                            "(Ljava/util/function/BooleanSupplier;)V"
-                                        ))
                                         add(InsnNode(Opcodes.RETURN))
                                         // start of label 1
                                         add(setTickLabel(2))
+                                        add(getProfiler())
                                     })
                                 }
+                            }
+                            if (insn.opcode == Opcodes.RETURN) {
+                                // inject before
+                                //   return;
+                                node.instructions.insertBefore(insn, setTickLabel(0, false))
                             }
                         }
 
@@ -122,7 +167,43 @@ object RedenInjectConfig {
                             add(FieldInsnNode(Opcodes.GETFIELD, classNode.name, field.name, field.desc)) // get field
                             add(switchNode)
                         })
+                    //    node.instructions.insert(getProfiler())
                         tryExport()
+                    }
+
+                    override fun transformPost(node: MethodNode) {
+                        val classNode = this@ClassToTransform.node!!
+                        val method = MethodNode(
+                            Opcodes.ACC_PUBLIC,
+                            "reden_tickInternal",
+                            "(Ljava/util/function/BooleanSupplier;)V",
+                            null,
+                            null
+                        )
+                        classNode.methods.add(method)
+                        // clear old method instructions, and add new method instructions
+                        method.instructions = node.instructions
+                        node.instructions = InsnList()
+                        method.localVariables = node.localVariables
+                        node.localVariables = listOf()
+
+                        method.accept(MethodBytecodePrinter)
+
+                        node.instructions.insert(InsnList().apply {
+                            repeat(2) {
+                                add(VarInsnNode(Opcodes.ALOAD, 0)) // this
+                                add(VarInsnNode(Opcodes.ALOAD, 1)) // BooleanSupplier
+                                add(
+                                    MethodInsnNode(
+                                        Opcodes.INVOKEVIRTUAL,
+                                        classNode.name,
+                                        method.name,
+                                        method.desc
+                                    )
+                                )
+                            }
+                            add(InsnNode(Opcodes.RETURN))
+                        })
                     }
                 }
             )
