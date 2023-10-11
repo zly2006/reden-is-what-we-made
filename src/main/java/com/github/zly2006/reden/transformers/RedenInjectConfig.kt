@@ -161,16 +161,7 @@ object RedenInjectConfig {
                             ))
                             instructions.add(InsnNode(Opcodes.ARETURN))
                         }
-                        val continuation = generateContinuation(
-                            "com/github/zly2006/reden/continuations/ServerWorld"
-                        ) {
-                            // local 0: this
-                            // local 1: result
-                            // local 2: COROUTINE_SUSPENDED
-                            // todo: finish continuation calling
-                        }
 
-                        injector.defineClass(continuation)
                         classNode.methods.add(invokeSuspendMethod)
                         classNode.methods.add(tickInternalMethod)
                         // clear old method instructions, and add new method instructions
@@ -263,37 +254,6 @@ object RedenInjectConfig {
                             "()V"
                         ))
                         node.instructions.add(InsnNode(Opcodes.RETURN))
-                    }
-                }
-            )
-        },
-        ClassToTransform("com/github/zly2006/reden/transformers/CoroutinesKt\$startCoroutineScope\$1") {//codegen
-            listOf(
-                /**
-                 * [com.github.zly2006.reden.transformers.init]
-                 */
-                object : MethodToTransform(
-                    "invokeSuspend",
-                ) {
-                    override fun transform(node: MethodNode) {
-                        val insnNode = node.instructions.first {
-                            it is FieldInsnNode && it.name == "coroutineScope"
-                        }
-                        node.instructions.insert(insnNode, InsnList().apply {
-                            add(VarInsnNode(Opcodes.ALOAD, 0))
-                            add(
-                                FieldInsnNode(
-                                    Opcodes.PUTSTATIC,
-                                    "com/github/zly2006/reden/Reden",
-                                    "rootContinuation",
-                                    "Lkotlin/coroutines/Continuation;"
-                                )
-                            )
-                        })
-                        node.accept(MethodBytecodePrinter)
-                    }
-
-                    override fun transformPost(node: MethodNode) {
                     }
                 }
             )
