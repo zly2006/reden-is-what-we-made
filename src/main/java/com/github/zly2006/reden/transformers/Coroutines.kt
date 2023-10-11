@@ -1,7 +1,29 @@
 package com.github.zly2006.reden.transformers
 
+import com.github.zly2006.reden.Reden
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
+
+// todo: kotlinx.coroutines.CoroutinesInternalError
+fun startCoroutineScope() {
+    runBlocking {
+        @RedenTransformerHelper
+        Reden.coroutineScope = this
+        launch {
+            println(Reden.rootContinuation)
+            println("Hello")
+            println(Reden.rootContinuation)
+        }
+        //Coroutines.foo()
+        Coroutines.foo()
+        println(Reden.rootContinuation)
+        println("World!")
+        println(Reden.rootContinuation)
+    }
+    Reden.coroutineScope = null
+}
 
 fun generateContinuation(
     name: String,

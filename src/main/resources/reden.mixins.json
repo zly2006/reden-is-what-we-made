@@ -19,6 +19,7 @@
     "otherMods.tweeakeroo.hopperDelaySync.MixinX",
     "pearl.MixinExplosion",
     "sctuctureBlock.MixinStructureBlock",
+    "self.Mixin01",
     "tick.MixinTick",
     "tick.MixinWatchdog",
     "tickBack.MixinTickCommand",

@@ -32,6 +32,8 @@ public class PreLaunch implements PreLaunchEntrypoint {
             // then load our transformed classes
             ServerWorld.class.getName();
             MinecraftServer.class.getName();
+            // todo: kotlinx.coroutines.CoroutinesInternalError
+            //CoroutinesKt.startCoroutineScope();
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
