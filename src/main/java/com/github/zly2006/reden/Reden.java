@@ -10,6 +10,7 @@ import com.github.zly2006.reden.utils.ResourceLoader;
 import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import kotlinx.coroutines.CoroutineScope;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -29,6 +30,7 @@ public class Reden implements ModInitializer, CarpetExtension {
     public static final Version MOD_VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion();
     public static final Logger LOGGER = LoggerFactory.getLogger("reden");
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    public static CoroutineScope coroutineScope;
 
     @Override
     public String version() {

@@ -29,7 +29,9 @@ object RedenInjectConfig {
                     name.substring(name.indexOf('('))
                 )!!
 
-        val methodTransformers = methodTransformers().associateBy { mapIntermediaryMethodName(it.interName) }
+        val methodTransformers = methodTransformers().associateBy {
+            IntermediaryMappingAccess.getMethodOrDefault(interName, it.interName).name
+        }
     }
 
     abstract class MethodToTransform(
@@ -60,7 +62,7 @@ object RedenInjectConfig {
                  * [net.minecraft.server.world.ServerWorld.tick]
                  */
                 object : MethodToTransform(
-                    "method_18765(Ljava/util/function/BooleanSupplier;)V",
+                    "method_18765",
                 ) {
                     val labelMap = mutableMapOf<Int, LabelNode>()
                     val field = FieldNode(Opcodes.ACC_PUBLIC, "reden_tickLabel", "I", null, 0)
@@ -83,13 +85,7 @@ object RedenInjectConfig {
                         classNode.fields.add(field)
 
                         fun getProfiler() = InsnList().apply {
-                            val method = getMappedMethod(
-                                MethodInfo(
-                                    "net/minecraft/class_1937",
-                                    "method_16107",
-                                    "()Lnet/minecraft/class_3695;"
-                                )
-                            )
+                            val method = IntermediaryMappingAccess.getMethodOrDefault("net/minecraft/class_1937", "method_16107")
                             add(LabelNode())
                             add(VarInsnNode(Opcodes.ALOAD, 0))
                             add(method.toInsn(Opcodes.INVOKEVIRTUAL))
@@ -174,9 +170,6 @@ object RedenInjectConfig {
                             // todo: finish continuation calling
                         }
 
-                        print(node.attrs)
-                        print(tickInternalMethod.attrs)
-
                         injector.defineClass(continuation)
                         classNode.methods.add(invokeSuspendMethod)
                         classNode.methods.add(tickInternalMethod)
@@ -211,6 +204,62 @@ object RedenInjectConfig {
                 }
             )
         },
+        ClassToTransform("net/minecraft/server/MinecraftServer") {
+            listOf(
+                /**
+                 * [net.minecraft.server.MinecraftServer.runServer]
+                 *
+                 * NOP
+                 */
+                object : MethodToTransform(
+                    "method_29741",
+                ) {
+                    override fun transform(node: MethodNode) {
+                        val classNode = this@ClassToTransform.node!!
+                    }
+
+                    override fun transformPost(node: MethodNode) {
+                    }
+                },
+                /**
+                 * [net.minecraft.server.MinecraftServer.tick]
+                 */
+                object : MethodToTransform(
+                    "method_3748",
+                ) {
+                    override fun transform(node: MethodNode) {
+                    }
+
+                    override fun transformPost(node: MethodNode) {
+                        val classNode = this@ClassToTransform.node!!
+                        val tickInternal = MethodNode(
+                            Opcodes.ACC_PUBLIC,
+                            "reden_tickInternal",
+                            "(Ljava/util/function/BooleanSupplier;)V",
+                            null,
+                            null
+                        )
+                        classNode.methods.add(tickInternal)
+                        tickInternal.localVariables = node.localVariables
+                        node.localVariables = mutableListOf()
+                        tickInternal.instructions = node.instructions
+                        node.instructions = InsnList()
+
+                        node.instructions.add(VarInsnNode(Opcodes.ALOAD, 0))
+                        node.instructions.add(VarInsnNode(Opcodes.ALOAD, 1))
+                        node.instructions.add(
+                            MethodInsnNode(
+                                Opcodes.INVOKEVIRTUAL,
+                                classNode.name,
+                                tickInternal.name,
+                                tickInternal.desc
+                            )
+                        )
+                        node.instructions.add(InsnNode(Opcodes.RETURN))
+                    }
+                }
+            )
+        }
     )
 
     val targets = targetList.associateBy { it.mappedName }

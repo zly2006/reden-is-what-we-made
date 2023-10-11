@@ -18,6 +18,11 @@ class RedenMixinExtension: IExtension {
         File("reden-transformer-export").deleteRecursively()
     }
 
+    object A {
+        init {
+        }
+    }
+
     override fun preApply(context: ITargetClassContext) {
         val classToTransform = RedenInjectConfig.targets[context.classInfo.name]
         if (classToTransform != null) {
@@ -60,6 +65,7 @@ class RedenMixinExtension: IExtension {
                         file.writeBytes(classWriter.toByteArray())
                     }
                     if (System.getProperty("reden.transformer.printBytecode") == "true") {
+                        println("===*** Bytecode of method ${node.name} ***===")
                         node.accept(MethodBytecodePrinter)
                     }
                 } else {

@@ -1,6 +1,8 @@
 package com.github.zly2006.reden.transformers
 
 import net.fabricmc.loader.api.FabricLoader
+import net.fabricmc.loader.impl.launch.FabricLauncherBase
+import net.fabricmc.mapping.tree.ClassDef
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
 
@@ -65,6 +67,50 @@ class MethodInfo(
 ) {
     fun toInsn(opcode: Int) = MethodInsnNode(opcode, owner, name, desc)
 }
+
+object IntermediaryMappingAccess {
+    val mapping = FabricLauncherBase.getLauncher().mappingConfiguration.getMappings()
+    private val classMapping2default: Map<String, String> =
+        FabricLauncherBase.getLauncher().mappingConfiguration.getMappings().run {
+            classes.associate {
+                it.getName("intermediary") to it.getName(metadata.namespaces[0])
+            }
+        }
+
+    private val methodMapping = mutableMapOf<String, MethodInfo>()
+    fun getMethod(owner: String?, name: String): MethodInfo? {
+        if (name in methodMapping) {
+            return methodMapping[name]!!
+        }
+        val targetNamespace = FabricLauncherBase.getLauncher().mappingConfiguration.targetNamespace
+        fun addMethods(classDef: ClassDef) {
+            for (methodDef in classDef.methods) {
+                methodMapping.computeIfAbsent(
+                    methodDef.getName("intermediary")
+                ) {
+                    MethodInfo(
+                        classDef.getName(targetNamespace),
+                        methodDef.getName(targetNamespace),
+                        methodDef.getDescriptor(targetNamespace)
+                    )
+                }
+            }
+        }
+        if (owner == null) {
+            for (classDef in mapping.classes) {
+                addMethods(classDef)
+            }
+        } else {
+            val classDef = mapping.defaultNamespaceClassMap[classMapping2default[owner]]
+            classDef?.let(::addMethods)
+        }
+        return methodMapping[name]
+    }
+    fun getMethodOrDefault(owner: String, name: String): MethodInfo {
+        return getMethod(owner, name) ?: MethodInfo(owner, name, "")
+    }
+}
+
 fun getMappedMethod(info: MethodInfo): MethodInfo {
     val name = FabricLoader.getInstance().mappingResolver.mapMethodName(
         "intermediary",
@@ -72,6 +118,7 @@ fun getMappedMethod(info: MethodInfo): MethodInfo {
         info.name,
         info.desc
     )
+    FabricLauncherBase.getLauncher().mappingConfiguration.getMappings()
     var desc = info.desc
     val regex = Regex("""L([^;]+);""")
     val matches = regex.findAll(desc)
