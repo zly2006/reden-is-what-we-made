@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.block.BlockState
 import net.minecraft.entity.Entity
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
@@ -135,14 +136,30 @@ object UpdateMonitorHelper {
     fun tryAddRelatedEntity(entity: Entity) {
         if (entity.noClip) return
         if (entity is ServerPlayerEntity) return
-        // not used
+        if (!isInitializingEntity) {
+            debugLogger("id ${recording?.id ?: 0}: add ${entity.uuid}, type ${entity.type.name}")
+            recording?.entities?.computeIfAbsent(entity.uuid) {
+                PlayerData.EntityEntryImpl(
+                    entity.type,
+                    NbtCompound().apply(entity::writeNbt),
+                    entity.blockPos
+                )
+            }
+        }
     }
+
+    /**
+     * starts at: [com.github.zly2006.reden.mixin.undo.MixinEntity.beforeEntitySpawn]
+     *
+     * ends at:   [com.github.zly2006.reden.mixin.undo.MixinServerWorld.afterSpawn]
+     */
+    @JvmField var isInitializingEntity = false
 
     @JvmStatic
     fun entitySpawned(entity: Entity) {
         if (entity is ServerPlayerEntity) return
         debugLogger("id ${recording?.id ?: 0}: spawn ${entity.uuid}, type ${entity.type.name}")
-        recording?.entities?.putIfAbsent(entity.uuid, null)
+        recording?.entities?.putIfAbsent(entity.uuid, PlayerData.NotExistEntityEntry)
     }
 
     init {

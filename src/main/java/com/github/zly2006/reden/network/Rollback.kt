@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.entity.SpawnReason
+import net.minecraft.entity.mob.MobEntity
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
@@ -61,14 +62,17 @@ class Rollback(
                 }
             }
             record.entities.forEach {
-                if (it.value != null) {
-                    val entry = it.value!!
+                if (it.value != PlayerData.NotExistEntityEntry) {
+                    val entry = it.value
                     val entity = world.getEntity(it.key)
                     if (entity != null) {
                         entity.readNbt(entry.nbt)
+                        if (entity is MobEntity) {
+                            entity.clearGoalsAndTasks()
+                        }
                     } else {
                         entry.entity.spawn(world, entry.nbt, null, entry.pos, SpawnReason.COMMAND, false, false)
-                        redoRecord?.entities?.put(it.key, null) // add entity info to redo record
+                        redoRecord?.entities?.put(it.key, PlayerData.NotExistEntityEntry) // add entity info to redo record
                     }
                 }
                 else {

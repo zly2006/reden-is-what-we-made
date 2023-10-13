@@ -4,6 +4,7 @@ import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.world.BlockEvent;
 import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
@@ -53,5 +54,13 @@ public abstract class MixinServerWorld {
     )
     private void afterProcessBlockEvent(BlockEvent event, CallbackInfoReturnable<Boolean> cir) {
         UpdateMonitorHelper.popRecord(() -> "block event/" + event.pos().toShortString());
+    }
+
+    @Inject(
+            method = "spawnEntity",
+            at = @At("RETURN")
+    )
+    private void afterSpawn(Entity entity, CallbackInfoReturnable<Boolean> cir) {
+        UpdateMonitorHelper.isInitializingEntity = false;
     }
 }

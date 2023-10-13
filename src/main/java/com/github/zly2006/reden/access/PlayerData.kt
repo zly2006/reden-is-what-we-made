@@ -54,7 +54,7 @@ class PlayerData(
     open class UndoRedoRecord(
         val id: Long,
         var lastChangedTick: Int = 0,
-        val entities: MutableMap<UUID, EntityEntry?> = mutableMapOf(),
+        val entities: MutableMap<UUID, EntityEntry> = mutableMapOf(),
         val data: MutableMap<Long, Entry> = mutableMapOf()
     ) {
         fun fromWorld(world: World, pos: BlockPos): Entry {
@@ -73,7 +73,7 @@ class PlayerData(
                     ) { x -> x !is PlayerEntity && x !is TntEntity }
                     list.forEach { entity ->
                         this@UndoRedoRecord.entities.computeIfAbsent(entity.uuid) {
-                            EntityEntry(entity.type, NbtCompound().apply(entity::writeNbt), entity.blockPos)
+                            EntityEntryImpl(entity.type, NbtCompound().apply(entity::writeNbt), entity.blockPos)
                         }
                     }
                 }
@@ -81,12 +81,12 @@ class PlayerData(
         }
 
         open fun getMemorySize() = data.asSequence().map { it.value.getMemorySize() }.sum() +
-                entities.map { 16 + (it.value?.nbt?.sizeInBytes ?: 0) }.sum()
+                entities.map { 16 + (it.value.nbt.sizeInBytes ?: 0) }.sum()
     }
     class UndoRecord(
         id: Long,
         lastChangedTick: Int = 0,
-        entities: MutableMap<UUID, EntityEntry?> = mutableMapOf(),
+        entities: MutableMap<UUID, EntityEntry> = mutableMapOf(),
         data: MutableMap<Long, Entry> = mutableMapOf(),
         val cause: Cause = Cause.UNKNOWN
     ) : UndoRedoRecord(id, lastChangedTick, entities, data) {
@@ -103,16 +103,28 @@ class PlayerData(
     class RedoRecord(
         id: Long,
         lastChangedTick: Int = 0,
-        entities: MutableMap<UUID, EntityEntry?> = mutableMapOf(),
+        entities: MutableMap<UUID, EntityEntry> = mutableMapOf(),
         data: MutableMap<Long, Entry> = mutableMapOf(),
         val undoRecord: UndoRecord
     ): UndoRedoRecord(id, lastChangedTick, entities, data) {
         override fun getMemorySize() = super.getMemorySize() + undoRecord.getMemorySize()
     }
 
-    class EntityEntry(
-        val entity: EntityType<*>,
-        val nbt: NbtCompound,
+    interface EntityEntry {
+        val entity: EntityType<*>
+        val nbt: NbtCompound
         val pos: BlockPos
-    )
+    }
+
+    class EntityEntryImpl(
+        override val entity: EntityType<*>,
+        override val nbt: NbtCompound,
+        override val pos: BlockPos
+    ): EntityEntry
+
+    object NotExistEntityEntry: EntityEntry {
+        override val entity: EntityType<*> = EntityType.PIG
+        override val nbt: NbtCompound = NbtCompound()
+        override val pos: BlockPos = BlockPos.ORIGIN
+    }
 }
