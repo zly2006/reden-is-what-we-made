@@ -20,6 +20,8 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,5 +78,9 @@ public class Reden implements ModInitializer, CarpetExtension {
                 LOGGER.info("This is Reden!");
             }
         });
+    }
+
+    public static Identifier identifier(@NotNull String id) {
+        return new Identifier(MOD_ID, id);
     }
 }

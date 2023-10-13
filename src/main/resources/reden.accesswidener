@@ -90,3 +90,5 @@ accessible field net/minecraft/client/MinecraftClient userApiService Lcom/mojang
 accessible field net/minecraft/screen/HopperScreenHandler inventory Lnet/minecraft/inventory/Inventory;
 accessible field net/minecraft/block/entity/HopperBlockEntity transferCooldown I
 mutable field net/minecraft/client/gui/screen/Screen title Lnet/minecraft/text/Text;
+accessible method net/minecraft/server/MinecraftServer shouldKeepTicking ()Z
+accessible method net/minecraft/server/MinecraftServer runTasksTillTickEnd ()V
