@@ -21,6 +21,7 @@ import net.fabricmc.loader.api.Version;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ public class Reden implements ModInitializer, CarpetExtension {
     public static final String MOD_ID = "reden";
     public static final String MOD_NAME = "Reden";
     public static final String CONFIG_FILE = "reden.json";
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     public static final Version MOD_VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion();
     public static final Logger LOGGER = LoggerFactory.getLogger("reden");
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -80,7 +82,8 @@ public class Reden implements ModInitializer, CarpetExtension {
         });
     }
 
-    public static Identifier identifier(@NotNull String id) {
+    @Contract("_ -> new")
+    public static @NotNull Identifier identifier(@NotNull String id) {
         return new Identifier(MOD_ID, id);
     }
 }

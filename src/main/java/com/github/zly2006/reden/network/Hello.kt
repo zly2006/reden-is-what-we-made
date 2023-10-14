@@ -1,12 +1,12 @@
 package com.github.zly2006.reden.network
 
+import com.github.zly2006.reden.Reden
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.fabricmc.loader.api.Version
 import net.minecraft.network.PacketByteBuf
-import net.minecraft.util.Identifier
 
-private val id = Identifier("reden", "hello")
+private val id = Reden.identifier("hello")
 private val pType = PacketType.create(id) {
     Hello(Version.parse(it.readString()))
 }

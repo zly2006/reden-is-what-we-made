@@ -50,7 +50,8 @@ class Rollback(
                     var blockEntity = world.getBlockEntity(BlockPos.fromLong(posLong))
                     if (blockEntity == null) {
                         try {
-                            // force add block entities, got blocks like piston.
+                            // Add block entities, for blocks like piston.
+                            // They will construct an empty block entities by default.
                             blockEntity = entry.blockEntityClazz!!
                                 .getConstructor(BlockPos::class.java, BlockState::class.java)
                                 .newInstance(pos, state).also(world::addBlockEntity)

@@ -116,12 +116,15 @@ public abstract class ChatScreenMixin extends Screen {
                 }
                 if (action == HoverEvent.Action.SHOW_ITEM) {
                     quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.give_hover_item"), (entry, button) -> {
+                        @SuppressWarnings("DataFlowIssue")
                         ItemStack stack = style.getHoverEvent().getValue(HoverEvent.Action.SHOW_ITEM).asStack();
                         if (stack.getNbt() == null) {
+                            //noinspection DataFlowIssue
                             client.getNetworkHandler().sendChatCommand(
                                 "give @s " + Registries.ITEM.getId(stack.getItem())
                             );
                         } else {
+                            //noinspection DataFlowIssue
                             client.getNetworkHandler().sendChatCommand(
                                 "give @s " + Registries.ITEM.getId(stack.getItem()) + stack.getNbt().toString()
                             );

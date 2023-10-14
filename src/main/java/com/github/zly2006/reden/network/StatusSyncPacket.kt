@@ -1,10 +1,10 @@
 package com.github.zly2006.reden.network
 
+import com.github.zly2006.reden.Reden
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.network.PacketByteBuf
-import net.minecraft.util.Identifier
 
 abstract class StatusSyncPacket(
     val status: Long,
@@ -20,7 +20,7 @@ class WorldStatus(status: Long, data: NbtCompound?)
         companion object {
             const val STARTED = 1L
             const val FROZEN = 2L
-            val id = Identifier("reden", "world_status")
+            val id = Reden.identifier("world_status")
         }
 
     override fun getType(): PacketType<*> = PacketType.create(id) {
@@ -32,7 +32,7 @@ class WorldStatus(status: Long, data: NbtCompound?)
 class GlobalStatus(status: Long, data: NbtCompound?)
     : StatusSyncPacket(status, data) {
     companion object {
-        val id = Identifier("reden", "global_status")
+        val id = Reden.identifier("global_status")
     }
 
     override fun getType(): PacketType<*> = PacketType.create(id) {

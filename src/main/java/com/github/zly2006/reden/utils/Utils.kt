@@ -88,7 +88,7 @@ object ResourceLoader {
     }
 
     fun loadTexture(path: String): Identifier {
-        return Identifier("reden", path)
+        return Reden.identifier(path)
     }
 
     @JvmStatic

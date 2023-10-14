@@ -23,15 +23,7 @@ public class MixinEntity {
             UpdateMonitorHelper.isInitializingEntity = true;
         }
     }
-    @Inject(
-            method = "<init>",
-            at = @At("RETURN")
-    )
-    private void afterEntitySpawn(EntityType<?> type, World world, CallbackInfo ci) {
-        if (!world.isClient) {
-            //UpdateMonitorHelper.isInitializingEntity = false;
-        }
-    }
+
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onEntitySpawn(EntityType<?> type, World world, CallbackInfo ci) {
         if (!world.isClient) {

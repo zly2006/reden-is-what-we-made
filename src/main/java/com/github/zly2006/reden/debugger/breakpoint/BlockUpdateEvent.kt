@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.debugger.breakpoint
 
+import com.github.zly2006.reden.Reden
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
@@ -12,7 +13,7 @@ class BlockUpdateEvent(
     var pos: BlockPos? = null,
 ): BreakPoint(id, Companion) {
     companion object: BreakPointType {
-        override val id: Identifier = Identifier("reden", "update_event")
+        override val id: Identifier = Reden.identifier("update_event")
         override val description: Text = Text.literal("BlockUpdateEvent")
         override fun create(id: Int): BreakPoint = BlockUpdateEvent(id)
 

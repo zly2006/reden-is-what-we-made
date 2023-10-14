@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.network
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.breakpoint.breakpoints
 import com.github.zly2006.reden.utils.isClient
@@ -8,11 +9,10 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.*
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.network.PacketByteBuf
-import net.minecraft.util.Identifier
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
-private val id = Identifier("reden", "change_breakpoint")
+private val id = Reden.identifier("change_breakpoint")
 private val pType = PacketType.create(id) {
     val bp = BreakPoint.read(it)
     val flag = it.readVarInt()
