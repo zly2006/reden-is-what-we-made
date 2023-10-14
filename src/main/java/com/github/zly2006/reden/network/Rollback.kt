@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.block.Block
-import net.minecraft.block.BlockState
+import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.SpawnReason
 import net.minecraft.entity.mob.MobEntity
 import net.minecraft.nbt.NbtHelper
@@ -46,20 +46,8 @@ class Rollback(
                 blockTickScheduler.removeTicksIf { it.pos == pos }
                 fluidTickScheduler.removeTicksIf { it.pos == pos }
                 // apply block entity
-                entry.blockEntity?.let { be ->
-                    var blockEntity = world.getBlockEntity(BlockPos.fromLong(posLong))
-                    if (blockEntity == null) {
-                        try {
-                            // Add block entities, for blocks like piston.
-                            // They will construct an empty block entities by default.
-                            blockEntity = entry.blockEntityClazz!!
-                                .getConstructor(BlockPos::class.java, BlockState::class.java)
-                                .newInstance(pos, state).also(world::addBlockEntity)
-                        } catch (e: Exception) {
-                            Reden.LOGGER.error("Failed to create block entity for $pos, $state", e)
-                        }
-                    }
-                    blockEntity?.readNbt(be)
+                entry.blockEntity?.let { beNbt ->
+                    world.addBlockEntity(BlockEntity.createFromNbt(pos, state, beNbt))
                 }
             }
             record.entities.forEach {
@@ -72,7 +60,8 @@ class Rollback(
                             entity.clearGoalsAndTasks()
                         }
                     } else {
-                        entry.entity.spawn(world, entry.nbt, null, entry.pos, SpawnReason.COMMAND, false, false)
+                        entry.entity!!.spawn(world, null, null, entry.pos, SpawnReason.COMMAND, false, false)
+                            ?.readNbt(entry.nbt)
                         redoRecord?.entities?.put(it.key, PlayerData.NotExistEntityEntry) // add entity info to redo record
                     }
                 }

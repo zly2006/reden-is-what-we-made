@@ -4,11 +4,8 @@ import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.malilib.UNDO_CHEATING_ONLY
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.isSinglePlayerAndCheating
-import net.minecraft.block.entity.BlockEntity
 import net.minecraft.command.EntitySelector
-import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
-import net.minecraft.entity.SpawnGroup
 import net.minecraft.entity.TntEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.nbt.NbtCompound
@@ -36,7 +33,6 @@ class PlayerData(
 
     data class Entry(
         val blockState: NbtCompound,
-        val blockEntityClazz: Class<BlockEntity>?,
         val blockEntity: NbtCompound?,
     ) {
 
@@ -63,8 +59,7 @@ class PlayerData(
             val be = world.getBlockEntity(pos)
             return Entry(
                 NbtHelper.fromBlockState(world.getBlockState(pos)),
-                be?.javaClass,
-                world.getBlockEntity(pos)?.createNbt()
+                world.getBlockEntity(pos)?.createNbtWithId()
             ).apply {
                 if (world.getBlockState(pos).getCollisionShape(world, pos).boundingBoxes.size != 0) {
                     val list = world.getEntitiesByType(
@@ -113,7 +108,7 @@ class PlayerData(
     }
 
     interface EntityEntry {
-        val entity: EntityType<*>
+        val entity: EntityType<*>?
         val nbt: NbtCompound
         val pos: BlockPos
     }
@@ -126,22 +121,8 @@ class PlayerData(
 
 
     object NotExistEntityEntry: EntityEntry {
-        override val entity: EntityType<*> = errorEntityType
+        override val entity = null
         override val nbt: NbtCompound = NbtCompound()
         override val pos: BlockPos = BlockPos.ORIGIN
     }
 }
-
-private val errorEntityType =  EntityType<Entity>(
-    null,
-    SpawnGroup.AMBIENT,
-    false,
-    false,
-    false,
-    false,
-    null,
-    null,
-    0,
-    0,
-    null
-)
