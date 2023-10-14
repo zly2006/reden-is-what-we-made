@@ -6,7 +6,9 @@ import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.isSinglePlayerAndCheating
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.command.EntitySelector
+import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
+import net.minecraft.entity.SpawnGroup
 import net.minecraft.entity.TntEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.nbt.NbtCompound
@@ -122,9 +124,24 @@ class PlayerData(
         override val pos: BlockPos
     ): EntityEntry
 
+
     object NotExistEntityEntry: EntityEntry {
-        override val entity: EntityType<*> = EntityType.PIG
+        override val entity: EntityType<*> = errorEntityType
         override val nbt: NbtCompound = NbtCompound()
         override val pos: BlockPos = BlockPos.ORIGIN
     }
 }
+
+private val errorEntityType =  EntityType<Entity>(
+    null,
+    SpawnGroup.AMBIENT,
+    false,
+    false,
+    false,
+    false,
+    null,
+    null,
+    0,
+    0,
+    null
+)
