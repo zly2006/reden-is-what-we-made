@@ -6,13 +6,15 @@ import net.minecraft.server.MinecraftServer
 class ServerRootStage(
     val server: MinecraftServer
 ): TickStage("server_root") {
-    init {
+    override fun tick() {
+        children.clear()
         server.worlds.forEach {
             val worldRootStage = WorldRootStage(it, this)
             children.add(worldRootStage)
             it.data().tickStage = worldRootStage
         }
         children.add(EndStage(this))
+        super.tick()
     }
 
     override fun reset() {

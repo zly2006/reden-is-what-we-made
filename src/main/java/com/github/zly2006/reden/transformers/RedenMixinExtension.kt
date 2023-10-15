@@ -24,7 +24,7 @@ class RedenMixinExtension: IExtension {
             LOGGER.info("Transforming class: " + context.classInfo.name)
             classToTransform.node = context.classNode
             context.classNode.interfaces.add("com/github/zly2006/reden/transformers/ThisIsReden")
-            classToTransform.methodTransformers.forEach { (name, transformer) ->
+            classToTransform.methodTransformers.value.forEach { (name, transformer) ->
                 val node = context.classNode.methods.firstOrNull { it.name == name }
                 if (node != null) {
                     LOGGER.info("Transforming method: " + node.name)
@@ -47,7 +47,7 @@ class RedenMixinExtension: IExtension {
         val classToTransform = RedenInjectConfig.targets[context.classInfo.name]
         if (classToTransform != null) {
             LOGGER.info("Transformed class: " + context.classInfo.name)
-            classToTransform.methodTransformers.forEach { (name, transformer) ->
+            classToTransform.methodTransformers.value.forEach { (name, transformer) ->
                 val node = context.classNode.methods.firstOrNull { it.name == name }
                 if (node != null) {
                     LOGGER.info("Post transforming method: " + node.name)

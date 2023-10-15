@@ -1,12 +1,13 @@
 package com.github.zly2006.reden.access
 
 import com.github.zly2006.reden.debugger.ServerRootStage
-import com.github.zly2006.reden.utils.server
 import net.minecraft.client.MinecraftClient
 import net.minecraft.server.MinecraftServer
 import java.util.*
 
-class ServerData {
+class ServerData(
+    server: MinecraftServer
+) {
     var status: Long = 0
     var uuid: UUID? = null
     var address: String = ""

@@ -11,11 +11,11 @@ object RedenInjectConfig {
         val interName: String,
     )
 
-    class ClassToTransform(
+    open class ClassToTransform(
         interName: String,
         methodTransformers: ClassToTransform.() -> List<MethodToTransform>,
     ): Target(interName) {
-        var node: ClassNode? = null
+        lateinit var node: ClassNode
         val mappedName = FabricLoader.getInstance().mappingResolver
                 .mapClassName("intermediary", interName.replace('/', '.'))
                 .replace('.', '/')
@@ -29,8 +29,10 @@ object RedenInjectConfig {
                     name.substring(name.indexOf('('))
                 )!!
 
-        val methodTransformers = methodTransformers().associateBy {
-            IntermediaryMappingAccess.getMethodOrDefault(interName, it.interName).name
+        val methodTransformers = lazy {
+            methodTransformers().associateBy {
+                IntermediaryMappingAccess.getMethodOrDefault(interName, it.interName).name
+            }
         }
     }
 
@@ -56,7 +58,88 @@ object RedenInjectConfig {
         ClassToTransform( // Just for test
             "com/mojang/brigadier/CommandDispatcher",
         ) { listOf() },
+
         ClassToTransform("net/minecraft/class_3218") {
+            val worldData = FieldNode(
+                Opcodes.ACC_PUBLIC,
+                "worldData",
+                "Lcom/github/zly2006/reden/access/WorldData;",
+                null,
+                null
+            )
+            node.fields.add(worldData)
+            // modify init
+            val initMethod = node.methods.first { it.name == "<init>" }
+            initMethod.instructions.filter { it.opcode == Opcodes.RETURN }.forEach { retNode ->
+                initMethod.instructions.insertBefore(retNode, InsnList().apply {
+                    //Java: worldData = new WorldData(this);
+                    add(VarInsnNode(Opcodes.ALOAD, 0)) // this
+                    add(TypeInsnNode(Opcodes.NEW, "com/github/zly2006/reden/access/WorldData")) // new WorldData
+                    add(InsnNode(Opcodes.DUP)) // duplicate
+                    add(VarInsnNode(Opcodes.ALOAD, 0)) // this
+                    add(MethodInsnNode(
+                        Opcodes.INVOKESPECIAL,
+                        "com/github/zly2006/reden/access/WorldData",
+                        "<init>",
+                        "(L${mappedName};)V")) // init
+                    add(FieldInsnNode(Opcodes.PUTFIELD, mappedName, worldData.name, worldData.desc)) // set field
+                })
+            }
+            // add interface
+            node.interfaces.add("com/github/zly2006/reden/access/WorldData\$WorldDataAccess")
+            // add getter
+            val worldDataGetter = MethodNode(
+                Opcodes.ACC_PUBLIC,
+                "getRedenWorldData",
+                "()Lcom/github/zly2006/reden/access/WorldData;",
+                null,
+                null
+            )
+            worldDataGetter.instructions.apply {
+                add(VarInsnNode(Opcodes.ALOAD, 0)) // this
+                add(FieldInsnNode(Opcodes.GETFIELD, mappedName, worldData.name, worldData.desc)) // get field
+                add(InsnNode(Opcodes.ARETURN))
+            }
+            node.methods.add(worldDataGetter)
+
+            fun getWorldData() = InsnList().apply {
+                add(VarInsnNode(Opcodes.ALOAD, 0)) // this
+                add(FieldInsnNode(Opcodes.GETFIELD, mappedName, worldData.name, worldData.desc)) // get field
+            }
+
+            fun setWDTickLabel(value: Int) = InsnList().apply {
+                // assume that worldData is on stack
+                add(MethodInsnNode(
+                    Opcodes.INVOKEVIRTUAL,
+                    "com/github/zly2006/reden/access/WorldData",
+                    "getTickStage",
+                    "()Lcom/github/zly2006/reden/debugger/WorldRootStage;"
+                ))
+                add(LdcInsnNode(value))
+                add(MethodInsnNode(
+                    Opcodes.INVOKEVIRTUAL,
+                    "com/github/zly2006/reden/debugger/WorldRootStage",
+                    "setTickLabel",
+                    "(I)V"
+                ))
+            }
+
+            fun getWDTickLabel() = InsnList().apply {
+                // assume that worldData is on stack
+                add(MethodInsnNode(
+                    Opcodes.INVOKEVIRTUAL,
+                    "com/github/zly2006/reden/access/WorldData",
+                    "getTickStage",
+                    "()Lcom/github/zly2006/reden/debugger/WorldRootStage;"
+                ))
+                add(MethodInsnNode(
+                    Opcodes.INVOKEVIRTUAL,
+                    "com/github/zly2006/reden/debugger/WorldRootStage",
+                    "getTickLabel",
+                    "()I"
+                ))
+            }
+
             listOf(
                 /**
                  * [net.minecraft.server.world.ServerWorld.tick]
@@ -65,25 +148,17 @@ object RedenInjectConfig {
                     "method_18765",
                 ) {
                     val labelMap = mutableMapOf<Int, LabelNode>()
-                    val field = FieldNode(Opcodes.ACC_PUBLIC, "reden_tickLabel", "I", null, 0)
-                    private fun setTickLabel(value: Int, addLabel: Boolean = true) = InsnList().apply {
-                        // Java: this.tickLabel = {value}
-                        if (addLabel) {
-                            if (labelMap[value] != null) {
-                                error("Register label $value twice")
-                            }
-                            labelMap[value] = LabelNode()
-                            add(labelMap[value]!!)
+                    private fun setTickLabel(value: Int) = InsnList().apply {
+                        if (labelMap[value] != null) {
+                            error("Register label $value twice")
                         }
-                        add(VarInsnNode(Opcodes.ALOAD, 0)) // this
-                        add(LdcInsnNode(value)) // load constant value
-                        add(FieldInsnNode(Opcodes.PUTFIELD, mappedName, field.name, field.desc)) // set field
+                        labelMap[value] = LabelNode()
+                        add(labelMap[value]!!)
+                        add(getWorldData())
+                        add(setWDTickLabel(value))
                     }
 
                     override fun transform(node: MethodNode) {
-                        val classNode = this@ClassToTransform.node!!
-                        classNode.fields.add(field)
-
                         fun getProfiler() = InsnList().apply {
                             val method = IntermediaryMappingAccess.getMethodOrDefault("net/minecraft/class_1937", "method_16107")
                             add(LabelNode())
@@ -118,7 +193,7 @@ object RedenInjectConfig {
                     }
 
                     override fun transformPost(node: MethodNode) {
-                        val classNode = this@ClassToTransform.node!!
+                        val classNode = this@ClassToTransform.node
 
                         // add code for raising error and *switch*
                         val invalidLabelCode = invalidLabel()
@@ -133,8 +208,8 @@ object RedenInjectConfig {
                         // add our switch at first
                         node.instructions.insert(InsnList().apply {
                             add(LabelNode())
-                            add(VarInsnNode(Opcodes.ALOAD, 0)) // this
-                            add(FieldInsnNode(Opcodes.GETFIELD, classNode.name, field.name, field.desc)) // get field
+                            add(getWorldData())
+                            add(getWDTickLabel())
                             add(switchNode)
                         })
 
@@ -146,23 +221,7 @@ object RedenInjectConfig {
                             null,
                             null
                         )
-                        val invokeSuspendMethod = MethodNode(
-                            Opcodes.ACC_PUBLIC,
-                            "reden_tickSuspend",
-                            "(Ljava/lang/Object;)Ljava/lang/Object;",
-                            null,
-                            null
-                        ).apply {
-                            instructions.add(MethodInsnNode(
-                                Opcodes.INVOKESTATIC,
-                                "kotlin/coroutines/intrinsics/IntrinsicsKt",
-                                "getCOROUTINE_SUSPENDED",
-                                "()Ljava/lang/Object;"
-                            ))
-                            instructions.add(InsnNode(Opcodes.ARETURN))
-                        }
 
-                        classNode.methods.add(invokeSuspendMethod)
                         classNode.methods.add(tickInternalMethod)
                         // clear old method instructions, and add new method instructions
                         tickInternalMethod.instructions = node.instructions
@@ -172,6 +231,21 @@ object RedenInjectConfig {
 
                         // redirect to our internal method
                         node.instructions.insert(InsnList().apply {
+                            // Java: this.tickLabel = 0
+                            add(getWorldData())
+                            add(MethodInsnNode(
+                                Opcodes.INVOKEVIRTUAL,
+                                "com/github/zly2006/reden/access/WorldData",
+                                "getTickStage",
+                                "()Lcom/github/zly2006/reden/debugger/WorldRootStage;"
+                            ))
+                            add(MethodInsnNode(
+                                Opcodes.INVOKEVIRTUAL,
+                                "com/github/zly2006/reden/debugger/WorldRootStage",
+                                "tick",
+                                "()V"
+                            ))
+
                             repeat(2) {
                                 add(VarInsnNode(Opcodes.ALOAD, 0)) // this
                                 add(VarInsnNode(Opcodes.ALOAD, 1)) // BooleanSupplier
@@ -184,10 +258,7 @@ object RedenInjectConfig {
                                     )
                                 )
                             }
-                            // Java: this.tickLabel = 0
-                            add(VarInsnNode(Opcodes.ALOAD, 0))
-                            add(InsnNode(Opcodes.ICONST_0))
-                            add(FieldInsnNode(Opcodes.PUTFIELD, mappedName, field.name, field.desc))
+
                             // Java: return
                             add(InsnNode(Opcodes.RETURN))
                         })
@@ -222,7 +293,7 @@ object RedenInjectConfig {
                     }
 
                     override fun transformPost(node: MethodNode) {
-                        val classNode = this@ClassToTransform.node!!
+                        val classNode = this@ClassToTransform.node
                         val tickInternal = MethodNode(
                             Opcodes.ACC_PUBLIC,
                             "reden_tickInternal",
@@ -246,13 +317,6 @@ object RedenInjectConfig {
                                 tickInternal.desc
                             )
                         )
-                        // com.github.zly2006.reden.transformers.CoroutinesKt.startCoroutineScope
-                        (MethodInsnNode(
-                            Opcodes.INVOKESTATIC,
-                            "com/github/zly2006/reden/transformers/CoroutinesKt",
-                            "startCoroutineScope",
-                            "()V"
-                        ))
                         node.instructions.add(InsnNode(Opcodes.RETURN))
                     }
                 }
