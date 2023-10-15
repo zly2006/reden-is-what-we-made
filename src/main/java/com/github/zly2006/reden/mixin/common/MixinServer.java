@@ -11,15 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MinecraftServer.class)
 public class MixinServer implements ServerData.ServerDataAccess {
-    @Unique ServerData serverData;
-
-    @Inject(
-            method = "<init>",
-            at = @At("RETURN")
-    )
-    private void afterInit(CallbackInfo ci) {
-        serverData = new ServerData((MinecraftServer) (Object) this);
-    }
+    @Unique ServerData serverData = new ServerData((MinecraftServer) (Object) this);
 
     @Inject(
             method = "tick",
