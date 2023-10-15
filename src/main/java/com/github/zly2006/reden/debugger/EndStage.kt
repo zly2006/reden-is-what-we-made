@@ -2,7 +2,9 @@ package com.github.zly2006.reden.debugger
 
 import com.github.zly2006.reden.utils.server
 
-object EndStage: TickStage("end") {
+class EndStage(
+    parent: ServerRootStage
+) : TickStage(name = "end", parent = parent) {
     override fun tick() {
         server.runTasksTillTickEnd()
     }
