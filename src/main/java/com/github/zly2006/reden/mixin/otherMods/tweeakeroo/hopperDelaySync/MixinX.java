@@ -29,7 +29,8 @@ public class MixinX {
             at = @At(
                     value = "INVOKE",
                     target = "Lfi/dy/masa/malilib/render/InventoryOverlay;renderInventoryBackground(Lfi/dy/masa/malilib/render/InventoryOverlay$InventoryRenderType;IIIILnet/minecraft/client/MinecraftClient;)V",
-                    ordinal = 1
+                    ordinal = 1,
+                    remap = true
             ),
             locals = LocalCapture.CAPTURE_FAILSOFT
     )
