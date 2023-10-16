@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.debugger
 
 import net.minecraft.server.world.ServerWorld
+import java.util.function.BooleanSupplier
 
 class WorldRootStage(
     val world: ServerWorld,
@@ -17,6 +18,10 @@ class WorldRootStage(
 
     override fun hasNext(): Boolean {
         return super.hasNext()
+    }
+
+    fun yieldAndTick(shouldKeepTicking: BooleanSupplier) {
+        world.tick(shouldKeepTicking)
     }
 
     override fun reset() {

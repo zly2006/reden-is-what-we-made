@@ -13,6 +13,7 @@ public class FabricLoaderInjector {
     private final ClassLoader knotClassLoader;
     private final Method defMethod;
     private final Method auMethod;
+    private final Object delegate; // {@link net.fabricmc.loader.impl.launch.knot.KnotClassLoaderInterface}
 
     public FabricLoaderInjector(ClassLoader knotClassLoader) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
         this.knotClassLoader = knotClassLoader;
@@ -24,6 +25,9 @@ public class FabricLoaderInjector {
         defMethod.setAccessible(true);
         auMethod = kclClass.getMethod("addUrlFwd", URL.class);
         auMethod.setAccessible(true);
+        var delegateField = kclClass.getDeclaredField("delegate");
+        delegateField.setAccessible(true);
+        delegate = delegateField.get(knotClassLoader);
     }
 
     public Class<?> defineClass(@Nullable String name, byte[] b, int off, int len, @Nullable CodeSource cs) throws InvocationTargetException, IllegalAccessException {

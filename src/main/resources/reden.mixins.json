@@ -13,6 +13,8 @@
     "common.MixinServerWorld",
     "common.access.MixinMinecraftServer",
     "common.access.MixinServerWorld",
+    "debugger.MixinServer",
+    "debugger.MixinServerWorld",
     "hopperDelaySync.MixinHoppers",
     "otherMods.carpet.MixinTickStep",
     "otherMods.tweeakeroo.hopperDelaySync.MixinX",
