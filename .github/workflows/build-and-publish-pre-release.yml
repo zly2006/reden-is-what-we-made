@@ -26,8 +26,8 @@ jobs:
           fetch-depth: 0
       - name: Store all lowercase commit message
         run: |
-          echo "COMMIT_MESSAGE=$(git log --format=%B --no-merges -n 1 | tr '[:upper:]' '[:lower:]' | tr -d '\n;')" >> ${GITHUB_ENV}
-          echo "COMMIT_MESSAGE_ALL=$(git log --format=%B --no-merges -n 1 | tr '\n' '\\n')" >> ${GITHUB_ENV}
+          echo COMMIT_MESSAGE=$(      git log --format=%B --no-merges -n 1 | tr '[:upper:]' '[:lower:]' ) >> ${GITHUB_ENV}
+          echo COMMIT_MESSAGE_ALL=$(  git log --format=%B --no-merges -n 1                              ) >> ${GITHUB_ENV}
       - name: Detect if a beta release should be published
         if: ${{ contains(env.COMMIT_MESSAGE, '[publish beta]') || inputs.release-beta }}
         run: |
