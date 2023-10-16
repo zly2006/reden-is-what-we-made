@@ -27,6 +27,7 @@ jobs:
       - name: Store all lowercase commit message
         run: |
           echo "COMMIT_MESSAGE=$(git log --format=%B --no-merges -n 1 | tr '[:upper:]' '[:lower:]' | tr -d '\n;')" >> ${GITHUB_ENV}
+          echo "COMMIT_MESSAGE_ALL=$(git log --format=%B --no-merges -n 1 | tr '\n' '\\n')" >> ${GITHUB_ENV}
       - name: Detect if a beta release should be published
         if: ${{ contains(env.COMMIT_MESSAGE, '[publish beta]') || inputs.release-beta }}
         run: |
@@ -88,10 +89,6 @@ jobs:
           name: "[CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} Mod Pre-Release ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
           prerelease: true
           tag: "beta/${{ steps.get_commit_sha.outputs.short_sha }}"
-
-      - name: Get All Commit Message
-        id: commit_message_all
-        run: echo "::set-env name=COMMIT_MESSAGE_ALL::$(git log -1 --pretty=%B)"
 
       - name: Publish to Modrinth & CurseForge
         if: ${{ env.PUBLISH_BETA == 'true' && matrix.java == 17 }} # Only publish the version built with Java LTS
