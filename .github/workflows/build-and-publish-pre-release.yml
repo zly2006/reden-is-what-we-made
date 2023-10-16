@@ -89,6 +89,10 @@ jobs:
           prerelease: true
           tag: "beta/${{ steps.get_commit_sha.outputs.short_sha }}"
 
+      - name: Get All Commit Message
+        id: commit_message_all
+        run: echo "::set-env name=COMMIT_MESSAGE_ALL::$(git log -1 --pretty=%B)"
+
       - name: Publish to Modrinth & CurseForge
         if: ${{ env.PUBLISH_BETA == 'true' && matrix.java == 17 }} # Only publish the version built with Java LTS
         uses: Kir-Antipov/mc-publish@v3.3
@@ -126,3 +130,4 @@ jobs:
             20
           retry-attempts: 2
           retry-delay: 10000
+          changelog: ${{ env.COMMIT_MESSAGE_ALL }}
