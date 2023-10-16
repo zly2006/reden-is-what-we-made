@@ -11,12 +11,7 @@ class MyMixinPlugin: RestrictiveMixinConfigPlugin() {
     }
 
     override fun shouldApplyMixin(targetClassName: String, mixinClassName: String): Boolean {
-        /**
-         * 限制只有不包含 .special. 的类才会被混淆
-         * @see [com.github.zly2006.reden.mixin.debugger]
-         */
-        // todo: test
-        return super.shouldApplyMixin(targetClassName, mixinClassName)// && !mixinClassName.contains(".special.")
+        return super.shouldApplyMixin(targetClassName, mixinClassName)
     }
 
     override fun getMixins() = null
