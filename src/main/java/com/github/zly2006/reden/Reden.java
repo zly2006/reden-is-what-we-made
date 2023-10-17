@@ -2,6 +2,7 @@ package com.github.zly2006.reden;
 
 import carpet.CarpetExtension;
 import carpet.CarpetServer;
+import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.network.ChannelsKt;
 import com.github.zly2006.reden.rvc.RvcCommandKt;
@@ -56,9 +57,18 @@ public class Reden implements ModInitializer, CarpetExtension {
         ChannelsKt.register();
         CarpetServer.manageExtension(this);
         CommandRegistrationCallback.EVENT.register((dispatcher, access, environment) -> {
+            boolean isDev = true;
             // Debug command
-            if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            if (FabricLoader.getInstance().isDevelopmentEnvironment() || isDev) {
                 dispatcher.register(CommandManager.literal("reden-debug")
+                                .then(CommandManager.literal("top-undo").executes(context -> {
+                                    PlayerData.Companion.data(context.getSource().getPlayer()).topUndo();
+                                    return 1;
+                                }))
+                                .then(CommandManager.literal("top-redo").executes(context -> {
+                                    PlayerData.Companion.data(context.getSource().getPlayer()).topRedo();
+                                    return 1;
+                                }))
                         .then(CommandManager.literal("delay-test")
                                 .executes(context -> {
                                     try {

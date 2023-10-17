@@ -4,12 +4,12 @@ import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.malilib.UNDO_CHEATING_ONLY
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.isSinglePlayerAndCheating
+import net.minecraft.block.BlockState
 import net.minecraft.command.EntitySelector
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.TntEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.nbt.NbtCompound
-import net.minecraft.nbt.NbtHelper
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
@@ -20,6 +20,14 @@ import java.util.*
 class PlayerData(
     val player: ServerPlayerEntity,
 ) {
+    fun topRedo() {
+        player.sendMessage(Text.of(redo.lastOrNull()?.toString()))
+    }
+
+    fun topUndo() {
+        player.sendMessage(Text.of(undo.lastOrNull()?.toString()))
+    }
+
     val canRecord: Boolean
         get() = if (!isClient) {
             RedenCarpetSettings.allowedUndoSizeInBytes != 0
@@ -32,12 +40,10 @@ class PlayerData(
     var pearlListening: Boolean = false
 
     data class Entry(
-        val blockState: NbtCompound,
+        val state: BlockState,
         val blockEntity: NbtCompound?,
     ) {
-
-        fun getMemorySize() =
-            blockState.sizeInBytes + (blockEntity?.sizeInBytes ?: 0)
+        fun getMemorySize() = blockEntity?.sizeInBytes ?: 0
     }
     internal interface PlayerDataAccess {
         fun getRedenPlayerData(): PlayerData
@@ -55,12 +61,20 @@ class PlayerData(
         val entities: MutableMap<UUID, EntityEntry> = mutableMapOf(),
         val data: MutableMap<Long, Entry> = mutableMapOf()
     ) {
+        override fun toString(): String {
+            return """
++ UndoRedoRecord id=$id
++ size = ${getMemorySize()}
++ entities:
+${entities.map { "${it.key} = ${it.value}" }.joinToString("\n")}
++ blocks:
+${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" }.joinToString("\n")}
+            """.trimIndent()
+        }
         fun fromWorld(world: World, pos: BlockPos): Entry {
             val be = world.getBlockEntity(pos)
-            return Entry(
-                NbtHelper.fromBlockState(world.getBlockState(pos)),
-                world.getBlockEntity(pos)?.createNbtWithId()
-            ).apply {
+            val state = world.getBlockState(pos)
+            return Entry(state, be?.createNbtWithId()).apply {
                 if (world.getBlockState(pos).getCollisionShape(world, pos).boundingBoxes.size != 0) {
                     val list = world.getEntitiesByType(
                         EntitySelector.PASSTHROUGH_FILTER,

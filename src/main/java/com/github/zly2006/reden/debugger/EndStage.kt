@@ -1,15 +1,13 @@
 package com.github.zly2006.reden.debugger
 
-import com.github.zly2006.reden.utils.server
-
 class EndStage(
-    parent: ServerRootStage
-) : TickStage(name = "end", parent = parent) {
+    private val _parent: ServerRootStage
+) : TickStage(name = "end", parent = _parent) {
     override fun tick() {
-        server.runTasksTillTickEnd()
+        _parent.server.runTasksTillTickEnd()
     }
 
     fun waitAll() {
-        server.runTasks { false }
+        _parent.server.runTasks { false }
     }
 }
