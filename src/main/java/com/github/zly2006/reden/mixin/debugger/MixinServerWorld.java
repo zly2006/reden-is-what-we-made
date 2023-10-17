@@ -86,6 +86,8 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
 
     @Shadow public abstract void tickEntity(Entity entity);
 
+    @Shadow public abstract ServerChunkManager getChunkManager();
+
     /**
      * @author
      * @reason
