@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.debugger;
 
+import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.WorldData;
 import com.github.zly2006.reden.exceptions.RedenCoroutineCriticalError;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-@Mixin(value = ServerWorld.class, priority = 10)
+@Mixin(value = ServerWorld.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public abstract class MixinServerWorld extends World implements WorldData.WorldDataAccess {
     protected MixinServerWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);

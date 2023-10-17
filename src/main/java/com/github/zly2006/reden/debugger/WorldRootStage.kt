@@ -16,10 +16,6 @@ class WorldRootStage(
         // do nothing, let it yield
     }
 
-    override fun hasNext(): Boolean {
-        return super.hasNext()
-    }
-
     fun yieldAndTick(shouldKeepTicking: BooleanSupplier) {
         world.tick(shouldKeepTicking)
     }
