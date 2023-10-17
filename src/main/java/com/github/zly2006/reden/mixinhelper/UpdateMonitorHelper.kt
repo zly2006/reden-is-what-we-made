@@ -3,6 +3,15 @@ package com.github.zly2006.reden.mixinhelper
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.monitorSetBlock
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.playerStartRecording
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.playerStopRecording
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.popRecord
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.pushRecord
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.recordId
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.recording
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.undoRecords
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.undoRecordsMap
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.isDebug
 import com.github.zly2006.reden.utils.server
@@ -15,6 +24,55 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 
+/**
+ * # Undo
+ *
+ * This is the handler for undo feature.
+ *
+ * ## Players
+ *
+ * When players do some operation that is tracked by reden,
+ * reden will create a backup (we call it `UndoRecord`, see [com.github.zly2006.reden.access.PlayerData.UndoRecord]) for it.
+ * Player tracking starts at [playerStartRecording], and ends at [playerStopRecording].
+ *
+ * Then all changes will be recorded in the UndoRecord.
+ * If the player wants to undo the operation, reden will restore the UndoRecord to the world.
+ *
+ * The id of the UndoRecord is unique (see [recordId]), and it will be used to identify the UndoRecord by [undoRecordsMap].
+ *
+ * ## Undo Record
+ *
+ * the current available UndoRecords are stored in [undoRecords].
+ * It is a stack and the top is the current UndoRecord([recording]).
+ *
+ * ## Blocks
+ *
+ * Each time your world changes, reden will add the state before the change to the UndoRecord,
+ * see [com.github.zly2006.reden.access.PlayerData.UndoRedoRecord.fromWorld].
+ *
+ * If you want to know how reden monitors block changes, see [monitorSetBlock].
+ *
+ * ## Entities
+ *
+ * TODO
+ *
+ * ## Async changes
+ *
+ * (idk how to describe things like BE and scheduled tick that dont make changes immediately, just call them async changes)
+ *
+ * Primed TNTs, block events, scheduled ticks, they dont make changes immediately.
+ *
+ * So reden added a field [com.github.zly2006.reden.access.UndoableAccess.undoId] for them.
+ *
+ * When they are created, reden will assign them an undo id from [recording].
+ *
+ * When the async changes are applied, reden will check if the id is in the [undoRecordsMap].
+ *
+ * If it is, reden will push the specified UndoRecord to the stack by [pushRecord].
+ * Then the game continues to process, making more changes.
+ * And all changes will be recorded to the UndoRecord.
+ * After the async changes are applied, reden will pop the UndoRecord from the stack by [popRecord].
+ */
 object UpdateMonitorHelper {
     class UndoRecordEntry(val id: Long, val record: PlayerData.UndoRecord?, val reason: String)
     private var recordId = 20060210L
