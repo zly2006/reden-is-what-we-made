@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.fakePlayer;
 
-import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.MinecraftServer;
@@ -14,9 +13,12 @@ import java.util.List;
 import java.util.UUID;
 
 public class RedenFakePlayer extends ServerPlayerEntity {
-    /*
-    this.server.getPlayerManager().createPlayer(this.profile);
-    onPlayerConnect
+    /**
+     * Note: you should call {@link PlayerManager#onPlayerConnect} manually after creating a fake player.
+     * @param server the server
+     * @param profile game profile, please make sure UUID is not null
+     * @param canKickExisting whether to kick existing players with the same UUID
+     * @return the fake player
      */
     public static RedenFakePlayer create(MinecraftServer server, GameProfile profile, boolean canKickExisting) {
         PlayerManager playerManager = server.getPlayerManager();
@@ -48,11 +50,5 @@ public class RedenFakePlayer extends ServerPlayerEntity {
     }
     public RedenFakePlayer(MinecraftServer server, ServerWorld world, GameProfile profile) {
         super(server, world, profile);
-    }
-
-    static void x() {
-        MinecraftServer server = UtilsKt.server;
-        RedenFakePlayer player = create(server, new GameProfile(null, ""), false);
-        server.getPlayerManager().onPlayerConnect(new FakeConnection(), player);
     }
 }
