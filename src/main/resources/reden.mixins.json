@@ -15,6 +15,7 @@
     "common.access.MixinServerWorld",
     "debugger.MixinServer",
     "debugger.MixinServerWorld",
+    "fakePlayer.MixinPlayerManager",
     "hopperDelaySync.MixinHoppers",
     "otherMods.carpet.MixinTickStep",
     "otherMods.tweeakeroo.hopperDelaySync.MixinX",

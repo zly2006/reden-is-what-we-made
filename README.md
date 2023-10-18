@@ -21,7 +21,7 @@ RVC, Redstone Version Control, machine history and diff analysis
 RVCHub, a universal machine sharing platform, and automatic recognition of whether the machine has been correctly marked with copyright
 
 ## RDebugger
-> Planned
+> WIP
 
 Micro-timing analysis and simulation: block update breakpoints (NC, PP, CU, BE), BED debugger, step-by-step update, step-by-step tick, update reset
 
