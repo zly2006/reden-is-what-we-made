@@ -9,15 +9,12 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(TntEntity.class)
 public abstract class MixinTntEntity extends Entity implements UndoableAccess {
-    @Unique long undoId;
 
     public MixinTntEntity(EntityType<?> type, World world) {
         super(type, world);
@@ -30,28 +27,18 @@ public abstract class MixinTntEntity extends Entity implements UndoableAccess {
     private void onInit(EntityType<?> entityType, World world, CallbackInfo ci) {
         PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
         if (recording != null) {
-            DebugKt.debugLogger.invoke("TNT spawned, adding it into record "+ recording.getId());
-            undoId = recording.getId();
+            DebugKt.debugLogger.invoke("TNT spawned, adding it into record " + recording.getId());
+            setUndoId(recording.getId());
         }
     }
 
     @Inject(method = "explode", at = @At("HEAD"))
     private void beforeExplode(CallbackInfo ci) {
-        UpdateMonitorHelper.pushRecord(undoId, () -> "tnt explode/" + getId());
+        UpdateMonitorHelper.pushRecord(getUndoId(), () -> "tnt explode/" + getId());
     }
 
     @Inject(method = "explode", at = @At("TAIL"))
     private void afterExplode(CallbackInfo ci) {
         UpdateMonitorHelper.popRecord(() -> "tnt explode/" + getId());
-    }
-
-    @Override
-    public long getUndoId() {
-        return undoId;
-    }
-
-    @Override
-    public void setUndoId(long undoId) {
-        this.undoId = undoId;
     }
 }
