@@ -2,7 +2,7 @@ package com.github.zly2006.reden.debugger
 
 import net.minecraft.text.Text
 
-abstract class TickStage(
+open class TickStage(
     val name: String,
     val parent: TickStage?,
 ): Iterator<TickStage> {
