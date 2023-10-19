@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.access
 
-import com.github.zly2006.reden.debugger.WorldRootStage
+import com.github.zly2006.reden.debugger.stages.WorldRootStage
 import com.github.zly2006.reden.mixinhelper.BreakpointHelper
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.World

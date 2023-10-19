@@ -1,5 +1,6 @@
-package com.github.zly2006.reden.debugger
+package com.github.zly2006.reden.debugger.stages
 
+import com.github.zly2006.reden.debugger.TickStage
 import net.minecraft.server.world.ServerWorld
 import java.util.function.BooleanSupplier
 

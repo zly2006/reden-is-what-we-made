@@ -1,12 +1,13 @@
-package com.github.zly2006.reden.debugger
+package com.github.zly2006.reden.debugger.stages
 
 import com.github.zly2006.reden.access.WorldData.Companion.data
+import com.github.zly2006.reden.debugger.TickStage
 import net.minecraft.server.MinecraftServer
 import java.util.function.BooleanSupplier
 
 class ServerRootStage(
     val server: MinecraftServer
-): TickStage("server_root") {
+): TickStage("server_root", null) {
     var tickIndex = 0
     override fun tick() {
         children.clear()

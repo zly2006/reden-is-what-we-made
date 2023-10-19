@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.access
 
-import com.github.zly2006.reden.debugger.ServerRootStage
+import com.github.zly2006.reden.debugger.stages.ServerRootStage
 import net.minecraft.client.MinecraftClient
 import net.minecraft.server.MinecraftServer
 import java.util.*

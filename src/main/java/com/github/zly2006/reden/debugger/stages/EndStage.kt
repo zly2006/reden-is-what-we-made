@@ -1,4 +1,6 @@
-package com.github.zly2006.reden.debugger
+package com.github.zly2006.reden.debugger.stages
+
+import com.github.zly2006.reden.debugger.TickStage
 
 class EndStage(
     private val _parent: ServerRootStage

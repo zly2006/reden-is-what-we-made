@@ -2,10 +2,10 @@ package com.github.zly2006.reden.mixin.debugger;
 
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
-import com.github.zly2006.reden.debugger.EndStage;
-import com.github.zly2006.reden.debugger.ServerRootStage;
+import com.github.zly2006.reden.debugger.stages.EndStage;
+import com.github.zly2006.reden.debugger.stages.ServerRootStage;
 import com.github.zly2006.reden.debugger.TickStage;
-import com.github.zly2006.reden.debugger.WorldRootStage;
+import com.github.zly2006.reden.debugger.stages.WorldRootStage;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;

@@ -98,3 +98,8 @@ accessible field net/minecraft/server/PlayerManager playerMap Ljava/util/Map;
 accessible field net/minecraft/server/network/ServerPlayNetworkHandler connection Lnet/minecraft/network/ClientConnection;
 accessible field net/minecraft/network/ClientConnection channel Lio/netty/channel/Channel;
 accessible field net/minecraft/network/ClientConnection address Ljava/net/SocketAddress;
+accessible method net/minecraft/network/ClientConnection sendQueuedPackets ()V
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$StatefulEntry
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$SimpleEntry
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$StateReplacementEntry
