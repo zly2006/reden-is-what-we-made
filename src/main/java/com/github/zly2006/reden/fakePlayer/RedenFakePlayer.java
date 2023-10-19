@@ -2,6 +2,7 @@ package com.github.zly2006.reden.fakePlayer;
 
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -50,5 +51,17 @@ public class RedenFakePlayer extends ServerPlayerEntity {
     }
     public RedenFakePlayer(MinecraftServer server, ServerWorld world, GameProfile profile) {
         super(server, world, profile);
+    }
+
+    @Override
+    public void onDeath(DamageSource damageSource) {
+        super.onDeath(damageSource);
+        networkHandler.onDisconnected(Text.of("Fake player died."));
+    }
+
+    @Override
+    public void playerTick() {
+        super.playerTick();
+        System.out.println("Fake player tick");
     }
 }

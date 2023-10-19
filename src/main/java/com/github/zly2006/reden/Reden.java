@@ -4,6 +4,8 @@ import carpet.CarpetExtension;
 import carpet.CarpetServer;
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
+import com.github.zly2006.reden.fakePlayer.FakeConnection;
+import com.github.zly2006.reden.fakePlayer.RedenFakePlayer;
 import com.github.zly2006.reden.network.ChannelsKt;
 import com.github.zly2006.reden.rvc.RvcCommandKt;
 import com.github.zly2006.reden.transformers.ThisIsReden;
@@ -11,20 +13,25 @@ import com.github.zly2006.reden.utils.ResourceLoader;
 import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mojang.authlib.GameProfile;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
+import net.minecraft.SharedConstants;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Uuids;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class Reden implements ModInitializer, CarpetExtension {
     public static final String MOD_ID = "reden";
@@ -53,6 +60,7 @@ public class Reden implements ModInitializer, CarpetExtension {
 
     @Override
     public void onInitialize() {
+        SharedConstants.isDevelopment = true;
         ServerLifecycleEvents.SERVER_STARTING.register(UtilsKt::setServer);
         ChannelsKt.register();
         CarpetServer.manageExtension(this);
@@ -60,6 +68,26 @@ public class Reden implements ModInitializer, CarpetExtension {
             boolean isDev = true;
             // Debug command
             if (FabricLoader.getInstance().isDevelopmentEnvironment() || isDev) {
+                dispatcher.register(CommandManager.literal("fake-player")
+                        .then(CommandManager.literal("spawn")
+                                .then(CommandManager.argument("name", StringArgumentType.word())
+                                        .executes(context -> {
+                                            String name = StringArgumentType.getString(context, "name");
+                                            UUID uuid = Uuids.getOfflinePlayerUuid(name);
+                                            RedenFakePlayer fakePlayer = RedenFakePlayer.create(
+                                                    context.getSource().getServer(),
+                                                    new GameProfile(uuid, name),
+                                                    true
+                                            );
+                                            FakeConnection fakeConnection = new FakeConnection();
+                                            fakeConnection.register(context.getSource().getServer().getNetworkIo());
+                                            context.getSource().getServer().getPlayerManager().onPlayerConnect(
+                                                    fakeConnection,
+                                                    fakePlayer
+                                            );
+                                            return 1;
+                                        })
+                                )));
                 dispatcher.register(CommandManager.literal("reden-debug")
                                 .then(CommandManager.literal("top-undo").executes(context -> {
                                     PlayerData.Companion.data(context.getSource().getPlayer()).topUndo();
