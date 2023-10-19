@@ -19,5 +19,5 @@ import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 class StageBlockNCUpdateSixWay(
     parent: TickStage,
     override val entry: ChainRestrictedNeighborUpdater.SixWayEntry
-): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SixWayEntry>("nc_update", parent) {
+): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SixWayEntry>("nc_update_6", parent) {
 }
