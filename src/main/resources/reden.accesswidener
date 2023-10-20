@@ -103,3 +103,5 @@ accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$Statef
 accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$SimpleEntry
 accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry
 accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$StateReplacementEntry
+accessible field net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry currentDirectionIndex I
+accessible field net/minecraft/server/MinecraftServer timeReference J
