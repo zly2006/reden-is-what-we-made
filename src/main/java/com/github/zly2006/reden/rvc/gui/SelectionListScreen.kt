@@ -65,7 +65,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
         )
         fun selectionGrid(): Component {
             val grid = Containers.grid(
-                Sizing.fill(100), Sizing.fill(100),
+                Sizing.content(), Sizing.content(),
                 trackedStructureList.size,
                 3
             )
