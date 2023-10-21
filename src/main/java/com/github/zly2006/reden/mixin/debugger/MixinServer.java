@@ -2,9 +2,8 @@ package com.github.zly2006.reden.mixin.debugger;
 
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
-import com.github.zly2006.reden.debugger.stages.EndStage;
-import com.github.zly2006.reden.debugger.stages.ServerRootStage;
 import com.github.zly2006.reden.debugger.TickStage;
+import com.github.zly2006.reden.debugger.stages.EndStage;
 import com.github.zly2006.reden.debugger.stages.WorldRootStage;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
@@ -61,8 +60,8 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
         this.getCommandFunctionManager().tick();
         this.profiler.swap("levels");
 
-        for (ServerRootStage it = getRedenServerData().getTickStage(); it.hasNext(); ) {
-            TickStage stage = it.next();
+        for (var iterator = this.getRedenServerData().getTickStage().getChildren().iterator(); iterator.hasNext(); ) {
+            TickStage stage = iterator.next();
             if (stage instanceof WorldRootStage rootStage) {
                 rootStage.tick();
                 ServerWorld serverWorld = rootStage.getWorld();

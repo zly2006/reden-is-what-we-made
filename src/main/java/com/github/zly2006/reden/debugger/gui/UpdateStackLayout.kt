@@ -46,9 +46,10 @@ class UpdateStackLayout(val tree: StageTree): FlowLayout(Sizing.content(), Sizin
 
     fun update() {
         clearChildren()
+
         var node = tree.child
         do {
-            child(element(node!!))
+            child(element(node!!.stage))
             node = node.parent
         } while (node != tree.root)
     }

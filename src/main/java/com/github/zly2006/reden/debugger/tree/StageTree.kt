@@ -9,7 +9,8 @@ class StageTree: Iterator<TickStage> {
     class TreeNode(
         val parent: TreeNode?,
         val stage: TickStage,
-        var iter: Iterator<TickStage>?,
+        var childrenUpdated: Boolean,
+        var iter: ListIterator<TickStage>?,
     )
     var root: TreeNode? = null
     var child: TreeNode? = null
@@ -17,40 +18,46 @@ class StageTree: Iterator<TickStage> {
     override fun hasNext(): Boolean {
         if (child == null)
             return false
-        var stage = child!!
-        if (stage.iter == null) {
+        if (!child!!.childrenUpdated)
             return true
+        checkIterators()
+        return child != null
+    }
+
+    /**
+     * Assume that the child node has been ticked and non-null.
+     */
+    private fun checkIterators() {
+        if (child!!.iter == null) {
+            child!!.iter = child!!.stage.children.listIterator()
         }
-        while (!stage.iter!!.hasNext()) {
-            if (stage == root) {
-                return false
-            }
-            stage = stage.parent!!
+
+        while (child?.iter?.hasNext() == false) {
+            child = child!!.parent
         }
-        return true
     }
 
     override fun next(): TickStage {
         if (child == null) {
             error("No child")
         }
-        tickedStages.add(child!!.stage)
 
-        if (child!!.iter == null) {
-            child!!.iter = child!!.stage.children.iterator()
-            return child!!.stage
+        // if we have not ticked the child node, tick it
+        if (!child!!.childrenUpdated) {
+            child!!.childrenUpdated = true
         } else {
-            while (!child!!.iter!!.hasNext()) {
-                if (child == root) {
-                    error("No child")
-                }
-                child = child!!.parent!!
-            }
-
+            checkIterators()
             val next = child!!.iter!!.next()
-            child = TreeNode(child, next, null)
-            return next
+            child = TreeNode(
+                child,
+                next,
+                childrenUpdated = true, // we returned this stage, it should be ticked.
+                null
+            )
         }
+
+        tickedStages.add(child!!.stage)
+        return child!!.stage
     }
 
     fun clear() {
@@ -60,6 +67,6 @@ class StageTree: Iterator<TickStage> {
     }
 
     fun resetTo(stage: TickStage) {
-
+        TODO("still need to reset all iterators to current tick stage")
     }
 }
