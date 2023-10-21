@@ -1,11 +1,12 @@
 package com.github.zly2006.reden.debugger
 
+import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.Text
 
-open class TickStage(
+abstract class TickStage(
     val name: String,
     val parent: TickStage?,
-): Iterator<TickStage> {
+) {
     init {
         val nameRegex = Regex("[a-z_\\-]+")
         require(nameRegex.matches(name)) { "Invalid tick stage name: $name" }
@@ -13,15 +14,14 @@ open class TickStage(
     val displayName = Text.translatable("reden.debugger.tick_stage.$name")
     val description = Text.translatable("reden.debugger.tick_stage.$name.desc")
     val children = mutableListOf<TickStage>()
-    private var childrenIterator = children.listIterator()
 
-    override fun hasNext() = childrenIterator.hasNext()
-
-    override fun next() = childrenIterator.next()
-
-    open fun tick() {
-        childrenIterator = children.listIterator()
+    open fun toByteBuf(buf: PacketByteBuf, parent: TickStage?) {
+        buf.writeBoolean(parent != null)
+        buf.writeString(name)
+        buf.writeVarInt(children.size)
     }
+
+    abstract fun tick()
 
     open fun reset(): Unit = throw UnsupportedOperationException("Reset not supported for tick stage $name")
 }

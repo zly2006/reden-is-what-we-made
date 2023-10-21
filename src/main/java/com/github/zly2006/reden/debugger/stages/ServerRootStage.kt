@@ -17,7 +17,6 @@ class ServerRootStage(
             it.data().tickStage = worldRootStage
         }
         children.add(EndStage(this))
-        super.tick()
     }
 
     override fun reset() {
