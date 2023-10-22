@@ -20,7 +20,6 @@ class ServerRootStage(
         }
         children.add(EndStage(this))
 
-        // todo: initialize stage tree, start the game.
         val stageTree = server.data().tickStageTree
         stageTree.initRoot(this, true)
 
@@ -40,4 +39,6 @@ class ServerRootStage(
     fun yieldAndTick(shouldKeepTicking: BooleanSupplier) {
         server.tick(shouldKeepTicking)
     }
+
+    override fun toString() = "Server RootStage"
 }

@@ -14,6 +14,7 @@
     "common.MixinServerWorld",
     "common.access.MixinMinecraftServer",
     "common.access.MixinServerWorld",
+    "debugger.MixinNetworkIo",
     "debugger.MixinServer",
     "debugger.MixinServerWorld",
     "debugger.updateQueue.Mixin119Updater",

@@ -1,8 +1,6 @@
 package com.github.zly2006.reden.mixin.debugger.updateQueue;
 
 
-import com.github.zly2006.reden.carpet.RedenCarpetSettings;
-import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage;
 import net.minecraft.world.World;
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,11 +17,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class Mixin119UpdaterEntries {
     @Inject(method = "update", at = @At("HEAD"), cancellable = true)
     private void onUpdate(World world, CallbackInfoReturnable<Boolean> cir) {
-        if (!world.isClient && RedenCarpetSettings.redenDebuggerBlockUpdates) {
-            var stage = AbstractBlockUpdateStage.createStage(world.neighborUpdater, (ChainRestrictedNeighborUpdater.Entry) this);
-            stage.tick();
-            // if we need to cancel
-            // todo
-        }
+
     }
 }

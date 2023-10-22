@@ -12,4 +12,6 @@ class EndStage(
     fun waitAll() {
         _parent.server.runTasks { false }
     }
+
+    override fun toString() = "Server EndStage"
 }

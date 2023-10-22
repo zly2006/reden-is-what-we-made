@@ -21,9 +21,13 @@ object StageIo {
             override fun tick() {
             }
         }
+
+        // Note: these stages have no extra data, so we can use empty constructor to simplify code
         constructors["server_root"] = Constructor { EmptyTickStage("server_root", it) }
         constructors["world_root"] = Constructor { EmptyTickStage("world_root", it) }
         constructors["end"] = Constructor { EmptyTickStage("end", it) }
+        constructors["network"] = Constructor { EmptyTickStage("network", it) }
+
         constructors["nc_update"] = Constructor { StageBlockNCUpdate(it as UpdateBlockStage, null) }
         constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it as UpdateBlockStage, null) }
         constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it as UpdateBlockStage, null) }

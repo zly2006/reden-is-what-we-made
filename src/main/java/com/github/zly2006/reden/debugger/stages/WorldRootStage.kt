@@ -28,4 +28,6 @@ class WorldRootStage(
     override fun reset() {
         tickLabel = 0
     }
+
+    override fun toString() = "World RootStage/${world.registryKey.value}"
 }

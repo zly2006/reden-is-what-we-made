@@ -13,7 +13,9 @@ class StageTree: Iterator<TickStage> {
         val stage: TickStage,
         var childrenUpdated: Boolean,
         var iter: ListIterator<TickStage>?,
-    )
+    ) {
+        override fun toString() = "$stage ${if (!childrenUpdated) "<>" else "${iter?.previousIndex()} / ${stage.children.size}"}"
+    }
     var root: TreeNode? = null
     var child: TreeNode? = null
     val tickedStages = mutableListOf<TickStage>()
@@ -81,7 +83,8 @@ class StageTree: Iterator<TickStage> {
     }
 
     fun peekLeaf(): TickStage {
-        return lastReturned!!
+        return lastReturned
+            ?: error("No last returned")
     }
 
     fun initRoot(serverRootStage: TickStage, childrenUpdated: Boolean) {

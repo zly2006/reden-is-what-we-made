@@ -4,6 +4,8 @@ package com.github.zly2006.reden.mixin.debugger.updateQueue;
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.access.UpdaterData;
+import com.github.zly2006.reden.debugger.stages.UpdateBlockStage;
+import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage;
 import net.minecraft.world.World;
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
 import net.minecraft.world.block.NeighborUpdater;
@@ -48,11 +50,16 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
      * @reason
      */
     @Overwrite
-    private void runQueuedUpdates() {
+    public final void runQueuedUpdates() {
         if (updaterData.thenTickUpdate) {
             // To keep injecting points, we need to call the original method
             // Call this method with `thenTickUpdate` = true to tick update
-            shouldEntryStop = updaterData.tickingEntry.update(this.world);
+
+            // Note: This variable is used to let other mods locate injecting point
+            ChainRestrictedNeighborUpdater.Entry entry = updaterData.tickingEntry;
+            shouldEntryStop = entry.update(this.world);
+
+            updaterData.tickingEntry = null;
             updaterData.thenTickUpdate = false;
         }
         else {
@@ -66,10 +73,14 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                     this.pending.clear();
 
                     // Reden start
-                    updaterData.tickingEntry = this.queue.peek();
+
+                    // Note: This variable is used to let other mods locate injecting point
+                    ChainRestrictedNeighborUpdater.Entry entry = this.queue.peek();
 
                     while (this.pending.isEmpty()) {
                         // do tick by our method
+                        var stage = AbstractBlockUpdateStage.createStage(this, entry);
+                        updaterData.getTickStageTree().insert2child(stage);
                         updaterData.tickNextStage();
 
                         if (!shouldEntryStop) {
@@ -85,6 +96,8 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                 this.queue.clear();
                 this.pending.clear();
                 this.depth = 0;
+
+                updaterData.currentParentTickStage = null;
             }
         }
     }
@@ -93,7 +106,7 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
         if (!world.isClient) {
             UpdaterData updaterData = updaterData(this);
             ServerData serverData = data(Objects.requireNonNull(world.getServer(), "R-Debugger is not available on clients!"));
-            updaterData.setCurrentParentTickStage(serverData.getTickStageTree().peekLeaf());
+            updaterData.currentParentTickStage = new UpdateBlockStage(serverData.getTickStageTree().peekLeaf());
         }
     }
 }

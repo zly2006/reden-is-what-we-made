@@ -31,7 +31,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
 
     override fun tick() {
         checkBreakpoints()
-        _parent.updater.updaterData().tickNextStage()
+        _parent.updater.updaterData().tickEntry(entry)
     }
 
     override fun reset() {

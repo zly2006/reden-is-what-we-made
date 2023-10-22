@@ -11,4 +11,6 @@ class UpdateBlockStage(
     override fun tick() {
 
     }
+
+    override fun toString() = "UpdateBlockStage/${world.registryKey.value}"
 }
