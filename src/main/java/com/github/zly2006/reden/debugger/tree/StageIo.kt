@@ -2,6 +2,7 @@ package com.github.zly2006.reden.debugger.tree
 
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.stages.DummyStage
+import com.github.zly2006.reden.debugger.stages.UpdateBlockStage
 import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdate
 import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdateSixWay
 import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdateWithSource
@@ -23,10 +24,11 @@ object StageIo {
         constructors["server_root"] = Constructor { EmptyTickStage("server_root", it) }
         constructors["world_root"] = Constructor { EmptyTickStage("world_root", it) }
         constructors["end"] = Constructor { EmptyTickStage("end", it) }
-        constructors["nc_update"] = Constructor { StageBlockNCUpdate(it!!, null) }
-        constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it!!, null) }
-        constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it!!, null) }
-        constructors["pp_update"] = Constructor { StageBlockPPUpdate(it!!, null) }
+        constructors["nc_update"] = Constructor { StageBlockNCUpdate(it as UpdateBlockStage, null) }
+        constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it as UpdateBlockStage, null) }
+        constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it as UpdateBlockStage, null) }
+        constructors["pp_update"] = Constructor { StageBlockPPUpdate(it as UpdateBlockStage, null) }
+        constructors["update_block"] = Constructor { UpdateBlockStage(it!!) }
     }
 
     fun writeStage(stage: TickStage, buf: PacketByteBuf) {

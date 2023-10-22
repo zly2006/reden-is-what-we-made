@@ -1,15 +1,16 @@
 package com.github.zly2006.reden.debugger.stages
 
 import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.utils.server
 import net.minecraft.server.world.ServerWorld
 import java.util.function.BooleanSupplier
 
 class WorldRootStage(
-    val world: ServerWorld,
+    override val world: ServerWorld,
     parent: ServerRootStage,
     val shouldKeepTicking: BooleanSupplier
-) : TickStage("world_root", parent = parent) {
+) : TickStage("world_root", parent = parent), TickStageWithWorld {
     var tickLabel = -1
     companion object {
         const val TICK_TIME = 0

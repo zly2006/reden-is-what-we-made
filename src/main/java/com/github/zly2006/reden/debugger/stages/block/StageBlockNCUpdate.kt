@@ -1,5 +1,5 @@
 package com.github.zly2006.reden.debugger.stages.block
-import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.debugger.stages.UpdateBlockStage
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 
@@ -18,7 +18,7 @@ import net.minecraft.world.block.ChainRestrictedNeighborUpdater
  *
  */
 class StageBlockNCUpdate(
-    parent: TickStage,
+    parent: UpdateBlockStage,
     entry: ChainRestrictedNeighborUpdater.SimpleEntry?
 ): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SimpleEntry>("nc_update", parent) {
     override lateinit var entry: ChainRestrictedNeighborUpdater.SimpleEntry

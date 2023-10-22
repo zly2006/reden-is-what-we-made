@@ -1,5 +1,5 @@
 package com.github.zly2006.reden.debugger.stages.block
-import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.debugger.stages.UpdateBlockStage
 import com.github.zly2006.reden.utils.readBlock
 import com.github.zly2006.reden.utils.readDirection
 import com.github.zly2006.reden.utils.writeBlock
@@ -25,7 +25,7 @@ import net.minecraft.world.block.NeighborUpdater
  *
  */
 class StageBlockNCUpdateSixWay(
-    parent: TickStage,
+    parent: UpdateBlockStage,
     entry: ChainRestrictedNeighborUpdater.SixWayEntry?
 ): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SixWayEntry>("nc_update_6", parent) {
     override lateinit var entry: ChainRestrictedNeighborUpdater.SixWayEntry

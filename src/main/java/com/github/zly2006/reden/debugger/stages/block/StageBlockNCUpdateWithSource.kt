@@ -1,5 +1,5 @@
 package com.github.zly2006.reden.debugger.stages.block
-import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.debugger.stages.UpdateBlockStage
 import com.github.zly2006.reden.utils.readBlock
 import com.github.zly2006.reden.utils.readBlockState
 import com.github.zly2006.reden.utils.writeBlock
@@ -24,7 +24,7 @@ import net.minecraft.world.block.ChainRestrictedNeighborUpdater
  * @see [ChainRestrictedNeighborUpdater.StatefulEntry]
  */
 class StageBlockNCUpdateWithSource(
-    parent: TickStage,
+    parent: UpdateBlockStage,
     entry: ChainRestrictedNeighborUpdater.StatefulEntry?
 ): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.StatefulEntry>("nc_update_with_source", parent) {
     override lateinit var entry: ChainRestrictedNeighborUpdater.StatefulEntry

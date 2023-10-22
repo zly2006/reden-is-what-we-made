@@ -3,7 +3,7 @@ package com.github.zly2006.reden.debugger.stages.block
 import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.access.UpdaterData.Companion.updaterData
 import com.github.zly2006.reden.debugger.TickStage
-import com.github.zly2006.reden.debugger.TickStageWithWorld
+import com.github.zly2006.reden.debugger.stages.UpdateBlockStage
 import com.github.zly2006.reden.debugger.storage.BlocksResetStorage
 import com.github.zly2006.reden.network.StageTreeS2CPacket
 import com.github.zly2006.reden.utils.server
@@ -15,8 +15,8 @@ import net.minecraft.world.block.ChainRestrictedNeighborUpdater as Updater119
 
 abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
     name: String,
-    parent: TickStage
-) : TickStage(name, parent) {
+    val _parent: UpdateBlockStage
+) : TickStage(name, _parent) {
     abstract val entry: T
     val resetStorage = BlocksResetStorage()
 
@@ -31,11 +31,11 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
 
     override fun tick() {
         checkBreakpoints()
+        _parent.updater.updaterData().tickNextStage()
     }
 
     override fun reset() {
-        parent as TickStageWithWorld
-        resetStorage.apply(parent.world)
+        resetStorage.apply(_parent.world)
     }
 
     abstract val sourcePos: BlockPos
