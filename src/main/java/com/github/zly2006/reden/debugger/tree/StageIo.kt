@@ -2,13 +2,32 @@ package com.github.zly2006.reden.debugger.tree
 
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.stages.DummyStage
+import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdate
+import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdateSixWay
+import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdateWithSource
+import com.github.zly2006.reden.debugger.stages.block.StageBlockPPUpdate
+import com.github.zly2006.reden.debugger.tree.StageIo.Constructor
 import net.minecraft.network.PacketByteBuf
 
 object StageIo {
-    interface Constructor {
+    fun interface Constructor {
         fun construct(parent: TickStage?): TickStage
     }
     val constructors = mutableMapOf<String, Constructor>()
+
+    init {
+        class EmptyTickStage(name: String, parent: TickStage?) : TickStage(name, parent) {
+            override fun tick() {
+            }
+        }
+        constructors["server_root"] = Constructor { EmptyTickStage("server_root", it) }
+        constructors["world_root"] = Constructor { EmptyTickStage("world_root", it) }
+        constructors["end"] = Constructor { EmptyTickStage("end", it) }
+        constructors["nc_update"] = Constructor { StageBlockNCUpdate(it!!, null) }
+        constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it!!, null) }
+        constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it!!, null) }
+        constructors["pp_update"] = Constructor { StageBlockPPUpdate(it!!, null) }
+    }
 
     fun writeStage(stage: TickStage, buf: PacketByteBuf) {
         buf.writeBoolean(stage.parent != null)
@@ -75,7 +94,10 @@ object StageIo {
             if (prevNode == null) {
                 tree.root = node
             } else {
-                prevNode.stage.children[iterIndex - 1] = node.stage
+                if (iterIndex != 0) {
+                    // set children if possible
+                    prevNode.stage.children[iterIndex - 1] = node.stage
+                }
             }
             prevNode = node
         }

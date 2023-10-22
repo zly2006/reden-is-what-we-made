@@ -19,8 +19,14 @@ import net.minecraft.world.block.ChainRestrictedNeighborUpdater
  */
 class StageBlockNCUpdate(
     parent: TickStage,
-    override val entry: ChainRestrictedNeighborUpdater.SimpleEntry
+    entry: ChainRestrictedNeighborUpdater.SimpleEntry?
 ): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SimpleEntry>("nc_update", parent) {
+    override lateinit var entry: ChainRestrictedNeighborUpdater.SimpleEntry
+    init {
+        if (entry != null) {
+            this.entry = entry
+        }
+    }
     override val sourcePos: BlockPos
         get() = entry.sourcePos
     override val targetPos: BlockPos

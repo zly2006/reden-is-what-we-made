@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.tree.StageIo
 import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.utils.isClient
+import com.github.zly2006.reden.utils.sendMessage
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
@@ -21,6 +22,7 @@ class StageTreeS2CPacket(val tree: StageTree) : FabricPacket {
             if (isClient) {
                 ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, _ ->
                     val mc = MinecraftClient.getInstance()
+                    player.sendMessage("Tick stage tree")
                     var node = packet.tree.child
                     while (node != null) {
                         player.sendMessage(node.stage.displayName, false)
