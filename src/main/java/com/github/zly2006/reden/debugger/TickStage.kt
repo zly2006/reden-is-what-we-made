@@ -15,10 +15,10 @@ abstract class TickStage(
     val description = Text.translatable("reden.debugger.tick_stage.$name.desc")
     val children = mutableListOf<TickStage>()
 
-    open fun toByteBuf(buf: PacketByteBuf, parent: TickStage?) {
-        buf.writeBoolean(parent != null)
-        buf.writeString(name)
-        buf.writeVarInt(children.size)
+    open fun writeByteBuf(buf: PacketByteBuf) {
+    }
+
+    open fun readByteBuf(buf: PacketByteBuf) {
     }
 
     abstract fun tick()
