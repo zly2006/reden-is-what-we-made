@@ -21,7 +21,15 @@ class ServerRootStage(
         children.add(EndStage(this))
 
         // todo: initialize stage tree, start the game.
-        server.data().tickStageTree.initRoot(this, true)
+        val stageTree = server.data().tickStageTree
+        stageTree.initRoot(this, true)
+
+        // todo: this need to change to another place
+        // tick the stage tree.
+        while (stageTree.hasNext()) {
+            val stage = stageTree.next()
+            stage.tick()
+        }
     }
 
     override fun reset() {

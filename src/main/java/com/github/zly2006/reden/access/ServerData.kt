@@ -13,9 +13,7 @@ class ServerData(
     var uuid: UUID? = null
     var address: String = ""
     val tickStage = ServerRootStage(server)
-    var tickStageTree = StageTree().apply {
-        root = StageTree.TreeNode(null, tickStage, false, null)
-    }
+    var tickStageTree = StageTree()
     interface ServerDataAccess {
         fun getRedenServerData(): ServerData
     }

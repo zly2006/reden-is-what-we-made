@@ -17,6 +17,7 @@ class StageTree: Iterator<TickStage> {
     var root: TreeNode? = null
     var child: TreeNode? = null
     val tickedStages = mutableListOf<TickStage>()
+    private var lastReturned: TickStage? = null
     override fun hasNext(): Boolean {
         if (child == null)
             return false
@@ -59,12 +60,14 @@ class StageTree: Iterator<TickStage> {
         }
 
         tickedStages.add(child!!.stage)
-        return child!!.stage
+        lastReturned = child!!.stage
+        return lastReturned!!
     }
 
     fun clear() {
         tickedStages.clear()
         root = null
+        lastReturned = null
         child = null
     }
 
@@ -78,12 +81,12 @@ class StageTree: Iterator<TickStage> {
     }
 
     fun peekLeaf(): TickStage {
-        return child!!.stage
+        return lastReturned!!
     }
 
     fun initRoot(serverRootStage: TickStage, childrenUpdated: Boolean) {
+        clear()
         root = TreeNode(null, serverRootStage, childrenUpdated, null)
         child = root
-        tickedStages.clear()
     }
 }

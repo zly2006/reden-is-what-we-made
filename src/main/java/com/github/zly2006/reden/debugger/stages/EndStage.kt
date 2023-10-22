@@ -6,7 +6,7 @@ class EndStage(
     private val _parent: ServerRootStage
 ) : TickStage(name = "end", parent = _parent) {
     override fun tick() {
-        _parent.server.runTasksTillTickEnd()
+        _parent.server.tickWorlds(_parent.shouldKeepTicking)
     }
 
     fun waitAll() {

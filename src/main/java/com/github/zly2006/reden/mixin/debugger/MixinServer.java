@@ -68,6 +68,7 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
             this.getCommandFunctionManager().tick();
             this.profiler.swap("levels");
         } else if (stage instanceof WorldRootStage rootStage) {
+            System.out.println("World stage " + rootStage.getWorld().getRegistryKey().getValue());
             /**
              * Called by {@link WorldRootStage#tick}, so dont need to call it
              * leave injecting points for other mods
@@ -96,6 +97,7 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
             this.profiler.pop();
             // Vanilla end
         } else if (stage instanceof EndStage) {
+            System.out.println("End stage");
 
             this.profiler.swap("connection");
             this.getNetworkIo().tick();
