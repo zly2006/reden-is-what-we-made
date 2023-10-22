@@ -20,7 +20,6 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
-import net.minecraft.SharedConstants;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -60,7 +59,6 @@ public class Reden implements ModInitializer, CarpetExtension {
 
     @Override
     public void onInitialize() {
-        SharedConstants.isDevelopment = true;
         ServerLifecycleEvents.SERVER_STARTING.register(UtilsKt::setServer);
         ChannelsKt.register();
         CarpetServer.manageExtension(this);

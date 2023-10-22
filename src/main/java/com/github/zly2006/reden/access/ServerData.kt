@@ -23,6 +23,7 @@ class ServerData(
     }
 
     companion object {
+        @JvmStatic
         fun MinecraftServer.data(): ServerData {
             return (this as ServerDataAccess).getRedenServerData()
         }

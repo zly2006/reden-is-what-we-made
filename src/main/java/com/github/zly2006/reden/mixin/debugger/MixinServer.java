@@ -6,13 +6,11 @@ import com.github.zly2006.reden.debugger.TickStage;
 import com.github.zly2006.reden.debugger.stages.EndStage;
 import com.github.zly2006.reden.debugger.stages.ServerRootStage;
 import com.github.zly2006.reden.debugger.stages.WorldRootStage;
-import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.ServerNetworkIo;
 import net.minecraft.server.function.CommandFunctionManager;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.test.TestManager;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.profiler.Profiler;
@@ -68,7 +66,6 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
             this.getCommandFunctionManager().tick();
             this.profiler.swap("levels");
         } else if (stage instanceof WorldRootStage rootStage) {
-            System.out.println("World stage " + rootStage.getWorld().getRegistryKey().getValue());
             /**
              * Called by {@link WorldRootStage#tick}, so dont need to call it
              * leave injecting points for other mods
@@ -97,15 +94,15 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
             this.profiler.pop();
             // Vanilla end
         } else if (stage instanceof EndStage) {
-            System.out.println("End stage");
-
             this.profiler.swap("connection");
             this.getNetworkIo().tick();
             this.profiler.swap("players");
             this.playerManager.updatePlayerLatency();
-            if (SharedConstants.isDevelopment) {
-                TestManager.INSTANCE.tick();
-            }
+            // from vanilla, we don't need this
+            //
+            // if (SharedConstants.isDevelopment) {
+            //     TestManager.INSTANCE.tick();
+            // }
 
             this.profiler.swap("server gui refresh");
 

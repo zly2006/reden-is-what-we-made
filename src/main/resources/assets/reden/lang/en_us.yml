@@ -1,4 +1,5 @@
 reden:
+
   widget:
     config:
       debug: Debug
@@ -236,6 +237,10 @@ reden:
 
 carpet:
   rule:
+    redenDebuggerEnabled:
+      desc: Enable Reden debugger
+    redenDebuggerBlockUpdates:
+      desc: Enable debugging block updates
     stackOverflowUpdates:
       desc: |-
         TODO

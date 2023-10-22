@@ -21,6 +21,16 @@ public class MixinServer implements ServerData.ServerDataAccess {
     )
     private void beforeTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         serverData.getTickStage().setShouldKeepTicking(shouldKeepTicking);
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/MinecraftServer;tickWorlds(Ljava/util/function/BooleanSupplier;)V"
+            )
+    )
+    private void tickStageTree(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         serverData.getTickStage().tick();
     }
 

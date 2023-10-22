@@ -25,9 +25,11 @@ class WorldData(
     }
 
     companion object {
+        @JvmStatic
         fun ServerWorld.data(): WorldData {
             return (this as WorldDataAccess).getRedenWorldData()
         }
+        @JvmStatic
         fun World.data(): WorldData? {
             return (this as? ServerWorld)?.data()
         }

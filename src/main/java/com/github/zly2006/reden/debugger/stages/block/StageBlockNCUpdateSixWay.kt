@@ -20,8 +20,4 @@ class StageBlockNCUpdateSixWay(
     parent: TickStage,
     override val entry: ChainRestrictedNeighborUpdater.SixWayEntry
 ): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SixWayEntry>("nc_update_6", parent) {
-    override fun tick() {
-        entry.currentDirectionIndex = 0
-        super.tick()
-    }
 }
