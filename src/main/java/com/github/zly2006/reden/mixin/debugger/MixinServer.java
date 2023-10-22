@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.debugger.TickStage;
 import com.github.zly2006.reden.debugger.stages.EndStage;
+import com.github.zly2006.reden.debugger.stages.ServerRootStage;
 import com.github.zly2006.reden.debugger.stages.WorldRootStage;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
@@ -54,59 +55,64 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
      */
     @Overwrite
     public void tickWorlds(BooleanSupplier shouldKeepTicking) {
-        getRedenServerData().getTickStage().tick();
+        TickStage stage = getRedenServerData().getTickStageTree().peekLeaf();
 
-        this.profiler.push("commandFunctions");
-        this.getCommandFunctionManager().tick();
-        this.profiler.swap("levels");
+        if (stage instanceof ServerRootStage) {
+            /**
+             * Called by vanilla,
+             * {@link ServerRootStage#tick} is already called, don't call again.
+             * Leave injecting points for other mods.
+             */
 
-        for (var iterator = this.getRedenServerData().getTickStage().getChildren().iterator(); iterator.hasNext(); ) {
-            TickStage stage = iterator.next();
-            if (stage instanceof WorldRootStage rootStage) {
-                rootStage.tick();
-                ServerWorld serverWorld = rootStage.getWorld();
+            this.profiler.push("commandFunctions");
+            this.getCommandFunctionManager().tick();
+            this.profiler.swap("levels");
+        } else if (stage instanceof WorldRootStage rootStage) {
+            /**
+             * Called by {@link WorldRootStage#tick}, so dont need to call it
+             * leave injecting points for other mods
+             */
+            ServerWorld serverWorld = rootStage.getWorld();
 
-                // Vanilla start
-                this.profiler.push(() -> serverWorld + " " + serverWorld.getRegistryKey().getValue());
-                if (this.ticks % 20 == 0) {
-                    this.profiler.push("timeSync");
-                    this.sendTimeUpdatePackets(serverWorld);
-                    this.profiler.pop();
-                }
-
-                this.profiler.push("tick");
-
-                try {
-                    serverWorld.tick(shouldKeepTicking);
-                } catch (Throwable var6) {
-                    CrashReport crashReport = CrashReport.create(var6, "Exception ticking world");
-                    serverWorld.addDetailsToCrashReport(crashReport);
-                    throw new CrashException(crashReport);
-                }
-
-                this.profiler.pop();
-                this.profiler.pop();
-                // Vanilla end
-            }
-            else if (stage instanceof EndStage) {
-
-                this.profiler.swap("connection");
-                this.getNetworkIo().tick();
-                this.profiler.swap("players");
-                this.playerManager.updatePlayerLatency();
-                if (SharedConstants.isDevelopment) {
-                    TestManager.INSTANCE.tick();
-                }
-
-                this.profiler.swap("server gui refresh");
-
-                //noinspection ForLoopReplaceableByForEach
-                for (int i = 0; i < this.serverGuiTickables.size(); ++i) {
-                    this.serverGuiTickables.get(i).run();
-                }
-
+            // Vanilla start
+            this.profiler.push(() -> serverWorld + " " + serverWorld.getRegistryKey().getValue());
+            if (this.ticks % 20 == 0) {
+                this.profiler.push("timeSync");
+                this.sendTimeUpdatePackets(serverWorld);
                 this.profiler.pop();
             }
+
+            this.profiler.push("tick");
+
+            try {
+                serverWorld.tick(shouldKeepTicking);
+            } catch (Throwable var6) {
+                CrashReport crashReport = CrashReport.create(var6, "Exception ticking world");
+                serverWorld.addDetailsToCrashReport(crashReport);
+                throw new CrashException(crashReport);
+            }
+
+            this.profiler.pop();
+            this.profiler.pop();
+            // Vanilla end
+        } else if (stage instanceof EndStage) {
+
+            this.profiler.swap("connection");
+            this.getNetworkIo().tick();
+            this.profiler.swap("players");
+            this.playerManager.updatePlayerLatency();
+            if (SharedConstants.isDevelopment) {
+                TestManager.INSTANCE.tick();
+            }
+
+            this.profiler.swap("server gui refresh");
+
+            //noinspection ForLoopReplaceableByForEach
+            for (int i = 0; i < this.serverGuiTickables.size(); ++i) {
+                this.serverGuiTickables.get(i).run();
+            }
+
+            this.profiler.pop();
         }
     }
 }

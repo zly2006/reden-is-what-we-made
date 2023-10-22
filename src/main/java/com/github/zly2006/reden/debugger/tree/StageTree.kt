@@ -1,6 +1,8 @@
 package com.github.zly2006.reden.debugger.tree
 
 import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.debugger.disableWatchDog
+import com.github.zly2006.reden.utils.server
 
 /**
  * TODO
@@ -68,5 +70,20 @@ class StageTree: Iterator<TickStage> {
 
     fun resetTo(stage: TickStage) {
         TODO("still need to reset all iterators to current tick stage")
+    }
+
+    fun pauseGame() {
+        server.timeReference = Long.MAX_VALUE
+        disableWatchDog = true
+    }
+
+    fun peekLeaf(): TickStage {
+        return child!!.stage
+    }
+
+    fun initRoot(serverRootStage: TickStage, childrenUpdated: Boolean) {
+        root = TreeNode(null, serverRootStage, childrenUpdated, null)
+        child = root
+        tickedStages.clear()
     }
 }

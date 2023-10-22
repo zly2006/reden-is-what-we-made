@@ -64,7 +64,7 @@ object StageIo {
         var prevNode: StageTree.TreeNode? = null
         for (i in 0 until size) {
             val childrenUpdated = buf.readBoolean()
-            val iterIndex = if (childrenUpdated) buf.readVarInt() else 0
+            val iterIndex = buf.readVarInt()
             val stage = readStage(parent, buf)
             val node = StageTree.TreeNode(
                 prevNode,

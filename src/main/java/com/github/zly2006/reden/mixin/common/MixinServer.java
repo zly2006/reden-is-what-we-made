@@ -9,6 +9,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.function.BooleanSupplier;
+
 @Mixin(MinecraftServer.class)
 public class MixinServer implements ServerData.ServerDataAccess {
     @Unique ServerData serverData = new ServerData((MinecraftServer) (Object) this);
@@ -17,7 +19,8 @@ public class MixinServer implements ServerData.ServerDataAccess {
             method = "tick",
             at = @At("HEAD")
     )
-    private void beforeTick(CallbackInfo ci) {
+    private void beforeTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+        serverData.getTickStage().setShouldKeepTicking(shouldKeepTicking);
         serverData.getTickStage().tick();
     }
 

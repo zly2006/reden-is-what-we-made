@@ -106,7 +106,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
                 this.tickWeather();
 
                 getRedenWorldData().tickStage.setTickLabel(1);
-                getRedenWorldData().tickStage.yieldAndTick(shouldKeepTicking);
+                getRedenWorldData().tickStage.yieldAndTick();
             }
             case 1 -> {
                 int i = this.getGameRules().getInt(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
@@ -125,7 +125,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
                 this.tickTime();
 
                 getRedenWorldData().tickStage.setTickLabel(2);
-                getRedenWorldData().tickStage.yieldAndTick(shouldKeepTicking);
+                getRedenWorldData().tickStage.yieldAndTick();
             }
             case 2 -> {
                 profiler.swap("tickPending");
@@ -139,14 +139,14 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
                 }
 
                 getRedenWorldData().tickStage.setTickLabel(3);
-                getRedenWorldData().tickStage.yieldAndTick(shouldKeepTicking);
+                getRedenWorldData().tickStage.yieldAndTick();
             }
             case 3 -> {
                 profiler.swap("raid");
                 this.raidManager.tick();
 
                 getRedenWorldData().tickStage.setTickLabel(4);
-                getRedenWorldData().tickStage.yieldAndTick(shouldKeepTicking);
+                getRedenWorldData().tickStage.yieldAndTick();
             }
             case 4 -> {
                 profiler.swap("chunkSource");

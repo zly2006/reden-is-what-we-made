@@ -1,12 +1,14 @@
 package com.github.zly2006.reden.debugger.stages
 
 import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.utils.server
 import net.minecraft.server.world.ServerWorld
 import java.util.function.BooleanSupplier
 
 class WorldRootStage(
     val world: ServerWorld,
     parent: ServerRootStage,
+    val shouldKeepTicking: BooleanSupplier
 ) : TickStage("world_root", parent = parent) {
     var tickLabel = -1
     companion object {
@@ -14,10 +16,11 @@ class WorldRootStage(
     }
     override fun tick() {
         tickLabel = 0
-        // do nothing, let it yield
+        // tick the world
+        server.tickWorlds(shouldKeepTicking)
     }
 
-    fun yieldAndTick(shouldKeepTicking: BooleanSupplier) {
+    fun yieldAndTick() {
         world.tick(shouldKeepTicking)
     }
 
