@@ -5,7 +5,7 @@ import carpet.api.settings.RuleCategory;
 
 public class RedenCarpetSettings {
     private static final String CATEGORY_REDEN = "Reden";
-    private static final String CATEGORY_DEBUGGER = "Reden Debugger";
+    private static final String CATEGORY_DEBUGGER = "Reden-Debugger";
     /**
      * In 1.18-, the stack overflow error will be thrown when there are too many updates in one tick.
      * However, we have to replace the recursive method with a loop to use breakpoint features.

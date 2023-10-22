@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class Mixin119UpdaterEntries {
     @Inject(method = "update", at = @At("HEAD"), cancellable = true)
     private void onUpdate(World world, CallbackInfoReturnable<Boolean> cir) {
-        if (RedenCarpetSettings.redenDebuggerBlockUpdates) {
+        if (!world.isClient && RedenCarpetSettings.redenDebuggerBlockUpdates) {
             var stage = AbstractBlockUpdateStage.createStage(world.neighborUpdater, (ChainRestrictedNeighborUpdater.Entry) this);
             stage.tick();
             // if we need to cancel

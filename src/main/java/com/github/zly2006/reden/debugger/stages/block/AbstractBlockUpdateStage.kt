@@ -1,9 +1,13 @@
 package com.github.zly2006.reden.debugger.stages.block
 
+import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.access.UpdaterData.Companion.updaterData
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.storage.BlocksResetStorage
+import com.github.zly2006.reden.network.StageTreeS2CPacket
+import com.github.zly2006.reden.utils.server
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 import net.minecraft.world.block.NeighborUpdater
@@ -17,6 +21,12 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
     val resetStorage = BlocksResetStorage()
 
     fun checkBreakpoints() {
+        if (sourcePos == BlockPos.ORIGIN) {
+            //todo: debug
+            server.playerManager.playerList.forEach {
+                ServerPlayNetworking.send(it, StageTreeS2CPacket(server.data().tickStageTree))
+            }
+        }
     }
 
     override fun tick() {

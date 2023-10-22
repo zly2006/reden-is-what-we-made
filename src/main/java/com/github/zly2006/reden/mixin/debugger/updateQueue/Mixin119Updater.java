@@ -26,8 +26,10 @@ public abstract class Mixin119Updater implements NeighborUpdater {
 
     @Inject(method = "runQueuedUpdates", at = @At("HEAD"))
     private void onRunQueuedUpdates(CallbackInfo ci) {
-        UpdaterData updaterData = updaterData(this);
-        ServerData serverData = data(Objects.requireNonNull(world.getServer()));
-        updaterData.setCurrentParentTickStage(serverData.getTickStageTree().peekLeaf());
+        if (!world.isClient) {
+            UpdaterData updaterData = updaterData(this);
+            ServerData serverData = data(Objects.requireNonNull(world.getServer(), "R-Debugger is not available on clients!"));
+            updaterData.setCurrentParentTickStage(serverData.getTickStageTree().peekLeaf());
+        }
     }
 }
