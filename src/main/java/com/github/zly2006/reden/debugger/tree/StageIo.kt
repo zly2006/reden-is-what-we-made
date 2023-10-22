@@ -58,14 +58,14 @@ object StageIo {
         }
     }
 
-    fun readStageTree(parent: TickStage?, buf: PacketByteBuf): StageTree {
+    fun readStageTree(buf: PacketByteBuf): StageTree {
         val tree = StageTree()
         val size = buf.readVarInt()
         var prevNode: StageTree.TreeNode? = null
         for (i in 0 until size) {
             val childrenUpdated = buf.readBoolean()
             val iterIndex = buf.readVarInt()
-            val stage = readStage(parent, buf)
+            val stage = readStage(prevNode?.stage, buf)
             val node = StageTree.TreeNode(
                 prevNode,
                 stage,

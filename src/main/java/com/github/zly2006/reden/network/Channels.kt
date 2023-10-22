@@ -19,4 +19,5 @@ fun register() {
     RvcTrackpointsC2SRequest.register()
     RvcDataS2CPacket.register()
     HopperCDSync.register()
+    StageTreeS2CPacket.register()
 }
