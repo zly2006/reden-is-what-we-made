@@ -105,3 +105,12 @@ accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWay
 accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$StateReplacementEntry
 accessible field net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry currentDirectionIndex I
 accessible field net/minecraft/server/MinecraftServer timeReference J
+accessible field net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry pos Lnet/minecraft/util/math/BlockPos;
+accessible method net/minecraft/world/block/ChainRestrictedNeighborUpdater$StatefulEntry <init> (Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V
+accessible method net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry <init> (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/Direction;)V
+accessible field net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry sourceBlock Lnet/minecraft/block/Block;
+accessible field net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry except Lnet/minecraft/util/math/Direction;
+
+
+
+

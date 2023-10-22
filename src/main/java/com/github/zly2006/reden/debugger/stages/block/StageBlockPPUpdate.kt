@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.debugger.stages.block
 import com.github.zly2006.reden.debugger.TickStage
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 
 /**
@@ -17,4 +18,8 @@ class StageBlockPPUpdate(
     parent: TickStage,
     override val entry: ChainRestrictedNeighborUpdater.StateReplacementEntry
 ): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.StateReplacementEntry>("pp_update", parent) {
+    override val sourcePos: BlockPos
+        get() = entry.neighborPos
+    override val targetPos: BlockPos
+        get() = entry.pos
 }

@@ -23,7 +23,7 @@ class RvcDataS2CPacket(
 
         fun register() {
             if (isClient) {
-                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
+                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->
                     consumer?.invoke(packet.data)
                     consumer = null
                 }

@@ -1,5 +1,11 @@
 package com.github.zly2006.reden.debugger.stages.block
 import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.utils.readBlock
+import com.github.zly2006.reden.utils.readBlockState
+import com.github.zly2006.reden.utils.writeBlock
+import com.github.zly2006.reden.utils.writeBlockState
+import net.minecraft.network.PacketByteBuf
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 
 /**
@@ -19,6 +25,35 @@ import net.minecraft.world.block.ChainRestrictedNeighborUpdater
  */
 class StageBlockNCUpdateWithSource(
     parent: TickStage,
-    override val entry: ChainRestrictedNeighborUpdater.StatefulEntry
+    entry: ChainRestrictedNeighborUpdater.StatefulEntry?
 ): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.StatefulEntry>("nc_update_with_source", parent) {
+    override lateinit var entry: ChainRestrictedNeighborUpdater.StatefulEntry
+    init {
+        if (entry != null) {
+            this.entry = entry
+        }
+    }
+    override fun writeByteBuf(buf: PacketByteBuf) {
+        super.writeByteBuf(buf)
+        buf.writeBlockState(entry.state)
+        buf.writeBlockPos(entry.pos)
+        buf.writeBlock(entry.sourceBlock)
+        buf.writeBlockPos(entry.sourcePos)
+        buf.writeBoolean(entry.movedByPiston)
+    }
+
+    override fun readByteBuf(buf: PacketByteBuf) {
+        super.readByteBuf(buf)
+        entry = ChainRestrictedNeighborUpdater.StatefulEntry(
+            buf.readBlockState(),
+            buf.readBlockPos(),
+            buf.readBlock(),
+            buf.readBlockPos(),
+            buf.readBoolean()
+        )
+    }
+    override val sourcePos: BlockPos
+        get() = entry.sourcePos
+    override val targetPos: BlockPos
+        get() = entry.pos
 }

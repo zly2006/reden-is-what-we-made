@@ -14,6 +14,8 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.nbt.NbtHelper
+import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.world.ServerWorld
@@ -23,6 +25,7 @@ import net.minecraft.util.Formatting
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.Heightmap
 import net.minecraft.world.World
@@ -40,11 +43,6 @@ fun PlayerEntity.sendMessage(s: String) {
 val ClientPlayerEntity.holdingToolItem: Boolean get() {
     val stack = getStackInHand(Hand.MAIN_HAND) ?: return false
     return Registries.ITEM.getId(stack.item) == Identifier.tryParse(SELECTION_TOOL.stringValue)
-}
-
-fun <E> MutableList<E>.removeAtOrNull(index: Int): E? {
-    val i = if (index < 0) size + index else index
-    return if (i in indices) removeAt(i) else null
 }
 
 fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int) {
@@ -122,3 +120,28 @@ fun memorySizeToString(size: Int) {
 fun MutableText.red() = formatted(Formatting.RED)
 
 val litematicaInstalled get() = FabricLoader.getInstance().isModLoaded(ModNames.litematica)
+
+fun PacketByteBuf.writeBlockState(state: BlockState) {
+    writeNbt(NbtHelper.fromBlockState(state))
+}
+
+fun PacketByteBuf.readBlockState(): BlockState {
+    return NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, readNbt())
+}
+
+fun PacketByteBuf.writeBlock(block: Block) {
+    writeIdentifier(Registries.BLOCK.getId(block))
+}
+
+fun PacketByteBuf.readBlock(): Block {
+    return Registries.BLOCK.get(readIdentifier())
+}
+
+fun PacketByteBuf.readDirection(): Direction {
+    return Direction.byId(readVarInt())
+}
+
+fun PacketByteBuf.writeDirection(direction: Direction) {
+    writeVarInt(direction.id)
+}
+

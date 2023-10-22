@@ -4,6 +4,7 @@ import com.github.zly2006.reden.access.UpdaterData.Companion.updaterData
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.storage.BlocksResetStorage
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 import net.minecraft.world.block.NeighborUpdater
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater as Updater119
@@ -26,6 +27,9 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
         parent as TickStageWithWorld
         resetStorage.apply(parent.world)
     }
+
+    abstract val sourcePos: BlockPos
+    abstract val targetPos: BlockPos
 
     companion object {
         @JvmStatic
