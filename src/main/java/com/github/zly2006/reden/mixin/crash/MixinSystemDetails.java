@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.crash;
 
+import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.utils.UtilsKt;
 import net.minecraft.util.SystemDetails;
@@ -29,8 +30,10 @@ public abstract class MixinSystemDetails {
                 }
                 sb.append(")");
                 if (UtilsKt.server != null) {
-                    if (data(UtilsKt.server).realTicks > 1) {
-                        sb.append(" Incredible! Reden Debugger worked for more than 1 full tick!!");
+                    ServerData serverData = data(UtilsKt.server);
+                    if (serverData.realTicks > 1) {
+                        sb.append(" Incredible! Reden Debugger worked for more than %d full tick!!"
+                                .formatted(serverData.realTicks - 1));
                     }
                 }
             } else {

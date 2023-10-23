@@ -28,10 +28,10 @@ object StageIo {
         constructors["end"] = Constructor { EmptyTickStage("end", it) }
         constructors["network"] = Constructor { EmptyTickStage("network", it) }
 
-        constructors["nc_update"] = Constructor { StageBlockNCUpdate(it as UpdateBlockStage, null) }
-        constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it as UpdateBlockStage, null) }
-        constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it as UpdateBlockStage, null) }
-        constructors["pp_update"] = Constructor { StageBlockPPUpdate(it as UpdateBlockStage, null) }
+        constructors["nc_update"] = Constructor { StageBlockNCUpdate(it!!, null) }
+        constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it!!, null) }
+        constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it!!, null) }
+        constructors["pp_update"] = Constructor { StageBlockPPUpdate(it!!, null) }
         constructors["update_block"] = Constructor { UpdateBlockStage(it!!) }
     }
 

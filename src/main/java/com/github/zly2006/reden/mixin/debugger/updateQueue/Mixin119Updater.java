@@ -4,10 +4,12 @@ package com.github.zly2006.reden.mixin.debugger.updateQueue;
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.access.UpdaterData;
+import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.debugger.stages.UpdateBlockStage;
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage;
 import net.minecraft.world.World;
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
+import net.minecraft.world.block.ChainRestrictedNeighborUpdater.Entry;
 import net.minecraft.world.block.NeighborUpdater;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.*;
@@ -25,9 +27,9 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
 
     @Shadow @Final private World world;
 
-    @Shadow @Final private ArrayDeque<ChainRestrictedNeighborUpdater.Entry> queue;
+    @Shadow @Final private ArrayDeque<Entry> queue;
 
-    @Shadow @Final private List<ChainRestrictedNeighborUpdater.Entry> pending;
+    @Shadow @Final private List<Entry> pending;
 
     @Unique private final UpdaterData updaterData = new UpdaterData(this);
 
@@ -56,7 +58,7 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
             // Call this method with `thenTickUpdate` = true to tick update
 
             // Note: This variable is used to let other mods locate injecting point
-            ChainRestrictedNeighborUpdater.Entry entry = updaterData.tickingEntry;
+            Entry entry = updaterData.tickingEntry;
             shouldEntryStop = entry.update(this.world);
 
             updaterData.tickingEntry = null;
@@ -72,16 +74,21 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
 
                     this.pending.clear();
 
-                    // Reden start
-
                     // Note: This variable is used to let other mods locate injecting point
-                    ChainRestrictedNeighborUpdater.Entry entry = this.queue.peek();
+                    Entry entry = this.queue.peek();
 
                     while (this.pending.isEmpty()) {
-                        // do tick by our method
-                        var stage = AbstractBlockUpdateStage.createStage(this, entry);
-                        updaterData.getTickStageTree().insert2child(stage);
-                        updaterData.tickNextStage();
+                        // Reden start
+                        if (RedenCarpetSettings.redenDebuggerBlockUpdates &&
+                                RedenCarpetSettings.redenDebuggerEnabled) {
+                            // do tick by our method
+                            var stage = AbstractBlockUpdateStage.createStage(this, entry);
+                            updaterData.getTickStageTree().insert2child(stage);
+                            updaterData.tickNextStage();
+                        } else {
+                            // do tick by original method
+                            shouldEntryStop = entry.update(this.world);
+                        }
 
                         if (!shouldEntryStop) {
                             // Reden stop

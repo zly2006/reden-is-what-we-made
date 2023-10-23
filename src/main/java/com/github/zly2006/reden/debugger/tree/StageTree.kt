@@ -109,8 +109,6 @@ class StageTree: Iterator<TickStage> {
     }
 
     fun insert2child(stage: TickStage) {
-        print("before insert: ")
-        printTree()
 
         val child = lastReturned ?: error("No child, check peekLeaf().")
         if (child.iter == null) {
@@ -128,7 +126,5 @@ class StageTree: Iterator<TickStage> {
         childIter.previous() // move back to the inserted stage
         this.child = newChild
 
-        print("after insert: ")
-        printTree()
     }
 }
