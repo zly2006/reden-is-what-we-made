@@ -32,7 +32,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
 
     override fun tick() {
         checkBreakpoints()
-        world.neighborUpdater.updaterData().tickEntry(entry)
+        world.neighborUpdater.updaterData().tickEntry(this)
     }
 
     override fun reset() {

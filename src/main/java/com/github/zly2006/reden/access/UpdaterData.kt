@@ -1,7 +1,9 @@
 package com.github.zly2006.reden.access
 
 import com.github.zly2006.reden.access.ServerData.Companion.data
+import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.stages.UpdateBlockStage
+import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
 import com.github.zly2006.reden.utils.server
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater.Entry
@@ -18,8 +20,8 @@ class UpdaterData(
         tickStageTree.next().tick()
     }
 
-    fun tickEntry(entry: Entry) {
-        tickingEntry = entry
+    fun tickEntry(stage: AbstractBlockUpdateStage<*>) {
+        tickingStage = stage
         thenTickUpdate = true
         when (updater) {
             is ChainRestrictedNeighborUpdater -> {
@@ -29,9 +31,17 @@ class UpdaterData(
         }
     }
 
+    fun appendStage(stage: TickStage) {
+        tickStageTree.insert2child(
+            tickingStage ?: currentParentTickStage!!,
+            stage
+        )
+    }
+
     val tickStageTree get() = server.data().tickStageTree
 
-    @JvmField var tickingEntry: Entry? = null
+    val tickingEntry: Entry? get() = tickingStage?.entry
+    @JvmField var tickingStage: AbstractBlockUpdateStage<*>? = null
     @JvmField var thenTickUpdate = false
     @JvmField var currentParentTickStage: UpdateBlockStage? = null
 

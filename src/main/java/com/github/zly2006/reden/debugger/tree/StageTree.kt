@@ -127,4 +127,35 @@ class StageTree: Iterator<TickStage> {
         this.child = newChild
 
     }
+
+    fun insert2child(parent: TickStage, stage: TickStage) {
+        var node = child
+        while (node != null) {
+            if (node.stage == parent) {
+                break
+            }
+            node = node.parent
+        }
+        if (node == null) {
+            error("Parent not found in this tree.")
+        }
+
+        val isLeaf = node == child
+        if (node.iter == null) {
+            node.iter = node.stage.children.listIterator()
+        }
+        val nodeIter = node.iter as? MutableListIterator<TickStage>
+            ?: error("Child iter is not mutable")
+        val newChild = TreeNode(
+            node,
+            stage,
+            false,
+            null
+        )
+        nodeIter.add(stage)
+        nodeIter.previous() // move back to the inserted stage
+        if (isLeaf) {
+            child = newChild
+        }
+    }
 }

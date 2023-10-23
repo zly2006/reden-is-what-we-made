@@ -58,10 +58,10 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
             // Call this method with `thenTickUpdate` = true to tick update
 
             // Note: This variable is used to let other mods locate injecting point
-            Entry entry = updaterData.tickingEntry;
+            Entry entry = updaterData.getTickingEntry();
             shouldEntryStop = entry.update(this.world);
 
-            updaterData.tickingEntry = null;
+            updaterData.tickingStage = null;
             updaterData.thenTickUpdate = false;
         }
         else {
@@ -83,7 +83,7 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                                 RedenCarpetSettings.redenDebuggerEnabled) {
                             // do tick by our method
                             var stage = AbstractBlockUpdateStage.createStage(this, entry);
-                            updaterData.getTickStageTree().insert2child(stage);
+                            updaterData.appendStage(stage);
                             updaterData.tickNextStage();
                         } else {
                             // do tick by original method
