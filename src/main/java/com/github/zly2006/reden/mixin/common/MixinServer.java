@@ -31,6 +31,7 @@ public class MixinServer implements ServerData.ServerDataAccess {
             )
     )
     private void tickStageTree(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+        serverData.realTicks++;
         serverData.getTickStage().tick();
     }
 

@@ -9,6 +9,7 @@ import java.util.*
 class ServerData(
     server: MinecraftServer
 ) {
+    @JvmField var realTicks = 0
     var status: Long = 0
     var uuid: UUID? = null
     var address: String = ""

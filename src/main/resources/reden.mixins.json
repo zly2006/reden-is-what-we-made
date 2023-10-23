@@ -14,6 +14,7 @@
     "common.MixinServerWorld",
     "common.access.MixinMinecraftServer",
     "common.access.MixinServerWorld",
+    "crash.MixinSystemDetails",
     "debugger.MixinNetworkIo",
     "debugger.MixinServer",
     "debugger.MixinServerWorld",
