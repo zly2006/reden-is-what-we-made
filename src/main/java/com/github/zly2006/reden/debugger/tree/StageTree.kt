@@ -108,5 +108,6 @@ class StageTree: Iterator<TickStage> {
         )
         childIter.add(stage)
         childIter.previous() // move back to the inserted stage
+        this.child = newChild
     }
 }
