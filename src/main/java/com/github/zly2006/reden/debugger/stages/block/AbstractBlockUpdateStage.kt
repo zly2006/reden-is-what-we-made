@@ -3,7 +3,7 @@ package com.github.zly2006.reden.debugger.stages.block
 import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.access.UpdaterData.Companion.updaterData
 import com.github.zly2006.reden.debugger.TickStage
-import com.github.zly2006.reden.debugger.stages.UpdateBlockStage
+import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.storage.BlocksResetStorage
 import com.github.zly2006.reden.network.StageTreeS2CPacket
 import com.github.zly2006.reden.utils.server
@@ -15,8 +15,9 @@ import net.minecraft.world.block.ChainRestrictedNeighborUpdater as Updater119
 
 abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
     name: String,
-    val _parent: UpdateBlockStage
-) : TickStage(name, _parent) {
+    parent: TickStage
+): TickStage(name, parent), TickStageWithWorld {
+    override val world get() = (parent as TickStageWithWorld).world
     abstract val entry: T
     val resetStorage = BlocksResetStorage()
 
@@ -31,11 +32,11 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
 
     override fun tick() {
         checkBreakpoints()
-        _parent.updater.updaterData().tickEntry(entry)
+        world.neighborUpdater.updaterData().tickEntry(entry)
     }
 
     override fun reset() {
-        resetStorage.apply(_parent.world)
+        resetStorage.apply(world)
     }
 
     abstract val sourcePos: BlockPos
@@ -45,7 +46,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
         @JvmStatic
         fun <T : ChainRestrictedNeighborUpdater.Entry> createStage(updater: NeighborUpdater, entry: T): AbstractBlockUpdateStage<T> {
             val data = updater.updaterData()
-            val parent = data.currentParentTickStage!!
+            val parent = data.tickStageTree.peekLeaf()
             @Suppress("UNCHECKED_CAST")
             return when (entry) {
                 is Updater119.StateReplacementEntry -> StageBlockPPUpdate(parent, entry)

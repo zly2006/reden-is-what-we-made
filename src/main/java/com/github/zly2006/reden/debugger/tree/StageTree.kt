@@ -3,6 +3,7 @@ package com.github.zly2006.reden.debugger.tree
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.disableWatchDog
 import com.github.zly2006.reden.utils.server
+import org.jetbrains.annotations.TestOnly
 
 /**
  * TODO
@@ -19,7 +20,7 @@ class StageTree: Iterator<TickStage> {
     var root: TreeNode? = null
     var child: TreeNode? = null
     val tickedStages = mutableListOf<TickStage>()
-    private var lastReturned: TickStage? = null
+    private var lastReturned: TreeNode? = null
     override fun hasNext(): Boolean {
         if (child == null)
             return false
@@ -62,8 +63,8 @@ class StageTree: Iterator<TickStage> {
         }
 
         tickedStages.add(child!!.stage)
-        lastReturned = child!!.stage
-        return lastReturned!!
+        lastReturned = child
+        return lastReturned!!.stage
     }
 
     fun clear() {
@@ -83,7 +84,7 @@ class StageTree: Iterator<TickStage> {
     }
 
     fun peekLeaf(): TickStage {
-        return lastReturned
+        return lastReturned?.stage
             ?: error("No last returned")
     }
 
@@ -93,8 +94,25 @@ class StageTree: Iterator<TickStage> {
         child = root
     }
 
+    @TestOnly
+    fun printTree() {
+        val list = mutableListOf<TreeNode>()
+        var node = child
+        while (node != null) {
+            list.add(node)
+            node = node.parent
+        }
+        list.reverse()
+        list.forEach {
+            println(it)
+        }
+    }
+
     fun insert2child(stage: TickStage) {
-        val child = child ?: error("No child")
+        print("before insert: ")
+        printTree()
+
+        val child = lastReturned ?: error("No child, check peekLeaf().")
         if (child.iter == null) {
             child.iter = child.stage.children.listIterator()
         }
@@ -109,5 +127,8 @@ class StageTree: Iterator<TickStage> {
         childIter.add(stage)
         childIter.previous() // move back to the inserted stage
         this.child = newChild
+
+        print("after insert: ")
+        printTree()
     }
 }

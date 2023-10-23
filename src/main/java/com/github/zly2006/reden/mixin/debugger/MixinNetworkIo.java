@@ -29,7 +29,7 @@ public class MixinNetworkIo {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void prepareNU(CallbackInfo ci, List var1, Iterator iterator, ClientConnection clientConnection) {
+    private void prepareNU(CallbackInfo ci, List<?> var1, Iterator<?> iterator, ClientConnection clientConnection) {
         // Note: here we modify the stage tree directly because it is NU.
         //     Here is used to provide world access to the stage tree.
         //     Otherwise, we should set the children in tick method, and let the server root tick them.
