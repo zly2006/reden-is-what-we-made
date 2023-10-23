@@ -109,27 +109,12 @@ class StageTree: Iterator<TickStage> {
     }
 
     fun insert2child(stage: TickStage) {
-
         val child = lastReturned ?: error("No child, check peekLeaf().")
-        if (child.iter == null) {
-            child.iter = child.stage.children.listIterator()
-        }
-        val childIter = child.iter as? MutableListIterator<TickStage>
-            ?: error("Child iter is not mutable")
-        val newChild = TreeNode(
-            child,
-            stage,
-            false,
-            null
-        )
-        childIter.add(stage)
-        childIter.previous() // move back to the inserted stage
-        this.child = newChild
-
+        insert2child(child.stage, stage)
     }
 
     fun insert2child(parent: TickStage, stage: TickStage) {
-        var node = child
+        var node = lastReturned
         while (node != null) {
             if (node.stage == parent) {
                 break
@@ -137,10 +122,10 @@ class StageTree: Iterator<TickStage> {
             node = node.parent
         }
         if (node == null) {
-            error("Parent not found in this tree.")
+            error("Parent $parent not found in this tree.")
         }
 
-        val isLeaf = node == child
+        val isLeaf = node == lastReturned
         if (node.iter == null) {
             node.iter = node.stage.children.listIterator()
         }

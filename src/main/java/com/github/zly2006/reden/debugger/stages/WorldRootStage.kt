@@ -22,6 +22,8 @@ class WorldRootStage(
     }
 
     fun yieldAndTick() {
+        // this method should be a sub tick stage and call their tick() method
+        // but we don't have those sub tick stage classes yet
         world.tick(shouldKeepTicking)
     }
 

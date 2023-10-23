@@ -114,6 +114,7 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
             UpdaterData updaterData = updaterData(this);
             ServerData serverData = data(Objects.requireNonNull(world.getServer(), "R-Debugger is not available on clients!"));
             updaterData.currentParentTickStage = new UpdateBlockStage(serverData.getTickStageTree().peekLeaf());
+            updaterData.getTickStageTree().insert2child(updaterData.currentParentTickStage);
         }
     }
 }
