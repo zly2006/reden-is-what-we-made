@@ -141,7 +141,6 @@ class StageTree: Iterator<TickStage> {
             error("Parent $parent not found in this tree.")
         }
 
-        val isLeaf = node == lastReturned
         if (node.iter == null) {
             node.iter = node.stage.children.listIterator()
         }
@@ -155,8 +154,5 @@ class StageTree: Iterator<TickStage> {
         )
         nodeIter.add(stage)
         nodeIter.previous() // move back to the inserted stage
-        if (isLeaf) {
-            child = newChild
-        }
     }
 }

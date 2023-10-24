@@ -121,10 +121,7 @@ class StageTreeTest {
             list.add(tickStage.name)
             tickStage.tick()
         }
-        tree.insert2child(object : TickStage("insert-1", null) {
-            override fun tick() {
-            }
-        })
+        tree.insert2child(EmptyTickStage("insert-1", null))
         while (tree.hasNext()) {
             val tickStage = tree.next()
             list.add(tickStage.name)
@@ -152,10 +149,7 @@ class StageTreeTest {
             list.add(tickStage.name)
             tickStage.tick()
         }
-        tree.insert2child(tree.peekLeaf(), object : TickStage("insert-1", null) {
-            override fun tick() {
-            }
-        })
+        tree.insert2child(tree.peekLeaf(), EmptyTickStage("insert-1", null))
         while (tree.hasNext()) {
             val tickStage = tree.next()
             list.add(tickStage.name)
