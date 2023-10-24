@@ -64,6 +64,7 @@ class StageTree: Iterator<TickStage> {
 
         tickedStages.add(child!!.stage)
         lastReturned = child
+        println(lastReturned!!.stage)
         return lastReturned!!.stage
     }
 
@@ -95,6 +96,18 @@ class StageTree: Iterator<TickStage> {
     }
 
     @TestOnly
+    fun assertInTree(stage: TickStage) {
+        var node = child
+        while (node != null) {
+            if (node.stage == stage) {
+                return
+            }
+            node = node.parent
+        }
+        error("Stage $stage not in this tree.")
+    }
+
+    @TestOnly
     fun printTree() {
         val list = mutableListOf<TreeNode>()
         var node = child
@@ -110,6 +123,9 @@ class StageTree: Iterator<TickStage> {
 
     fun insert2child(stage: TickStage) {
         val child = lastReturned ?: error("No child, check peekLeaf().")
+        if (!child.childrenUpdated) {
+            error("Child not ticked, tick it first!")
+        }
         insert2child(child.stage, stage)
     }
 
