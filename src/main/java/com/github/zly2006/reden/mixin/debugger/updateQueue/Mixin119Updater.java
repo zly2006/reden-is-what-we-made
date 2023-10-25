@@ -3,10 +3,13 @@ package com.github.zly2006.reden.mixin.debugger.updateQueue;
 
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
+import com.github.zly2006.reden.access.TickStageOwnerAccess;
 import com.github.zly2006.reden.access.UpdaterData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
+import com.github.zly2006.reden.debugger.TickStage;
 import com.github.zly2006.reden.debugger.stages.UpdateBlockStage;
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater.Entry;
@@ -14,6 +17,9 @@ import net.minecraft.world.block.NeighborUpdater;
 import org.apache.http.util.Asserts;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -46,6 +52,18 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
     @Override
     public UpdaterData getRedenUpdaterData() {
         return updaterData;
+    }
+
+    @Inject(
+            method = "enqueue",
+            at = @At("HEAD")
+    )
+    private void onNewEntry(BlockPos pos, Entry entry, CallbackInfo ci) {
+        if (!world.isClient && // don't inject on the client
+                RedenCarpetSettings.redenDebuggerBlockUpdates &&
+                RedenCarpetSettings.redenDebuggerEnabled) {
+            AbstractBlockUpdateStage.createStage(this, entry);
+        }
     }
 
     /**
@@ -84,7 +102,7 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                             RedenCarpetSettings.redenDebuggerBlockUpdates &&
                             RedenCarpetSettings.redenDebuggerEnabled) {
                         // do tick by our method
-                        var stage = AbstractBlockUpdateStage.getTickStage(this, entry);
+                        TickStage stage = ((TickStageOwnerAccess) entry).getTickStage();
                         updaterData.appendStage(stage);
                         updaterData.tickNextStage();
                     } else {

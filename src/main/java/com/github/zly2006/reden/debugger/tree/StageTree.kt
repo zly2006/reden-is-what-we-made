@@ -61,7 +61,6 @@ class StageTree: Iterator<TickStage> {
 
         tickedStages.add(child!!.stage)
         lastReturned = child
-        println(lastReturned!!.stage)
         return lastReturned!!.stage
     }
 

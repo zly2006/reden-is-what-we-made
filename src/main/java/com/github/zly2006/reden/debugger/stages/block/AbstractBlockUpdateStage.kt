@@ -55,10 +55,10 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
     companion object {
         @Suppress("UNCHECKED_CAST", "KotlinConstantConditions")
         @JvmStatic
-        fun <T : ChainRestrictedNeighborUpdater.Entry> getTickStage(updater: NeighborUpdater, entry: T): AbstractBlockUpdateStage<T> {
+        fun <T : ChainRestrictedNeighborUpdater.Entry> createStage(updater: NeighborUpdater, entry: T): AbstractBlockUpdateStage<T> {
             val stageOwnerAccess = entry as TickStageOwnerAccess
             if (stageOwnerAccess.tickStage is AbstractBlockUpdateStage<*>) {
-                return stageOwnerAccess.tickStage as AbstractBlockUpdateStage<T>
+                error("Already has a block update stage")
             }
             val data = updater.updaterData()
             val parent = data.tickStageTree.peekLeaf()

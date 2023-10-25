@@ -1,7 +1,10 @@
 reden:
   debugger:
     tick_stage:
-      nc_update_6: Update 6 Sides
+      nc_update_6: NC Update 6 Sides
+      pp_update: Post-Placement
+      nc_update: Neighbor-Changed
+      nc_update_with_source: Neighbor-Changed
 
   widget:
     config:
