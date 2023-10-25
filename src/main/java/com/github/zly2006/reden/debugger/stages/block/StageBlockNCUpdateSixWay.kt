@@ -29,6 +29,13 @@ class StageBlockNCUpdateSixWay(
     entry: ChainRestrictedNeighborUpdater.SixWayEntry?
 ): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SixWayEntry>("nc_update_6", parent) {
     override lateinit var entry: ChainRestrictedNeighborUpdater.SixWayEntry
+    var lastTickedDirectionIndex = -1
+
+    override fun tick() {
+        lastTickedDirectionIndex = entry.currentDirectionIndex
+        super.tick()
+    }
+
     init {
         if (entry != null) {
             this.entry = entry
@@ -43,6 +50,7 @@ class StageBlockNCUpdateSixWay(
             buf.readNullable(PacketByteBuf::readDirection)
         )
         entry.currentDirectionIndex = buf.readVarInt()
+        lastTickedDirectionIndex = buf.readVarInt()
     }
 
     override fun writeByteBuf(buf: PacketByteBuf) {
@@ -51,6 +59,7 @@ class StageBlockNCUpdateSixWay(
         buf.writeBlock(entry.sourceBlock)
         buf.writeNullable(entry.except, PacketByteBuf::writeDirection)
         buf.writeVarInt(entry.currentDirectionIndex)
+        buf.writeVarInt(lastTickedDirectionIndex)
     }
 
     fun getNextUpdate(): Direction {
@@ -59,8 +68,13 @@ class StageBlockNCUpdateSixWay(
         }
         return NeighborUpdater.UPDATE_ORDER[entry.currentDirectionIndex]
     }
+
+    fun getPrevUpdate(): Direction {
+        return NeighborUpdater.UPDATE_ORDER[lastTickedDirectionIndex]
+    }
+
     override val sourcePos: BlockPos
         get() = entry.pos
     override val targetPos: BlockPos
-        get() = entry.pos.offset(getNextUpdate())
+        get() = entry.pos.offset(getPrevUpdate())
 }
