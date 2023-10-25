@@ -10,7 +10,7 @@ class StageTreeTest {
         }
     }
 
-    fun getMutableChildrenTree(): StageTree {
+    private fun getMutableChildrenTree(): StageTree {
         val tree = StageTree()
         // init the tree
         val root = StageTreeBuilder("root") {
@@ -31,6 +31,7 @@ class StageTreeTest {
         tree.initRoot(root, false)
         return tree
     }
+
     class StageTreeBuilder private constructor(name: String, parent: TickStage? = null, block: StageTreeBuilder.() -> Unit) {
         constructor(name: String, block: StageTreeBuilder.() -> Unit): this(name, null, block)
         private val stage: EmptyTickStage
@@ -97,19 +98,7 @@ class StageTreeTest {
             list.add(tickStage.name)
             tickStage.tick()
         }
-        assert(
-            list == listOf(
-                "test",
-                "1",
-                "1-1",
-                "1-1-1",
-                "2",
-                "2-1",
-                "2-1-1",
-                "2-2",
-                "2-2-1"
-            )
-        )
+        assert(list == listOf("test", "1", "1-1", "1-1-1", "2", "2-1", "2-1-1", "2-2", "2-2-1"))
     }
 
     @Test
@@ -127,18 +116,7 @@ class StageTreeTest {
             list.add(tickStage.name)
             tickStage.tick()
         }
-        assert(list == listOf(
-            "root",
-            "1",
-            "1-1",
-            "insert-1",
-            "1-1-1",
-            "2",
-            "2-1",
-            "2-1-1",
-            "2-2",
-            "2-2-1",
-        ))
+        assert(list == listOf("root", "1", "1-1", "insert-1", "1-1-1", "2", "2-1", "2-1-1", "2-2", "2-2-1"))
     }
     @Test
     fun insertTest02() {
@@ -155,17 +133,35 @@ class StageTreeTest {
             list.add(tickStage.name)
             tickStage.tick()
         }
-        assert(list == listOf(
-            "root",
-            "1",
-            "1-1",
-            "1-1-1",
-            "insert-1",
-            "2",
-            "2-1",
-            "2-1-1",
-            "2-2",
-            "2-2-1",
-        ))
+        assert(list == listOf("root", "1", "1-1", "1-1-1", "insert-1", "2", "2-1", "2-1-1", "2-2", "2-2-1"))
+    }
+
+    @Test
+    fun insertTest03() {
+        val dyingTree = StageTreeBuilder("root") {
+            +child("1") {
+                +"1-1"
+                +"1-2"
+                +"1-3"
+            }
+        }.run { StageTree().apply{ initRoot(toStage(), true) } }
+        val list = mutableListOf<String>()
+        fun tickTree() {
+            val tickStage = dyingTree.next()
+            list.add(tickStage.name)
+            tickStage.tick()
+        }
+        repeat(3) { tickTree() }
+        dyingTree.insert2child(dyingTree.peekLeaf(), EmptyTickStage("insert-1", dyingTree.peekLeaf()))
+        tickTree() // insert-1
+        tickTree() // 1-3
+        dyingTree.insert2child(dyingTree.peekLeaf(), EmptyTickStage("insert-2", dyingTree.peekLeaf()))
+        // this tree is dying, but child should be null only if the tree is dead (by next() or hasNext())
+        while (dyingTree.hasNext())
+            tickTree()
+        assert(list == listOf("1", "1-1", "1-2", "insert-1", "1-3", "insert-2"))
+        print(list)
+        assert("insert-1" in list)
+        assert("insert-2" in list)
     }
 }
