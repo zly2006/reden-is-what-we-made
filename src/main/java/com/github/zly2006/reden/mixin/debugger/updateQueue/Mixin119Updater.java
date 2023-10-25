@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater.Entry;
 import net.minecraft.world.block.NeighborUpdater;
+import org.apache.http.util.Asserts;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.*;
 
@@ -78,9 +79,9 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                     Entry entry = this.queue.peek();
 
                     while (this.pending.isEmpty()) {
-                        updaterData.getTickStageTree().assertInTree(updaterData.currentParentTickStage);
                         // Reden start
-                        if (RedenCarpetSettings.redenDebuggerBlockUpdates &&
+                        if (!world.isClient && // don't inject on the client
+                                RedenCarpetSettings.redenDebuggerBlockUpdates &&
                                 RedenCarpetSettings.redenDebuggerEnabled) {
                             // do tick by our method
                             var stage = AbstractBlockUpdateStage.createStage(this, entry);
@@ -105,11 +106,13 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                 this.pending.clear();
                 this.depth = 0;
 
-                if (updaterData.currentParentTickStage != null) {
-                    updaterData.getTickStageTree().assertInTree(updaterData.currentParentTickStage);
+                if (!world.isClient) {
+                    if (updaterData.currentParentTickStage != null) {
+                        updaterData.getTickStageTree().assertInTree(updaterData.currentParentTickStage);
+                    }
+                    System.out.println("afterUpdate");
+                    updaterData.currentParentTickStage = null;
                 }
-                System.out.println("afterUpdate");
-                updaterData.currentParentTickStage = null;
             }
         }
     }
@@ -121,8 +124,8 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
             ServerData serverData = data(Objects.requireNonNull(world.getServer(), "R-Debugger is not available on clients!"));
             updaterData.currentParentTickStage = new UpdateBlockStage(serverData.getTickStageTree().peekLeaf());
             updaterData.getTickStageTree().insert2child(updaterData.currentParentTickStage);
-
-            updaterData.getTickStageTree().assertInTree(updaterData.currentParentTickStage);
+            // get that stage
+            Asserts.check(updaterData.getTickStageTree().next() instanceof UpdateBlockStage, "R-Debugger: UpdateBlockStage is not the next stage!");
         }
     }
 }

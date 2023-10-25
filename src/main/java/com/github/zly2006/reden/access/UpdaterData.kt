@@ -33,7 +33,7 @@ class UpdaterData(
 
     fun appendStage(stage: TickStage) {
         tickStageTree.insert2child(
-            tickingStage ?: currentParentTickStage!!,
+            tickingStage ?: currentParentTickStage ?: error("currentParentTickStage of the NeighborUpdater is null, is it initialized?"),
             stage
         )
     }
