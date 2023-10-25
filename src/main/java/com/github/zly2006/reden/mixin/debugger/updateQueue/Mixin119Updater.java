@@ -54,20 +54,19 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
      */
     @Overwrite
     public final void runQueuedUpdates() {
-        if (updaterData.thenTickUpdate) {
-            // To keep injecting points, we need to call the original method
-            // Call this method with `thenTickUpdate` = true to tick update
-
-            // Note: This variable is used to let other mods locate injecting point
-            Entry entry = updaterData.getTickingEntry();
-            shouldEntryStop = entry.update(this.world);
-
-            updaterData.tickingStage = null;
-            updaterData.thenTickUpdate = false;
-        }
-        else {
+        try {
             beforeUpdate();
-            try {
+            if (updaterData.thenTickUpdate) {
+                // To keep injecting points, we need to call the original method
+                // Call this method with `thenTickUpdate` = true to tick update
+
+                // Note: This variable is used to let other mods locate injecting point
+                Entry entry = updaterData.getTickingEntry();
+                shouldEntryStop = entry.update(this.world);
+
+                updaterData.tickingStage = null;
+                updaterData.thenTickUpdate = false;
+            } else {
                 while (!this.queue.isEmpty() || !this.pending.isEmpty()) {
                     for (int i = this.pending.size() - 1; i >= 0; --i) {
                         this.queue.push(this.pending.get(i));
@@ -101,18 +100,18 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                         }
                     }
                 }
-            } finally {
-                this.queue.clear();
-                this.pending.clear();
-                this.depth = 0;
+            }
+        } finally {
+            this.queue.clear();
+            this.pending.clear();
+            this.depth = 0;
 
-                if (!world.isClient) {
-                    if (updaterData.currentParentTickStage != null) {
-                        updaterData.getTickStageTree().assertInTree(updaterData.currentParentTickStage);
-                    }
-                    System.out.println("afterUpdate");
-                    updaterData.currentParentTickStage = null;
+            if (!world.isClient) {
+                if (updaterData.currentParentTickStage != null) {
+                    updaterData.getTickStageTree().assertInTree(updaterData.currentParentTickStage);
                 }
+                System.out.println("afterUpdate");
+                updaterData.currentParentTickStage = null;
             }
         }
     }
@@ -123,9 +122,16 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
             UpdaterData updaterData = updaterData(this);
             ServerData serverData = data(Objects.requireNonNull(world.getServer(), "R-Debugger is not available on clients!"));
             updaterData.currentParentTickStage = new UpdateBlockStage(serverData.getTickStageTree().peekLeaf());
+
+            updaterData.getTickStageTree().printTree();
+
             updaterData.getTickStageTree().insert2child(updaterData.currentParentTickStage);
+
+            updaterData.getTickStageTree().printTree();
             // get that stage
             Asserts.check(updaterData.getTickStageTree().next() instanceof UpdateBlockStage, "R-Debugger: UpdateBlockStage is not the next stage!");
+
+            updaterData.getTickStageTree().printTree();
         }
     }
 }
