@@ -69,12 +69,12 @@ class StageBlockNCUpdateSixWay(
         return NeighborUpdater.UPDATE_ORDER[entry.currentDirectionIndex]
     }
 
-    fun getPrevUpdate(): Direction {
-        return NeighborUpdater.UPDATE_ORDER[lastTickedDirectionIndex]
+    fun getPrevUpdate(): Direction? {
+        return NeighborUpdater.UPDATE_ORDER.getOrNull(lastTickedDirectionIndex)
     }
 
     override val sourcePos: BlockPos
         get() = entry.pos
-    override val targetPos: BlockPos
-        get() = entry.pos.offset(getPrevUpdate())
+    override val targetPos: BlockPos?
+        get() = getPrevUpdate()?.let { entry.pos.offset(it) }
 }

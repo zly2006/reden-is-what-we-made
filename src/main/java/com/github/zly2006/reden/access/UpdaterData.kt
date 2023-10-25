@@ -2,7 +2,6 @@ package com.github.zly2006.reden.access
 
 import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.TickStage
-import com.github.zly2006.reden.debugger.stages.UpdateBlockStage
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
 import com.github.zly2006.reden.utils.server
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
@@ -32,10 +31,7 @@ class UpdaterData(
     }
 
     fun appendStage(stage: TickStage) {
-        tickStageTree.insert2child(
-            tickingStage ?: currentParentTickStage ?: error("currentParentTickStage of the NeighborUpdater is null, is it initialized?"),
-            stage
-        )
+        tickStageTree.insert2child(stage.parent!!, stage)
     }
 
     val tickStageTree get() = server.data().tickStageTree
@@ -43,7 +39,6 @@ class UpdaterData(
     val tickingEntry: Entry? get() = tickingStage?.entry
     @JvmField var tickingStage: AbstractBlockUpdateStage<*>? = null
     @JvmField var thenTickUpdate = false
-    @JvmField var currentParentTickStage: UpdateBlockStage? = null
 
     interface UpdaterDataAccess {
         fun yieldUpdater()

@@ -2,19 +2,16 @@ package com.github.zly2006.reden.mixin.debugger.updateQueue;
 
 
 import com.github.zly2006.reden.Reden;
-import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.access.TickStageOwnerAccess;
 import com.github.zly2006.reden.access.UpdaterData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.debugger.TickStage;
-import com.github.zly2006.reden.debugger.stages.UpdateBlockStage;
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater.Entry;
 import net.minecraft.world.block.NeighborUpdater;
-import org.apache.http.util.Asserts;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,10 +20,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayDeque;
 import java.util.List;
-import java.util.Objects;
-
-import static com.github.zly2006.reden.access.ServerData.data;
-import static com.github.zly2006.reden.access.UpdaterData.updaterData;
 
 @Mixin(value = ChainRestrictedNeighborUpdater.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.UpdaterDataAccess {
@@ -85,7 +78,6 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
             return; // processing entry ends here
         }
         try {
-            beforeUpdate();
             while (!this.queue.isEmpty() || !this.pending.isEmpty()) {
                 for (int i = this.pending.size() - 1; i >= 0; --i) {
                     this.queue.push(this.pending.get(i));
@@ -123,24 +115,6 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
             this.queue.clear();
             this.pending.clear();
             this.depth = 0;
-
-            if (!world.isClient) {
-                if (updaterData.currentParentTickStage != null) {
-                    updaterData.getTickStageTree().assertInTree(updaterData.currentParentTickStage);
-                }
-                updaterData.currentParentTickStage = null;
-            }
-        }
-    }
-
-    @Unique private void beforeUpdate() {
-        if (!world.isClient) {
-            UpdaterData updaterData = updaterData(this);
-            ServerData serverData = data(Objects.requireNonNull(world.getServer(), "R-Debugger is not available on clients!"));
-            updaterData.currentParentTickStage = new UpdateBlockStage(serverData.getTickStageTree().peekLeaf());
-            updaterData.getTickStageTree().insert2child(updaterData.currentParentTickStage);
-            // get that stage
-            Asserts.check(updaterData.getTickStageTree().next() instanceof UpdateBlockStage, "R-Debugger: UpdateBlockStage is not the next stage!");
         }
     }
 }
