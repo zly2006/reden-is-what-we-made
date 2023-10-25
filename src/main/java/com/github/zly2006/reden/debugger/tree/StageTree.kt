@@ -148,5 +148,9 @@ class StageTree: Iterator<TickStage> {
             ?: error("Child iter is not mutable")
         nodeIter.add(stage)
         nodeIter.previous() // move back to the inserted stage
+        if (child == null) {
+            // Oops, the tree is empty, we need to update the child node.
+            child = node
+        }
     }
 }

@@ -164,4 +164,29 @@ class StageTreeTest {
         assert("insert-1" in list)
         assert("insert-2" in list)
     }
+
+    @Test
+    fun insertTest04() {
+        val dyingTree = StageTreeBuilder("root") {
+            +child("1") {
+                +"1-1"
+                +child("1-2") {
+                }
+            }
+        }.run { StageTree().apply{ initRoot(toStage(), true) } }
+        val list = mutableListOf<String>()
+        fun tickTree() {
+            val tickStage = dyingTree.next()
+            list.add(tickStage.name)
+            tickStage.tick()
+        }
+        while (dyingTree.hasNext())
+            tickTree()
+        dyingTree.insert2child(dyingTree.peekLeaf(), EmptyTickStage("insert-1", dyingTree.peekLeaf()))
+        tickTree() // insert-1
+
+        while (dyingTree.hasNext())
+            tickTree()
+        print(list)
+    }
 }
