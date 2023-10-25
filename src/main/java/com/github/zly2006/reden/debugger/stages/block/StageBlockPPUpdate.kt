@@ -1,5 +1,10 @@
 package com.github.zly2006.reden.debugger.stages.block
 import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.utils.readBlockState
+import com.github.zly2006.reden.utils.readDirection
+import com.github.zly2006.reden.utils.writeBlockState
+import com.github.zly2006.reden.utils.writeDirection
+import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 
@@ -24,6 +29,29 @@ class StageBlockPPUpdate(
             this.entry = entry
         }
     }
+
+    override fun readByteBuf(buf: PacketByteBuf) {
+        super.readByteBuf(buf)
+        entry = ChainRestrictedNeighborUpdater.StateReplacementEntry(
+            buf.readDirection(),
+            buf.readBlockState(),
+            buf.readBlockPos(),
+            buf.readBlockPos(),
+            buf.readInt(),
+            buf.readInt()
+        )
+    }
+
+    override fun writeByteBuf(buf: PacketByteBuf) {
+        super.writeByteBuf(buf)
+        buf.writeDirection(entry.direction)
+        buf.writeBlockState(entry.neighborState)
+        buf.writeBlockPos(entry.pos)
+        buf.writeBlockPos(entry.neighborPos)
+        buf.writeInt(entry.updateFlags)
+        buf.writeInt(entry.updateLimit)
+    }
+
     override val sourcePos: BlockPos
         get() = entry.neighborPos
     override val targetPos: BlockPos
