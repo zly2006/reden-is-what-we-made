@@ -54,19 +54,19 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
      */
     @Overwrite
     public final void runQueuedUpdates() {
+        if (updaterData.thenTickUpdate) {
+            // To keep injecting points, we need to call the original method
+            // Call this method with `thenTickUpdate` = true to tick update
+
+            // Note: This variable is used to let other mods locate injecting point
+            Entry entry = updaterData.getTickingEntry();
+            shouldEntryStop = entry.update(this.world);
+
+            updaterData.tickingStage = null;
+            updaterData.thenTickUpdate = false;
+            return; // processing entry ends here
+        }
         try {
-            if (updaterData.thenTickUpdate) {
-                // To keep injecting points, we need to call the original method
-                // Call this method with `thenTickUpdate` = true to tick update
-
-                // Note: This variable is used to let other mods locate injecting point
-                Entry entry = updaterData.getTickingEntry();
-                shouldEntryStop = entry.update(this.world);
-
-                updaterData.tickingStage = null;
-                updaterData.thenTickUpdate = false;
-                return; // processing entry ends here
-            }
             beforeUpdate();
             while (!this.queue.isEmpty() || !this.pending.isEmpty()) {
                 for (int i = this.pending.size() - 1; i >= 0; --i) {
@@ -84,7 +84,7 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                             RedenCarpetSettings.redenDebuggerBlockUpdates &&
                             RedenCarpetSettings.redenDebuggerEnabled) {
                         // do tick by our method
-                        var stage = AbstractBlockUpdateStage.createStage(this, entry);
+                        var stage = AbstractBlockUpdateStage.getTickStage(this, entry);
                         updaterData.appendStage(stage);
                         updaterData.tickNextStage();
                     } else {

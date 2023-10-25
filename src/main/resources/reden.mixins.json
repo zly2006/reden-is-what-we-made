@@ -18,6 +18,7 @@
     "debugger.MixinNetworkIo",
     "debugger.MixinServer",
     "debugger.MixinServerWorld",
+    "debugger.events.MixinChunk",
     "debugger.updateQueue.Mixin119Updater",
     "debugger.updateQueue.Mixin119UpdaterEntries",
     "fakePlayer.MixinPlayerManager",

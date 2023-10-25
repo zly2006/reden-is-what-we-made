@@ -1,14 +1,15 @@
 package com.github.zly2006.reden.debugger.tree
 
 import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.stages.DummyStage
-import com.github.zly2006.reden.debugger.stages.UpdateBlockStage
 import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdate
 import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdateSixWay
 import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdateWithSource
 import com.github.zly2006.reden.debugger.stages.block.StageBlockPPUpdate
 import com.github.zly2006.reden.debugger.tree.StageIo.Constructor
 import net.minecraft.network.PacketByteBuf
+import net.minecraft.server.world.ServerWorld
 
 object StageIo {
     fun interface Constructor {
@@ -18,6 +19,11 @@ object StageIo {
 
     init {
         class EmptyTickStage(name: String, parent: TickStage?) : TickStage(name, parent) {
+            override fun tick() {
+            }
+        }
+        class EmptyWorldTickStage(name: String, parent: TickStage?) : TickStage(name, parent), TickStageWithWorld {
+            override lateinit var world: ServerWorld
             override fun tick() {
             }
         }
@@ -32,7 +38,7 @@ object StageIo {
         constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it!!, null) }
         constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it!!, null) }
         constructors["pp_update"] = Constructor { StageBlockPPUpdate(it!!, null) }
-        constructors["update_block"] = Constructor { UpdateBlockStage(it!!) }
+        constructors["update_block"] = Constructor { EmptyWorldTickStage("update_block", it!!) }
     }
 
     fun writeStage(stage: TickStage, buf: PacketByteBuf) {
@@ -102,7 +108,8 @@ object StageIo {
             } else {
                 if (iterIndex != 0) {
                     // set children if possible
-                    prevNode.stage.children[iterIndex - 1] = node.stage
+                    // todo: here is a bug
+                    //  prevNode.stage.children[iterIndex - 1] = node.stage
                 }
             }
             prevNode = node

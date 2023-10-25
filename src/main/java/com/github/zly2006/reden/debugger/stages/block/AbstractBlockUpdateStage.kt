@@ -1,13 +1,10 @@
 package com.github.zly2006.reden.debugger.stages.block
 
-import com.github.zly2006.reden.access.ServerData.Companion.data
+import com.github.zly2006.reden.access.TickStageOwnerAccess
 import com.github.zly2006.reden.access.UpdaterData.Companion.updaterData
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.storage.BlocksResetStorage
-import com.github.zly2006.reden.network.StageTreeS2CPacket
-import com.github.zly2006.reden.utils.server
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 import net.minecraft.world.block.NeighborUpdater
@@ -22,39 +19,45 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
     val resetStorage = BlocksResetStorage()
 
     fun checkBreakpoints() {
-        if (sourcePos == BlockPos.ORIGIN) {
-            //todo: debug
-            server.playerManager.playerList.forEach {
-                ServerPlayNetworking.send(it, StageTreeS2CPacket(server.data().tickStageTree))
-            }
-        }
     }
 
     override fun tick() {
+        if (world == null) {
+            error("World is null, are you ticking this stage at a client?")
+        }
         checkBreakpoints()
-        world.neighborUpdater.updaterData().tickEntry(this)
+        world!!.neighborUpdater.updaterData().tickEntry(this)
     }
 
     override fun reset() {
-        resetStorage.apply(world)
+        if (world == null) {
+            error("World is null, are you ticking this stage at a client?")
+        }
+        resetStorage.apply(world!!)
     }
 
     abstract val sourcePos: BlockPos
     abstract val targetPos: BlockPos
 
     companion object {
+        @Suppress("UNCHECKED_CAST", "KotlinConstantConditions")
         @JvmStatic
-        fun <T : ChainRestrictedNeighborUpdater.Entry> createStage(updater: NeighborUpdater, entry: T): AbstractBlockUpdateStage<T> {
+        fun <T : ChainRestrictedNeighborUpdater.Entry> getTickStage(updater: NeighborUpdater, entry: T): AbstractBlockUpdateStage<T> {
+            val stageOwnerAccess = entry as TickStageOwnerAccess
+            if (stageOwnerAccess.tickStage is AbstractBlockUpdateStage<*>) {
+                return stageOwnerAccess.tickStage as AbstractBlockUpdateStage<T>
+            }
             val data = updater.updaterData()
             val parent = data.tickStageTree.peekLeaf()
-            @Suppress("UNCHECKED_CAST")
-            return when (entry) {
+            val stage = when (entry) {
                 is Updater119.StateReplacementEntry -> StageBlockPPUpdate(parent, entry)
                 is Updater119.SixWayEntry -> StageBlockNCUpdateSixWay(parent, entry)
                 is Updater119.StatefulEntry -> StageBlockNCUpdateWithSource(parent, entry)
                 is Updater119.SimpleEntry -> StageBlockNCUpdate(parent, entry)
                 else -> throw IllegalArgumentException("Unknown updater entry type: ${entry.javaClass}")
             } as AbstractBlockUpdateStage<T> // unchecked, but we know it's right
+            stageOwnerAccess.tickStage = stage
+            return stage
         }
     }
 }

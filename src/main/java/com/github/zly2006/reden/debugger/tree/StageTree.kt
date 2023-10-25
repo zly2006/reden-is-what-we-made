@@ -5,9 +5,6 @@ import com.github.zly2006.reden.debugger.disableWatchDog
 import com.github.zly2006.reden.utils.server
 import org.jetbrains.annotations.TestOnly
 
-/**
- * TODO
- */
 class StageTree: Iterator<TickStage> {
     class TreeNode(
         val parent: TreeNode?,

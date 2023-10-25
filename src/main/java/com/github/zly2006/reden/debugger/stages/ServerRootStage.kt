@@ -22,13 +22,6 @@ class ServerRootStage(
 
         val stageTree = server.data().tickStageTree
         stageTree.initRoot(this, true)
-
-        // todo: this need to change to another place
-        // tick the stage tree.
-        while (stageTree.hasNext()) {
-            val stage = stageTree.next()
-            stage.tick()
-        }
     }
 
     override fun reset() {
