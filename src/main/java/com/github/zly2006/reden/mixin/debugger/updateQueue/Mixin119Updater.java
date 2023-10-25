@@ -55,7 +55,6 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
     @Overwrite
     public final void runQueuedUpdates() {
         try {
-            beforeUpdate();
             if (updaterData.thenTickUpdate) {
                 // To keep injecting points, we need to call the original method
                 // Call this method with `thenTickUpdate` = true to tick update
@@ -66,38 +65,39 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
 
                 updaterData.tickingStage = null;
                 updaterData.thenTickUpdate = false;
-            } else {
-                while (!this.queue.isEmpty() || !this.pending.isEmpty()) {
-                    for (int i = this.pending.size() - 1; i >= 0; --i) {
-                        this.queue.push(this.pending.get(i));
+                return; // processing entry ends here
+            }
+            beforeUpdate();
+            while (!this.queue.isEmpty() || !this.pending.isEmpty()) {
+                for (int i = this.pending.size() - 1; i >= 0; --i) {
+                    this.queue.push(this.pending.get(i));
+                }
+
+                this.pending.clear();
+
+                // Note: This variable is used to let other mods locate injecting point
+                Entry entry = this.queue.peek();
+
+                while (this.pending.isEmpty()) {
+                    // Reden start
+                    if (!world.isClient && // don't inject on the client
+                            RedenCarpetSettings.redenDebuggerBlockUpdates &&
+                            RedenCarpetSettings.redenDebuggerEnabled) {
+                        // do tick by our method
+                        var stage = AbstractBlockUpdateStage.createStage(this, entry);
+                        updaterData.appendStage(stage);
+                        updaterData.tickNextStage();
+                    } else {
+                        // do tick by original method
+                        shouldEntryStop = entry.update(this.world);
                     }
 
-                    this.pending.clear();
+                    if (!shouldEntryStop) {
+                        // Reden stop
 
-                    // Note: This variable is used to let other mods locate injecting point
-                    Entry entry = this.queue.peek();
-
-                    while (this.pending.isEmpty()) {
-                        // Reden start
-                        if (!world.isClient && // don't inject on the client
-                                RedenCarpetSettings.redenDebuggerBlockUpdates &&
-                                RedenCarpetSettings.redenDebuggerEnabled) {
-                            // do tick by our method
-                            var stage = AbstractBlockUpdateStage.createStage(this, entry);
-                            updaterData.appendStage(stage);
-                            updaterData.tickNextStage();
-                        } else {
-                            // do tick by original method
-                            shouldEntryStop = entry.update(this.world);
-                        }
-
-                        if (!shouldEntryStop) {
-                            // Reden stop
-
-                            // Note: call update multiple times is only used by six-way entries
-                            this.queue.pop();
-                            break;
-                        }
+                        // Note: call update multiple times is only used by six-way entries
+                        this.queue.pop();
+                        break;
                     }
                 }
             }
@@ -122,16 +122,9 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
             UpdaterData updaterData = updaterData(this);
             ServerData serverData = data(Objects.requireNonNull(world.getServer(), "R-Debugger is not available on clients!"));
             updaterData.currentParentTickStage = new UpdateBlockStage(serverData.getTickStageTree().peekLeaf());
-
-            updaterData.getTickStageTree().printTree();
-
             updaterData.getTickStageTree().insert2child(updaterData.currentParentTickStage);
-
-            updaterData.getTickStageTree().printTree();
             // get that stage
             Asserts.check(updaterData.getTickStageTree().next() instanceof UpdateBlockStage, "R-Debugger: UpdateBlockStage is not the next stage!");
-
-            updaterData.getTickStageTree().printTree();
         }
     }
 }
