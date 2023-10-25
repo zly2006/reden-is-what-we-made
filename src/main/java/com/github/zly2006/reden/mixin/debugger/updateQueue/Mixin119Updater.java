@@ -110,7 +110,6 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                 if (updaterData.currentParentTickStage != null) {
                     updaterData.getTickStageTree().assertInTree(updaterData.currentParentTickStage);
                 }
-                System.out.println("afterUpdate");
                 updaterData.currentParentTickStage = null;
             }
         }
@@ -118,7 +117,6 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
 
     @Unique private void beforeUpdate() {
         if (!world.isClient) {
-            System.out.println("beforeUpdate");
             UpdaterData updaterData = updaterData(this);
             ServerData serverData = data(Objects.requireNonNull(world.getServer(), "R-Debugger is not available on clients!"));
             updaterData.currentParentTickStage = new UpdateBlockStage(serverData.getTickStageTree().peekLeaf());

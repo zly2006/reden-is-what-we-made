@@ -1,4 +1,7 @@
 reden:
+  debugger:
+    tick_stage:
+      nc_update_6: Update 6 Sides
 
   widget:
     config:

@@ -13,7 +13,7 @@ abstract class TickStage(
         require(nameRegex.matches(name)) { "Invalid tick stage name: $name" }
          */
     }
-    val displayName = Text.translatable("reden.debugger.tick_stage.$name")
+    open val displayName = Text.translatable("reden.debugger.tick_stage.$name")
     val description = Text.translatable("reden.debugger.tick_stage.$name.desc")
     val children = mutableListOf<TickStage>()
 
