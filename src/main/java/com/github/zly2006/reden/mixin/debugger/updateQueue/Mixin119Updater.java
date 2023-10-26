@@ -33,7 +33,7 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
 
     @Unique private final UpdaterData updaterData = new UpdaterData(this);
 
-    @Unique boolean shouldEntryStop = false;
+    @Unique boolean shouldEntryContinue = false;
 
     @Override
     public void yieldUpdater() {
@@ -71,12 +71,13 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
 
             // Note: This variable is used to let other mods locate injecting point
             Entry entry = updaterData.getTickingEntry();
-            shouldEntryStop = entry.update(this.world);
+            shouldEntryContinue = entry.update(this.world);
 
             updaterData.tickingStage = null;
             updaterData.thenTickUpdate = false;
             return; // processing entry ends here
         }
+
         try {
             while (!this.queue.isEmpty() || !this.pending.isEmpty()) {
                 for (int i = this.pending.size() - 1; i >= 0; --i) {
@@ -99,10 +100,10 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                         updaterData.tickNextStage();
                     } else {
                         // do tick by original method
-                        shouldEntryStop = entry.update(this.world);
+                        shouldEntryContinue = entry.update(this.world);
                     }
 
-                    if (!shouldEntryStop) {
+                    if (!shouldEntryContinue) {
                         // Reden stop
 
                         // Note: call update multiple times is only used by six-way entries
