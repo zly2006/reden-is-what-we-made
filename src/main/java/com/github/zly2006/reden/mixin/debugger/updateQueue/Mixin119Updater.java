@@ -53,8 +53,7 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
     )
     private void onNewEntry(BlockPos pos, Entry entry, CallbackInfo ci) {
         if (!world.isClient && // don't inject on the client
-                RedenCarpetSettings.redenDebuggerBlockUpdates &&
-                RedenCarpetSettings.redenDebuggerEnabled) {
+                RedenCarpetSettings.Debugger.debuggerBlockUpdates()) {
             AbstractBlockUpdateStage.createStage(this, entry);
         }
     }
@@ -92,8 +91,7 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                 while (this.pending.isEmpty()) {
                     // Reden start
                     if (!world.isClient && // don't inject on the client
-                            RedenCarpetSettings.redenDebuggerBlockUpdates &&
-                            RedenCarpetSettings.redenDebuggerEnabled) {
+                            RedenCarpetSettings.Debugger.debuggerBlockUpdates()) {
                         // do tick by our method
                         TickStage stage = ((TickStageOwnerAccess) entry).getTickStage();
                         updaterData.appendStage(stage);

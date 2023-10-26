@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.mixin.common.access;
+package com.github.zly2006.reden.mixin.common.remote;
 
 import com.github.zly2006.reden.access.remote.IRemoteServer;
 import net.minecraft.server.MinecraftServer;

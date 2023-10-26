@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixin.debugger;
 
 
+import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.debugger.stages.NetworkStage;
 import net.minecraft.network.ClientConnection;
@@ -17,9 +18,9 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.Iterator;
 import java.util.List;
 
-@Mixin(ServerNetworkIo.class)
+@Mixin(value = ServerNetworkIo.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public class MixinNetworkIo {
-    @Shadow @Final private MinecraftServer server;
+    @Shadow @Final MinecraftServer server;
 
     @Inject(
             method = "tick",

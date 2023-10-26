@@ -1,6 +1,8 @@
 package com.github.zly2006.reden.mixin.common;
 
 import com.github.zly2006.reden.access.ServerData;
+import com.github.zly2006.reden.carpet.RedenCarpetSettings;
+import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage;
 import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
-public class MixinServer implements ServerData.ServerDataAccess {
+public abstract class MixinServer implements ServerData.ServerDataAccess {
     @Unique ServerData serverData = new ServerData((MinecraftServer) (Object) this);
 
     @Inject(
@@ -37,6 +39,11 @@ public class MixinServer implements ServerData.ServerDataAccess {
         // tick the stage tree.
         while (serverData.getTickStageTree().hasNext()) {
             var stage = serverData.getTickStageTree().next();
+            if (stage instanceof AbstractBlockUpdateStage<?>) {
+                if (RedenCarpetSettings.redenDebug) {
+                    throw new RuntimeException("AbstractBlockUpdateStage should not be in the stage tree.");
+                }
+            }
             stage.tick();
         }
     }

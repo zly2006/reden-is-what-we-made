@@ -43,10 +43,16 @@ public class RedenCarpetSettings {
     )
     public static boolean redenDebug = false;
 
+    public static class Debugger {
+        public static boolean debuggerBlockUpdates() {
+            return redenDebuggerEnabled && redenDebuggerBlockUpdates;
+        }
+    }
+
     @Rule(
             categories = {CATEGORY_REDEN, CATEGORY_DEBUGGER}
     )
-    public static boolean redenDebuggerEnabled = true;
+    public static boolean redenDebuggerEnabled = false;
 
     @Rule(
             categories = {CATEGORY_REDEN, CATEGORY_DEBUGGER}
