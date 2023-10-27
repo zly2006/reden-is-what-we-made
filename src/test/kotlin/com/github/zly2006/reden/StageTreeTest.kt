@@ -5,10 +5,7 @@ import com.github.zly2006.reden.debugger.tree.StageTree
 import org.junit.jupiter.api.Test
 
 class StageTreeTest {
-    class EmptyTickStage(name: String, parent: TickStage?) : TickStage(name, parent) {
-        override fun tick() {
-        }
-    }
+    class EmptyTickStage(name: String, parent: TickStage?) : TickStage(name, parent)
 
     private fun getMutableChildrenTree(): StageTree {
         val tree = StageTree()
@@ -58,10 +55,7 @@ class StageTreeTest {
                     override fun tick() {
                         children.add(object : TickStage("1-1", this) {
                             override fun tick() {
-                                children.add(object : TickStage("1-1-1", this) {
-                                    override fun tick() {
-                                    }
-                                })
+                                children.add(EmptyTickStage("1-1-1", this))
                             }
                         })
                     }
@@ -70,18 +64,12 @@ class StageTreeTest {
                     override fun tick() {
                         children.add(object : TickStage("2-1", this) {
                             override fun tick() {
-                                children.add(object : TickStage("2-1-1", this) {
-                                    override fun tick() {
-                                    }
-                                })
+                                children.add(EmptyTickStage("2-1-1", this))
                             }
                         })
                         children.add(object : TickStage("2-2", this) {
                             override fun tick() {
-                                children.add(object : TickStage("2-2-1", this) {
-                                    override fun tick() {
-                                    }
-                                })
+                                children.add(EmptyTickStage("2-2-1", this))
                             }
                         })
                     }

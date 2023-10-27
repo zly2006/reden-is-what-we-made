@@ -12,7 +12,7 @@ class ServerRootStage(
     var tickIndex = 0
     lateinit var shouldKeepTicking: BooleanSupplier
     override fun tick() {
-        children.clear()
+        super.tick()
         server.worlds.forEach {
             val worldRootStage = WorldRootStage(it, this, shouldKeepTicking)
             children.add(worldRootStage)
@@ -26,7 +26,7 @@ class ServerRootStage(
     }
 
     override fun reset() {
-        tick() // reset stage iterators
+        this.tick() // reset stage iterators
         // todo: apply backups
     }
 

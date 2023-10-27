@@ -18,14 +18,9 @@ object StageIo {
     val constructors = mutableMapOf<String, Constructor>()
 
     init {
-        class EmptyTickStage(name: String, parent: TickStage?) : TickStage(name, parent) {
-            override fun tick() {
-            }
-        }
+        class EmptyTickStage(name: String, parent: TickStage?) : TickStage(name, parent)
         class EmptyWorldTickStage(name: String, parent: TickStage?) : TickStage(name, parent), TickStageWithWorld {
             override lateinit var world: ServerWorld
-            override fun tick() {
-            }
         }
 
         // Note: these stages have no extra data, so we can use empty constructor to simplify code

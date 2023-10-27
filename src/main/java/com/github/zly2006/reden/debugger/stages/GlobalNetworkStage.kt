@@ -7,7 +7,8 @@ class GlobalNetworkStage(
 ) : TickStage("global_network", _parent) {
     val io get() = _parent.server.networkIo!!
     override fun tick() {
-        children.clear()
+        println("ticking $this")
+        super.tick()
         synchronized(_parent.server.networkIo!!.connections) {
             _parent.server.networkIo!!.connections.filter { !it.isChannelAbsent }.forEach {
                 children.add(NetworkStage(this, it))
@@ -17,4 +18,6 @@ class GlobalNetworkStage(
         _parent.server.profiler.swap("connection")
         // this.getNetworkIo().tick()
     }
+
+    override fun toString() = "GlobalNetworkTick"
 }

@@ -1,10 +1,11 @@
-package com.github.zly2006.reden.mixin.debugger;
+package com.github.zly2006.reden.mixin.debugger.network;
 
 
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.debugger.TickStage;
 import com.github.zly2006.reden.debugger.stages.GlobalNetworkStage;
 import com.github.zly2006.reden.debugger.stages.NetworkStage;
+import com.github.zly2006.reden.mixin.debugger.MixinServer;
 import com.google.common.collect.Iterators;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.PacketCallbacks;
@@ -47,6 +48,7 @@ public class MixinNetworkIo {
         //noinspection SynchronizeOnNonFinalField
         synchronized (this.connections) {
             TickStage tickStage = data(server).getTickStageTree().peekLeaf();
+            System.out.println("[ServerNetworkIo#tick] tickStage = " + tickStage);
             if (tickStage instanceof GlobalNetworkStage) {
                 return;
             }

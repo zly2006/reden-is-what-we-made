@@ -95,8 +95,23 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                         // do tick by our method
                         TickStage stage = ((TickStageOwnerAccess) entry).getTickStage();
                         updaterData.appendStage(stage);
-                        updaterData.tickNextStage();
+                        var next = updaterData.getTickStageTree().next();
+                        updaterData.getTickStageTree().printTree();
+                        System.out.println("stage = " + stage);
+                        System.out.println("next = " + next);
+                        if (stage != next) {
+                            throw new RuntimeException("stage != next");
+                        }
+                        stage.tick();
                     } else {
+                        /*
+                        root
+                         \- six way 1 <> insert, next, leaf
+                         \- six way 2 <> insert
+                          \- nc 1 <> next
+                            ===Boom!===
+
+                         */
                         // do tick by original method
                         shouldEntryContinue = entry.update(this.world);
                     }

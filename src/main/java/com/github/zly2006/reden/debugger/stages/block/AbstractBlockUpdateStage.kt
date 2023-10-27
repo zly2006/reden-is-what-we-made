@@ -33,6 +33,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
     }
 
     override fun tick() {
+        super.tick()
         if (world == null) {
             error("World is null, are you ticking this stage at a client?")
         }
@@ -61,7 +62,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
                 error("Already has a block update stage")
             }
             val data = updater.updaterData()
-            val parent = data.tickStageTree.peekLeaf()
+            val parent = data.tickingStage ?: data.tickStageTree.peekLeaf()
             val stage = when (entry) {
                 is Updater119.StateReplacementEntry -> StageBlockPPUpdate(parent, entry)
                 is Updater119.SixWayEntry -> StageBlockNCUpdateSixWay(parent, entry)

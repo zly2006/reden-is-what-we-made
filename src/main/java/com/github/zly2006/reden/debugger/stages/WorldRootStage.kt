@@ -16,6 +16,7 @@ class WorldRootStage(
         const val TICK_TIME = 0
     }
     override fun tick() {
+        super.tick()
         tickLabel = 0
         // tick the world
         server.tickWorlds(shouldKeepTicking)

@@ -23,7 +23,9 @@ abstract class TickStage(
     open fun readByteBuf(buf: PacketByteBuf) {
     }
 
-    abstract fun tick()
+    open fun tick() {
+        children.clear()
+    }
 
     open fun reset(): Unit = throw UnsupportedOperationException("Reset not supported for tick stage $name")
 }

@@ -3,6 +3,7 @@ package com.github.zly2006.reden.debugger.tree
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.disableWatchDog
 import com.github.zly2006.reden.utils.server
+import okhttp3.internal.toHexString
 import org.jetbrains.annotations.TestOnly
 
 class StageTree: Iterator<TickStage> {
@@ -18,6 +19,19 @@ class StageTree: Iterator<TickStage> {
     var child: TreeNode? = null
     val tickedStages = mutableListOf<TickStage>()
     private var lastReturned: TreeNode? = null
+    /*
+    root
+    1
+    2
+     \
+     3
+    / \
+   4   7
+  /  \
+ 5    6
+   -- all children ticked
+
+     */
     override fun hasNext(): Boolean {
         if (child == null)
             return false
@@ -61,6 +75,7 @@ class StageTree: Iterator<TickStage> {
 
         tickedStages.add(child!!.stage)
         lastReturned = child
+        println("[StageTree#next] $child")
         return lastReturned!!.stage
     }
 
@@ -89,6 +104,7 @@ class StageTree: Iterator<TickStage> {
         clear()
         root = TreeNode(null, serverRootStage, childrenUpdated, null)
         child = root
+        lastReturned = root
     }
 
     @TestOnly
@@ -106,15 +122,17 @@ class StageTree: Iterator<TickStage> {
     @TestOnly
     fun printTree() {
         val list = mutableListOf<TreeNode>()
-        var node = child
+        var node = lastReturned
         while (node != null) {
             list.add(node)
             node = node.parent
         }
         list.reverse()
+        println("===== Tick Stage Tree =====")
         list.forEach {
-            println(it)
+            println("${it.hashCode().toHexString()} $it")
         }
+        println("===== End Tree =====")
     }
 
     fun insert2child(stage: TickStage) {
@@ -126,6 +144,8 @@ class StageTree: Iterator<TickStage> {
     }
 
     fun insert2child(parent: TickStage, stage: TickStage) {
+        println("[StageTree#insert2child] into $parent -> $stage")
+
         var node = lastReturned
         while (node != null) {
             if (node.stage == parent) {
