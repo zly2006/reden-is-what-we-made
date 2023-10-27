@@ -5,7 +5,11 @@ import com.github.zly2006.reden.debugger.tree.StageTree
 import org.junit.jupiter.api.Test
 
 class StageTreeTest {
-    class EmptyTickStage(name: String, parent: TickStage?) : TickStage(name, parent)
+    class EmptyTickStage(name: String, parent: TickStage?) : TickStage(name, parent) {
+        override fun tick() {
+            // dont clear children
+        }
+    }
 
     private fun getMutableChildrenTree(): StageTree {
         val tree = StageTree()

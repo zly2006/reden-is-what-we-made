@@ -27,13 +27,14 @@ object StageIo {
         constructors["server_root"] = Constructor { EmptyTickStage("server_root", it) }
         constructors["world_root"] = Constructor { EmptyTickStage("world_root", it) }
         constructors["end"] = Constructor { EmptyTickStage("end", it) }
-        constructors["network"] = Constructor { EmptyTickStage("network", it) }
 
         constructors["nc_update"] = Constructor { StageBlockNCUpdate(it!!, null) }
         constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it!!, null) }
         constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it!!, null) }
         constructors["pp_update"] = Constructor { StageBlockPPUpdate(it!!, null) }
+        constructors["network"] = Constructor { EmptyWorldTickStage("network", it) }
         constructors["update_block"] = Constructor { EmptyWorldTickStage("update_block", it!!) }
+        constructors["commands_stage"] = Constructor { EmptyWorldTickStage("commands_stage", it!!) }
     }
 
     fun writeStage(stage: TickStage, buf: PacketByteBuf) {
