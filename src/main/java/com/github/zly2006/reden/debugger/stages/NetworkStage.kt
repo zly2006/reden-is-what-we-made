@@ -12,7 +12,6 @@ class NetworkStage(
 ): TickStage("network", parent), TickStageWithWorld {
     override fun tick() {
         parent as GlobalNetworkStage
-        println("ticking $this")
         super.tick()
         parent.io.tick()
     }

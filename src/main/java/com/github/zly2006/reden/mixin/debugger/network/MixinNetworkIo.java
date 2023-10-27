@@ -48,7 +48,7 @@ public class MixinNetworkIo {
         //noinspection SynchronizeOnNonFinalField
         synchronized (this.connections) {
             TickStage tickStage = data(server).getTickStageTree().peekLeaf();
-            System.out.println("[ServerNetworkIo#tick] tickStage = " + tickStage);
+            Reden.LOGGER.trace("[ServerNetworkIo#tick] tickStage = " + tickStage);
             if (tickStage instanceof GlobalNetworkStage) {
                 return;
             }

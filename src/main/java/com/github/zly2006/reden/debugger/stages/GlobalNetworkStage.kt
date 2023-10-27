@@ -7,7 +7,6 @@ class GlobalNetworkStage(
 ) : TickStage("global_network", _parent) {
     val io get() = _parent.server.networkIo!!
     override fun tick() {
-        println("ticking $this")
         super.tick()
         synchronized(_parent.server.networkIo!!.connections) {
             _parent.server.networkIo!!.connections.filter { !it.isChannelAbsent }.forEach {

@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.debugger.tree
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.disableWatchDog
 import com.github.zly2006.reden.utils.server
@@ -75,7 +76,7 @@ class StageTree: Iterator<TickStage> {
 
         tickedStages.add(child!!.stage)
         lastReturned = child
-        println("[StageTree#next] $child")
+        Reden.LOGGER.trace("[StageTree#next] $child")
         return lastReturned!!.stage
     }
 
@@ -144,7 +145,7 @@ class StageTree: Iterator<TickStage> {
     }
 
     fun insert2child(parent: TickStage, stage: TickStage) {
-        println("[StageTree#insert2child] into $parent -> $stage")
+        Reden.LOGGER.trace("[StageTree#insert2child] into $parent -> $stage")
 
         var node = lastReturned
         while (node != null) {
