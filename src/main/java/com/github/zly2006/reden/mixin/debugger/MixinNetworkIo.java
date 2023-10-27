@@ -21,6 +21,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 
 import static com.github.zly2006.reden.access.ServerData.data;
@@ -32,6 +33,8 @@ public class MixinNetworkIo {
 
     @Shadow @Final private static Logger LOGGER;
 
+    @Shadow @Final private List<ClientConnection> connections;
+
     /**
      * Called by {@link MixinServer#tickWorlds(BooleanSupplier)} iff {@code stage instanceof GlobalNetworkStage}
      * <br>
@@ -41,34 +44,37 @@ public class MixinNetworkIo {
      */
     @Overwrite
     public void tick() {
-        TickStage tickStage = data(server).getTickStageTree().peekLeaf();
-        if (tickStage instanceof GlobalNetworkStage) {
-            return;
-        }
-        NetworkStage stage = (NetworkStage) tickStage;
-
-        // Leave variables for other mods to inject
-        Iterator<ClientConnection> iterator = Iterators.singletonIterator(stage.getConnection());
-        ClientConnection clientConnection = stage.getConnection();
-        //
-        if (clientConnection.isOpen()) {
-            try {
-                clientConnection.tick();
-            } catch (Exception var7) {
-                if (clientConnection.isLocal()) {
-                    throw new CrashException(CrashReport.create(var7, "Ticking memory connection"));
-                }
-
-                LOGGER.warn("Failed to handle packet for {}", clientConnection.getAddress(), var7);
-                Text text = Text.literal("Internal server error");
-                clientConnection.send(new DisconnectS2CPacket(text), PacketCallbacks.always(() -> {
-                    clientConnection.disconnect(text);
-                }));
-                clientConnection.disableAutoRead();
+        //noinspection SynchronizeOnNonFinalField
+        synchronized (this.connections) {
+            TickStage tickStage = data(server).getTickStageTree().peekLeaf();
+            if (tickStage instanceof GlobalNetworkStage) {
+                return;
             }
-        } else {
-            iterator.remove();
-            clientConnection.handleDisconnection();
+            NetworkStage stage = (NetworkStage) tickStage;
+
+            @SuppressWarnings("unused") // Leave variables for other mods to inject
+            Iterator<ClientConnection> iterator = Iterators.singletonIterator(stage.getConnection());
+            ClientConnection clientConnection = stage.getConnection();
+            //
+            if (clientConnection.isOpen()) {
+                try {
+                    clientConnection.tick();
+                } catch (Exception var7) {
+                    if (clientConnection.isLocal()) {
+                        throw new CrashException(CrashReport.create(var7, "Ticking memory connection"));
+                    }
+
+                    LOGGER.warn("Failed to handle packet for {}", clientConnection.getAddress(), var7);
+                    Text text = Text.literal("Internal server error");
+                    clientConnection.send(new DisconnectS2CPacket(text), PacketCallbacks.always(() -> {
+                        clientConnection.disconnect(text);
+                    }));
+                    clientConnection.disableAutoRead();
+                }
+            } else {
+                connections.remove(clientConnection);
+                clientConnection.handleDisconnection();
+            }
         }
     }
 }
