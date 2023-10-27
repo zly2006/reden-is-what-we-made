@@ -8,7 +8,6 @@
     "IMixinCommandNode",
     "breakpoint.Mixin119Updater",
     "breakpoint.MixinUpdater",
-    "common.Mixin119Updater",
     "common.MixinServer",
     "common.MixinServerPlayer",
     "common.MixinServerWorld",

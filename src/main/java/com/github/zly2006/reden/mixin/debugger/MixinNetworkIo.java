@@ -2,41 +2,73 @@ package com.github.zly2006.reden.mixin.debugger;
 
 
 import com.github.zly2006.reden.Reden;
-import com.github.zly2006.reden.access.ServerData;
+import com.github.zly2006.reden.debugger.TickStage;
+import com.github.zly2006.reden.debugger.stages.GlobalNetworkStage;
 import com.github.zly2006.reden.debugger.stages.NetworkStage;
+import com.google.common.collect.Iterators;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.PacketCallbacks;
+import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerNetworkIo;
+import net.minecraft.text.Text;
+import net.minecraft.util.crash.CrashException;
+import net.minecraft.util.crash.CrashReport;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Iterator;
-import java.util.List;
+import java.util.function.BooleanSupplier;
 
+import static com.github.zly2006.reden.access.ServerData.data;
+
+@SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(value = ServerNetworkIo.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public class MixinNetworkIo {
     @Shadow @Final MinecraftServer server;
 
-    @Inject(
-            method = "tick",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/network/ClientConnection;tick()V"
-            ),
-            locals = LocalCapture.CAPTURE_FAILHARD
-    )
-    private void prepareNU(CallbackInfo ci, List<?> var1, Iterator<?> iterator, ClientConnection clientConnection) {
-        // Note: here we modify the stage tree directly because it is NU.
-        //     Here is used to provide world access to the stage tree.
-        //     Otherwise, we should set the children in tick method, and let the server root tick them.
-        ServerData data = ServerData.data(server);
-        var stage = new NetworkStage(data.getTickStage(), clientConnection);
-        data.getTickStageTree().insert2child(stage);
-        data.getTickStageTree().next().tick();
+    @Shadow @Final private static Logger LOGGER;
+
+    /**
+     * Called by {@link MixinServer#tickWorlds(BooleanSupplier)} iff {@code stage instanceof GlobalNetworkStage}
+     * <br>
+     * Called by {@link NetworkStage#tick()}
+     * @author
+     * @reason
+     */
+    @Overwrite
+    public void tick() {
+        TickStage tickStage = data(server).getTickStageTree().peekLeaf();
+        if (tickStage instanceof GlobalNetworkStage) {
+            return;
+        }
+        NetworkStage stage = (NetworkStage) tickStage;
+
+        // Leave variables for other mods to inject
+        Iterator<ClientConnection> iterator = Iterators.singletonIterator(stage.getConnection());
+        ClientConnection clientConnection = stage.getConnection();
+        //
+        if (clientConnection.isOpen()) {
+            try {
+                clientConnection.tick();
+            } catch (Exception var7) {
+                if (clientConnection.isLocal()) {
+                    throw new CrashException(CrashReport.create(var7, "Ticking memory connection"));
+                }
+
+                LOGGER.warn("Failed to handle packet for {}", clientConnection.getAddress(), var7);
+                Text text = Text.literal("Internal server error");
+                clientConnection.send(new DisconnectS2CPacket(text), PacketCallbacks.always(() -> {
+                    clientConnection.disconnect(text);
+                }));
+                clientConnection.disableAutoRead();
+            }
+        } else {
+            iterator.remove();
+            clientConnection.handleDisconnection();
+        }
     }
 }

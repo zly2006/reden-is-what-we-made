@@ -8,13 +8,14 @@ import net.minecraft.server.world.ServerWorld
 import okhttp3.internal.toHexString
 
 class NetworkStage(
-    parent: ServerRootStage,
+    parent: GlobalNetworkStage,
     val connection: ClientConnection
 ): TickStage("network", parent), TickStageWithWorld {
     override fun tick() {
+        parent as GlobalNetworkStage
+        parent.io.tick()
     }
 
-    // todo: 这个应该放在playerTick里面，懒得写太多stage了
     override val world: ServerWorld
         get() = (connection.packetListener as ServerPlayNetworkHandler).player.serverWorld
 

@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.debugger.TickStage;
 import com.github.zly2006.reden.debugger.stages.EndStage;
+import com.github.zly2006.reden.debugger.stages.GlobalNetworkStage;
 import com.github.zly2006.reden.debugger.stages.ServerRootStage;
 import com.github.zly2006.reden.debugger.stages.WorldRootStage;
 import net.minecraft.server.MinecraftServer;
@@ -47,6 +48,8 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
 
     @Shadow @Final private List<Runnable> serverGuiTickables;
 
+    @Shadow @Final private ServerNetworkIo networkIo;
+
     /**
      * @author
      * @reason
@@ -57,8 +60,7 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
 
         if (stage instanceof ServerRootStage) {
             /**
-             * Called by vanilla,
-             * {@link ServerRootStage#tick} is already called, don't call again.
+             * Called by {@link ServerRootStage#tick}, so dont need to call it.
              * Leave injecting points for other mods.
              */
 
@@ -93,9 +95,11 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
             this.profiler.pop();
             this.profiler.pop();
             // Vanilla end
-        } else if (stage instanceof EndStage) {
+        } else if (stage instanceof GlobalNetworkStage) {
             this.profiler.swap("connection");
+            //noinspection DataFlowIssue
             this.getNetworkIo().tick();
+        } else if (stage instanceof EndStage) {
             this.profiler.swap("players");
             this.playerManager.updatePlayerLatency();
             // from vanilla, we don't need this

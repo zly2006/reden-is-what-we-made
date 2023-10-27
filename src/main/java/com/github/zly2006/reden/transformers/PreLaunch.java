@@ -23,11 +23,13 @@ public class PreLaunch implements PreLaunchEntrypoint {
             if (extReg instanceof Extensions extensions) {
                 Field fActiveExtensions = Extensions.class.getDeclaredField("activeExtensions");
                 fActiveExtensions.setAccessible(true);
-                fActiveExtensions.set(extensions, new ArrayList<>(extensions.getActiveExtensions()));
                 // force add my extension
                 RedenMixinExtension myExtension = new RedenMixinExtension();
                 extensions.add(myExtension);
-                extensions.getActiveExtensions().add(myExtension);
+
+                var activeExtensions = new ArrayList<>(extensions.getActiveExtensions());
+                activeExtensions.add(myExtension);
+                fActiveExtensions.set(extensions, activeExtensions);
             }
             // then load our transformed classes
             ServerWorld.class.getName();

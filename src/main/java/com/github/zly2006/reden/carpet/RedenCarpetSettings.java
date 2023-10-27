@@ -1,7 +1,16 @@
 package com.github.zly2006.reden.carpet;
 
+import carpet.api.settings.CarpetRule;
 import carpet.api.settings.Rule;
 import carpet.api.settings.RuleCategory;
+import carpet.api.settings.Validator;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 public class RedenCarpetSettings {
     private static final String CATEGORY_REDEN = "Reden";
@@ -44,8 +53,28 @@ public class RedenCarpetSettings {
     public static boolean redenDebug = false;
 
     public static class Debugger {
+        @Contract(pure = true)
         public static boolean debuggerBlockUpdates() {
             return redenDebuggerEnabled && redenDebuggerBlockUpdates;
+        }
+
+        static class Validators extends Validator<Boolean> {
+            @Override
+            public Boolean validate(@Nullable ServerCommandSource source, CarpetRule<Boolean> changingRule, Boolean newValue, String userInput) {
+                if (newValue && !redenDebuggerEnabled) {
+                    if (source != null) {
+                        source.sendMessage(Text.literal("Warning: ").formatted(Formatting.RED)
+                                .append(Text.literal("The rule "))
+                                .append(Text.literal("redenDebuggerEnabled").styled(style ->
+                                        style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/carpet redenDebuggerEnabled"))
+                                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("show the rule")))
+                                                .withBold(true)
+                                                .withColor(Formatting.GOLD)))
+                                .append(Text.literal(" is not enabled, so this option will not work.").formatted(Formatting.RED)));
+                    }
+                }
+                return newValue;
+            }
         }
     }
 
@@ -55,7 +84,8 @@ public class RedenCarpetSettings {
     public static boolean redenDebuggerEnabled = false;
 
     @Rule(
-            categories = {CATEGORY_REDEN, CATEGORY_DEBUGGER}
+            categories = {CATEGORY_REDEN, CATEGORY_DEBUGGER},
+            validators = Debugger.Validators.class
     )
     public static boolean redenDebuggerBlockUpdates = true;
 }
