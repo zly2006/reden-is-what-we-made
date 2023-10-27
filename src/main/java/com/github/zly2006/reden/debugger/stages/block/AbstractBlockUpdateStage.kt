@@ -6,7 +6,9 @@ import com.github.zly2006.reden.access.UpdaterData.Companion.updaterData
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.storage.BlocksResetStorage
+import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.network.StageTreeS2CPacket
+import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.server
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.text.MutableText
@@ -27,6 +29,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
         if (targetPos == BlockPos.ORIGIN) {
             //todo: waiting for breakpoints
             server.playerManager.playerList.forEach {
+                it.sendMessage("Updating block at origin")
                 ServerPlayNetworking.send(it, StageTreeS2CPacket(server.data().tickStageTree))
             }
         }
@@ -62,7 +65,9 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
                 error("Already has a block update stage")
             }
             val data = updater.updaterData()
-            val parent = data.tickingStage ?: data.tickStageTree.peekLeaf()
+            val parent = data.tickingStage
+                ?: data.tickStageTree.peekNonBlockStage()
+                ?: error("No parent stage found")
             val stage = when (entry) {
                 is Updater119.StateReplacementEntry -> StageBlockPPUpdate(parent, entry)
                 is Updater119.SixWayEntry -> StageBlockNCUpdateSixWay(parent, entry)
@@ -71,7 +76,16 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
                 else -> throw IllegalArgumentException("Unknown updater entry type: ${entry.javaClass}")
             } as AbstractBlockUpdateStage<T> // unchecked, but we know it's right
             stageOwnerAccess.tickStage = stage
+            println("Stage $stage's parent is ${stage.parent}")
             return stage
         }
     }
+}
+
+private fun StageTree.peekNonBlockStage(): TickStage? {
+    var stage: TickStage? = this.peekLeaf()
+    while (stage is AbstractBlockUpdateStage<*>) {
+        stage = stage.parent
+    }
+    return stage
 }
