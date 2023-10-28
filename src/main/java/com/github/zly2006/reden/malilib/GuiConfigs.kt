@@ -4,10 +4,14 @@ import com.github.zly2006.reden.Reden
 import fi.dy.masa.malilib.gui.GuiConfigsBase
 import fi.dy.masa.malilib.gui.button.ButtonGeneric
 import fi.dy.masa.malilib.util.StringUtils
+import net.minecraft.client.gui.screen.Screen
 
-class GuiConfigs: GuiConfigsBase(
+class GuiConfigs(parent: Screen? = null): GuiConfigsBase(
     10, 50, Reden.MOD_ID, null, "reden.widget.config.title"
 ) {
+    init {
+        this.parent = parent
+    }
     private var tab = ConfigGuiTab.GENERIC
     override fun initGui() {
         super.initGui()
@@ -31,8 +35,8 @@ class GuiConfigs: GuiConfigsBase(
         ConfigGuiTab.DEBUG -> ConfigOptionWrapper.createFor(DEBUG_TAB)
     }
     override fun useKeybindSearch() = true
-    override fun onCharTyped(charIn: Char, modifiers: Int): Boolean {
-        return super.onCharTyped(charIn, modifiers)
+    override fun close() {
+        client!!.setScreen(parent)
     }
     enum class ConfigGuiTab(private val translationKey: String) {
         GENERIC("reden.widget.config.generic"),
