@@ -14,9 +14,18 @@ import net.minecraft.util.Identifier
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater.Entry as UpdaterEntry
 
 class BreakpointsManager {
-    val registry = mutableMapOf<Identifier, BreakPointType>(
+    val registry = mutableMapOf<Identifier, BreakPointType>()
 
-    )
+    fun register(type: BreakPointType) {
+        if (registry.containsKey(type.id)) throw Exception("Duplicate BreakPointType ${type.id}")
+        registry[type.id] = type
+    }
+
+    init {
+        register(BlockUpdateOtherBreakpoint)
+        register(BlockUpdatedBreakpoint)
+        register(RedstoneMeterBreakpoint)
+    }
 
     fun read(buf: PacketByteBuf): BreakPoint {
         val id = buf.readIdentifier()

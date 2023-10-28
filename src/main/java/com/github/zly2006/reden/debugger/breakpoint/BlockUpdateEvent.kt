@@ -1,38 +1,26 @@
 package com.github.zly2006.reden.debugger.breakpoint
 
-import com.github.zly2006.reden.Reden
 import net.minecraft.network.PacketByteBuf
-import net.minecraft.text.Text
-import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import kotlin.jvm.optionals.getOrNull
 
-class BlockUpdateEvent(
+abstract class BlockUpdateEvent(
     id: Int,
+    type: BreakPointType,
     var options: Int = 0,
     var pos: BlockPos? = null,
-): BreakPoint(id, Companion) {
-    companion object: BreakPointType {
-        override val id: Identifier = Reden.identifier("update_event")
-        override val description: Text = Text.literal("BlockUpdateEvent")
-        override fun create(id: Int): BreakPoint = BlockUpdateEvent(id)
-
+): BreakPoint(id, type, ) {
+    companion object {
         const val PP = 1
         const val NC = 2
         const val CU = 4
     }
     override fun read(buf: PacketByteBuf) {
         options = buf.readVarInt()
-        pos = buf.readOptional { it.readBlockPos() }.getOrNull()
+        pos = buf.readNullable(PacketByteBuf::readBlockPos)
     }
     override fun write(buf: PacketByteBuf) {
         buf.writeVarInt(options)
-        if (pos == null) {
-            buf.writeBoolean(false)
-        } else {
-            buf.writeBoolean(true)
-            buf.writeBlockPos(pos!!)
-        }
+        buf.writeNullable(pos, PacketByteBuf::writeBlockPos)
     }
 
     override fun toString() = buildString {
@@ -47,6 +35,6 @@ class BlockUpdateEvent(
             append("CU")
         }
         append(')')
-        append(pos)
+        append(pos?.toShortString())
     }
 }

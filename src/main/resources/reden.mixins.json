@@ -7,7 +7,6 @@
   "mixins": [
     "IMixinCommandNode",
     "breakpoint.Mixin119Updater",
-    "breakpoint.MixinUpdater",
     "common.Mixin119UpdaterEntries",
     "common.MixinServer",
     "common.MixinServerPlayer",
