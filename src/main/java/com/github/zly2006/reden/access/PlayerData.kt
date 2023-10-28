@@ -101,6 +101,7 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
         data: MutableMap<Long, Entry> = mutableMapOf(),
         val cause: Cause = Cause.UNKNOWN
     ) : UndoRedoRecord(id, lastChangedTick, entities, data) {
+        var notified = false
         enum class Cause(message: Text) {
             BREAK_BLOCK(Text.translatable("reden.feature.undo.cause.break_block")),
             USE_BLOCK(Text.translatable("reden.feature.undo.cause.use_block")),

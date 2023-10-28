@@ -3,6 +3,7 @@ package com.github.zly2006.reden.mixinhelper
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
+import com.github.zly2006.reden.malilib.iEVER_USED_UNDO
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.monitorSetBlock
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.playerStartRecording
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.playerStopRecording
@@ -13,15 +14,22 @@ import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.recording
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.undoRecords
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.undoRecordsMap
 import com.github.zly2006.reden.utils.debugLogger
+import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.isDebug
 import com.github.zly2006.reden.utils.server
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.block.BlockState
+import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
+import net.minecraft.text.ClickEvent
+import net.minecraft.text.HoverEvent
+import net.minecraft.text.Style
+import net.minecraft.text.Text
+import net.minecraft.util.Formatting
 import net.minecraft.util.math.BlockPos
 
 /**
@@ -119,6 +127,21 @@ object UpdateMonitorHelper {
         debugLogger("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState")
         recording?.data?.computeIfAbsent(pos.asLong()) {
             recording!!.fromWorld(world, pos)
+        }
+        if (isClient && recording != null && !recording!!.notified
+            && !iEVER_USED_UNDO.booleanValue) {
+            // Send a notification that maybe he wants undo.
+            if (recording!!.data.size > 2) {
+                recording!!.notified = true
+                val mc = MinecraftClient.getInstance()
+                mc.player?.sendMessage(
+                    Text.literal("Did you make it by mistake? Press Ctrl+Z to undo it!").formatted(Formatting.GOLD)
+                        .append(Text.literal("Click here if you don't want to see this again.").setStyle(Style.EMPTY
+                            .withColor(Formatting.GRAY)
+                            .withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "reden:malilib:${iEVER_USED_UNDO.name}=true"))
+                            .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("This is a feature provided by Reden Mod. Click to disable this notification.")))))
+                )
+            }
         }
         recording?.lastChangedTick = server.ticks
     }

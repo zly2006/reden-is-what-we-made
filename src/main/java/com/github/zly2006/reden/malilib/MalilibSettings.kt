@@ -29,6 +29,7 @@ private val loadingGuard = run {
 @JvmField val MICRO_TICK_TAB = mutableListOf<ConfigBase<*>>()
 @JvmField val SUPER_RIGHT_TAB = mutableListOf<ConfigBase<*>>()
 @JvmField val DEBUG_TAB = mutableListOf<ConfigBase<*>>()
+@JvmField val HIDDEN_TAB = mutableListOf<ConfigBase<*>>()
 private fun <T : IHotkey> T.hotkey() = this.apply(HOTKEYS::add)
 @Suppress("UNCHECKED_CAST")
 private fun <T : IConfigBase?> ConfigBase<T>.generic() = this.apply(GENERIC_TAB::add) as T
@@ -40,6 +41,8 @@ private fun <T : IConfigBase?> ConfigBase<T>.mt() = this.apply(MICRO_TICK_TAB::a
 private fun <T : IConfigBase?> ConfigBase<T>.sr() = this.apply(SUPER_RIGHT_TAB::add) as T
 @Suppress("UNCHECKED_CAST")
 private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add) as T
+@Suppress("UNCHECKED_CAST")
+private fun <T : IConfigBase?> ConfigBase<T>.hidden() = this.apply(HIDDEN_TAB::add) as T
 
 @JvmField val REDEN_CONFIG_KEY = RedenConfigHotkey("redenConfigKey", "R,C").generic().hotkey()
 @JvmField val SELECTION_TOOL = RedenConfigString("selectionTool", "minecraft:blaze_rod").generic()
@@ -78,5 +81,8 @@ private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add
 @JvmField val GITHUB_TOKEN = RedenConfigString("githubToken", "").debug()
 @JvmField val ALLOW_SOCIAL_FOLLOW = RedenConfigBoolean("allowSocialFollow", true).debug()
 @JvmField val DEBUG_RVC_REQUEST_SYNC_DATA = RedenConfigHotkey("debugRvcRequestSyncData", "").debug().hotkey()
+@JvmField val iEVER_USED_UNDO = RedenConfigBoolean("iEverUsedUndo", false).hidden()
+@JvmField val iNOTIFICATIONS_ENABLED = RedenConfigBoolean("iNotificationsEnabled", true).hidden()
+@JvmField val iSHOW_TIME_OUT_NOTIFICATION = RedenConfigBoolean("iShowTimeOutNotification", true).hidden()
 
-fun getAllOptions() = GENERIC_TAB + RVC_TAB + MICRO_TICK_TAB + SUPER_RIGHT_TAB + DEBUG_TAB
+fun getAllOptions() = GENERIC_TAB + RVC_TAB + MICRO_TICK_TAB + SUPER_RIGHT_TAB + DEBUG_TAB + HIDDEN_TAB

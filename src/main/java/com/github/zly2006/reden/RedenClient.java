@@ -61,13 +61,7 @@ public class RedenClient implements ClientModInitializer {
 
                 @Override
                 public void save() {
-                    JsonObject jo = new JsonObject();
-                    ConfigUtils.writeConfigBase(jo, Reden.MOD_NAME, MalilibSettingsKt.getAllOptions());
-                    try {
-                        Files.writeString(new File(FileUtils.getConfigDirectory(), Reden.CONFIG_FILE).toPath(), Reden.GSON.toJson(jo));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    saveMalilibOptions();
                 }
             });
             ClientTrackingKt.registerSelectionTool();
@@ -107,5 +101,15 @@ public class RedenClient implements ClientModInitializer {
         ClientLifecycleEvents.CLIENT_STARTED.register(ReportKt::reportOnlineMC);
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> RvcLocalCommandKt.register(dispatcher));
         RDebuggerLayoutKt.register();
+    }
+
+    public static void saveMalilibOptions() {
+        JsonObject jo = new JsonObject();
+        ConfigUtils.writeConfigBase(jo, Reden.MOD_NAME, MalilibSettingsKt.getAllOptions());
+        try {
+            Files.writeString(new File(FileUtils.getConfigDirectory(), Reden.CONFIG_FILE).toPath(), Reden.GSON.toJson(jo));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

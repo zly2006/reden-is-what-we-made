@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.mixin.gui;
+package com.github.zly2006.reden.mixin.otherMods.malilib;
 
 import com.github.zly2006.reden.malilib.gui.button.ConfigButtonCommandHotkeyList;
 import com.github.zly2006.reden.malilib.options.RedenConfigCommandHotkeyList;

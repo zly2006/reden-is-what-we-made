@@ -28,6 +28,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
     }
     UNDO_KEY.keybind.setCallback { _, _ ->
         onFunctionUsed("undo")
+        iEVER_USED_UNDO.booleanValue = true
         if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
             ClientPlayNetworking.send(Rollback(0))
             true
