@@ -76,7 +76,7 @@ class StageTree: Iterator<TickStage> {
 
         tickedStages.add(child!!.stage)
         lastReturned = child
-        Reden.LOGGER.trace("[StageTree#next] $child")
+        Reden.LOGGER.trace("[StageTree#next] {}", child)
         return lastReturned!!.stage
     }
 
@@ -145,7 +145,7 @@ class StageTree: Iterator<TickStage> {
     }
 
     fun insert2child(parent: TickStage, stage: TickStage) {
-        Reden.LOGGER.trace("[StageTree#insert2child] into $parent -> $stage")
+        Reden.LOGGER.trace("[StageTree#insert2child] into {} -> {}", parent, stage)
 
         var node = lastReturned
         while (node != null) {

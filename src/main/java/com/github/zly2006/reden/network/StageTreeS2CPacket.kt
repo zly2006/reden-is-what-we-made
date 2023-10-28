@@ -16,7 +16,7 @@ class StageTreeS2CPacket(val tree: StageTree) : FabricPacket {
         val id = Reden.identifier("stage_tree_s2c")
         val pType = PacketType.create(id) {
             StageTreeS2CPacket(StageIo.readStageTree(it))
-        }
+        }!!
 
         fun register() {
             if (isClient) {

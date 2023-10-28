@@ -40,8 +40,8 @@ public class MixinNetworkIo {
      * Called by {@link MixinServer#tickWorlds(BooleanSupplier)} iff {@code stage instanceof GlobalNetworkStage}
      * <br>
      * Called by {@link NetworkStage#tick()}
-     * @author
-     * @reason
+     * @author zly2006
+     * @reason Reden debugger
      */
     @Overwrite
     public void tick() {
@@ -68,9 +68,8 @@ public class MixinNetworkIo {
 
                     LOGGER.warn("Failed to handle packet for {}", clientConnection.getAddress(), var7);
                     Text text = Text.literal("Internal server error");
-                    clientConnection.send(new DisconnectS2CPacket(text), PacketCallbacks.always(() -> {
-                        clientConnection.disconnect(text);
-                    }));
+                    clientConnection.send(new DisconnectS2CPacket(text), PacketCallbacks.always(() ->
+                            clientConnection.disconnect(text)));
                     clientConnection.disableAutoRead();
                 }
             } else {

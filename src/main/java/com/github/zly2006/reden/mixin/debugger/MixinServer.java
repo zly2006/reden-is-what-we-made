@@ -51,8 +51,8 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
     @Shadow @Final private ServerNetworkIo networkIo;
 
     /**
-     * @author
-     * @reason
+     * @author zly2006
+     * @reason Reden debugger
      */
     @Overwrite
     public void tickWorlds(BooleanSupplier shouldKeepTicking) {

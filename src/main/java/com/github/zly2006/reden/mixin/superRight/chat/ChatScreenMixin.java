@@ -74,14 +74,13 @@ public abstract class ChatScreenMixin extends Screen {
         }
     }
 
-    private void rightClickMenu(int mouseX, int mouseY, MinecraftClient client, Text text) {
+    @Unique private void rightClickMenu(int mouseX, int mouseY, MinecraftClient client, Text text) {
         if (quickMenuWidget != null) {
             quickMenuWidget.remove();
         }
         quickMenuWidget = new QuickMenuWidget(this, mouseX, mouseY);
-        quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.about"), (e, b) -> {
-            client.setScreen(new SuperRightIntro());
-        });
+        quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.about"), (e, b) ->
+                client.setScreen(new SuperRightIntro()));
         String message = text.getString();
         Matcher matcher = urlPattern.matcher(message);
         Style style = getTextStyleAt(mouseX, mouseY);

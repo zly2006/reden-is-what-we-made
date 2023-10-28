@@ -12,7 +12,7 @@ val RVC_TRACKPOINTS_C2S = Reden.identifier("rvc_trackpoints_c2s")
 fun register() {
     TagBlockPos.register()
     Rollback.register()
-    ChangeBreakpointPacket.register()
+    UpdateBreakpointPacket.register()
     BreakPointInterrupt.register()
     StepUpdate.register()
     TntSyncPacket.register()

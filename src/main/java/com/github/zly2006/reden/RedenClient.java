@@ -105,9 +105,7 @@ public class RedenClient implements ClientModInitializer {
             KeyCallbacksKt.configureKeyCallbacks(MinecraftClient.getInstance());
         });
         ClientLifecycleEvents.CLIENT_STARTED.register(ReportKt::reportOnlineMC);
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            RvcLocalCommandKt.register(dispatcher);
-        });
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> RvcLocalCommandKt.register(dispatcher));
         RDebuggerLayoutKt.register();
     }
 }

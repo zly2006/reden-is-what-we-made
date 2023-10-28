@@ -90,8 +90,8 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
     @Shadow public abstract ServerChunkManager getChunkManager();
 
     /**
-     * @author
-     * @reason
+     * @author zly2006
+     * @reason Reden Debugger
      */
     @Overwrite
     public void tick(BooleanSupplier shouldKeepTicking) {

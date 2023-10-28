@@ -47,6 +47,7 @@
     "undo.MixinTntEntity"
   ],
   "client": [
+    "common.MixinClient",
     "debug.undoReportUnTrackedTnt.MixinTntEntity",
     "forceSyncEntityPos.MixinClientNetwork",
     "forceSyncEntityPos.MixinTracker",

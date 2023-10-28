@@ -22,9 +22,8 @@ public class SolidFaceRenderer {
     private Vec3d[] cachedVertexes = null;
 
     public SolidFaceRenderer() {
-        WorldRenderEvents.BEFORE_DEBUG_RENDER.register((ctx) -> {
-            this.render(ctx.camera().getPos(), ctx.matrixStack().peek().getPositionMatrix());
-        });
+        WorldRenderEvents.BEFORE_DEBUG_RENDER.register((ctx) ->
+                this.render(ctx.camera().getPos(), ctx.matrixStack().peek().getPositionMatrix()));
     }
 
     public void tick() {

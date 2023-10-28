@@ -1,12 +1,11 @@
 package com.github.zly2006.reden.debugger.breakpoint
 
 import com.github.zly2006.reden.debugger.breakpoint.behavior.BreakPointBehavior
-import com.github.zly2006.reden.network.ChangeBreakpointPacket.Companion.ADD
-import com.github.zly2006.reden.network.ChangeBreakpointPacket.Companion.ENABLED
+import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ADD
+import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
-import java.util.*
 
 val registry = mutableMapOf<Identifier, BreakPointType>(
 
@@ -18,20 +17,19 @@ interface BreakPointType {
     fun create(id: Int): BreakPoint
 }
 
-val breakpoints = TreeMap<Int, BreakPoint>()
-
 abstract class BreakPoint(
     val id: Int,
     open val type: BreakPointType
 ) {
     /**
-     * @see com.github.zly2006.reden.network.ChangeBreakpointPacket.Companion
+     * @see com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion
      */
     var flags = ADD or ENABLED
     open val handler: Collection<BreakPointBehavior> = mutableListOf()
     open fun call() = handler.forEach { it.onBreakPoint(this) }
     abstract fun write(buf: PacketByteBuf)
     abstract fun read(buf: PacketByteBuf)
+
     companion object {
         fun read(buf: PacketByteBuf): BreakPoint {
             val id = buf.readIdentifier()

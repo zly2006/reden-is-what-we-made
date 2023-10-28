@@ -1,8 +1,11 @@
 package com.github.zly2006.reden.transformers
 
+import net.fabricmc.fabric.api.networking.v1.FabricPacket
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.impl.launch.FabricLauncherBase
 import net.fabricmc.mapping.tree.ClassDef
+import net.minecraft.server.MinecraftServer
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
 
@@ -69,13 +72,12 @@ class MethodInfo(
 }
 
 object IntermediaryMappingAccess {
-    val mapping = FabricLauncherBase.getLauncher().mappingConfiguration.getMappings()
-    private val classMapping2default: Map<String, String> =
-        FabricLauncherBase.getLauncher().mappingConfiguration.getMappings().run {
-            classes.associate {
-                it.getName("intermediary") to it.getName(metadata.namespaces[0])
-            }
+    val mapping = FabricLauncherBase.getLauncher().mappingConfiguration.getMappings()!!
+    private val classMapping2default: Map<String, String> = mapping.run {
+        classes.associate {
+            it.getName("intermediary") to it.getName(metadata.namespaces[0])
         }
+    }
 
     private val methodMapping = mutableMapOf<String, MethodInfo>()
     fun getMethod(owner: String?, name: String): MethodInfo? {
@@ -137,4 +139,10 @@ fun getMappedMethod(info: MethodInfo): MethodInfo {
         name,
         desc
     )
+}
+
+fun MinecraftServer.sendToAll(packet: FabricPacket) {
+    playerManager.playerList.forEach {
+        ServerPlayNetworking.send(it, packet)
+    }
 }

@@ -39,9 +39,8 @@ public abstract class MixinHoppers extends LootableContainerBlockEntity {
         ((ServerWorld) world).getPlayers().forEach(player -> {
             if (player.currentScreenHandler instanceof HopperScreenHandler sh) {
                 if (sh.inventory == blockEntity) {
-                    player.server.execute(() -> {
-                        ServerPlayNetworking.send(player, new HopperCDSync(pos, blockEntity.transferCooldown));
-                    });
+                    player.server.execute(() ->
+                        ServerPlayNetworking.send(player, new HopperCDSync(pos, blockEntity.transferCooldown)));
                 }
             }
         });
