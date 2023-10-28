@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.disableWatchDog
 import com.github.zly2006.reden.utils.server
+import io.netty.util.internal.UnstableApi
 import okhttp3.internal.toHexString
 import org.jetbrains.annotations.TestOnly
 
@@ -20,19 +21,7 @@ class StageTree: Iterator<TickStage> {
     var child: TreeNode? = null
     val tickedStages = mutableListOf<TickStage>()
     private var lastReturned: TreeNode? = null
-    /*
-    root
-    1
-    2
-     \
-     3
-    / \
-   4   7
-  /  \
- 5    6
-   -- all children ticked
 
-     */
     override fun hasNext(): Boolean {
         if (child == null)
             return false
@@ -44,6 +33,8 @@ class StageTree: Iterator<TickStage> {
 
     /**
      * Assume that the child node has been ticked and non-null.
+     *
+     * (i.e. [child] != null && [TreeNode.childrenUpdated])
      */
     private fun checkIterators() {
         if (child!!.iter == null) {
@@ -87,8 +78,13 @@ class StageTree: Iterator<TickStage> {
         child = null
     }
 
+    @UnstableApi
     fun resetTo(stage: TickStage) {
-        TODO("still need to reset all iterators to current tick stage")
+        val index = tickedStages.indexOf(stage)
+        val stagesToReset = (tickedStages.size - 1 downTo index + 1).map {
+            tickedStages.removeAt(it)
+        }
+        stagesToReset.forEach { it.reset() }
     }
 
     fun pauseGame() {

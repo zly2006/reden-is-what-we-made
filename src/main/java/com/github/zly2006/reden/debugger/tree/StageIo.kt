@@ -104,8 +104,7 @@ object StageIo {
             } else {
                 if (iterIndex != 0) {
                     // set children if possible
-                    // todo: here is a bug
-                    //  prevNode.stage.children[iterIndex - 1] = node.stage
+                    prevNode.stage.children[iterIndex - 1] = node.stage
                 }
             }
             prevNode = node

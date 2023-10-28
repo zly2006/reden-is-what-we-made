@@ -7,10 +7,6 @@ import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.storage.BlocksResetStorage
 import com.github.zly2006.reden.debugger.tree.StageTree
-import com.github.zly2006.reden.network.StageTreeS2CPacket
-import com.github.zly2006.reden.utils.sendMessage
-import com.github.zly2006.reden.utils.server
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.text.MutableText
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
@@ -25,22 +21,12 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
     abstract val entry: T
     val resetStorage = BlocksResetStorage()
 
-    fun checkBreakpoints() {
-        if (targetPos == BlockPos.ORIGIN) {
-            //todo: waiting for breakpoints
-            server.playerManager.playerList.forEach {
-                it.sendMessage("Updating block at origin")
-                ServerPlayNetworking.send(it, StageTreeS2CPacket(server.data().tickStageTree))
-            }
-        }
-    }
-
     override fun tick() {
         super.tick()
         if (world == null) {
             error("World is null, are you ticking this stage at a client?")
         }
-        checkBreakpoints()
+        world!!.server.data().breakpoints.checkBreakpointsForUpdating(this)
         world!!.neighborUpdater.updaterData().tickEntry(this)
     }
 

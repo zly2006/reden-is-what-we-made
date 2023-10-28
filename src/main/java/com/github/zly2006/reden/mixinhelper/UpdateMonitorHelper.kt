@@ -54,7 +54,8 @@ import net.minecraft.util.math.BlockPos
  *
  * ## Entities
  *
- * TODO
+ * For entities, we monitor all [net.minecraft.entity.data.TrackedData] changes.
+ * see [com.github.zly2006.reden.mixin.undo.MixinDataTracker.beforeDataSet]
  *
  * ## Async changes
  *

@@ -18,7 +18,7 @@ import java.util.*
 
 private val id = Reden.identifier("update_breakpoint")
 private val pType = PacketType.create(id) {
-    val bp = BreakPoint.read(it)
+    val bp = BreakpointsManager.getBreakpointManager().read(it)
     val flag = it.readVarInt()
     val bpId = it.readVarInt()
     val uuid = it.readNullable(PacketByteBuf::readUuid)
