@@ -6,7 +6,7 @@ import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
 
 object RedenInjectConfig {
-    val injector = FabricLoaderInjector(PreLaunch::class.java.classLoader)
+    val injector = FabricLoaderInjector(this::class.java.classLoader)
     open class Target (
         val interName: String,
     )
