@@ -57,10 +57,12 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
      */
     @Overwrite
     public void tickWorlds(BooleanSupplier shouldKeepTicking) {
-        TickStage stage = getRedenServerData().getTickStageTree().peekLeaf();
-
         // Note: this variable just keeps local variable name same as vanilla
         Iterator<?> iterator = this.getWorlds().iterator();
+        ServerWorld serverWorld;
+
+        // Reden start
+        TickStage stage = getRedenServerData().getTickStageTree().peekLeaf();
 
         if (stage instanceof ServerRootStage) {
             /**
@@ -76,7 +78,7 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
              * Called by {@link WorldRootStage#tick}, so don't need to call it
              * leave injecting points for other mods
              */
-            ServerWorld serverWorld = rootStage.getWorld();
+            serverWorld = rootStage.getWorld();
 
             // Vanilla start
             this.profiler.push(() -> serverWorld + " " + serverWorld.getRegistryKey().getValue());

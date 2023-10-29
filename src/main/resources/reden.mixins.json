@@ -14,6 +14,8 @@
     "common.remote.MixinMinecraftServer",
     "common.remote.MixinServerWorld",
     "crash.MixinSystemDetails",
+    "debug.compatTest.MixinMinecraftServet_ct",
+    "debug.compatTest.MixinServerWorld_ct",
     "debugger.MixinServer",
     "debugger.MixinServerWorld",
     "debugger.events.MixinChunk",
