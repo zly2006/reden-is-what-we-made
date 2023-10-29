@@ -20,7 +20,7 @@ class StageTree: Iterator<TickStage> {
     var root: TreeNode? = null
     var child: TreeNode? = null
     val tickedStages = mutableListOf<TickStage>()
-    private var lastReturned: TreeNode? = null
+    internal var lastReturned: TreeNode? = null
 
     override fun hasNext(): Boolean {
         if (child == null)

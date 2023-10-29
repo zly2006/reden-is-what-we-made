@@ -6,7 +6,7 @@ import com.github.zly2006.reden.utils.server
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 
 class Interrupt: BreakPointBehavior() {
-    override fun onBreakPoint(breakPoint: BreakPoint) {
+    override fun onBreakPoint(breakPoint: BreakPoint, event: Any) {
         server.playerManager.playerList.forEach {
             ServerPlayNetworking.send(it, BreakPointInterrupt(breakPoint.id))
         }

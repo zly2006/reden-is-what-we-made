@@ -7,7 +7,7 @@ abstract class BlockUpdateEvent(
     id: Int,
     type: BreakPointType,
     var options: Int = 0,
-    var pos: BlockPos? = null,
+    override var pos: BlockPos? = null,
 ): BreakPoint(id, type) {
     companion object {
         const val PP = 1

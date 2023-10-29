@@ -24,7 +24,7 @@ class ServerData(
     }
 
     interface ClientSideServerDataAccess {
-        fun getRedenServerData(): ServerData
+        var redenServerData: ServerData?
     }
 
     companion object {
@@ -32,8 +32,8 @@ class ServerData(
         fun MinecraftServer.data(): ServerData {
             return (this as ServerDataAccess).getRedenServerData()
         }
-        fun MinecraftClient.serverData(): ServerData {
-            return (this as ClientSideServerDataAccess).getRedenServerData()
+        fun MinecraftClient.serverData(): ServerData? {
+            return (this as ClientSideServerDataAccess).redenServerData
         }
     }
 }

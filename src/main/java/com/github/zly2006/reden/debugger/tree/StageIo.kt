@@ -65,7 +65,7 @@ object StageIo {
 
     fun writeStageTree(tree: StageTree, buf: PacketByteBuf) {
         val list = mutableListOf<StageTree.TreeNode>()
-        var node = tree.child
+        var node = tree.lastReturned
         while (node != null) {
             list.add(node)
             node = node.parent

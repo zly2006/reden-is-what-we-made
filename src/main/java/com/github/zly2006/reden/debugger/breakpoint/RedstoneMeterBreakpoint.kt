@@ -14,7 +14,7 @@ import kotlin.jvm.optionals.getOrDefault
  * [Redstone Multimeter](https://www.curseforge.com/minecraft/mc-mods/redstone-multimeter)
  */
 class RedstoneMeterBreakpoint(id: Int) : BreakPoint(id, Companion) {
-    lateinit var pos: BlockPos
+    override lateinit var pos: BlockPos
     companion object: BreakPointType {
         val POWERED = Properties.POWERED!!
 

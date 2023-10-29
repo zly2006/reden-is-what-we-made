@@ -57,9 +57,9 @@ class BreakpointsManager {
 
     fun <T : UpdaterEntry> checkBreakpointsForUpdating(stage: AbstractBlockUpdateStage<T>) {
         val worldId = stage.world?.registryKey?.value
-        breakpointMap.values.asSequence().filter { worldId == it.world }.forEach {
-            it.call()
-        }
+        breakpointMap.values.asSequence()
+            .filter { worldId == it.world }
+            .forEach { it.call(stage) }
     }
 
     val breakpointMap = Int2ObjectOpenHashMap<BreakPoint>()
