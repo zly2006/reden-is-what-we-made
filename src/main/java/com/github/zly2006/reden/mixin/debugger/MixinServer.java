@@ -21,6 +21,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
@@ -58,9 +59,12 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
     public void tickWorlds(BooleanSupplier shouldKeepTicking) {
         TickStage stage = getRedenServerData().getTickStageTree().peekLeaf();
 
+        // Note: this variable just keeps local variable name same as vanilla
+        Iterator<?> iterator = this.getWorlds().iterator();
+
         if (stage instanceof ServerRootStage) {
             /**
-             * Called by {@link ServerRootStage#tick}, so dont need to call it.
+             * Called by {@link ServerRootStage#tick}, so don't need to call it.
              * Leave injecting points for other mods.
              */
 
@@ -69,7 +73,7 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
             this.profiler.swap("levels");
         } else if (stage instanceof WorldRootStage rootStage) {
             /**
-             * Called by {@link WorldRootStage#tick}, so dont need to call it
+             * Called by {@link WorldRootStage#tick}, so don't need to call it
              * leave injecting points for other mods
              */
             ServerWorld serverWorld = rootStage.getWorld();

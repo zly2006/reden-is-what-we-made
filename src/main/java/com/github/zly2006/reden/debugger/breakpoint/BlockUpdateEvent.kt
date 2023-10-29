@@ -8,7 +8,7 @@ abstract class BlockUpdateEvent(
     type: BreakPointType,
     var options: Int = 0,
     var pos: BlockPos? = null,
-): BreakPoint(id, type, ) {
+): BreakPoint(id, type) {
     companion object {
         const val PP = 1
         const val NC = 2
