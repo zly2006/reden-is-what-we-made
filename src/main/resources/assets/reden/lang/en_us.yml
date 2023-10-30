@@ -243,6 +243,8 @@ reden:
 
 carpet:
   rule:
+    redenDebuggerItemShadow:
+      desc: Enable Reden debugger for item shadowing, this can give you some necessary information for item shadowing.
     fixInvisibleShadowingItems:
       desc: Igna
     redenDebuggerEnabled:

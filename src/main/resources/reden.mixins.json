@@ -27,6 +27,8 @@
     "debugger.updateQueue.Mixin119Updater",
     "fakePlayer.MixinPlayerManager",
     "hopperDelaySync.MixinHoppers",
+    "itemShadow.MixinAllInventories",
+    "itemShadow.MixinItemStack",
     "otherMods.carpet.MixinTickStep",
     "otherMods.tweeakeroo.hopperDelaySync.MixinX",
     "pearl.MixinExplosion",

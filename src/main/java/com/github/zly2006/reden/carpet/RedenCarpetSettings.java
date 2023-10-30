@@ -61,9 +61,9 @@ public class RedenCarpetSettings {
 
     public static class Debugger {
         @Contract(pure = true)
-        public static boolean debuggerBlockUpdates() {
-            return redenDebuggerEnabled && redenDebuggerBlockUpdates;
-        }
+        public static boolean debuggerBlockUpdates() { return redenDebuggerEnabled && redenDebuggerBlockUpdates; }
+        @Contract(pure = true)
+        public static boolean debuggerItemShadow() { return redenDebuggerEnabled && redenDebuggerItemShadow; }
 
         static class Validators extends Validator<Boolean> {
             @Override
@@ -95,6 +95,12 @@ public class RedenCarpetSettings {
             validators = Debugger.Validators.class
     )
     public static boolean redenDebuggerBlockUpdates = true;
+
+    @Rule(
+            categories = {CATEGORY_REDEN, CATEGORY_DEBUGGER},
+            validators = Debugger.Validators.class
+    )
+    public static boolean redenDebuggerItemShadow = true;
 
     private static class InvisibleShadowingItemsValidator extends Validator<Boolean> {
         @Override

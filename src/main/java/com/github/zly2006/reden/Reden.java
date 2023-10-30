@@ -20,6 +20,10 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
+import net.minecraft.command.argument.ItemStackArgument;
+import net.minecraft.command.argument.ItemStackArgumentType;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -95,6 +99,19 @@ public class Reden implements ModInitializer, CarpetExtension {
                                     PlayerData.Companion.data(context.getSource().getPlayer()).topRedo();
                                     return 1;
                                 }))
+                        .then(CommandManager.literal("shadow-item")
+                                .then(CommandManager.argument("item", ItemStackArgumentType.itemStack(access))
+                                        .executes(context -> {
+                                            ItemStackArgument itemStackArgument = ItemStackArgumentType.getItemStackArgument(context, "item");
+                                            ItemStack stack = itemStackArgument.createStack(1, true);
+                                            PlayerInventory inventory = context.getSource().getPlayer().getInventory();
+                                            for (int i = 0; i < 2; i++) {
+                                                int emptySlot = inventory.getEmptySlot();
+                                                inventory.setStack(emptySlot, stack);
+                                            }
+                                            context.getSource().getPlayer().currentScreenHandler.syncState();
+                                            return 1;
+                                        })))
                         .then(CommandManager.literal("delay-test")
                                 .executes(context -> {
                                     try {
