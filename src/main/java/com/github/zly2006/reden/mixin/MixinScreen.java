@@ -3,15 +3,20 @@ package com.github.zly2006.reden.mixin;
 import com.github.zly2006.reden.RedenClient;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.google.gson.JsonPrimitive;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Style;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Screen.class)
 public class MixinScreen {
+    @Shadow @Nullable protected MinecraftClient client;
+
     @Inject(
             method = "handleTextClick",
             at = @At(
@@ -32,6 +37,9 @@ public class MixinScreen {
                         .filter(it -> it.getName().equals(key))
                         .forEach(it -> it.setValueFromJsonElement(new JsonPrimitive(val)));
                 RedenClient.saveMalilibOptions();
+            }
+            else if (command.equals("stopClient")) {
+                client.stop();
             }
             cir.setReturnValue(true);
         }

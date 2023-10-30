@@ -2,7 +2,8 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ChainedUpdaterView
-import com.github.zly2006.reden.access.WorldData.Companion.data
+import com.github.zly2006.reden.access.ServerData.Companion.data
+import com.github.zly2006.reden.access.removeStatus
 import com.github.zly2006.reden.utils.server
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
@@ -33,7 +34,7 @@ class StepUpdate(
                     sender.sendPacket(StepUpdate(-1, false))
                 }
                 else {
-                    val status = player.world.data()!!.removeStatus(WorldStatus.FROZEN)
+                    val status = player.server.data().removeStatus(GlobalStatus.FROZEN)
                     server.playerManager.playerList.forEach {
                         ServerPlayNetworking.send(it, WorldStatus(status, null))
                     }

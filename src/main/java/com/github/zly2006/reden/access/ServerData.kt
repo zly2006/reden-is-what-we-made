@@ -9,9 +9,9 @@ import java.util.*
 
 class ServerData(
     server: MinecraftServer
-) {
+): StatusAccess {
     @JvmField var realTicks = 0
-    var status: Long = 0
+    override var status: Long = 0
     var uuid: UUID? = null
     var address: String = ""
     val tickStage = ServerRootStage(server)

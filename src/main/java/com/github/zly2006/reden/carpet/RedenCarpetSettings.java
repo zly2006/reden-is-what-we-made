@@ -4,13 +4,20 @@ import carpet.api.settings.CarpetRule;
 import carpet.api.settings.Rule;
 import carpet.api.settings.RuleCategory;
 import carpet.api.settings.Validator;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
+import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.TypeFilter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class RedenCarpetSettings {
     private static final String CATEGORY_REDEN = "Reden";
@@ -88,4 +95,36 @@ public class RedenCarpetSettings {
             validators = Debugger.Validators.class
     )
     public static boolean redenDebuggerBlockUpdates = true;
+
+    private static class InvisibleShadowingItemsValidator extends Validator<Boolean> {
+        @Override
+        public Boolean validate(@Nullable ServerCommandSource source, CarpetRule<Boolean> changingRule, Boolean newValue, String userInput) {
+            if (newValue && source != null) {
+                source.getServer().getWorlds().forEach(world ->
+                        world.getEntitiesByType(TypeFilter.instanceOf(ItemEntity.class), entity -> true).forEach(item -> {
+                            System.out.println(item.getStack());
+                            PlayerManager playerManager = source.getServer().getPlayerManager();
+                            playerManager.sendToDimension(
+                                    item.createSpawnPacket(),
+                                    world.getRegistryKey()
+                            );
+                            playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(
+                                    item.getId(),
+                                    List.of(new DataTracker.SerializedEntry<>(
+                                            ItemEntity.STACK.getId(),
+                                            ItemEntity.STACK.getType(),
+                                            ItemEntity.STACK.getType().copy(item.getStack())
+                                    ))
+                            ), world.getRegistryKey());
+                        }));
+
+            }
+            return newValue;
+        }
+    }
+    @Rule(
+            categories = {CATEGORY_REDEN, RuleCategory.CREATIVE},
+            validators = {InvisibleShadowingItemsValidator.class}
+    )
+    public static boolean fixInvisibleShadowingItems = false;
 }

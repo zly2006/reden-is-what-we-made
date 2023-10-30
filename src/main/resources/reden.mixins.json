@@ -16,6 +16,8 @@
     "crash.MixinSystemDetails",
     "debug.compatTest.MixinMinecraftServet_ct",
     "debug.compatTest.MixinServerWorld_ct",
+    "debug.igna.MixinItemEntity",
+    "debug.igna.MixinTracker",
     "debugger.MixinServer",
     "debugger.MixinServerWorld",
     "debugger.events.MixinChunk",

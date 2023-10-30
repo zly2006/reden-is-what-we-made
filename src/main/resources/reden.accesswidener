@@ -113,7 +113,7 @@ accessible field net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWay
 accessible method net/minecraft/world/block/ChainRestrictedNeighborUpdater runQueuedUpdates ()V
 accessible method net/minecraft/world/block/ChainRestrictedNeighborUpdater$SimpleEntry <init> (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;)V
 accessible method net/minecraft/world/block/ChainRestrictedNeighborUpdater$StateReplacementEntry <init> (Lnet/minecraft/util/math/Direction;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;II)V
-
+accessible field net/minecraft/entity/ItemEntity STACK Lnet/minecraft/entity/data/TrackedData;
 
 
 

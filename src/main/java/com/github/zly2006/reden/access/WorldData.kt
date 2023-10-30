@@ -7,21 +7,12 @@ import net.minecraft.world.World
 
 class WorldData(
     val serverWorld: ServerWorld
-) {
-    var status: Long = 0
+): StatusAccess {
+    override var status: Long = 0
     lateinit var tickStage: WorldRootStage
     val breakpointHelper = BreakpointHelper(serverWorld)
     interface WorldDataAccess {
         fun getRedenWorldData(): WorldData
-    }
-
-    fun addStatus(status: Long): Long {
-        this.status = this.status or status
-        return this.status
-    }
-    fun removeStatus(status: Long): Long {
-        this.status = this.status and status.inv()
-        return this.status
     }
 
     companion object {
@@ -34,4 +25,18 @@ class WorldData(
             return (this as? ServerWorld)?.data()
         }
     }
+}
+
+interface StatusAccess {
+    var status: Long
+}
+
+fun StatusAccess.addStatus(status: Long): Long {
+    this.status = this.status or status
+    return this.status
+}
+
+fun StatusAccess.removeStatus(status: Long): Long {
+    this.status = this.status and status.inv()
+    return this.status
 }

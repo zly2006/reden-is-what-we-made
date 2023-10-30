@@ -243,6 +243,8 @@ reden:
 
 carpet:
   rule:
+    fixInvisibleShadowingItems:
+      desc: Igna
     redenDebuggerEnabled:
       desc: Enable Reden debugger
     redenDebuggerBlockUpdates:
