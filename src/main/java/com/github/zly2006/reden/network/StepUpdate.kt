@@ -3,7 +3,6 @@ package com.github.zly2006.reden.network
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ChainedUpdaterView
 import com.github.zly2006.reden.access.ServerData.Companion.data
-import com.github.zly2006.reden.access.removeStatus
 import com.github.zly2006.reden.utils.server
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
