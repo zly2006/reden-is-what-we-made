@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
 import com.github.zly2006.reden.debugger.tree.StageIo
 import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.utils.isClient
@@ -32,7 +33,12 @@ data class BreakPointInterrupt(
         }!!
         fun register() {
             if (isClient) {
-                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
+                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, _ ->
+                    val breakpoint = BreakpointsManager.getBreakpointManager().breakpointMap[packet.bpId]
+                        ?: throw RuntimeException("Breakpoint ${packet.bpId} not found")
+                    // todo
+                    breakpoint.pos // highlight
+                    packet.tree // print to ui
                 }
             }
         }
