@@ -5,7 +5,8 @@ import net.minecraft.client.MinecraftClient
 
 class ClientData(
     val mc: MinecraftClient
-) {
+): StatusAccess {
+    override var status: Long = 0
     val breakpoints = BreakpointsManager()
 
     interface ClientDataAccess {

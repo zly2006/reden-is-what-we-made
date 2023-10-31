@@ -6,7 +6,6 @@ import com.github.zly2006.reden.debugger.TickStage;
 import com.github.zly2006.reden.debugger.stages.GlobalNetworkStage;
 import com.github.zly2006.reden.debugger.stages.NetworkStage;
 import com.github.zly2006.reden.mixin.debugger.MixinServer;
-import com.google.common.collect.Iterators;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
@@ -47,16 +46,17 @@ public class MixinNetworkIo {
     public void tick() {
         //noinspection SynchronizeOnNonFinalField
         synchronized (this.connections) {
+            @SuppressWarnings("unused") // Leave variables for other mods to inject
+            Iterator<ClientConnection> iterator;
+            ClientConnection clientConnection;
+
             TickStage tickStage = data(server).getTickStageTree().peekLeaf();
             Reden.LOGGER.trace("[ServerNetworkIo#tick] tickStage = " + tickStage);
             if (tickStage instanceof GlobalNetworkStage) {
                 return;
             }
             NetworkStage stage = (NetworkStage) tickStage;
-
-            @SuppressWarnings("unused") // Leave variables for other mods to inject
-            Iterator<ClientConnection> iterator = Iterators.singletonIterator(stage.getConnection());
-            ClientConnection clientConnection = stage.getConnection();
+            clientConnection = stage.getConnection();
             //
             if (clientConnection.isOpen()) {
                 try {

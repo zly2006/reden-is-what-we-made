@@ -3,6 +3,8 @@ package com.github.zly2006.reden.access
 import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
 import com.github.zly2006.reden.debugger.stages.ServerRootStage
 import com.github.zly2006.reden.debugger.tree.StageTree
+import com.github.zly2006.reden.utils.isClient
+import com.github.zly2006.reden.utils.server
 import net.minecraft.client.MinecraftClient
 import net.minecraft.server.MinecraftServer
 import java.util.*
@@ -34,6 +36,14 @@ class ServerData(
         }
         fun MinecraftClient.serverData(): ServerData? {
             return (this as ClientSideServerDataAccess).redenServerData
+        }
+        @JvmStatic
+        fun getServerData() = if (!isClient) {
+            server.data()
+        } else {
+            val mc = MinecraftClient.getInstance()
+            if (mc.isInSingleplayer) mc.server?.data()
+            else mc.serverData()
         }
     }
 }

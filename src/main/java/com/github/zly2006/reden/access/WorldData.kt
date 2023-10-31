@@ -29,14 +29,18 @@ class WorldData(
 
 interface StatusAccess {
     var status: Long
-}
 
-fun StatusAccess.addStatus(status: Long): Long {
-    this.status = this.status or status
-    return this.status
-}
+    fun addStatus(status: Long): Long {
+        this.status = this.status or status
+        return this.status
+    }
 
-fun StatusAccess.removeStatus(status: Long): Long {
-    this.status = this.status and status.inv()
-    return this.status
+    fun removeStatus(status: Long): Long {
+        this.status = this.status and status.inv()
+        return this.status
+    }
+
+    fun hasStatus(status: Long): Boolean {
+        return this.status and status != 0L
+    }
 }

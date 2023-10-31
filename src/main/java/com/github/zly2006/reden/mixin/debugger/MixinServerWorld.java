@@ -21,7 +21,10 @@ import net.minecraft.world.*;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.tick.WorldTickScheduler;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.List;
 import java.util.function.BooleanSupplier;
