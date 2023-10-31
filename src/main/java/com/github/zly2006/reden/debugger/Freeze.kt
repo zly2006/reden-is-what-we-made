@@ -10,6 +10,8 @@ var disableWatchDog = false
 
 fun tickPackets(server: MinecraftServer) {
     server.data().addStatus(GlobalStatus.FROZEN)
+    // todo: tick command introduced in 1.20.2
+    server.timeReference = Long.MAX_VALUE
     val globalStatus = GlobalStatus(server.data().status, NbtCompound().apply {
         putString("reason", "game-paused")
     })
