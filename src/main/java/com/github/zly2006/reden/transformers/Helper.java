@@ -12,7 +12,7 @@ public class Helper {
         throw new UnsupportedOperationException();
     }
 
-    public static void transformerHint() {
-        unsupportedOperation();
+    public static void transformerHint(String description) {
+        throw new UnsupportedOperationException("Transformer hint cannot be called at runtime! Do you forget to run the transformer?");
     }
 }

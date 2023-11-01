@@ -7,6 +7,7 @@ import com.github.zly2006.reden.debugger.stages.EndStage;
 import com.github.zly2006.reden.debugger.stages.GlobalNetworkStage;
 import com.github.zly2006.reden.debugger.stages.ServerRootStage;
 import com.github.zly2006.reden.debugger.stages.WorldRootStage;
+import com.github.zly2006.reden.transformers.Helper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.ServerNetworkIo;
@@ -57,6 +58,7 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
      */
     @Overwrite
     public void tickWorlds(BooleanSupplier shouldKeepTicking) {
+        Helper.transformerHint("test1");
         // Note: this variable just keeps local variable name same as vanilla
         Iterator<?> iterator = this.getWorlds().iterator();
         ServerWorld serverWorld;
@@ -123,5 +125,6 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
 
             this.profiler.pop();
         }
+        Helper.transformerHint("test2");
     }
 }
