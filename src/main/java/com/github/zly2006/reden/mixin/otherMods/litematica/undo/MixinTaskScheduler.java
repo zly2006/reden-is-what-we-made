@@ -1,12 +1,9 @@
 package com.github.zly2006.reden.mixin.otherMods.litematica.undo;
 
-import com.github.zly2006.reden.ModNames;
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import fi.dy.masa.litematica.scheduler.TaskScheduler;
-import me.fallenbreath.conditionalmixin.api.annotation.Condition;
-import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.integrated.IntegratedServer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,9 +11,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Restriction(
-     require = @Condition(ModNames.litematica)
-)
 @Mixin(TaskScheduler.class)
 // client-side only
 public class MixinTaskScheduler {
