@@ -10,6 +10,7 @@ import com.github.zly2006.reden.network.ChannelsKt;
 import com.github.zly2006.reden.rvc.RvcCommandKt;
 import com.github.zly2006.reden.transformers.ThisIsReden;
 import com.github.zly2006.reden.utils.ResourceLoader;
+import com.github.zly2006.reden.utils.TaskScheduler;
 import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -18,6 +19,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
 import net.minecraft.command.argument.ItemStackArgument;
@@ -129,6 +131,8 @@ public class Reden implements ModInitializer, CarpetExtension {
                 LOGGER.info("This is Reden!");
             }
         });
+        Sounds.init();
+        ServerTickEvents.END_SERVER_TICK.register(TaskScheduler.INSTANCE);
     }
 
     @Contract("_ -> new")
