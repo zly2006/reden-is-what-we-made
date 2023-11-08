@@ -24,8 +24,11 @@ abstract class BreakPoint(
      * @see com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion
      */
     var flags = ADD or ENABLED
-    open val handler: Collection<BreakPointBehavior> = mutableListOf()
-    open fun call(event: Any) = handler.forEach { it.onBreakPoint(this, event) }
+    open var handler: Collection<BreakPointBehavior> = mutableListOf(); protected set
+    open fun call(event: Any) {
+        handler = handler.sortedBy { it.priority }
+        handler.forEach { it.onBreakPoint(this, event) }
+    }
     abstract fun write(buf: PacketByteBuf)
     abstract fun read(buf: PacketByteBuf)
 }

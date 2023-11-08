@@ -8,7 +8,29 @@ import io.netty.util.internal.UnstableApi
 import okhttp3.internal.toHexString
 import org.jetbrains.annotations.TestOnly
 
+/**
+ * A StageTree represents something like the JVM method calling stack.
+ * Each [TickStage] is one or some method calls, representing how the server is ticking.
+ *
+ * A StageTree is an iterator of [TickStage]s, it will return the next stage to tick
+ * and ticking the stage is to tick the server like vanilla.
+ *
+ * A StageTree is mutable, you can insert a stage into it (at the cursor).
+ *
+ * You cannot remove a stage from a StageTree, because it is not necessary.
+ */
 class StageTree: Iterator<TickStage> {
+    /**
+     * A node in the tree.
+     *
+     * if [StageTree.next] is called, firstly, we check if current [stage] was ticked
+     * by checking [childrenUpdated].
+     * Because we assume that each tick will clear its children and update them when ticked.
+     *
+     * If [childrenUpdated] is false, we will tick the stage and set [childrenUpdated] to true.
+     *
+     * If [childrenUpdated] is true, we will tick all its children.
+     */
     class TreeNode(
         val parent: TreeNode?,
         val stage: TickStage,
