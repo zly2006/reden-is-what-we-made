@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.mixin.crash;
+package com.github.zly2006.reden.mixin.debugger.crash;
 
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
@@ -27,6 +27,9 @@ public abstract class MixinSystemDetails {
                 sb.append("Enabled (");
                 if (RedenCarpetSettings.redenDebuggerBlockUpdates) {
                     sb.append("Block Updates, ");
+                }
+                if (RedenCarpetSettings.redenDebuggerItemShadow) {
+                    sb.append("Item Shadows, ");
                 }
                 sb.append(")");
                 if (UtilsKt.server != null) {

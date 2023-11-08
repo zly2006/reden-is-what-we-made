@@ -65,7 +65,8 @@ public class QuickMenuWidget implements Selectable, Drawable, Element {
     }
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        if (entries.size() == 0) {
+        if (entries.isEmpty()) {
+            remove();
             return;
         }
         int height = entries.size() * 14;
@@ -92,11 +93,12 @@ public class QuickMenuWidget implements Selectable, Drawable, Element {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (entries.size() == 0) {
+        if (entries.isEmpty()) {
             return false;
         }
         for (int i = 0; i < entries.size(); i++) {
             MenuEntry entry = entries.get(i);
+            entry.getName().copy().append(Text.of("ssšśæaāàáãppįìłmñńņňŋŕřśšşŧūùúŭýÿźżž"));
             if (mouseX >= x && mouseX <= x + width && mouseY >= y + i * 14 && mouseY <= y + i * 14 + 14) {
                 ClickAction action = entry.action;
                 entry.action = CLOSE_ACTION;

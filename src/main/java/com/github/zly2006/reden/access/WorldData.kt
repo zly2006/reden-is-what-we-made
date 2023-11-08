@@ -1,7 +1,6 @@
 package com.github.zly2006.reden.access
 
 import com.github.zly2006.reden.debugger.stages.WorldRootStage
-import com.github.zly2006.reden.mixinhelper.BreakpointHelper
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.World
 
@@ -10,7 +9,7 @@ class WorldData(
 ): StatusAccess {
     override var status: Long = 0
     lateinit var tickStage: WorldRootStage
-    val breakpointHelper = BreakpointHelper(serverWorld)
+
     interface WorldDataAccess {
         fun getRedenWorldData(): WorldData
     }
@@ -24,23 +23,5 @@ class WorldData(
         fun World.data(): WorldData? {
             return (this as? ServerWorld)?.data()
         }
-    }
-}
-
-interface StatusAccess {
-    var status: Long
-
-    fun addStatus(status: Long): Long {
-        this.status = this.status or status
-        return this.status
-    }
-
-    fun removeStatus(status: Long): Long {
-        this.status = this.status and status.inv()
-        return this.status
-    }
-
-    fun hasStatus(status: Long): Boolean {
-        return this.status and status != 0L
     }
 }
