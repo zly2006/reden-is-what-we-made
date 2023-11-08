@@ -10,6 +10,9 @@ import com.github.zly2006.reden.transformers.sendToAll
 import com.github.zly2006.reden.utils.server
 
 class PauseGame: BreakPointBehavior() {
+    init {
+        priority = 100
+    }
     override fun onBreakPoint(breakPoint: BreakPoint, event: Any) {
         val tree = server.data().tickStageTree
         server.sendToAll(BreakPointInterrupt(breakPoint.id, tree))
