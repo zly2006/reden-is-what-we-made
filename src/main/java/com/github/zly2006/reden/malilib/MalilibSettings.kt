@@ -44,6 +44,7 @@ private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add
 @Suppress("UNCHECKED_CAST")
 private fun <T : IConfigBase?> ConfigBase<T>.hidden() = this.apply(HIDDEN_TAB::add) as T
 
+// Generic
 @JvmField val REDEN_CONFIG_KEY = RedenConfigHotkey("redenConfigKey", "R,C").generic().hotkey()
 @JvmField val SELECTION_TOOL = RedenConfigString("selectionTool", "minecraft:blaze_rod").generic()
 @JvmField val HUD_POSITION = ConfigOptionList("hudPosition", HudAlignment.BOTTOM_LEFT, "").generic()
@@ -59,18 +60,22 @@ private fun <T : IConfigBase?> ConfigBase<T>.hidden() = this.apply(HIDDEN_TAB::a
 @JvmField val SOLID_FACE_RENDERER = RedenConfigBoolean("solidFaceRenderer", false).generic()
 @JvmField val SOLID_FACE_SHAPE_PREDICATE = RedenConfigOptionList("solidFaceShapePredicate", ShapePredicateOptionEntry.FULL).generic()
 @JvmField val EASTER_EGG_RATE = RedenConfigInteger("easterEggRate", 3, 0, 100).generic()
+// RVC
 @JvmField val TOGGLE_NC_BREAKPOINT = RedenConfigHotkey("toggleNcBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,Z").mt().hotkey()
 @JvmField val TOGGLE_PP_BREAKPOINT = RedenConfigHotkey("togglePpBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,X").mt().hotkey()
 @JvmField val TOGGLE_CU_BREAKPOINT = RedenConfigHotkey("toggleCuBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,C").mt().hotkey()
 @JvmField val TOGGLE_FORCE_ENTITY_POS_SYNC = RedenConfigBooleanHotkeyed("toggleForceEntityPosSync", false, "LEFT_CONTROL,LEFT_SHIFT,V").hotkey().mt()
+// Super Right
 @JvmField val OPEN_RVC_SCREEN = RedenConfigHotkey("openRvcScreen", "R", KeybindSettings.RELEASE).rvc().hotkey()
 @JvmField val OPEN_SELECTION_LIST = RedenConfigHotkey("openSelectionList", "R,L").rvc().hotkey()
 @JvmField val RVC_RECORD_MULTIPLAYER = RedenConfigBoolean("rvcRecordMultiplayer", true).rvc()
 @JvmField val RVC_FORCE_LOCALLY = RedenConfigBoolean("rvcForceLocally", false).rvc()
+// Micro Tick
 @JvmField val CHAT_RIGHT_CLICK_MENU = RedenConfigBoolean("chatRightClickMenu", true).sr()
 @JvmField val STRUCTURE_BLOCK_LOAD = RedenConfigHotkey("structureBlockLoad", "LEFT_CONTROL,L").sr().hotkey()
 @JvmField val STRUCTURE_BLOCK_SAVE = RedenConfigHotkey("structureBlockSave", "LEFT_CONTROL,S").sr().hotkey()
 @JvmField val RUN_COMMAND = RedenConfigCommandHotkeyList("runCommand").sr()
+// Debug
 @JvmField val DEBUG_LOGGER = RedenConfigBoolean("debugLogger", false).debug()
 @JvmField val DEBUG_PACKET_LOGGER = RedenConfigBoolean("debugPacketLogger", false).debug()
 @JvmField val DEBUG_TAG_BLOCK_POS = RedenConfigHotkey("debugTagBlockPos", "LEFT_CONTROL,LEFT_SHIFT,T").debug().hotkey()
@@ -82,6 +87,9 @@ private fun <T : IConfigBase?> ConfigBase<T>.hidden() = this.apply(HIDDEN_TAB::a
 @JvmField val GITHUB_TOKEN = RedenConfigString("githubToken", "").debug()
 @JvmField val ALLOW_SOCIAL_FOLLOW = RedenConfigBoolean("allowSocialFollow", true).debug()
 @JvmField val DEBUG_RVC_REQUEST_SYNC_DATA = RedenConfigHotkey("debugRvcRequestSyncData", "").debug().hotkey()
+@JvmField val SPONSOR_SCREEN_KEY = RedenConfigHotkey("sponsorScreenKey", "").debug().hotkey()
+@JvmField val CREDIT_SCREEN_KEY = RedenConfigHotkey("creditScreenKey", "").debug().hotkey()
+// Hidden
 @JvmField val iEVER_USED_UNDO = RedenConfigBoolean("iEverUsedUndo", false).hidden()
 @JvmField val iNOTIFICATIONS_ENABLED = RedenConfigBoolean("iNotificationsEnabled", true).hidden()
 @JvmField val iSHOW_TIME_OUT_NOTIFICATION = RedenConfigBoolean("iShowTimeOutNotification", true).hidden()

@@ -14,6 +14,7 @@ reden:
       rvc: RVC
       super_right: Super Right
       title: Reden Config
+      sponsor: Sponsors
 
     button:
       commandHotkeyListEdit: Edit
@@ -239,6 +240,7 @@ reden:
     allowSocialFollow:
       .: allowSocialFollow
       comment: |-
+
 
 
 carpet:

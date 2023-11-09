@@ -3,6 +3,7 @@ package com.github.zly2006.reden.report
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.Reden.LOGGER
 import com.github.zly2006.reden.malilib.ALLOW_SOCIAL_FOLLOW
+import com.github.zly2006.reden.sponsor.updateSponsors
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
 import com.mojang.authlib.minecraft.UserApiService
@@ -44,6 +45,7 @@ class FeatureUsageData(
 )
 
 fun doHeartHeat() {
+    updateSponsors()
     OkHttpClient().newCall(Request.Builder().apply {
         url("https://www.redenmc.com/api/mc/heartbeat")
         @Serializable
