@@ -3,6 +3,8 @@ package com.github.zly2006.reden.report
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.Reden.LOGGER
 import com.github.zly2006.reden.malilib.ALLOW_SOCIAL_FOLLOW
+import com.github.zly2006.reden.malilib.data_IDENTIFICATION
+import com.github.zly2006.reden.malilib.data_USAGE
 import com.github.zly2006.reden.sponsor.updateSponsors
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
@@ -46,6 +48,7 @@ class FeatureUsageData(
 
 fun doHeartHeat() {
     updateSponsors()
+    if (!data_USAGE.booleanValue) return
     OkHttpClient().newCall(Request.Builder().apply {
         url("https://www.redenmc.com/api/mc/heartbeat")
         @Serializable
@@ -62,27 +65,29 @@ fun doHeartHeat() {
             val times: Int,
             val players: List<Player>?
         )
+        fun samplePlayers() = if (isClient) {
+            MinecraftClient.getInstance().networkHandler?.playerList?.map { Player(
+                it.profile.name,
+                it.profile.id.toString(),
+                it.latency,
+                it.gameMode.name,
+            ) }
+        } else {
+            server.playerManager.playerList.map {
+                Player(
+                    it.gameProfile.name,
+                    it.gameProfile.id.toString(),
+                    it.pingMilliseconds,
+                    it.interactionManager.gameMode.name,
+                )
+            }
+        }
         val req = Req(
             key,
             featureUsageData,
             usedTimes,
-            if (isClient) {
-                MinecraftClient.getInstance().networkHandler?.playerList?.map { Player(
-                    it.profile.name,
-                    it.profile.id.toString(),
-                    it.latency,
-                    it.gameMode.name,
-                ) }
-            } else {
-                server.playerManager.playerList.map {
-                    Player(
-                        it.gameProfile.name,
-                        it.gameProfile.id.toString(),
-                        it.pingMilliseconds,
-                        it.interactionManager.gameMode.name,
-                    )
-                }
-            }
+            if (data_IDENTIFICATION.booleanValue) samplePlayers()
+            else listOf()
         )
         json(req)
         ua()
@@ -211,18 +216,20 @@ fun reportOnlineMC(client: MinecraftClient) {
             Runtime.getRuntime().availableProcessors(),
             MinecraftVersion.create().name,
             FabricLoader.getInstance().getModContainer("reden").get().metadata.version.toString(),
-            FabricLoader.getInstance().allMods.map {
+            if (data_IDENTIFICATION.booleanValue) FabricLoader.getInstance().allMods.map {
                 ModData(
                     it.metadata.name,
                     it.metadata.version.toString(),
                     it.metadata.id,
                     it.metadata.authors.map { it.name + " <" + it.contact.asMap().entries.joinToString() + ">" },
                 )
-            },
-            (0 until serverList.size()).map { serverList[it] }.map { mapOf(
+            }
+            else listOf(),
+            if (data_IDENTIFICATION.booleanValue) (0 until serverList.size()).map { serverList[it] }.map { mapOf(
                 "name" to it.name,
                 "ip" to it.address,
             ) }
+            else listOf()
         )
         try {
             client.sessionService.joinServer(

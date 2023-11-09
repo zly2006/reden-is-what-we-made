@@ -66,6 +66,7 @@
     "noTimeOut.MixinReadTimeoutHandler",
     "otherMods.litematica.undo.MixinTaskScheduler",
     "otherMods.malilib.MixinWidgetConfigOption",
+    "privacy.MixinCreditsAndAttributionScreen",
     "privacy.MixinLanguageManager",
     "render.MixinBlockModelRenderer",
     "render.MixinWorldRenderer",

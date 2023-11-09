@@ -1,13 +1,14 @@
 package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
-import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
+import com.github.zly2006.reden.access.ServerData.Companion.serverData
 import com.github.zly2006.reden.debugger.tree.StageIo
 import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.utils.isClient
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
+import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
 
 data class BreakPointInterrupt(
@@ -34,11 +35,13 @@ data class BreakPointInterrupt(
         fun register() {
             if (isClient) {
                 ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, _ ->
-                    val breakpoint = BreakpointsManager.getBreakpointManager().breakpointMap[packet.bpId]
+                    val data = MinecraftClient.getInstance().serverData()!!
+                    val breakpoint = data.breakpoints.breakpointMap[packet.bpId]
                         ?: throw RuntimeException("Breakpoint ${packet.bpId} not found")
-                    // todo
-                    breakpoint.pos // highlight
-                    packet.tree // print to ui
+                    if (packet.tree != null) {
+                        data.tickStageTree = packet.tree
+                    }
+                    breakpoint.pos // todo: highlight
                 }
             }
         }
