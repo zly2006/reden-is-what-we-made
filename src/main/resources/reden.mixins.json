@@ -56,6 +56,7 @@
     "MixinScreen",
     "common.MixinClient",
     "debug.undoReportUnTrackedTnt.MixinTntEntity",
+    "debugger.gui.MixinClient",
     "forceSyncEntityPos.MixinClientNetwork",
     "forceSyncEntityPos.MixinTracker",
     "forceSyncEntityPos.MixinWorldRenderer",
