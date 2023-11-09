@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.malilib
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.Sounds
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.gui.CreditScreen
@@ -15,6 +16,7 @@ import com.github.zly2006.reden.rvc.remote.github.GithubAuthScreen
 import com.github.zly2006.reden.sponsor.SponsorScreen
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.toBlockPos
+import fi.dy.masa.malilib.gui.GuiConfigsBase
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.block.entity.StructureBlockBlockEntity
 import net.minecraft.block.enums.StructureBlockMode
@@ -168,6 +170,17 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
     }
     CREDIT_SCREEN_KEY.keybind.setCallback { _, _ ->
         mc.setScreen(CreditScreen())
+        true
+    }
+    DEBUG_VIEW_ALL_CONFIGS.keybind.setCallback { _, _ ->
+        mc.setScreen(object : GuiConfigsBase(
+            10,
+            20,
+            Reden.MOD_ID,
+            null,
+            "reden.widget.config.title") {
+            override fun getConfigs() = ConfigOptionWrapper.createFor(getAllOptions())
+        })
         true
     }
 }
