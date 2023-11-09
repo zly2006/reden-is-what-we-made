@@ -12,7 +12,6 @@
     "common.MixinServerWorld",
     "common.remote.MixinMinecraftServer",
     "common.remote.MixinServerWorld",
-    "debugger.crash.MixinSystemDetails",
     "debug.compatTest.MixinMinecraftServet_ct",
     "debug.compatTest.MixinServerWorld_ct",
     "debug.igna.MixinItemEntity",
@@ -21,6 +20,7 @@
     "debugger.MixinServerPlayNetwork",
     "debugger.MixinServerWorld",
     "debugger.MixinWorld",
+    "debugger.crash.MixinSystemDetails",
     "debugger.events.MixinChunk",
     "debugger.network.MixinNetworkIo",
     "debugger.network.MixinNetworkThreadUtils",
@@ -67,6 +67,7 @@
     "otherMods.malilib.MixinWidgetConfigOption",
     "render.MixinBlockModelRenderer",
     "render.MixinWorldRenderer",
+    "screen.GameMenuScreenMixin",
     "superRight.chat.ChatHudMixin",
     "superRight.chat.ChatScreenMixin",
     "superRight.chat.VisibleChatHudLineMixin"
