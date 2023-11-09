@@ -1,6 +1,7 @@
 package com.github.zly2006.reden;
 
 import com.github.zly2006.reden.debugger.gui.RDebuggerLayoutKt;
+import com.github.zly2006.reden.debugger.gui.hud.DebuggerHud;
 import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.malilib.data.CommandHotkey;
@@ -25,6 +26,7 @@ import fi.dy.masa.malilib.util.FileUtils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 
@@ -41,7 +43,7 @@ public class RedenClient implements ClientModInitializer {
             SponsorKt.updateSponsors();
         }, "Report Worker").start();
         PearlTask.Companion.register();
-        SelectModeHudKt.registerHud();
+//        SelectModeHudKt.registerHud();
         InitializationHandler.getInstance().registerInitializationHandler(() -> {
             RenderEventHandler.getInstance().registerGameOverlayRenderer(RvcHudRenderer.INSTANCE);
             ConfigManager.getInstance().registerConfigHandler("reden", new IConfigHandler() {
@@ -100,7 +102,9 @@ public class RedenClient implements ClientModInitializer {
         });
         ClientLifecycleEvents.CLIENT_STARTED.register(ReportKt::reportOnlineMC);
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> RvcLocalCommandKt.register(dispatcher));
-        RDebuggerLayoutKt.register();
+//        RDebuggerLayoutKt.register();
+
+        DebuggerHud.init();
     }
 
     public static void saveMalilibOptions() {

@@ -10,6 +10,8 @@ import io.wispforest.owo.ui.core.Positioning
 import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.VerticalAlignment
 import io.wispforest.owo.ui.hud.Hud
+import net.minecraft.text.Text
+import java.awt.TextComponent
 
 val setDescriptionInfo = mutableListOf<(TickStage) -> Unit>()
 
