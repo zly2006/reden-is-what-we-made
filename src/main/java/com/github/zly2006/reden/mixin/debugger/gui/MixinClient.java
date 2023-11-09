@@ -22,6 +22,9 @@ public abstract class MixinClient implements ServerData.ClientSideServerDataAcce
     )
     private void redirectPauseMenu(boolean pause, CallbackInfo ci) {
         // if server is frozen, open the debugger
+        if (getRedenServerData() == null) {
+            return;
+        }
         if (currentScreen == null && getRedenServerData().hasStatus(GlobalStatus.FROZEN)) {
             // todo
             ci.cancel();

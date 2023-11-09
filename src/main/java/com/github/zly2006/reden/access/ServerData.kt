@@ -9,14 +9,12 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.server.MinecraftServer
 import java.util.*
 
-class ServerData(
-    server: MinecraftServer
-): StatusAccess {
+class ServerData(server: MinecraftServer?) : StatusAccess {
     @JvmField var realTicks = 0
     override var status: Long = 0
     var uuid: UUID? = null
     var address: String = ""
-    val tickStage = ServerRootStage(server)
+    var tickStage = if (server != null) ServerRootStage(server) else null
     var tickStageTree = StageTree()
 
     val breakpoints = BreakpointsManager()
@@ -46,4 +44,5 @@ class ServerData(
             else mc.serverData()
         }
     }
+
 }
