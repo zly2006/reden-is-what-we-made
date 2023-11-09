@@ -3,7 +3,7 @@ package com.github.zly2006.reden.malilib
 import com.github.zly2006.reden.Sounds
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
-import com.github.zly2006.reden.network.Rollback
+import com.github.zly2006.reden.network.Undo
 import com.github.zly2006.reden.network.RvcDataS2CPacket
 import com.github.zly2006.reden.network.RvcTrackpointsC2SRequest
 import com.github.zly2006.reden.render.BlockBorder
@@ -40,14 +40,14 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         )
         iEVER_USED_UNDO.booleanValue = true
         if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
-            ClientPlayNetworking.send(Rollback(0))
+            ClientPlayNetworking.send(Undo(0))
             true
         } else false
     }
     REDO_KEY.keybind.setCallback { _, _ ->
         onFunctionUsed("redo")
         if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
-            ClientPlayNetworking.send(Rollback(1))
+            ClientPlayNetworking.send(Undo(1))
             true
         } else false
     }

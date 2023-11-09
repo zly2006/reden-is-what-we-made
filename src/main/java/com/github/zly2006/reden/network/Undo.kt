@@ -19,10 +19,7 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.tick.ChunkTickScheduler
 
-private val pType = PacketType.create(ROLLBACK) {
-    Rollback(it.readVarInt())
-}
-class Rollback(
+class Undo(
     val status: Int = 0
 ): FabricPacket {
     override fun getType(): PacketType<*> = pType
@@ -31,6 +28,10 @@ class Rollback(
     }
 
     companion object {
+        val id = Reden.identifier("undo")
+        private val pType = PacketType.create(id) {
+            Undo(it.readVarInt())
+        }
         private fun operate(world: ServerWorld, record: PlayerData.UndoRedoRecord, redoRecord: PlayerData.RedoRecord?, playerPos: Long) {
             record.data.forEach { (posLong, entry) ->
                 val pos = BlockPos.fromLong(posLong)
@@ -100,7 +101,7 @@ class Rollback(
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, res ->
                 val view = player.data()
-                fun sendStatus(status: Int) = res.sendPacket(Rollback(status))
+                fun sendStatus(status: Int) = res.sendPacket(Undo(status))
                 if (!view.canRecord) {
                     sendStatus(16)
                     return@registerGlobalReceiver

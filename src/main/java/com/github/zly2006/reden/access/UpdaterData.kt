@@ -11,14 +11,6 @@ import net.minecraft.world.block.NeighborUpdater
 class UpdaterData(
     val updater: NeighborUpdater,
 ) {
-    fun yieldUpdater() {
-
-    }
-
-    fun tickNextStage() {
-        tickStageTree.next().tick()
-    }
-
     fun tickEntry(stage: AbstractBlockUpdateStage<*>) {
         tickingStage = stage
         thenTickUpdate = true
