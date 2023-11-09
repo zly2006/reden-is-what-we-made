@@ -1,10 +1,8 @@
 package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
-import com.github.zly2006.reden.Sounds
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
-import com.github.zly2006.reden.malilib.EASTER_EGG_RATE
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import com.github.zly2006.reden.utils.*
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
@@ -15,12 +13,11 @@ import net.minecraft.block.Block
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.SpawnReason
 import net.minecraft.entity.mob.MobEntity
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.sound.SoundCategory
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.tick.ChunkTickScheduler
-import kotlin.random.Random
 
 private val pType = PacketType.create(ROLLBACK) {
     Rollback(it.readVarInt())
@@ -35,46 +32,55 @@ class Rollback(
 
     companion object {
         private fun operate(world: ServerWorld, record: PlayerData.UndoRedoRecord, redoRecord: PlayerData.RedoRecord?, playerPos: Long) {
-            val playSound = Random.nextInt(100) < EASTER_EGG_RATE.integerValue
-            if (playSound) world.playSound(
-                null,
-                BlockPos.fromLong(record.data.keys.firstOrNull() ?: playerPos),
-                Sounds.THE_WORLD,
-                SoundCategory.BLOCKS
-            )
-            TaskScheduler.runLater(if (playSound) 40 else 0) {
-                record.data.forEach { (posLong, entry) ->
-                    val pos = BlockPos.fromLong(posLong)
-                    debugLogger("undo ${BlockPos.fromLong(posLong)}, ${entry.state}")
-                    // set block
-                    world.setBlockNoPP(pos, entry.state, Block.NOTIFY_LISTENERS)
-                    // clear schedules
-                    world.syncedBlockEventQueue.removeIf { it.pos == pos }
-                    val blockTickScheduler = world.getChunk(pos).blockTickScheduler as ChunkTickScheduler
-                    val fluidTickScheduler = world.getChunk(pos).fluidTickScheduler as ChunkTickScheduler
-                    blockTickScheduler.removeTicksIf { it.pos == pos }
-                    fluidTickScheduler.removeTicksIf { it.pos == pos }
-                    // apply block entity
-                    entry.blockEntity?.let { beNbt ->
-                        world.addBlockEntity(BlockEntity.createFromNbt(pos, entry.state, beNbt))
-                    }
+            record.data.forEach { (posLong, entry) ->
+                val pos = BlockPos.fromLong(posLong)
+                debugLogger("undo ${BlockPos.fromLong(posLong)}, ${entry.state}")
+                // set block
+                world.setBlockNoPP(pos, entry.state, Block.NOTIFY_LISTENERS)
+                // clear schedules
+                world.syncedBlockEventQueue.removeIf { it.pos == pos }
+                val blockTickScheduler = world.getChunk(pos).blockTickScheduler as ChunkTickScheduler
+                val fluidTickScheduler = world.getChunk(pos).fluidTickScheduler as ChunkTickScheduler
+                blockTickScheduler.removeTicksIf { it.pos == pos }
+                fluidTickScheduler.removeTicksIf { it.pos == pos }
+                // apply block entity
+                entry.blockEntity?.let { beNbt ->
+                    world.addBlockEntity(BlockEntity.createFromNbt(pos, entry.state, beNbt))
                 }
-                record.entities.forEach {
+            }
+            record.entities.forEach {
+                val entity = world.getEntity(it.key)
+                if (entity == null) {
                     if (it.value != PlayerData.NotExistEntityEntry) {
                         val entry = it.value
-                        val entity = world.getEntity(it.key)
-                        if (entity != null) {
-                            entity.readNbt(entry.nbt)
-                            if (entity is MobEntity) {
-                                entity.clearGoalsAndTasks()
-                            }
-                        } else {
-                            entry.entity!!.spawn(world, null, null, entry.pos, SpawnReason.COMMAND, false, false)
-                                ?.readNbt(entry.nbt)
+                        debugLogger("undo entity ${it.key} spawning")
+                        val newEntity = entry.entity!!.spawn(world, null, null, entry.pos, SpawnReason.COMMAND, false, false)
+                        if (newEntity != null) {
+                            newEntity.readNbt(entry.nbt)
+                            // Note: uuid is different from the original one
+                            //  (No undo record should be here, so dont worry about it)
+                            newEntity.uuid = it.key
                             redoRecord?.entities?.put(it.key, PlayerData.NotExistEntityEntry) // add entity info to redo record
                         }
+                    }
+                } else {
+                    redoRecord?.entities?.put(
+                        it.key, PlayerData.EntityEntryImpl(
+                            entity.type,
+                            entity.writeNbt(NbtCompound()),
+                            entity.blockPos
+                        )
+                    )
+                    if (it.value == PlayerData.NotExistEntityEntry) {
+                        debugLogger("undo entity ${it.key} removing")
+                        entity.discard()
                     } else {
-                        world.getEntity(it.key)?.discard()
+                        val entry = it.value
+                        debugLogger("undo entity ${it.key} reading nbt")
+                        entity.readNbt(entry.nbt)
+                        if (entity is MobEntity) {
+                            entity.clearGoalsAndTasks()
+                        }
                     }
                 }
             }
@@ -119,9 +125,11 @@ class Rollback(
                                     data.putAll(undoRecord.data.keys.associateWith { posLong ->
                                         this.fromWorld( // add entity info to this redo record
                                             player.world,
-                                            BlockPos.fromLong(posLong)
+                                            BlockPos.fromLong(posLong),
+                                            true
                                         )
                                     })
+                                    entities.clear()
                                 }
                             )
                             operate(player.serverWorld, undoRecord, view.redo.last(), player.blockPos.asLong())
@@ -150,6 +158,7 @@ class Rollback(
                             2 -> translateMessage("undo", "no_blocks_info")
                             16 -> translateMessage("undo", "no_permission")
                             32 -> translateMessage("undo", "not_recording")
+                            64 -> translateMessage("undo", "busy")
                             65536 -> translateMessage("undo", "unknown_error")
                             else -> translateMessage("undo", "unknown_status")
                         }

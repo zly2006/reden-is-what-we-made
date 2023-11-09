@@ -71,11 +71,13 @@ ${entities.map { "${it.key} = ${it.value}" }.joinToString("\n")}
 ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" }.joinToString("\n")}
             """.trimIndent()
         }
-        fun fromWorld(world: World, pos: BlockPos): Entry {
+        fun fromWorld(world: World, pos: BlockPos, putNearByEntities: Boolean): Entry {
             val be = world.getBlockEntity(pos)
             val state = world.getBlockState(pos)
             return Entry(state, be?.createNbtWithId()).apply {
-                if (world.getBlockState(pos).getCollisionShape(world, pos).boundingBoxes.size != 0) {
+                if (putNearByEntities &&
+                    world.getBlockState(pos).getCollisionShape(world, pos).boundingBoxes.size != 0
+                ) {
                     val list = world.getEntitiesByType(
                         EntitySelector.PASSTHROUGH_FILTER,
                         world.getBlockState(pos).getCollisionShape(world, pos).boundingBox
@@ -92,7 +94,8 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
         }
 
         open fun getMemorySize() = data.asSequence().map { it.value.getMemorySize() }.sum() +
-                entities.map { 16 + (it.value.nbt.sizeInBytes ?: 0) }.sum()
+                data.size * 16 +
+                entities.map { 16 + it.value.nbt.sizeInBytes }.sum()
     }
     class UndoRecord(
         id: Long,

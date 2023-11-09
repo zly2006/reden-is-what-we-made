@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.malilib
 
+import com.github.zly2006.reden.Sounds
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
 import com.github.zly2006.reden.network.Rollback
@@ -17,9 +18,11 @@ import net.minecraft.block.entity.StructureBlockBlockEntity
 import net.minecraft.block.enums.StructureBlockMode
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.packet.c2s.play.UpdateStructureBlockC2SPacket
+import net.minecraft.sound.SoundCategory
 import net.minecraft.text.Text
 import net.minecraft.world.GameMode
 import java.util.zip.ZipInputStream
+import kotlin.random.Random
 
 fun configureKeyCallbacks(mc: MinecraftClient) {
     REDEN_CONFIG_KEY.keybind.setCallback { _, _ ->
@@ -28,6 +31,13 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
     }
     UNDO_KEY.keybind.setCallback { _, _ ->
         onFunctionUsed("undo")
+        val playSound = Random.nextInt(100) < EASTER_EGG_RATE.integerValue
+        if (playSound) mc.world!!.playSound(
+            mc.player,
+            mc.player!!.blockPos,
+            Sounds.THE_WORLD,
+            SoundCategory.BLOCKS
+        )
         iEVER_USED_UNDO.booleanValue = true
         if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
             ClientPlayNetworking.send(Rollback(0))

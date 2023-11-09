@@ -12,7 +12,7 @@ object TaskScheduler: ServerTickEvents.EndTick {
     }
 
     override fun onEndTick(server: MinecraftServer) {
-        ticks++
         map.remove(ticks)?.forEach { it.run() }
+        ticks++
     }
 }
