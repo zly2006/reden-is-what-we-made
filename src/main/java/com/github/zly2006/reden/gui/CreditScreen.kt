@@ -24,9 +24,9 @@ class CreditScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
         rootComponent.verticalAlignment(VerticalAlignment.CENTER)
         rootComponent.child(Containers.horizontalFlow(
             Sizing.content(),
-            Sizing.content()
+            Sizing.fill(20)
         ).apply {
-            this.margins(Insets.vertical(10))
+            this.verticalAlignment(VerticalAlignment.CENTER)
             this.child(Components.texture(
                 Reden.identifier("reden_16.png"),
                 0, 0, 16, 16, 16, 16
@@ -49,7 +49,7 @@ class CreditScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
             }
         })
 
-        content.child(center(labelComponent(Text.literal("Contributors"))
+        content.child(center(Components.label(Text.literal("Contributors"))
             .margins(Insets.vertical(15))))
 
         content.child(labelComponent(Text.literal("zly2006").append(
@@ -65,14 +65,14 @@ class CreditScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
             Text.literal(" - Designed our icon, and provided many great ideas.").formatted(Formatting.GRAY)
         )).margins(Insets.vertical(3)))
 
-        content.child(center(labelComponent(Text.literal("Sponsors"))
+        content.child(center(Components.label(Text.literal("Sponsors"))
             .margins(Insets.vertical(15))))
 
         content.child(center(Components.button(Text.literal("Click to see sponsors")) {
             client!!.setScreen(SponsorScreen(this))
         }))
 
-        content.child(center(labelComponent(Text.literal("Special Thanks"))
+        content.child(center(Components.label(Text.literal("Special Thanks"))
             .margins(Insets.vertical(15))))
 
         content.child(labelComponent(Text.literal("Hatsune Miku & Producers").styled {
@@ -81,7 +81,7 @@ class CreditScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
             Text.literal(" - For signing songs that accompany me through the development of Reden.").formatted(Formatting.GRAY)
         )).margins(Insets.vertical(3)))
 
-        content.child(center(labelComponent(Text.literal("Open Source Projects used by Reden"))
+        content.child(center(Components.label(Text.literal("Open Source Projects used by Reden"))
             .margins(Insets.vertical(15))))
 
         class OpenSourceProject(val name: String, val url: String, val license: String)
@@ -116,8 +116,18 @@ class CreditScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
             }
         })
 
-        content.child(center(labelComponent(Text.literal("Privacy Policy"))
+        content.child(center(Components.label(Text.literal("Privacy Policy"))
             .margins(Insets.vertical(15))))
+
+        content.child((Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+            this.child(Components.button(Text.literal("Privacy Settings")) {
+                client!!.setScreen(PrivacyScreen(this@CreditScreen))
+            })
+            this.child(Components.button(Text.literal("Privacy Policy")) {
+                Util.getOperatingSystem().open(URI("https://www.redenmc.com/policy/PRIVACY.md"))
+            })
+            children().forEach { it.margins(Insets.of(5)) }
+        }))
     }
 
     private fun labelComponent(text: Text): LabelComponent {

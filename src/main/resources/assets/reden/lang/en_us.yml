@@ -7,6 +7,20 @@ reden:
       nc_update_with_source: Neighbor-Changed
 
   widget:
+    privacy:
+      desc: |
+        Welcome to Reden!
+        
+        Reden collects some data to improve the user experience. You can disable it in this screen.
+        Here is a brief of the data we collect:
+        1. Basic information of your computer and system
+          This is used to help us understand the user base and improve the user experience. This data is anonymous.
+        2. Usage data
+          This data includes something like how many times you use features provided by Reden or how long you play Minecraft.
+          It is used to help us know which features are popular and which features are not so we can decide which feature should we focus on. This data is anonymous.
+        3. Identification data
+          This data includes your Minecraft username and UUID. It is used to help us identify you and provide you with better support.
+          This data is not anonymous, but we will not share it with anyone else.
     config:
       debug: Debug
       generic: Generic
