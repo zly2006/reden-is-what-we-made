@@ -97,6 +97,6 @@ private fun <T : IConfigBase?> ConfigBase<T>.hidden() = this.apply(HIDDEN_TAB::a
 @JvmField val iPRIVACY_SETTING_SHOWN = RedenConfigBoolean("iPrivacySettingShown", false).hidden()
 @JvmField val data_BASIC = RedenConfigBoolean("dataBasic", true).hidden()
 @JvmField val data_USAGE = RedenConfigBoolean("dataUsage", true).hidden()
-@JvmField val data_IDENTIFICATION = RedenConfigBoolean("dataIdentification", true).hidden()
+@JvmField val data_IDENTIFICATION = RedenConfigBoolean("dataIdentification", false).hidden()
 
 fun getAllOptions() = GENERIC_TAB + RVC_TAB + MICRO_TICK_TAB + SUPER_RIGHT_TAB + DEBUG_TAB + HIDDEN_TAB

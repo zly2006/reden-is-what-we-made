@@ -37,17 +37,17 @@ class PrivacyScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
             RedenClient.saveMalilibOptions()
             this.close()
         })
-        content.child(Components.smallCheckbox(Text.literal("Basic System Data")).checked(true).apply {
+        content.child(Components.smallCheckbox(Text.literal("Basic System Data")).checked(data_BASIC.booleanValue).apply {
             this.onChanged().subscribe {
                 data_BASIC.booleanValue = it
             }
         })
-        content.child(Components.smallCheckbox(Text.literal("Usage Data")).checked(true).apply {
+        content.child(Components.smallCheckbox(Text.literal("Usage Data")).checked(data_USAGE.booleanValue).apply {
             this.onChanged().subscribe {
                 data_USAGE.booleanValue = it
             }
         })
-        content.child(Components.smallCheckbox(Text.literal("Identification Data")).checked(true).apply {
+        content.child(Components.smallCheckbox(Text.literal("Identification Data")).checked(data_IDENTIFICATION.booleanValue).apply {
             this.onChanged().subscribe {
                 data_IDENTIFICATION.booleanValue = it
             }

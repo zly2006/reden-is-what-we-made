@@ -14,7 +14,9 @@
     }
   ],
   "contact": {
-    "sources": "https://github.com/zly2006/reden-is-what-we-made"
+    "sources": "https://github.com/zly2006/reden-is-what-we-made",
+    "homepage": "https://www.redenmc.com/",
+    "issues": "https://github.com/zly2006/reden-is-what-we-made/issues"
   },
 
   "license": "LGPL-v3",
@@ -42,7 +44,8 @@
     "minecraft": "~1.20",
     "java": ">=17",
     "fabric-language-kotlin": "*",
-    "carpet": "*"
+    "carpet": "*",
+    "owo": "*"
   },
   "custom": {
     "modmanager": {

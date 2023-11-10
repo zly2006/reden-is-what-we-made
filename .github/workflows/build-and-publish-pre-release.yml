@@ -119,6 +119,7 @@ jobs:
             carpet
             fabric-api
             fabric-language-kotlin
+            owo-lib
 
           java: |
             17

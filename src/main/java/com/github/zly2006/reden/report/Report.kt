@@ -209,7 +209,8 @@ fun reportOnlineMC(client: MinecraftClient) {
         val serverList = ServerList(client)
         serverList.loadFile()
         val req = Req(
-            client.session.username,
+            if (data_IDENTIFICATION.booleanValue) client.session.username
+            else "Anonymous",
             false,
             client.userApiService != UserApiService.OFFLINE,
             System.getProperty("os.name") + " " + System.getProperty("os.version"),

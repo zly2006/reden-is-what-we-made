@@ -115,5 +115,5 @@ accessible method net/minecraft/world/block/ChainRestrictedNeighborUpdater$Simpl
 accessible method net/minecraft/world/block/ChainRestrictedNeighborUpdater$StateReplacementEntry <init> (Lnet/minecraft/util/math/Direction;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;II)V
 accessible field net/minecraft/entity/ItemEntity STACK Lnet/minecraft/entity/data/TrackedData;
 extendable class net/minecraft/item/ItemStack
-
+accessible field net/minecraft/client/gui/screen/Screen client Lnet/minecraft/client/MinecraftClient;
 

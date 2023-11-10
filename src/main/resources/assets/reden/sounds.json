@@ -4,5 +4,11 @@
     "sounds": [
       "reden:the_world"
     ]
+  },
+  "miku_miku": {
+    "subtitle": "reden.subtitles.miku_miku",
+    "sounds": [
+      "reden:mikumiku"
+    ]
   }
 }
