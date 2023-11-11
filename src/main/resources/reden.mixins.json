@@ -54,6 +54,7 @@
   ],
   "client": [
     "MixinScreen",
+    "clientGlow.MixinClientWorld",
     "common.MixinClient",
     "debug.undoReportUnTrackedTnt.MixinTntEntity",
     "debugger.gui.MixinClient",

@@ -131,9 +131,6 @@ class ClientMetadataReq(
     )
 }
 
-fun initReport() {
-}
-
 private var usedTimes = 0
 
 private fun requestFollow() {

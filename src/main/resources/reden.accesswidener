@@ -116,4 +116,15 @@ accessible method net/minecraft/world/block/ChainRestrictedNeighborUpdater$State
 accessible field net/minecraft/entity/ItemEntity STACK Lnet/minecraft/entity/data/TrackedData;
 extendable class net/minecraft/item/ItemStack
 accessible field net/minecraft/client/gui/screen/Screen client Lnet/minecraft/client/MinecraftClient;
+accessible method net/minecraft/entity/Entity setFlag (IZ)V
+accessible field net/minecraft/command/EntitySelector box Lnet/minecraft/util/math/Box;
+accessible field net/minecraft/command/EntitySelector playerName Ljava/lang/String;
+accessible field net/minecraft/command/EntitySelector uuid Ljava/util/UUID;
+accessible field net/minecraft/command/EntitySelector positionOffset Ljava/util/function/Function;
+accessible method net/minecraft/command/EntitySelector getPositionPredicate (Lnet/minecraft/util/math/Vec3d;)Ljava/util/function/Predicate;
+accessible field net/minecraft/command/EntitySelector senderOnly Z
+accessible field net/minecraft/command/EntitySelector entityFilter Lnet/minecraft/util/TypeFilter;
+accessible method net/minecraft/command/EntitySelector getAppendLimit ()I
+accessible method net/minecraft/client/world/ClientWorld getEntityLookup ()Lnet/minecraft/world/entity/EntityLookup;
+accessible field net/minecraft/command/EntitySelector sorter Ljava/util/function/BiConsumer;
 

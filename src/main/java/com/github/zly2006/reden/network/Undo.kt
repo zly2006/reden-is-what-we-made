@@ -32,7 +32,7 @@ class Undo(
         private val pType = PacketType.create(id) {
             Undo(it.readVarInt())
         }
-        private fun operate(world: ServerWorld, record: PlayerData.UndoRedoRecord, redoRecord: PlayerData.RedoRecord?, playerPos: Long) {
+        private fun operate(world: ServerWorld, record: PlayerData.UndoRedoRecord, redoRecord: PlayerData.RedoRecord?) {
             record.data.forEach { (posLong, entry) ->
                 val pos = BlockPos.fromLong(posLong)
                 debugLogger("undo ${BlockPos.fromLong(posLong)}, ${entry.state}")
@@ -133,7 +133,7 @@ class Undo(
                                     entities.clear()
                                 }
                             )
-                            operate(player.serverWorld, undoRecord, view.redo.last(), player.blockPos.asLong())
+                            operate(player.serverWorld, undoRecord, view.redo.last())
                             sendStatus(0)
                         }
                     } ?: sendStatus(2)
@@ -141,7 +141,7 @@ class Undo(
                     1 -> view.redo.lastValid()?.let {
                         view.redo.removeLast()
                         server.execute {
-                            operate(player.serverWorld, it, null, player.blockPos.asLong())
+                            operate(player.serverWorld, it, null)
                             view.undo.add(it.undoRecord)
                             sendStatus(1)
                         }
