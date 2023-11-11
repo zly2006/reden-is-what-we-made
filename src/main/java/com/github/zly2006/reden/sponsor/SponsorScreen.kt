@@ -20,12 +20,15 @@ class SponsorScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
         rootComponent.horizontalAlignment(HorizontalAlignment.CENTER)
         rootComponent.child(Components.label(Text.literal("Reden's Sponsors")))
         rootComponent.child(Components.label(Text.literal("We are very grateful to the following people for their support.").formatted(Formatting.GRAY)))
-        if (sponsors.isEmpty()) {
+        if (sponsors == null) {
+            rootComponent.child(Components.label(Text.literal("Loading sponsors...").formatted(Formatting.GRAY)))
+            updateSponsors()
+        } else if (sponsors!!.isEmpty()) {
             rootComponent.child(Components.label(Text.literal("Sorry, failed to load sponsors.").formatted(Formatting.RED)))
         }
         else {
             val list = Containers.verticalFlow(Sizing.fill(100), Sizing.content())
-            sponsors.forEach {
+            sponsors!!.forEach {
                 list.child(Components.label(Text.literal(it.name)).shadow(true).margins(Insets.top(10)))
                 list.child(Components.label(Text.literal((it.detail ?: "¥${it.amount}") + it.message).formatted(Formatting.GRAY)))
             }

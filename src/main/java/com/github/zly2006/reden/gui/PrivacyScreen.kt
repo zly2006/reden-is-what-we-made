@@ -9,6 +9,7 @@ import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
+import io.wispforest.owo.ui.container.ScrollContainer.Scrollbar
 import io.wispforest.owo.ui.core.*
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
@@ -26,7 +27,9 @@ class PrivacyScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
                 .shadow(true)
                 .margins(Insets.of(10)))
         val content = Containers.verticalFlow(Sizing.fill(100), Sizing.content())
-        rootComponent.child(Containers.verticalScroll(Sizing.fill(70), Sizing.fill(80), content))
+        rootComponent.child(Containers.verticalScroll(Sizing.fill(70), Sizing.fill(80), content).apply {
+            scrollbar(Scrollbar.vanillaFlat())
+        })
 
         content.child(Components.label(Text.translatable("reden.widget.privacy.desc"))
             .horizontalTextAlignment(HorizontalAlignment.LEFT)

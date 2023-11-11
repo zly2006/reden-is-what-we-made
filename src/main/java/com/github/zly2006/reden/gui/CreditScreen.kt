@@ -7,6 +7,7 @@ import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.component.LabelComponent
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
+import io.wispforest.owo.ui.container.ScrollContainer
 import io.wispforest.owo.ui.core.*
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
@@ -44,7 +45,9 @@ class CreditScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
                 .shadow(true)
                 .margins(Insets.of(3)))
         })
-        rootComponent.child(Containers.verticalScroll(Sizing.fill(70), Sizing.fill(80), creditsScreenContent()))
+        rootComponent.child(Containers.verticalScroll(Sizing.fill(70), Sizing.fill(80), creditsScreenContent()).apply {
+            scrollbar(ScrollContainer.Scrollbar.vanillaFlat())
+        })
     }
 
     override fun render(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {

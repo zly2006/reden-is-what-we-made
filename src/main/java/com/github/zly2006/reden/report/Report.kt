@@ -5,7 +5,6 @@ import com.github.zly2006.reden.Reden.LOGGER
 import com.github.zly2006.reden.malilib.ALLOW_SOCIAL_FOLLOW
 import com.github.zly2006.reden.malilib.data_IDENTIFICATION
 import com.github.zly2006.reden.malilib.data_USAGE
-import com.github.zly2006.reden.sponsor.updateSponsors
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
 import com.mojang.authlib.minecraft.UserApiService
@@ -47,7 +46,6 @@ class FeatureUsageData(
 )
 
 fun doHeartHeat() {
-    updateSponsors()
     if (!data_USAGE.booleanValue) return
     OkHttpClient().newCall(Request.Builder().apply {
         url("https://www.redenmc.com/api/mc/heartbeat")

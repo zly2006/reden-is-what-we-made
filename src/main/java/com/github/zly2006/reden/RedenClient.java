@@ -10,7 +10,6 @@ import com.github.zly2006.reden.rvc.RvcLocalCommandKt;
 import com.github.zly2006.reden.rvc.gui.RvcHudRenderer;
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.SelectModeHudKt;
 import com.github.zly2006.reden.rvc.tracking.client.ClientTrackingKt;
-import com.github.zly2006.reden.sponsor.SponsorKt;
 import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.config.ConfigUtils;
@@ -38,7 +37,6 @@ public class RedenClient implements ClientModInitializer {
         new Thread(() -> {
             // Http IOs
             ReportKt.initReport();
-            SponsorKt.updateSponsors();
         }, "Report Worker").start();
         PearlTask.Companion.register();
         SelectModeHudKt.registerHud();
