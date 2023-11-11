@@ -7,6 +7,7 @@ val TNT_SYNC_PACKET = Reden.identifier("tnt_sync_packet")
 val RVC_DATA_SYNC = Reden.identifier("rvc_data_sync")
 val RVC_TRACKPOINTS_C2S = Reden.identifier("rvc_trackpoints_c2s")
 fun register() {
+    Hello.register()
     TagBlockPos.register()
     Undo.register()
     UpdateBreakpointPacket.register()

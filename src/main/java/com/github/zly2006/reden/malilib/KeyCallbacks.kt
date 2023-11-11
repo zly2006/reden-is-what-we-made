@@ -3,6 +3,7 @@ package com.github.zly2006.reden.malilib
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.Sounds
 import com.github.zly2006.reden.access.PlayerData.Companion.data
+import com.github.zly2006.reden.access.ServerData.Companion.serverData
 import com.github.zly2006.reden.gui.CreditScreen
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
 import com.github.zly2006.reden.network.RvcDataS2CPacket
@@ -14,6 +15,7 @@ import com.github.zly2006.reden.rvc.gui.SelectionListScreen
 import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.remote.github.GithubAuthScreen
 import com.github.zly2006.reden.sponsor.SponsorScreen
+import com.github.zly2006.reden.utils.red
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.toBlockPos
 import fi.dy.masa.malilib.gui.GuiConfigsBase
@@ -34,6 +36,10 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         true
     }
     UNDO_KEY.keybind.setCallback { _, _ ->
+        if (mc.serverData()?.featureSet?.contains("undo") != true) {
+            mc.player?.sendMessage(Text.literal("Sorry, this server doesn't support undo.").red(), true)
+            return@setCallback false
+        }
         onFunctionUsed("undo")
         val playSound = Random.nextInt(100) < EASTER_EGG_RATE.integerValue
         if (playSound) mc.world!!.playSound(

@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.common;
 
+import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage;
@@ -15,15 +16,7 @@ import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
 public abstract class MixinServer implements ServerData.ServerDataAccess {
-    @Unique ServerData serverData = new ServerData((MinecraftServer) (Object) this);
-
-    @Inject(
-            method = "tick",
-            at = @At("HEAD")
-    )
-    private void beforeTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        serverData.getTickStage().setShouldKeepTicking(shouldKeepTicking);
-    }
+    @Unique ServerData serverData = new ServerData(Reden.MOD_VERSION, (MinecraftServer) (Object) this);
 
     @Inject(
             method = "tick",
