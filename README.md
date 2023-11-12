@@ -1,5 +1,7 @@
 # Reden is What We Made
 
+[![Modrinth Downloads](https://img.shields.io/modrinth/dt/reden?style=flat-square&label=Modrinth)](https://modrinth.com/mod/reden)
+
 Redstone EDEN
 
 **English** | [简体中文](./README.zh-CN.md)

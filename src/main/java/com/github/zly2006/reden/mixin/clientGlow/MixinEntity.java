@@ -21,7 +21,7 @@ public class MixinEntity {
     )
     private void isGlowing(CallbackInfoReturnable<Boolean> cir) {
         if (world.isClient && MalilibSettingsKt.ENABLE_CLIENT_GLOW.getBooleanValue() && !ClientGlowKt.getGlowing().isEmpty()) {
-            cir.setReturnValue(ClientGlowKt.getGlowing().contains(this));
+            cir.setReturnValue(ClientGlowKt.getGlowing().contains((Entity) (Object) this));
         }
     }
 }
