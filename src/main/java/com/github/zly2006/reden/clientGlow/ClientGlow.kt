@@ -11,7 +11,6 @@ import net.minecraft.entity.Entity
 import net.minecraft.text.Text
 import net.minecraft.util.function.LazyIterationConsumer
 import net.minecraft.util.math.Vec3d
-import java.util.function.Consumer
 import kotlin.math.min
 
 @JvmField
@@ -60,28 +59,23 @@ fun selected(pos: Vec3d, sourceEntity: Entity?): List<Entity> {
     }
 }
 
+var glowing: Set<Entity> = setOf(); private set
+
 fun register(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
-    fun clearAll(@Suppress("UNUSED_PARAMETER") context: Any): Int {
-        val client = MinecraftClient.getInstance()
-        var count = 0
-        for (entity in client.world!!.entities) {
-            entity.setFlag(6, false)
-            count++
-        }
-        return count
-    }
     ClientTickEvents.START_CLIENT_TICK.register(ClientTickEvents.StartTick { client ->
         if (client.player != null) {
-            selected(client.player!!.pos, client.player)
-                .forEach(Consumer { it.setFlag(6, true) })
+            glowing = selected(client.player!!.pos, client.player).toSet()
         }
     })
     dispatcher.register(ClientCommandManager.literal("glow")
-        .then(ClientCommandManager.literal("clear").executes(::clearAll))
+        .then(ClientCommandManager.literal("clear").executes {
+            selector = null
+            glowing = setOf()
+            1
+        })
         .then(ClientCommandManager.argument("entities", EntityArgumentType.entities())
             .executes { context ->
                 selector = context.getArgument("entities", EntitySelector::class.java)
-                clearAll(context)
                 context.source.sendFeedback(Text.translatable("reden.commands.glow.success"))
                 1
             })
