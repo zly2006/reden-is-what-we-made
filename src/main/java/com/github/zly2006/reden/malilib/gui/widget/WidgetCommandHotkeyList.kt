@@ -3,6 +3,7 @@ package com.github.zly2006.reden.malilib.gui.widget
 import com.github.zly2006.reden.malilib.data.CommandHotkey
 import com.github.zly2006.reden.malilib.gui.GuiCommandHotkeyListEdit
 import com.github.zly2006.reden.malilib.options.RedenConfigCommandHotkeyList
+import fi.dy.masa.malilib.event.InputEventHandler
 import fi.dy.masa.malilib.gui.widgets.WidgetListConfigOptionsBase
 
 class WidgetCommandHotkeyList(
@@ -21,6 +22,7 @@ class WidgetCommandHotkeyList(
             for (widget in listWidgets) {
                 widget.syncWithConfig()
             }
+            InputEventHandler.getKeybindManager().updateUsedKeys()
         }
     }
 
