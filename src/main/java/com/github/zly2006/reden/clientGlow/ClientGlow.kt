@@ -64,7 +64,7 @@ var glowing: Set<Entity> = setOf(); private set
 fun register(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
     ClientTickEvents.START_CLIENT_TICK.register(ClientTickEvents.StartTick { client ->
         if (client.player != null) {
-            glowing = selected(client.player!!.pos, client.player).toSet()
+            glowing = selected(client.player!!.pos, client.player!!).toSet()
         }
     })
     dispatcher.register(ClientCommandManager.literal("glow")
