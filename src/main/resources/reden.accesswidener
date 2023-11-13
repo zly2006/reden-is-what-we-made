@@ -127,4 +127,12 @@ accessible field net/minecraft/command/EntitySelector entityFilter Lnet/minecraf
 accessible method net/minecraft/command/EntitySelector getAppendLimit ()I
 accessible method net/minecraft/client/world/ClientWorld getEntityLookup ()Lnet/minecraft/world/entity/EntityLookup;
 accessible field net/minecraft/command/EntitySelector sorter Ljava/util/function/BiConsumer;
-
+accessible class net/minecraft/server/world/ServerChunkManager$ChunkWithHolder
+accessible method net/minecraft/server/world/ThreadedAnvilChunkStorage tickEntityMovement ()V
+accessible method net/minecraft/server/world/ThreadedAnvilChunkStorage entryIterator ()Ljava/lang/Iterable;
+accessible method net/minecraft/server/world/ServerChunkManager$ChunkWithHolder <init> (Lnet/minecraft/world/chunk/WorldChunk;Lnet/minecraft/server/world/ChunkHolder;)V
+accessible method net/minecraft/server/world/ThreadedAnvilChunkStorage shouldTick (Lnet/minecraft/util/math/ChunkPos;)Z
+accessible field net/minecraft/server/world/ServerChunkManager$ChunkWithHolder holder Lnet/minecraft/server/world/ChunkHolder;
+accessible field net/minecraft/server/world/ServerChunkManager$ChunkWithHolder chunk Lnet/minecraft/world/chunk/WorldChunk;
+accessible field net/minecraft/server/world/ServerChunkManager spawnAnimals Z
+accessible field net/minecraft/server/world/ServerChunkManager spawnMonsters Z

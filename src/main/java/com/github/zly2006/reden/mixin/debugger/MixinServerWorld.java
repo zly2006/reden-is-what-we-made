@@ -2,7 +2,9 @@ package com.github.zly2006.reden.mixin.debugger;
 
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.WorldData;
-import com.github.zly2006.reden.exceptions.RedenCoroutineCriticalError;
+import com.github.zly2006.reden.debugger.TickStage;
+import com.github.zly2006.reden.debugger.stages.WorldRootStage;
+import com.github.zly2006.reden.debugger.stages.world.*;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
@@ -12,6 +14,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.*;
 import net.minecraft.util.math.BlockPos;
@@ -19,6 +22,7 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.village.raid.RaidManager;
 import net.minecraft.world.*;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.spawner.Spawner;
 import net.minecraft.world.tick.WorldTickScheduler;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -26,9 +30,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+
+import static com.github.zly2006.reden.access.ServerData.data;
 
 @Mixin(value = ServerWorld.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public abstract class MixinServerWorld extends World implements WorldData.WorldDataAccess {
@@ -92,6 +99,10 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
 
     @Shadow public abstract ServerChunkManager getChunkManager();
 
+    @Shadow @Final private List<Spawner> spawners;
+
+    @Shadow @Final private MinecraftServer server;
+
     /**
      * @author zly2006
      * @reason Reden Debugger
@@ -99,110 +110,121 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
     @Overwrite
     public void tick(BooleanSupplier shouldKeepTicking) {
         Profiler profiler = this.getProfiler();
-        int label = getRedenWorldData().tickStage.getTickLabel();
-        switch (label) {
-            case 0 -> {
-                this.inBlockTick = true;
-                profiler.push("world border");
-                this.getWorldBorder().tick();
-                profiler.swap("weather");
-                this.tickWeather();
-
-                getRedenWorldData().tickStage.setTickLabel(1);
-                getRedenWorldData().tickStage.yieldAndTick();
-            }
-            case 1 -> {
-                int i = this.getGameRules().getInt(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
-                if (this.sleepManager.canSkipNight(i) && this.sleepManager.canResetTime(i, this.players)) {
-                    if (this.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE)) {
-                        long timeOfDay = this.properties.getTimeOfDay() + 24000L;
-                        this.setTimeOfDay(timeOfDay - timeOfDay % 24000L);
-                    }
-
-                    this.wakeSleepingPlayers();
-                    if (this.getGameRules().getBoolean(GameRules.DO_WEATHER_CYCLE) && this.isRaining()) {
-                        this.resetWeather();
-                    }
+        TickStage stage = data(server).getTickStageTree().peekLeaf();
+        if (stage instanceof WorldBorderStage) {
+            this.inBlockTick = true;
+            profiler.push("world border");
+            this.getWorldBorder().tick();
+        } else if (stage instanceof WeatherStage) {
+            profiler.swap("weather");
+            this.tickWeather();
+        } else if (stage instanceof TimeStage) {
+            int i = this.getGameRules().getInt(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
+            if (this.sleepManager.canSkipNight(i) && this.sleepManager.canResetTime(i, this.players)) {
+                if (this.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE)) {
+                    long timeOfDay = this.properties.getTimeOfDay() + 24000L;
+                    this.setTimeOfDay(timeOfDay - timeOfDay % 24000L);
                 }
-                this.calculateAmbientDarkness();
-                this.tickTime();
 
-                getRedenWorldData().tickStage.setTickLabel(2);
-                getRedenWorldData().tickStage.yieldAndTick();
+                this.wakeSleepingPlayers();
+                if (this.getGameRules().getBoolean(GameRules.DO_WEATHER_CYCLE) && this.isRaining()) {
+                    this.resetWeather();
+                }
             }
-            case 2 -> {
-                profiler.swap("tickPending");
-                if (!this.isDebugWorld()) {
-                    long time = this.getTime();
-                    profiler.push("blockTicks");
-                    this.blockTickScheduler.tick(time, 65536, this::tickBlock);
-                    profiler.swap("fluidTicks");
-                    this.fluidTickScheduler.tick(time, 65536, this::tickFluid);
+            this.calculateAmbientDarkness();
+            this.tickTime();
+        } else if (stage instanceof BlockScheduledTicksRootStage) {
+            profiler.swap("tickPending");
+            if (!this.isDebugWorld()) {
+                long time = this.getTime();
+                profiler.push("blockTicks");
+                this.blockTickScheduler.tick(time, 65536, this::tickBlock);
+                profiler.pop();
+            }
+        } else if (stage instanceof FluidScheduledTicksRootStage) {
+            profiler.swap("tickPending");
+            if (!this.isDebugWorld()) {
+                long time = this.getTime();
+                profiler.push("fluidTicks");
+                this.fluidTickScheduler.tick(time, 65536, this::tickFluid);
+                profiler.pop();
+            }
+        } else if (stage instanceof RaidStage) {
+            profiler.swap("raid");
+            this.raidManager.tick();
+        } else if (stage instanceof RandomTickStage) {//todo
+            profiler.swap("chunkSource");
+            this.getChunkManager().tick(shouldKeepTicking, true);
+        } else if (stage instanceof BlockEventsRootStage) {
+            profiler.swap("blockEvents");
+            this.processSyncedBlockEvents();
+            this.inBlockTick = false;
+            profiler.pop();
+        } else if (stage instanceof EntitiesRootStage) {
+            boolean bl = !this.players.isEmpty() || !this.getForcedChunks().isEmpty();
+            if (bl) {
+                this.resetIdleTimeout();
+            }
+            if (bl || this.idleTimeout++ < 300) {
+                profiler.push("entities");
+                if (this.enderDragonFight != null) {
+                    profiler.push("dragonFight");
+                    this.enderDragonFight.tick();
                     profiler.pop();
                 }
 
-                getRedenWorldData().tickStage.setTickLabel(3);
-                getRedenWorldData().tickStage.yieldAndTick();
-            }
-            case 3 -> {
-                profiler.swap("raid");
-                this.raidManager.tick();
-
-                getRedenWorldData().tickStage.setTickLabel(4);
-                getRedenWorldData().tickStage.yieldAndTick();
-            }
-            case 4 -> {
-                profiler.swap("chunkSource");
-                this.getChunkManager().tick(shouldKeepTicking, true);
-                profiler.swap("blockEvents");
-                this.processSyncedBlockEvents();
-                this.inBlockTick = false;
-                profiler.pop();
-                boolean bl = !this.players.isEmpty() || !this.getForcedChunks().isEmpty();
-                if (bl) {
-                    this.resetIdleTimeout();
-                }
-                if (bl || this.idleTimeout++ < 300) {
-                    profiler.push("entities");
-                    if (this.enderDragonFight != null) {
-                        profiler.push("dragonFight");
-                        this.enderDragonFight.tick();
-                        profiler.pop();
-                    }
-
-                    this.entityList.forEach((entity) -> {
-                        if (!entity.isRemoved()) {
-                            if (this.shouldCancelSpawn(entity)) {
-                                entity.discard();
-                            } else {
-                                profiler.push("checkDespawn");
-                                entity.checkDespawn();
-                                profiler.pop();
-                                if (this.chunkManager.threadedAnvilChunkStorage.getTicketManager().shouldTickEntities(entity.getChunkPos().toLong())) {
-                                    Entity entity2 = entity.getVehicle();
-                                    if (entity2 != null) {
-                                        if (!entity2.isRemoved() && entity2.hasPassenger(entity)) {
-                                            return;
-                                        }
-
-                                        entity.stopRiding();
+                this.entityList.forEach((entity) -> {
+                    if (!entity.isRemoved()) {
+                        if (this.shouldCancelSpawn(entity)) {
+                            entity.discard();
+                        } else {
+                            profiler.push("checkDespawn");
+                            entity.checkDespawn();
+                            profiler.pop();
+                            if (this.chunkManager.threadedAnvilChunkStorage.getTicketManager().shouldTickEntities(entity.getChunkPos().toLong())) {
+                                Entity entity2 = entity.getVehicle();
+                                if (entity2 != null) {
+                                    if (!entity2.isRemoved() && entity2.hasPassenger(entity)) {
+                                        return;
                                     }
 
-                                    profiler.push("tick");
-                                    this.tickEntity(this::tickEntity, entity);
-                                    profiler.pop();
+                                    entity.stopRiding();
                                 }
+
+                                profiler.push("tick");
+                                this.tickEntity(this::tickEntity, entity);
+                                profiler.pop();
                             }
                         }
-                    });
-                    profiler.pop();
-                    this.tickBlockEntities();
-                }
-                profiler.push("entityManagement");
-                this.entityManager.tick();
+                    }
+                });
                 profiler.pop();
+                this.tickBlockEntities();
             }
-            default -> throw new RedenCoroutineCriticalError("ServerWorld, label = " + label);
+            profiler.push("entityManagement");
+            this.entityManager.tick();
+            profiler.pop();
+        }
+    }
+
+
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    public void tickSpawners(boolean spawnMonsters, boolean spawnAnimals) {
+        // Vanilla local variables
+        Iterator<?> iterator;
+        Spawner spawner;
+        // End
+
+        WorldRootStage rootStage = getRedenWorldData().tickStage;
+        spawner = rootStage.tickingSpawner;
+        rootStage.tickingSpawner = null;
+        if (spawner != null) {
+            // The first call of this method is from ServerChunkManager.tick(), where spawner is null.
+            spawner.spawn(rootStage.getWorld(), spawnMonsters, spawnAnimals);
         }
     }
 }

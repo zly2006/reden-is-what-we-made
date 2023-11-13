@@ -23,6 +23,12 @@ abstract class TickStage(
     open fun readByteBuf(buf: PacketByteBuf) {
     }
 
+    /**
+     * Run this tick stage.
+     *
+     *  Usually, this should call the caller of the target method,
+     *       because in the caller there may have some mixins.
+     */
     open fun tick() {
         children.clear()
     }

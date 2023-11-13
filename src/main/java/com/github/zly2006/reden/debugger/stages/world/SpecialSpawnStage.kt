@@ -8,4 +8,8 @@ class SpecialSpawnStage(
     val _parent: WorldRootStage,
     val spawner: Spawner
 ): TickStage("special_spawn", _parent) {
+    override fun tick() {
+        super.tick()
+        spawner.spawn(_parent.world, _parent.world.chunkManager.spawnAnimals, _parent.world.chunkManager.spawnMonsters)
+    }
 }
