@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.debugger.tree
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.stages.DummyStage
@@ -18,23 +19,44 @@ object StageIo {
     val constructors = mutableMapOf<String, Constructor>()
 
     init {
-        class EmptyTickStage(name: String, parent: TickStage?) : TickStage(name, parent)
-        class EmptyWorldTickStage(name: String, parent: TickStage?) : TickStage(name, parent), TickStageWithWorld {
-            override lateinit var world: ServerWorld
+        class EmptyTickStage(name: String, parent: TickStage?): TickStage(name, parent)
+        class EmptyWorldTickStage(name: String, parent: TickStage?): TickStage(name, parent), TickStageWithWorld {
+            override val world: ServerWorld?
+                get() {
+                    Reden.LOGGER.warn("Accessing world from client side at $name")
+                    return null
+                }
         }
 
         // Note: these stages have no extra data, so we can use empty constructor to simplify code
         constructors["server_root"] = Constructor { EmptyTickStage("server_root", it) }
-        constructors["world_root"] = Constructor { EmptyTickStage("world_root", it) }
         constructors["end"] = Constructor { EmptyTickStage("end", it) }
+
+        constructors["world_root"] = Constructor { EmptyWorldTickStage("world_root", it) }
+        constructors["network"] = Constructor { EmptyWorldTickStage("network", it) }
+        constructors["update_block"] = Constructor { EmptyWorldTickStage("update_block", it!!) }
+        constructors["commands_stage"] = Constructor { EmptyWorldTickStage("commands_stage", it!!) }
 
         constructors["nc_update"] = Constructor { StageBlockNCUpdate(it!!, null) }
         constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it!!, null) }
         constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it!!, null) }
         constructors["pp_update"] = Constructor { StageBlockPPUpdate(it!!, null) }
-        constructors["network"] = Constructor { EmptyWorldTickStage("network", it) }
-        constructors["update_block"] = Constructor { EmptyWorldTickStage("update_block", it!!) }
-        constructors["commands_stage"] = Constructor { EmptyWorldTickStage("commands_stage", it!!) }
+        // todo: add more stages
+        // BlockEventsRootStage
+        // BlockEventStage
+        // BlockScheduledTicksRootStage
+        // BlockScheduledTickStage
+        // EntitiesRootStage
+        // EntityStage
+        // FluidScheduledTicksRootStage
+        // FluidScheduledTickStage
+        // RaidStage
+        // RandomTickStage
+        // SpawnStage
+        // SpecialSpawnStage
+        // TimeStage
+        // WeatherStage
+        // WorldBorderStage
     }
 
     fun writeStage(stage: TickStage, buf: PacketByteBuf) {
