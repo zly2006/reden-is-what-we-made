@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.otherMods.tweeakeroo.hopperDelaySync;
 
+import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.network.HopperCDSync;
 import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.tweakeroo.renderer.RenderUtils;
@@ -37,13 +38,16 @@ public class MixinX {
     private static void capture(MinecraftClient mc, DrawContext drawContext, CallbackInfo ci, World world, Entity cameraEntity, HitResult trace, Inventory inv, ShulkerBoxBlock block, LivingEntity entityLivingBase, int xCenter, int yCenter, int x, int y, boolean isHorse, int totalSlots, int firstSlot, InventoryOverlay.InventoryRenderType type, InventoryOverlay.InventoryProperties props, int rows, int xInv, int yInv) {
         tickCount++;
         if (type == InventoryOverlay.InventoryRenderType.HOPPER) {
-            BlockPos pos = ((BlockHitResult) trace).getBlockPos();
-            if (pos.equals(HopperCDSync.Companion.getCurrentPos())) {
-                String text = "CD: " + HopperCDSync.Companion.getCurrentDelay();
-                drawContext.drawText(mc.textRenderer, text, xInv + 4, yInv - 10, 0xffffff, false);
-            }
-            if (tickCount % 10 == 0) {
-                ClientPlayNetworking.send(new HopperCDSync(pos, 0));
+            ServerData data = ServerData.Companion.serverData(mc);
+            if (data != null && data.getFeatureSet().contains("hopper-cd")) {
+                BlockPos pos = ((BlockHitResult) trace).getBlockPos();
+                if (pos.equals(HopperCDSync.Companion.getCurrentPos())) {
+                    String text = "CD: " + HopperCDSync.Companion.getCurrentDelay();
+                    drawContext.drawText(mc.textRenderer, text, xInv + 4, yInv - 10, 0xffffff, false);
+                }
+                if (tickCount % 10 == 0) {
+                    ClientPlayNetworking.send(HopperCDSync.clientQueryPacket(pos));
+                }
             }
         }
     }

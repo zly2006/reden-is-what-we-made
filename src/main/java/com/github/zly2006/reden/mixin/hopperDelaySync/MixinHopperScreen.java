@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.hopperDelaySync;
 
+import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.access.TransferCooldownAccess;
 import com.github.zly2006.reden.network.HopperCDSync;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -9,7 +10,6 @@ import net.minecraft.client.gui.screen.ingame.HopperScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.HopperScreenHandler;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,7 +41,12 @@ public abstract class MixinHopperScreen extends HandledScreen<HopperScreenHandle
             at = @At("RETURN")
     )
     private void sendReqOnInit(HopperScreenHandler handler, PlayerInventory inventory, Text title, CallbackInfo ci) {
-        ClientPlayNetworking.send(new HopperCDSync(BlockPos.ORIGIN, 1));
+        if (client != null) {
+            ServerData data = ServerData.Companion.serverData(client);
+            if (data != null && data.getFeatureSet().contains("hopper-cd")) {
+                ClientPlayNetworking.send(HopperCDSync.clientQueryPacket());
+            }
+        }
     }
 
     @Inject(

@@ -2,6 +2,7 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ServerData
+import com.github.zly2006.reden.access.TransferCooldownAccess
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.translateMessage
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
@@ -46,6 +47,14 @@ class Hello(
                         }
                     packet.featureSet.forEach { name ->
                         when (name) {
+                            "hopper-cd" -> ClientPlayNetworking.registerReceiver(HopperCDSync.pType) { packet, _, _ ->
+                                val screen = MinecraftClient.getInstance().currentScreen
+                                if (screen is TransferCooldownAccess) {
+                                    screen.transferCooldown = packet.cd
+                                }
+                                HopperCDSync.currentDelay = packet.cd
+                                HopperCDSync.currentPos = packet.pos
+                            }
                             "undo" -> ClientPlayNetworking.registerReceiver(Undo.pType) { packet, player, _ ->
                                 player.sendMessage(
                                     when (packet.status) {
