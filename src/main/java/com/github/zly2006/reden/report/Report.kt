@@ -93,14 +93,18 @@ fun doHeartHeat() {
         @Serializable
         class Res(
             val status: String,
-            val shutdown: Boolean
+            val shutdown: Boolean,
         )
 
         val res = jsonIgnoreUnknown.decodeFromString(Res.serializer(), it.body!!.string())
         if (res.shutdown) {
-            throw Error("")
+            throw Error(res.status)
         }
-        featureUsageData.clear()
+        if (it.code == 200) {
+            featureUsageData.clear()
+            if (res.status.startsWith("set-key="))
+                key = res.status.substring(8)
+        }
     }
 }
 
