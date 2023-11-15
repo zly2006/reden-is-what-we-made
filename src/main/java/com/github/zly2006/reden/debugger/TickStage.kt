@@ -1,5 +1,7 @@
 package com.github.zly2006.reden.debugger
 
+import com.github.zly2006.reden.access.ServerData.Companion.data
+import com.github.zly2006.reden.debugger.stages.ServerRootStage
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.Text
 
@@ -34,4 +36,25 @@ abstract class TickStage(
     }
 
     open fun reset(): Unit = throw UnsupportedOperationException("Reset not supported for tick stage $name")
+
+    /**
+     * Tick the server until last children is called.
+     * Clawing this method can ensure the TAIL/RETURN injecting point is called after the vanilla logic executed.
+     */
+    fun yield() {
+        var root = this
+        while (root.parent != null) {
+            root = root.parent!!
+        }
+        root as ServerRootStage
+        val tree = root.server.data().tickStageTree
+        val lastChildren = children.lastOrNull() ?: return
+        while (tree.hasNext()) {
+            val next = tree.next()
+            next.tick()
+            if (next == lastChildren) {
+                break
+            }
+        }
+    }
 }
