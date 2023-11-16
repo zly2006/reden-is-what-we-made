@@ -40,6 +40,8 @@ abstract class TickStage(
     /**
      * Tick the server until last children is called.
      * Clawing this method can ensure the TAIL/RETURN injecting point is called after the vanilla logic executed.
+     *
+     * Note: assume that the root stage is [ServerRootStage].
      */
     fun yield() {
         var root = this

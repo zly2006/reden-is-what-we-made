@@ -23,6 +23,7 @@
     "debugger.MixinServerPlayNetwork",
     "debugger.MixinServerWorld",
     "debugger.MixinWorld",
+    "debugger.MixinWorldTickScheduler",
     "debugger.crash.MixinSystemDetails",
     "debugger.events.MixinChunk",
     "debugger.network.MixinNetworkIo",

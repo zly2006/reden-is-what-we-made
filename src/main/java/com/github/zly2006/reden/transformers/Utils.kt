@@ -80,8 +80,8 @@ object IntermediaryMappingAccess {
     }
 
     private val methodMapping = mutableMapOf<String, MethodInfo>()
-    fun getMethod(owner: String, name: String): MethodInfo? {
-        if (owner.contains('.')) {
+    fun getMethod(owner: String?, name: String): MethodInfo? {
+        if (owner?.contains('.') == true) {
             throw IllegalArgumentException("Found '.' in owner: $owner, do you mean ${owner.replace('.', '/')}?")
         }
         if (name in methodMapping) {

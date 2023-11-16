@@ -136,3 +136,6 @@ accessible field net/minecraft/server/world/ServerChunkManager$ChunkWithHolder h
 accessible field net/minecraft/server/world/ServerChunkManager$ChunkWithHolder chunk Lnet/minecraft/world/chunk/WorldChunk;
 accessible field net/minecraft/server/world/ServerChunkManager spawnAnimals Z
 accessible field net/minecraft/server/world/ServerChunkManager spawnMonsters Z
+accessible method net/minecraft/world/tick/WorldTickScheduler tick (Ljava/util/function/BiConsumer;)V
+accessible method net/minecraft/server/world/ServerWorld tickBlock (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;)V
+accessible method net/minecraft/server/world/ServerWorld tickFluid (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/fluid/Fluid;)V

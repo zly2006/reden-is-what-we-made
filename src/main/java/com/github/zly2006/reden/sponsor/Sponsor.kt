@@ -40,7 +40,7 @@ fun updateSponsors() {
                 val screen = mc.currentScreen
                 mc.execute {
                     if (screen is SponsorScreen) {
-                        mc.setScreen(SponsorScreen(screen.parent))
+                        mc.setScreen(SponsorScreen(screen.parent, false))
                     }
                 }
             }
@@ -57,11 +57,11 @@ fun updateSponsors() {
                     .sortedBy { -it.amount }
                 Reden.LOGGER.info("Updated sponsors.")
                 time = System.currentTimeMillis()
-                updateClient()
             } else {
                 Reden.LOGGER.info("Failed to update sponsors. Status Code = ${response.code}")
                 response.close()
             }
+            updateClient()
         }
     })
 }
