@@ -269,7 +269,7 @@ fun reportOnlineMC(client: MinecraftClient) {
     Runtime.getRuntime().addShutdownHook(Thread {
         try {
             try {
-                doHeartHeat()
+                if (featureUsageData.isNotEmpty()) doHeartHeat()
             } catch (e: Exception) { LOGGER.debug("", e) }
             @Serializable
             class Req(

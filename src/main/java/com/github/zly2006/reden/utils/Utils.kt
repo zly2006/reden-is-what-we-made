@@ -29,6 +29,9 @@ import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.Heightmap
 import net.minecraft.world.World
+import java.io.IOException
+import java.io.InputStream
+import java.net.URL
 
 lateinit var server: MinecraftServer
 
@@ -143,5 +146,18 @@ fun PacketByteBuf.readDirection(): Direction {
 
 fun PacketByteBuf.writeDirection(direction: Direction) {
     writeVarInt(direction.id)
+}
+
+fun URL.openStreamRetrying(retries: Int = 3): InputStream {
+    var retry = retries
+    while (retries > 0) {
+        try {
+            return this.openStream()
+        } catch (e: IOException) {
+            Reden.LOGGER.warn("Opening $this", e)
+        }
+    }
+    Reden.LOGGER.error("Opening $this: max retries exceeded.")
+    throw IOException("Opening $this: max retries exceeded.")
 }
 

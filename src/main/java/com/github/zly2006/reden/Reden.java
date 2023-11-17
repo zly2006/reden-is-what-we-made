@@ -6,6 +6,9 @@ import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.fakePlayer.FakeConnection;
 import com.github.zly2006.reden.fakePlayer.RedenFakePlayer;
+import com.github.zly2006.reden.indexing.BlockId;
+import com.github.zly2006.reden.indexing.BlockPropertyId;
+import com.github.zly2006.reden.indexing.EntityId;
 import com.github.zly2006.reden.network.ChannelsKt;
 import com.github.zly2006.reden.rvc.RvcCommandKt;
 import com.github.zly2006.reden.transformers.ThisIsReden;
@@ -47,6 +50,10 @@ public class Reden implements ModInitializer, CarpetExtension {
     public static final Logger LOGGER = LoggerFactory.getLogger("reden");
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final int REDEN_HIGHEST_MIXIN_PRIORITY = 10;
+
+    public static BlockPropertyId blockPropertyId;
+    public static BlockId blockId;
+    public static EntityId entityId;
 
     @Override
     public String version() {
@@ -133,6 +140,14 @@ public class Reden implements ModInitializer, CarpetExtension {
         });
         Sounds.init();
         ServerTickEvents.END_SERVER_TICK.register(TaskScheduler.INSTANCE);
+        LOGGER.info("Loading indexes...");
+        try {
+            blockPropertyId = new BlockPropertyId();
+            blockId = new BlockId();
+            entityId = new EntityId();
+        } catch (Exception e) {
+            Reden.LOGGER.error("", e);
+        }
     }
 
     @Contract("_ -> new")
