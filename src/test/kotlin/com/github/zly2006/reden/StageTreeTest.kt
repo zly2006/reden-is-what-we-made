@@ -2,9 +2,20 @@ package com.github.zly2006.reden
 
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.tree.StageTree
+import net.minecraft.Bootstrap
+import net.minecraft.SharedConstants
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 class StageTreeTest {
+    companion object {
+        @JvmStatic
+        @BeforeAll
+        fun setup() {
+            SharedConstants.createGameVersion()
+            Bootstrap.initialize()
+        }
+    }
     private class EmptyTickStage(name: String, parent: TickStage?) : TickStage(name, parent) {
         override fun tick() {
             // dont clear children

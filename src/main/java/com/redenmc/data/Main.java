@@ -40,6 +40,8 @@ import java.util.OptionalInt;
 public class Main {
     public static final Logger LOGGER = LoggerFactory.getLogger("s");
 
+    public static boolean join = false;
+
     public static void main(String[] args) {
         Stopwatch stopwatch = Stopwatch.createStarted(Ticker.systemTicker());
         Stopwatch stopwatch2 = Stopwatch.createStarted(Ticker.systemTicker());
@@ -53,7 +55,7 @@ public class Main {
         OptionSpec<String> optionSpec17 = optionParser.accepts("accessToken").withRequiredArg().required();
         OptionSpec<String> optionSpec18 = optionParser.accepts("version").withRequiredArg().required();
 
-        OptionSet optionSet = optionParser.parse(args);
+        OptionSet optionSet = optionParser.parse();
 
         Proxy proxy = Proxy.NO_PROXY;
         boolean bl2 = false;
@@ -137,7 +139,7 @@ public class Main {
                 }
             };
             thread2.start();
-
+            if (!join) return;
             while (minecraftClient.isRunning()) {
             }
         } else {
@@ -145,7 +147,7 @@ public class Main {
 
             try {
                 RenderSystem.initGameThread(false);
-                minecraftClient.run();
+                if (join) minecraftClient.run();
             } catch (Throwable var80) {
                 LOGGER.error("Unhandled game exception", var80);
             }
@@ -153,15 +155,17 @@ public class Main {
 
         BufferRenderer.reset();
 
-        try {
-            minecraftClient.scheduleStop();
-            if (thread2 != null) {
-                thread2.join();
+        if (join) {
+            try {
+                minecraftClient.scheduleStop();
+                if (thread2 != null) {
+                    thread2.join();
+                }
+            } catch (InterruptedException var78) {
+                LOGGER.error("Exception during client thread shutdown", var78);
+            } finally {
+                minecraftClient.stop();
             }
-        } catch (InterruptedException var78) {
-            LOGGER.error("Exception during client thread shutdown", var78);
-        } finally {
-            minecraftClient.stop();
         }
     }
 
