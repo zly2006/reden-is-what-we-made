@@ -3,6 +3,7 @@ package com.github.zly2006.reden.debugger.tree
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.disableWatchDog
+import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.server
 import io.netty.util.internal.UnstableApi
 import okhttp3.internal.toHexString
@@ -65,6 +66,7 @@ class StageTree: Iterator<TickStage> {
         }
 
         while (child?.iter?.hasNext() == false) {
+            child!!.stage.endTask()
             child = child!!.parent
         }
     }
@@ -90,7 +92,7 @@ class StageTree: Iterator<TickStage> {
 
         tickedStages.add(child!!.stage)
         lastReturned = child
-        Reden.LOGGER.trace("[StageTree#next] {}", child)
+        debugLogger("[StageTree#next] $child")
         return lastReturned!!.stage
     }
 
@@ -164,6 +166,7 @@ class StageTree: Iterator<TickStage> {
     }
 
     fun insert2child(parent: TickStage, stage: TickStage) {
+        debugLogger("StageTree.insert2child $stage -> $parent")
         Reden.LOGGER.trace("[StageTree#insert2child] into {} -> {}", parent, stage)
 
         var node = lastReturned
@@ -195,6 +198,7 @@ class StageTree: Iterator<TickStage> {
      */
     @ApiStatus.Internal
     fun resetIterator(stage: TickStage) {
+        debugLogger("StageTree.resetIterator -> $stage")
         var node = lastReturned
         while (node != null) {
             if (node.stage == stage) {

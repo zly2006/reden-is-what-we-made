@@ -2,7 +2,6 @@ package com.github.zly2006.reden.debugger.stages.world
 
 import com.github.zly2006.reden.access.WorldTickSchedulerAccess
 import com.github.zly2006.reden.debugger.TickStage
-import net.minecraft.block.Block
 import net.minecraft.fluid.Fluid
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
@@ -14,7 +13,9 @@ class FluidScheduledTickStage(
     var orderedTick: OrderedTick<Fluid>?,
 ): TickStage("fluid_scheduled_tick", _parent) {
     @Suppress("UNCHECKED_CAST")
+    // Note: tick() method that does not call TickStage#tick
     override fun tick() {
+        assert(children.isEmpty())
         val scheduler = _parent.world.blockTickScheduler
         scheduler as WorldTickSchedulerAccess<Fluid>
         scheduler.setTickingTick(orderedTick!!)

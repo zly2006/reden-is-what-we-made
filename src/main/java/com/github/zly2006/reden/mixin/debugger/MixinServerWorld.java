@@ -298,8 +298,9 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
         BlockEvent blockEvent = getRedenWorldData().tickingBlockEvent;
 
         if (blockEvent == null) {
-            /** {@link BlockEventsRootStage#yield)} */
-            data(server).getTickStageTree().peekLeaf().yield();
+            // ensure type
+            BlockEventsRootStage rootStage = (BlockEventsRootStage) data(server).getTickStageTree().peekLeaf();
+            rootStage.yield();
             return;
         }
 

@@ -2,6 +2,7 @@ package com.github.zly2006.reden.debugger
 
 import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.stages.ServerRootStage
+import com.github.zly2006.reden.utils.debugLogger
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.Text
 
@@ -56,6 +57,7 @@ abstract class TickStage(
         root as ServerRootStage
         val tree = root.server.data().tickStageTree
         val lastChildren = children.lastOrNull() ?: return
+        debugLogger("StageTree.yield [=> $this")
         while (tree.hasNext()) {
             val next = tree.next()
             next.tick()
@@ -64,7 +66,12 @@ abstract class TickStage(
             }
         }
 
-        children.clear()
         debugChildrenShouldEmpty = true
+    }
+
+    open fun endTask() {
+        if (debugChildrenShouldEmpty) {
+            children.clear()
+        }
     }
 }
