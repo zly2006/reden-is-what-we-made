@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.debugger;
 
+import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.TickStageOwnerAccess;
 import com.github.zly2006.reden.access.WorldTickSchedulerAccess;
 import com.github.zly2006.reden.debugger.TickStage;
@@ -17,7 +18,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-@Mixin(WorldTickScheduler.class)
+@Mixin(value = WorldTickScheduler.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public abstract class MixinWorldTickScheduler<T> implements TickStageOwnerAccess, WorldTickSchedulerAccess<T> {
     @Shadow @Final public Queue<OrderedTick<T>> tickableTicks;
 
