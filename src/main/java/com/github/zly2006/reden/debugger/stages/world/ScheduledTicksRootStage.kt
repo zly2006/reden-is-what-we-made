@@ -7,6 +7,6 @@ import net.minecraft.world.tick.OrderedTick
 abstract class ScheduledTicksRootStage(
     name: String,
     parent: WorldRootStage
-) : TickStage(name, parent) {
+): AbstractWorldChildStage(name, parent) {
     abstract fun createChild(orderedTick: OrderedTick<*>): TickStage
 }

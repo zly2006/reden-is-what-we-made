@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixin.debugger;
 
 import com.github.zly2006.reden.Reden;
+import com.github.zly2006.reden.access.TickStageOwnerAccess;
 import com.github.zly2006.reden.access.WorldData;
 import com.github.zly2006.reden.debugger.TickStage;
 import com.github.zly2006.reden.debugger.stages.WorldRootStage;
@@ -138,6 +139,9 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             if (!this.isDebugWorld()) {
                 long time = this.getTime();
                 profiler.push("blockTicks");
+                // Reden start
+                ((TickStageOwnerAccess) this.blockTickScheduler).setTickStage(stage);
+                // Reden stop
                 this.blockTickScheduler.tick(time, 65536, this::tickBlock);
                 profiler.pop();
             }
@@ -146,6 +150,9 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             if (!this.isDebugWorld()) {
                 long time = this.getTime();
                 profiler.push("fluidTicks");
+                // Reden start
+                ((TickStageOwnerAccess) this.fluidTickScheduler).setTickStage(stage);
+                // Reden stop
                 this.fluidTickScheduler.tick(time, 65536, this::tickFluid);
                 profiler.pop();
             }
