@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.indexing
 
+import com.github.zly2006.reden.utils.openStreamRetrying
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -12,7 +13,7 @@ import java.net.URI
 
 @OptIn(ExperimentalSerializationApi::class)
 class BlockId(definition: URI = URI("https://www.redenmc.com/api/data/block_ids.json")) {
-    val index = Json.decodeFromStream<Map<String, Int>>(definition.toURL().openStream())
+    val index = Json.decodeFromStream<Map<String, Int>>(definition.toURL().openStreamRetrying())
 
     fun of(identifier: Identifier): Int {
         return index[identifier.toString()] ?: 0

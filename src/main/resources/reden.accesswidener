@@ -139,3 +139,5 @@ accessible field net/minecraft/server/world/ServerChunkManager spawnMonsters Z
 accessible method net/minecraft/world/tick/WorldTickScheduler tick (Ljava/util/function/BiConsumer;)V
 accessible method net/minecraft/server/world/ServerWorld tickBlock (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;)V
 accessible method net/minecraft/server/world/ServerWorld tickFluid (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/fluid/Fluid;)V
+accessible field net/minecraft/server/world/ServerWorld inBlockTick Z
+accessible method net/minecraft/server/world/ServerWorld processSyncedBlockEvents ()V

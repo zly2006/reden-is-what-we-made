@@ -5,4 +5,12 @@ import com.github.zly2006.reden.debugger.stages.WorldRootStage
 class BlockEventsRootStage(
     parent: WorldRootStage
 ): AbstractWorldChildStage("block_events_root", parent) {
+    override fun reset() {
+        super.reset()
+        x
+    }
+
+    val x by lazy {
+        0
+    }
 }

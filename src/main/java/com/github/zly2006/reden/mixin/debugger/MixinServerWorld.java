@@ -7,11 +7,13 @@ import com.github.zly2006.reden.debugger.TickStage;
 import com.github.zly2006.reden.debugger.stages.WorldRootStage;
 import com.github.zly2006.reden.debugger.stages.world.*;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.dragon.EnderDragonFight;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.network.packet.s2c.play.BlockEventS2CPacket;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -44,65 +46,110 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
         super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
     }
 
-    @Shadow public abstract List<ServerPlayerEntity> getPlayers();
+    @Shadow
+    public abstract List<ServerPlayerEntity> getPlayers();
 
-    @Shadow public abstract PortalForcer getPortalForcer();
+    @Shadow
+    private boolean inBlockTick;
 
-    @Shadow private boolean inBlockTick;
+    @Shadow
+    protected abstract void tickWeather();
 
-    @Shadow protected abstract void tickWeather();
+    @Shadow
+    @Final
+    private SleepManager sleepManager;
 
-    @Shadow @Final private SleepManager sleepManager;
+    @Shadow
+    @Final
+    private List<ServerPlayerEntity> players;
 
-    @Shadow @Final private List<ServerPlayerEntity> players;
+    @Shadow
+    protected abstract void resetWeather();
 
-    @Shadow protected abstract void resetWeather();
+    @Shadow
+    public abstract void sendEntityDamage(Entity entity, DamageSource damageSource);
 
-    @Shadow public abstract void sendEntityDamage(Entity entity, DamageSource damageSource);
+    @Shadow
+    public abstract void setTimeOfDay(long timeOfDay);
 
-    @Shadow public abstract void setTimeOfDay(long timeOfDay);
+    @Shadow
+    protected abstract void wakeSleepingPlayers();
 
-    @Shadow protected abstract void wakeSleepingPlayers();
+    @Shadow
+    protected abstract void tickTime();
 
-    @Shadow protected abstract void tickTime();
+    @Shadow
+    protected abstract void tickBlock(BlockPos pos, Block block);
 
-    @Shadow protected abstract void tickBlock(BlockPos pos, Block block);
+    @Shadow
+    protected abstract void tickFluid(BlockPos pos, Fluid fluid);
 
-    @Shadow protected abstract void tickFluid(BlockPos pos, Fluid fluid);
+    @Shadow
+    @Final
+    private List<BlockEvent> blockEventQueue;
 
-    @Shadow @Final private List<BlockEvent> blockEventQueue;
+    @Shadow
+    @Final
+    private WorldTickScheduler<Block> blockTickScheduler;
 
-    @Shadow @Final private WorldTickScheduler<Block> blockTickScheduler;
+    @Shadow
+    @Final
+    private WorldTickScheduler<Fluid> fluidTickScheduler;
 
-    @Shadow @Final private WorldTickScheduler<Fluid> fluidTickScheduler;
+    @Shadow
+    @Final
+    protected RaidManager raidManager;
 
-    @Shadow @Final protected RaidManager raidManager;
+    @Shadow
+    public abstract LongSet getForcedChunks();
 
-    @Shadow protected abstract void processSyncedBlockEvents();
+    @Shadow
+    public abstract void resetIdleTimeout();
 
-    @Shadow public abstract LongSet getForcedChunks();
+    @Shadow
+    private int idleTimeout;
 
-    @Shadow public abstract void resetIdleTimeout();
+    @Shadow
+    private @Nullable EnderDragonFight enderDragonFight;
 
-    @Shadow private int idleTimeout;
+    @Shadow
+    @Final
+    private EntityList entityList;
 
-    @Shadow private @Nullable EnderDragonFight enderDragonFight;
+    @Shadow
+    protected abstract boolean shouldCancelSpawn(Entity entity);
 
-    @Shadow @Final private EntityList entityList;
+    @Shadow
+    @Final
+    private ServerChunkManager chunkManager;
 
-    @Shadow protected abstract boolean shouldCancelSpawn(Entity entity);
+    @Shadow
+    @Final
+    public ServerEntityManager<Entity> entityManager;
 
-    @Shadow @Final private ServerChunkManager chunkManager;
+    @Shadow
+    public abstract void tickEntity(Entity entity);
 
-    @Shadow @Final public ServerEntityManager<Entity> entityManager;
+    @Shadow
+    public abstract ServerChunkManager getChunkManager();
 
-    @Shadow public abstract void tickEntity(Entity entity);
+    @Shadow
+    @Final
+    private List<Spawner> spawners;
 
-    @Shadow public abstract ServerChunkManager getChunkManager();
+    @Shadow
+    @Final
+    private MinecraftServer server;
 
-    @Shadow @Final private List<Spawner> spawners;
+    @Shadow
+    @Final
+    public ObjectLinkedOpenHashSet<BlockEvent> syncedBlockEventQueue;
 
-    @Shadow @Final private MinecraftServer server;
+    @Shadow
+    protected abstract boolean processBlockEvent(BlockEvent event);
+
+    @Shadow
+    public abstract void addSyncedBlockEvent(BlockPos pos, Block block, int type, int data);
 
     /**
      * @author zly2006
@@ -159,11 +206,17 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
         } else if (stage instanceof RaidStage) {
             profiler.swap("raid");
             this.raidManager.tick();
-        } else if (stage instanceof RandomTickStage) {//todo
+        } else if (stage instanceof RandomTickStage) {
+            //todo
             profiler.swap("chunkSource");
             this.getChunkManager().tick(shouldKeepTicking, true);
         } else if (stage instanceof BlockEventsRootStage) {
             profiler.swap("blockEvents");
+            // Reden start
+            for (BlockEvent blockEvent : syncedBlockEventQueue) {
+                stage.getChildren().add(new BlockEventStage((BlockEventsRootStage) stage, blockEvent));
+            }
+            // Reden stop
             this.processSyncedBlockEvents();
             this.inBlockTick = false;
             profiler.pop();
@@ -216,8 +269,8 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
 
 
     /**
-     * @author
-     * @reason
+     * @author zly2006
+     * @reason Reden debugger
      */
     @Overwrite
     public void tickSpawners(boolean spawnMonsters, boolean spawnAnimals) {
@@ -233,5 +286,34 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             // The first call of this method is from ServerChunkManager.tick(), where spawner is null.
             spawner.spawn(rootStage.getWorld(), spawnMonsters, spawnAnimals);
         }
+    }
+
+    /**
+     * @author zly2006
+     * @reason Reden debugger
+     */
+    @Overwrite
+    public final void processSyncedBlockEvents() {
+        this.blockEventQueue.clear();
+        BlockEvent blockEvent = getRedenWorldData().getTickingBlockEvent();
+
+        if (blockEvent == null) {
+            data(server).getTickStageTree().peekLeaf().yield();
+            return;
+        }
+
+        if (this.shouldTickBlockPos(blockEvent.pos())) {
+            if (this.processBlockEvent(blockEvent)) {
+                this.server.getPlayerManager().sendToAround(null, blockEvent.pos().getX(), blockEvent.pos().getY(), blockEvent.pos().getZ(), 64.0, this.getRegistryKey(), new BlockEventS2CPacket(blockEvent.pos(), blockEvent.block(), blockEvent.type(), blockEvent.data()));
+            }
+        } else {
+            this.blockEventQueue.add(blockEvent);
+        }
+
+        if (!syncedBlockEventQueue.isEmpty()) {
+            Reden.LOGGER.error("Error: added new block event during processing.");
+        }
+
+        this.syncedBlockEventQueue.addAll(this.blockEventQueue);
     }
 }

@@ -150,12 +150,13 @@ fun PacketByteBuf.writeDirection(direction: Direction) {
 
 fun URL.openStreamRetrying(retries: Int = 3): InputStream {
     var retry = retries
-    while (retries > 0) {
+    while (retry > 0) {
         try {
             return this.openStream()
         } catch (e: IOException) {
             Reden.LOGGER.warn("Opening $this", e)
         }
+        retry--
     }
     Reden.LOGGER.error("Opening $this: max retries exceeded.")
     throw IOException("Opening $this: max retries exceeded.")

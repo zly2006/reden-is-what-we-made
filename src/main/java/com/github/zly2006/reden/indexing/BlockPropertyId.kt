@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.indexing
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.utils.openStreamRetrying
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -30,7 +31,7 @@ class BlockPropertyId(definition: URI = URI("https://www.redenmc.com/api/data/pr
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    val properties = Json.decodeFromStream<List<Property>>(definition.toURL().openStream())
+    val properties = Json.decodeFromStream<List<Property>>(definition.toURL().openStreamRetrying())
     init {
         checkExtra(null)
     }

@@ -1,7 +1,9 @@
 package com.github.zly2006.reden.gui
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.report.key
 import com.github.zly2006.reden.sponsor.SponsorScreen
+import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.component.LabelComponent
@@ -177,6 +179,9 @@ fun Screen.creditsScreenContent(): FlowLayout {
         })
         this.child(Components.button(Text.literal("Privacy Policy")) {
             Util.getOperatingSystem().open(URI("https://www.redenmc.com/policy/PRIVACY.md"))
+        })
+        this.child(Components.button(Text.literal("Delete My Data").red()) {
+            Util.getOperatingSystem().open(URI("https://www.redenmc.com/privacy/deletekey=$key"))
         })
         children().forEach { it.margins(Insets.of(5)) }
     }))
