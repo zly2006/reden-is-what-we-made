@@ -122,14 +122,15 @@ object UpdateMonitorHelper {
         ONCE
     }
 
+    private var suggestedUndo = iEVER_USED_UNDO.booleanValue
     @JvmStatic
     fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
         debugLogger("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState")
         recording?.data?.computeIfAbsent(pos.asLong()) {
             recording!!.fromWorld(world, pos, true)
         }
-        if (isClient && recording != null && !recording!!.notified
-            && !iEVER_USED_UNDO.booleanValue) {
+        if (isClient && recording != null && !recording!!.notified && !suggestedUndo) {
+            suggestedUndo = true
             // Send a notification that maybe he wants undo.
             if (recording!!.data.size > 2) {
                 recording!!.notified = true
