@@ -4,6 +4,8 @@ import carpet.api.settings.CarpetRule;
 import carpet.api.settings.Rule;
 import carpet.api.settings.RuleCategory;
 import carpet.api.settings.Validator;
+import com.github.zly2006.reden.utils.DebugKt;
+import com.github.zly2006.reden.utils.UtilsKt;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
@@ -54,8 +56,23 @@ public class RedenCarpetSettings {
     )
     public static boolean undoScheduledTicks = false;
 
+    private static class DebugOptionObserver extends Validator<Boolean> {
+        @Override
+        public Boolean validate(@Nullable ServerCommandSource source, CarpetRule<Boolean> changingRule, Boolean newValue, String userInput) {
+            if (!UtilsKt.isClient()) {
+                if (newValue) {
+                    DebugKt.startDebugAppender();
+                } else {
+                    DebugKt.stopDebugAppender();
+                }
+            }
+            return newValue;
+        }
+    }
+
     @Rule(
-            categories = {CATEGORY_REDEN}
+            categories = {CATEGORY_REDEN},
+            validators = {DebugOptionObserver.class}
     )
     public static boolean redenDebug = false;
 

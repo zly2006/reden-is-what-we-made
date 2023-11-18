@@ -3,6 +3,7 @@ package com.github.zly2006.reden.report
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.Reden.LOGGER
 import com.github.zly2006.reden.malilib.ALLOW_SOCIAL_FOLLOW
+import com.github.zly2006.reden.malilib.data_BASIC
 import com.github.zly2006.reden.malilib.data_IDENTIFICATION
 import com.github.zly2006.reden.malilib.data_USAGE
 import com.github.zly2006.reden.utils.isClient
@@ -46,7 +47,7 @@ class FeatureUsageData(
 )
 
 fun doHeartHeat() {
-    if (!data_USAGE.booleanValue) return
+    if (!data_USAGE.booleanValue || !data_BASIC.booleanValue) return
     OkHttpClient().newCall(Request.Builder().apply {
         url("https://www.redenmc.com/api/mc/heartbeat")
         @Serializable

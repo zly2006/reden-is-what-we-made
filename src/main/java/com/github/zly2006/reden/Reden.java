@@ -55,6 +55,7 @@ public class Reden implements ModInitializer, CarpetExtension {
     public static BlockId blockId;
     public static EntityId entityId;
 
+
     @Override
     public String version() {
         return "reden";
@@ -69,6 +70,7 @@ public class Reden implements ModInitializer, CarpetExtension {
     public Map<String, String> canHasTranslations(String lang) {
         return ResourceLoader.loadLang(lang);
     }
+
 
     @Override
     public void onInitialize() {

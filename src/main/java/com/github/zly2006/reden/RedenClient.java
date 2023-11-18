@@ -11,6 +11,7 @@ import com.github.zly2006.reden.rvc.RvcLocalCommandKt;
 import com.github.zly2006.reden.rvc.gui.RvcHudRenderer;
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.SelectModeHudKt;
 import com.github.zly2006.reden.rvc.tracking.client.ClientTrackingKt;
+import com.github.zly2006.reden.utils.DebugKt;
 import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.config.ConfigUtils;
@@ -49,6 +50,9 @@ public class RedenClient implements ClientModInitializer {
                         }
                         JsonObject jo = Reden.GSON.fromJson(Files.readString(file.toPath()), JsonObject.class);
                         ConfigUtils.readConfigBase(jo, Reden.MOD_NAME, MalilibSettingsKt.getAllOptions());
+                        if (DebugKt.isDebug()) {
+                            DebugKt.startDebugAppender();
+                        }
                     } catch (IOException e) {
                         save();
                     }
