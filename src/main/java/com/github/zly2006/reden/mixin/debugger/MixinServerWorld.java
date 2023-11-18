@@ -23,7 +23,10 @@ import net.minecraft.server.world.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.village.raid.RaidManager;
-import net.minecraft.world.*;
+import net.minecraft.world.EntityList;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.MutableWorldProperties;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.spawner.Spawner;
 import net.minecraft.world.tick.WorldTickScheduler;
@@ -148,9 +151,6 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
     @Shadow
     protected abstract boolean processBlockEvent(BlockEvent event);
 
-    @Shadow
-    public abstract void addSyncedBlockEvent(BlockPos pos, Block block, int type, int data);
-
     /**
      * @author zly2006
      * @reason Reden Debugger
@@ -212,13 +212,12 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             this.getChunkManager().tick(shouldKeepTicking, true);
         } else if (stage instanceof BlockEventsRootStage) {
             profiler.swap("blockEvents");
-            // Reden start
-            for (BlockEvent blockEvent : syncedBlockEventQueue) {
-                stage.getChildren().add(new BlockEventStage((BlockEventsRootStage) stage, blockEvent));
-            }
-            syncedBlockEventQueue.clear();
-            // Reden stop
             this.processSyncedBlockEvents();
+            // Reden start
+            if (!syncedBlockEventQueue.isEmpty()) {
+                Reden.LOGGER.error("Error: added new block event during processing.");
+            }
+            // Reden stop
             this.inBlockTick = false;
             profiler.pop();
         } else if (stage instanceof EntitiesRootStage) {
@@ -296,9 +295,10 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
     @Overwrite
     public final void processSyncedBlockEvents() {
         this.blockEventQueue.clear();
-        BlockEvent blockEvent = getRedenWorldData().getTickingBlockEvent();
+        BlockEvent blockEvent = getRedenWorldData().tickingBlockEvent;
 
         if (blockEvent == null) {
+            /** {@link BlockEventsRootStage#yield)} */
             data(server).getTickStageTree().peekLeaf().yield();
             return;
         }
@@ -311,10 +311,22 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             this.blockEventQueue.add(blockEvent);
         }
 
-        if (!syncedBlockEventQueue.isEmpty()) {
-            Reden.LOGGER.error("Error: added new block event during processing.");
-        }
-
+        getRedenWorldData().tickingBlockEvent = null;
         this.syncedBlockEventQueue.addAll(this.blockEventQueue);
+    }
+
+    /**
+     * @author zly2006
+     * @reason Reden debugger
+     */
+    @Overwrite
+    public void addSyncedBlockEvent(BlockPos pos, Block block, int type, int data) {
+        // Leave injecting point
+        this.syncedBlockEventQueue.add(new BlockEvent(pos, block, type, data));
+
+        BlockEventsRootStage beRoot = getRedenWorldData().blockEventsRootStage;
+        assert beRoot != null;
+        beRoot.getChildren().add(new BlockEventStage(beRoot, syncedBlockEventQueue.removeFirst()));
+        data(server).getTickStageTree().resetIterator(beRoot);
     }
 }

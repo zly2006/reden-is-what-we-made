@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.access
 
 import com.github.zly2006.reden.debugger.stages.WorldRootStage
+import com.github.zly2006.reden.debugger.stages.world.BlockEventsRootStage
 import net.minecraft.server.world.BlockEvent
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.World
@@ -10,7 +11,8 @@ class WorldData(
 ): StatusAccess {
     override var status: Long = 0
     lateinit var tickStage: WorldRootStage
-    var tickingBlockEvent: BlockEvent? = null
+    @JvmField var tickingBlockEvent: BlockEvent? = null
+    @JvmField var blockEventsRootStage: BlockEventsRootStage? = null
 
     interface WorldDataAccess {
         fun getRedenWorldData(): WorldData

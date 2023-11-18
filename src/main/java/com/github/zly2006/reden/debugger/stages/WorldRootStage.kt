@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.debugger.stages
 
+import com.github.zly2006.reden.access.WorldData.Companion.data
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.stages.world.*
@@ -34,7 +35,8 @@ class WorldRootStage(
         // profiler.swap("chunkSource");
         children.add(RandomTickStage(this))
 
-        children.add(BlockEventsRootStage(this))
+        world.data().blockEventsRootStage = BlockEventsRootStage(this)
+        children.add(world.data().blockEventsRootStage!!)
         children.add(EntitiesRootStage(this))
         yield()
     }

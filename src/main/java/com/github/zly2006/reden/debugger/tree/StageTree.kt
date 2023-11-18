@@ -6,6 +6,7 @@ import com.github.zly2006.reden.debugger.disableWatchDog
 import com.github.zly2006.reden.utils.server
 import io.netty.util.internal.UnstableApi
 import okhttp3.internal.toHexString
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -187,5 +188,23 @@ class StageTree: Iterator<TickStage> {
             // Oops, the tree is empty, we need to update the child node.
             child = node
         }
+    }
+
+    /**
+     * WARNING: DO NOT USE THIS METHOD IF YOU DONT KNOW WHAT IT IS
+     */
+    @ApiStatus.Internal
+    fun resetIterator(stage: TickStage) {
+        var node = lastReturned
+        while (node != null) {
+            if (node.stage == stage) {
+                break
+            }
+            node = node.parent
+        }
+
+        if (node == null) return
+        if (node.iter == null) return
+        node.iter = stage.children.listIterator(node.iter!!.nextIndex())
     }
 }

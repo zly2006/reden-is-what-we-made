@@ -9,6 +9,7 @@ abstract class TickStage(
     val name: String,
     val parent: TickStage?,
 ) {
+    private var debugChildrenShouldEmpty = false
     init {
         /*
         val nameRegex = Regex("[\\w\\-]+")
@@ -32,6 +33,10 @@ abstract class TickStage(
      *       because in the caller there may have some mixins.
      */
     open fun tick() {
+        if (debugChildrenShouldEmpty && children.isNotEmpty()) {
+            error("Children should be null!!!!!")
+        }
+        debugChildrenShouldEmpty = false
         children.clear()
     }
 
@@ -58,5 +63,8 @@ abstract class TickStage(
                 break
             }
         }
+
+        children.clear()
+        debugChildrenShouldEmpty = true
     }
 }
