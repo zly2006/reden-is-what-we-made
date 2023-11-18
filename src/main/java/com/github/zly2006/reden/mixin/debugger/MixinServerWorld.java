@@ -216,6 +216,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             for (BlockEvent blockEvent : syncedBlockEventQueue) {
                 stage.getChildren().add(new BlockEventStage((BlockEventsRootStage) stage, blockEvent));
             }
+            syncedBlockEventQueue.clear();
             // Reden stop
             this.processSyncedBlockEvents();
             this.inBlockTick = false;
