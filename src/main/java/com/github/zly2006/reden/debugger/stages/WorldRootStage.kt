@@ -35,7 +35,10 @@ class WorldRootStage(
         // profiler.swap("chunkSource");
         children.add(RandomTickStage(this))
 
-        world.data().blockEventsRootStage = BlockEventsRootStage(this)
+        if (world.data().blockEventsRootStage == null) {
+            // Note: init only
+            world.data().blockEventsRootStage = BlockEventsRootStage(this)
+        }
         children.add(world.data().blockEventsRootStage!!)
         children.add(EntitiesRootStage(this))
         yield()
