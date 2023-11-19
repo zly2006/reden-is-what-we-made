@@ -109,6 +109,7 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
             BREAK_BLOCK(Text.translatable("reden.feature.undo.cause.break_block")),
             USE_BLOCK(Text.translatable("reden.feature.undo.cause.use_block")),
             USE_ITEM(Text.translatable("reden.feature.undo.cause.use_item")),
+            USE_ENTITY(Text.translatable("reden.feature.undo.cause.use_entity")),
             ATTACK_ENTITY(Text.translatable("reden.feature.undo.cause.attack_entity")),
             COMMAND(Text.translatable("reden.feature.undo.cause.command")),
             LITEMATICA_TASK(Text.translatable("reden.feature.undo.cause.litematica_task")),

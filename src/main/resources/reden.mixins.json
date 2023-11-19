@@ -52,6 +52,7 @@
     "undo.MixinPlayerMode",
     "undo.MixinSchedule",
     "undo.MixinScheduledTick",
+    "undo.MixinServerPlayNetworkHandler",
     "undo.MixinServerWorld",
     "undo.MixinServerWorldChunk",
     "undo.MixinTntEntity"

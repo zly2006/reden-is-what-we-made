@@ -303,6 +303,8 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             // ensure type
             BlockEventsRootStage rootStage = (BlockEventsRootStage) data(server).getTickStageTree().peekLeaf();
             rootStage.yield();
+
+            // This is the vanilla end of the function.
             this.syncedBlockEventQueue.addAll(this.blockEventQueue);
             return;
         }

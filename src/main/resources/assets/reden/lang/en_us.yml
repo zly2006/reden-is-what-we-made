@@ -72,6 +72,7 @@ reden:
         break_block: Break Block
         use_block: Use Block
         use_item: Use Item
+        use_entity: Use Entity
         attack_entity: Attack Entity
         command: Command
         litematica_task: Litematica Task
