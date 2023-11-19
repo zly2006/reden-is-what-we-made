@@ -91,6 +91,7 @@ public abstract class MixinWorldTickScheduler<T> implements TickStageOwnerAccess
         }
 
         this.tickedTicks.add(orderedTick);
+        this.tickingTick = null;
         ticker.accept(orderedTick.pos(), orderedTick.type());
     }
 }
