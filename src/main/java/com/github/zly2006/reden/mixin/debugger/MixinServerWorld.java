@@ -151,6 +151,8 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
     @Shadow
     protected abstract boolean processBlockEvent(BlockEvent event);
 
+    @Shadow protected abstract void method_31420(Profiler par1, Entity par2);
+
     /**
      * @author zly2006
      * @reason Reden Debugger
@@ -222,7 +224,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             // Reden stop
             this.inBlockTick = false;
             profiler.pop();
-        } else if (stage instanceof EntitiesRootStage) {
+        } else if (stage instanceof EntitiesRootStage ers) {
             boolean bl = !this.players.isEmpty() || !this.getForcedChunks().isEmpty();
             if (bl) {
                 this.resetIdleTimeout();
@@ -235,30 +237,12 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
                     profiler.pop();
                 }
 
-                this.entityList.forEach((entity) -> {
-                    if (!entity.isRemoved()) {
-                        if (this.shouldCancelSpawn(entity)) {
-                            entity.discard();
-                        } else {
-                            profiler.push("checkDespawn");
-                            entity.checkDespawn();
-                            profiler.pop();
-                            if (this.chunkManager.threadedAnvilChunkStorage.getTicketManager().shouldTickEntities(entity.getChunkPos().toLong())) {
-                                Entity entity2 = entity.getVehicle();
-                                if (entity2 != null) {
-                                    if (!entity2.isRemoved() && entity2.hasPassenger(entity)) {
-                                        return;
-                                    }
+                this.entityList.forEach(entity -> {
+                    EntityStage es = new EntityStage(ers, entity);
+                    data(server).getTickStageTree().insert2child(ers, es);
 
-                                    entity.stopRiding();
-                                }
-
-                                profiler.push("tick");
-                                this.tickEntity(this::tickEntity, entity);
-                                profiler.pop();
-                            }
-                        }
-                    }
+                    data(server).getTickStageTree().next().tick(); // nop
+                    method_31420(profiler, entity); // do tick
                 });
                 profiler.pop();
                 this.tickBlockEntities();
