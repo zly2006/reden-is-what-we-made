@@ -61,6 +61,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             undoEasterEggLock = true
             Thread {
                 Thread.sleep(2000)
+                undoEasterEggLock = false
                 ClientPlayNetworking.send(Undo(0))
             }.start()
         }
