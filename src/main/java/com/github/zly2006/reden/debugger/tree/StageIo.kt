@@ -134,4 +134,32 @@ object StageIo {
         tree.child = prevNode
         return tree
     }
+
+    /**
+     * Def: node=
+     *
+     * {
+     *
+     * - name
+     * - custom data
+     * - if children updated:
+     *
+     * }
+     *
+     * - (in) entries
+     * - (foreach) i
+     * - children [i] node
+     */
+    fun writeStageTreeNode(buf: PacketByteBuf, node: StageTree.TreeNode, writeAllChildren: Boolean) {
+        buf.writeString(node.stage.name)
+        node.stage.writeByteBuf(buf)
+        buf.writeBoolean(node.childrenUpdated)
+        if (node.childrenUpdated) {
+            if (node.iter == null) {
+                node.iter = node.stage.children.listIterator()
+            }
+            buf.writeVarInt(node.stage.children.size)
+            buf.writeVarInt(node.iter!!.nextIndex())
+        }
+    }
 }
