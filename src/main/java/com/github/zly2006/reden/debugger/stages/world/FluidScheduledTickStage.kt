@@ -16,10 +16,10 @@ class FluidScheduledTickStage(
     // Note: tick() method that does not call TickStage#tick
     override fun tick() {
         assert(children.isEmpty())
-        val scheduler = _parent.world.blockTickScheduler
+        val scheduler = _parent.world.fluidTickScheduler
         scheduler as WorldTickSchedulerAccess<Fluid>
         scheduler.setTickingTick(orderedTick!!)
-        scheduler.tick(_parent.world::tickBlock)
+        scheduler.tick(_parent.world::tickFluid)
     }
 
     override fun writeByteBuf(buf: PacketByteBuf) {
