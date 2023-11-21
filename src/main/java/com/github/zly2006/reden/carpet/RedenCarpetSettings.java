@@ -54,7 +54,17 @@ public class RedenCarpetSettings {
     @Rule(
             categories = {CATEGORY_REDEN, RuleCategory.CREATIVE}
     )
-    public static boolean undoScheduledTicks = false;
+    public static boolean undoScheduledTicks = true;
+
+    @Rule(
+            categories = {CATEGORY_REDEN, RuleCategory.CREATIVE}
+    )
+    public static boolean undoEntities = true;
+
+    @Rule(
+            categories = {CATEGORY_REDEN, RuleCategory.CREATIVE}
+    )
+    public static boolean undoApplyingClearScheduledTicks = true;
 
     private static class DebugOptionObserver extends Validator<Boolean> {
         @Override

@@ -24,6 +24,7 @@ import fi.dy.masa.malilib.hotkeys.IKeybindManager;
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.util.FileUtils;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.MinecraftClient;
@@ -101,6 +102,9 @@ public class RedenClient implements ClientModInitializer {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             RvcLocalCommandKt.register(dispatcher);
             ClientGlowKt.register(dispatcher);
+            dispatcher.register(ClientCommandManager.literal("qubit").executes(context -> {
+                throw new Error("Qu(b)it!");
+            }));
         });
         RDebuggerLayoutKt.register();
     }

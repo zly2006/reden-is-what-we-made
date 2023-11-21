@@ -9,6 +9,7 @@ import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.appender.RollingRandomAccessFileAppender
 import org.apache.logging.log4j.core.appender.rolling.OnStartupTriggeringPolicy
 import org.apache.logging.log4j.core.layout.PatternLayout
+import java.time.Instant
 
 private val LOGGER = Reden.LOGGER
 @JvmField
@@ -44,5 +45,18 @@ fun stopDebugAppender() {
         val ctx = LogManager.getContext(false) as LoggerContext
         ctx.configuration.getLoggerConfig(Reden.MOD_NAME).removeAppender(debugAppender.name)
         ctx.updateLoggers()
+    }
+}
+
+fun pauseHere(exception: Throwable? = null) {
+    val now = Instant.now()
+    if (exception == null) {
+        Reden.LOGGER.error("Paused.")
+    } else {
+        Reden.LOGGER.error("Paused because ", exception)
+    }
+    if (Instant.now().toEpochMilli() - now.toEpochMilli() < 300) {
+        Reden.LOGGER.error("Did u forget to place a breakpoint here?")
+        Thread.sleep(3000)
     }
 }

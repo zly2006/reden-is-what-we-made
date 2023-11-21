@@ -280,9 +280,12 @@ carpet:
       desc: |-
         Maximum ticks for tick back. Default is 100, 0 to disable.
 
+    undoEntities:
+      desc: Allow undo record entities. Default is true.
+    undoApplyingClearScheduledTicks:
+      desc: Clear all scheduled tick if that block position undoed.
     undoScheduledTicks:
-      desc: |-
-        Allow undo record scheduled ticks. Default is false.
+      desc: Allow undo record scheduled ticks. Default is true.
 
     redenDebug:
       desc: |-

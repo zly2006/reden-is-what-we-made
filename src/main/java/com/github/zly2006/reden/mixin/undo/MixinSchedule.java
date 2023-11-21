@@ -2,6 +2,7 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.access.UndoableAccess;
+import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.util.math.BlockPos;
@@ -27,8 +28,10 @@ public class MixinSchedule {
             locals = LocalCapture.CAPTURE_FAILSOFT
     )
     private <T> void onRunSchedule(BiConsumer<BlockPos, T> ticker, CallbackInfo ci, OrderedTick orderedTick) {
-        long undoId = ((UndoableAccess) orderedTick).getUndoId();
-        UpdateMonitorHelper.pushRecord(undoId, () -> "scheduled tick/" + orderedTick.pos().toShortString());
+        if (RedenCarpetSettings.undoScheduledTicks) {
+            long undoId = ((UndoableAccess) orderedTick).getUndoId();
+            UpdateMonitorHelper.pushRecord(undoId, () -> "scheduled tick/" + orderedTick.pos().toShortString());
+        }
     }
     @Inject(
             method = "tick(Ljava/util/function/BiConsumer;)V",
@@ -40,7 +43,9 @@ public class MixinSchedule {
             locals = LocalCapture.CAPTURE_FAILSOFT
     )
     private void afterRunSchedule(BiConsumer<BlockPos, ?> ticker, CallbackInfo ci, OrderedTick orderedTick) {
-        UpdateMonitorHelper.popRecord(() -> "scheduled tick/" + orderedTick.pos().toShortString());
+        if (RedenCarpetSettings.undoScheduledTicks) {
+            UpdateMonitorHelper.popRecord(() -> "scheduled tick/" + orderedTick.pos().toShortString());
+        }
     }
     @Inject(
             method = "scheduleTick",
@@ -51,7 +56,7 @@ public class MixinSchedule {
     private <T> void onAddSchedule(OrderedTick<T> orderedTick, CallbackInfo ci) {
         UndoableAccess access = (UndoableAccess) orderedTick;
         PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
-        if (recording != null) {
+        if (RedenCarpetSettings.undoScheduledTicks && recording != null) {
             DebugKt.debugLogger.invoke("Scheduled tick at " + orderedTick.pos() + ", adding it into record " + recording.getId());
             // inherit parent id
             access.setUndoId(recording.getId());

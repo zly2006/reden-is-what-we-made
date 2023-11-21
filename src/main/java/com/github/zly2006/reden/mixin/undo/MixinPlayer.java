@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
+import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -24,7 +25,9 @@ public class MixinPlayer {
             )
     )
     private void onAttack(Entity target, CallbackInfo ci) {
-        UpdateMonitorHelper.playerStartRecording(networkHandler.player, PlayerData.UndoRecord.Cause.ATTACK_ENTITY);
+        if (RedenCarpetSettings.undoEntities) {
+            UpdateMonitorHelper.playerStartRecording(networkHandler.player, PlayerData.UndoRecord.Cause.ATTACK_ENTITY);
+        }
     }
     @Inject(
             method = "attack",
@@ -35,6 +38,8 @@ public class MixinPlayer {
             )
     )
     private void afterAttack(Entity target, CallbackInfo ci) {
-        UpdateMonitorHelper.playerStopRecording(networkHandler.player);
+        if (RedenCarpetSettings.undoEntities) {
+            UpdateMonitorHelper.playerStopRecording(networkHandler.player);
+        }
     }
 }

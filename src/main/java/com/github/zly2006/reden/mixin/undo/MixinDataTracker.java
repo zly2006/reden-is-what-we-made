@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.undo;
 
+import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
@@ -20,7 +21,8 @@ public class MixinDataTracker {
             at = @At("HEAD")
     )
     private <T> void beforeDataSet(TrackedData<T> key, T value, boolean force, CallbackInfo ci) {
-        if (trackedEntity.getWorld().isClient) return;
+        if (trackedEntity.getWorld().isClient ||
+                !RedenCarpetSettings.undoEntities) return;
         UpdateMonitorHelper.tryAddRelatedEntity(trackedEntity);
     }
     @Inject(

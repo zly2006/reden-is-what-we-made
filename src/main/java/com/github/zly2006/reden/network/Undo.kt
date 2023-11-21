@@ -3,6 +3,7 @@ package com.github.zly2006.reden.network
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
+import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.server
@@ -40,11 +41,13 @@ class Undo(
                 // set block
                 world.setBlockNoPP(pos, entry.state, Block.NOTIFY_LISTENERS)
                 // clear schedules
-                world.syncedBlockEventQueue.removeIf { it.pos == pos }
-                val blockTickScheduler = world.getChunk(pos).blockTickScheduler as ChunkTickScheduler
-                val fluidTickScheduler = world.getChunk(pos).fluidTickScheduler as ChunkTickScheduler
-                blockTickScheduler.removeTicksIf { it.pos == pos }
-                fluidTickScheduler.removeTicksIf { it.pos == pos }
+                if (RedenCarpetSettings.undoApplyingClearScheduledTicks) {
+                    world.syncedBlockEventQueue.removeIf { it.pos == pos }
+                    val blockTickScheduler = world.getChunk(pos).blockTickScheduler as ChunkTickScheduler
+                    val fluidTickScheduler = world.getChunk(pos).fluidTickScheduler as ChunkTickScheduler
+                    blockTickScheduler.removeTicksIf { it.pos == pos }
+                    fluidTickScheduler.removeTicksIf { it.pos == pos }
+                }
                 // apply block entity
                 entry.blockEntity?.let { beNbt ->
                     world.addBlockEntity(BlockEntity.createFromNbt(pos, entry.state, beNbt))

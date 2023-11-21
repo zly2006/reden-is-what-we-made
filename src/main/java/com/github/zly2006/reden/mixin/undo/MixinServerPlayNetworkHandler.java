@@ -1,10 +1,10 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
+import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,13 +21,15 @@ public abstract class MixinServerPlayNetworkHandler implements PlayerInteractEnt
 
     @Inject(method = "interact(Lnet/minecraft/util/Hand;)V", at = @At(value = "HEAD"))
     public void beforePlayerUseEntity(Hand hand, CallbackInfo info) {
-        ServerPlayerEntity player = field_28963.player;
-        UpdateMonitorHelper.playerStartRecording(player, PlayerData.UndoRecord.Cause.USE_ENTITY);
+        if (RedenCarpetSettings.undoEntities) {
+            UpdateMonitorHelper.playerStartRecording(field_28963.player, PlayerData.UndoRecord.Cause.USE_ENTITY);
+        }
     }
 
     @Inject(method = "interact(Lnet/minecraft/util/Hand;)V", at = @At(value = "RETURN"))
     public void afterPlayerUseEntity(Hand hand, CallbackInfo info) {
-        ServerPlayerEntity player = field_28963.player;
-        UpdateMonitorHelper.playerStopRecording(player);
+        if (RedenCarpetSettings.undoEntities) {
+            UpdateMonitorHelper.playerStopRecording(field_28963.player);
+        }
     }
 }

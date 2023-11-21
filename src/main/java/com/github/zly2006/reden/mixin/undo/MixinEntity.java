@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.UndoableAccess;
+import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -41,7 +42,7 @@ public class MixinEntity implements UndoableAccess {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onEntitySpawn(EntityType<?> type, World world, CallbackInfo ci) {
-        if (!world.isClient) {
+        if (!world.isClient && RedenCarpetSettings.undoEntities) {
             UpdateMonitorHelper.entitySpawned((Entity) (Object) this);
         }
     }
