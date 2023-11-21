@@ -40,6 +40,7 @@ class Hello(
             if (isClient) {
                 ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->
                     Reden.LOGGER.info("Hello from server: ${packet.version}")
+                    Reden.LOGGER.info("Feature set: " + packet.featureSet.joinToString())
                     val mc = MinecraftClient.getInstance()
                     (mc as ServerData.ClientSideServerDataAccess).redenServerData =
                         ServerData(packet.version, null).apply {

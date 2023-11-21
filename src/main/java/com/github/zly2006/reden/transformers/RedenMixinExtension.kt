@@ -92,6 +92,8 @@ class RedenMixinExtension: IExtension, IMixinConfigPlugin {
     override fun getRefMapperConfig() = null
 
     override fun shouldApplyMixin(targetClassName: String, mixinClassName: String): Boolean {
+        if (mixinClassName.startsWith("com.github.zly2006.reden.mixin.debugger."))
+            return Reden.APPLY_DEBUGGER_MIXINS
         return true
     }
 

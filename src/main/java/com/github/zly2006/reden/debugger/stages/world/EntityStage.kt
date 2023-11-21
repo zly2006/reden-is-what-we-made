@@ -1,16 +1,20 @@
 package com.github.zly2006.reden.debugger.stages.world
 
 import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.utils.isClient
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.network.PacketByteBuf
+import net.minecraft.server.world.ServerWorld
 
 class EntityStage(
     val _parent: EntitiesRootStage,
     var entity: Entity?,
     var entityId: Int
-): TickStage("entity", _parent) {
+): TickStage("entity", _parent), TickStageWithWorld {
+    override val world: ServerWorld get() = _parent.world
+
     constructor(_parent: EntitiesRootStage, entity: Entity?) :
             this(_parent, entity, entity?.id ?: -1)
 

@@ -30,7 +30,7 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
         // initialize the stage tree.
         assert serverData.getTickStage() != null;
         serverData.getTickStage().setShouldKeepTicking(shouldKeepTicking);
-        if (RedenCarpetSettings.redenDebuggerEnabled) {
+        if (Reden.APPLY_DEBUGGER_MIXINS) {
             serverData.getTickStage().tick();
             // tick the stage tree.
             while (serverData.getTickStageTree().hasNext()) {

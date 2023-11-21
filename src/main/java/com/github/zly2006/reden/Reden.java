@@ -47,6 +47,7 @@ public class Reden implements ModInitializer, CarpetExtension {
     public static final Version MOD_VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion();
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    public static final boolean APPLY_DEBUGGER_MIXINS = true;
     public static final int REDEN_HIGHEST_MIXIN_PRIORITY = 10;
 
     @Override
