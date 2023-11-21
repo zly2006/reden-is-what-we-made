@@ -74,6 +74,9 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
 
             updaterData.tickingStage = null;
             updaterData.thenTickUpdate = false;
+            if (world.isClient) {
+                throw new RuntimeException("Ticking updates by stages at client");
+            }
             return; // processing entry ends here
         }
 

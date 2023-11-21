@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage;
+import com.github.zly2006.reden.transformers.RedenMixinExtension;
 import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,7 +31,7 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
         // initialize the stage tree.
         assert serverData.getTickStage() != null;
         serverData.getTickStage().setShouldKeepTicking(shouldKeepTicking);
-        if (Reden.APPLY_DEBUGGER_MIXINS) {
+        if (RedenMixinExtension.APPLY_DEBUGGER_MIXINS) {
             serverData.getTickStage().tick();
             // tick the stage tree.
             while (serverData.getTickStageTree().hasNext()) {

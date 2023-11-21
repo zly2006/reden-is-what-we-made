@@ -15,6 +15,10 @@ import java.io.File
 import kotlin.io.path.createDirectories
 
 class RedenMixinExtension: IExtension, IMixinConfigPlugin {
+    companion object {
+        @JvmField
+        val APPLY_DEBUGGER_MIXINS = System.getProperty("reden.debugger", "false").toBoolean()
+    }
     init {
         // register self as an extension
         val mGetTransformer = MixinServiceKnot::class.java.getDeclaredMethod("getTransformer")
@@ -93,7 +97,7 @@ class RedenMixinExtension: IExtension, IMixinConfigPlugin {
 
     override fun shouldApplyMixin(targetClassName: String, mixinClassName: String): Boolean {
         if (mixinClassName.startsWith("com.github.zly2006.reden.mixin.debugger."))
-            return Reden.APPLY_DEBUGGER_MIXINS
+            return APPLY_DEBUGGER_MIXINS
         return true
     }
 
