@@ -201,8 +201,8 @@ object UpdateMonitorHelper {
                 .clear()
             var sum = playerView.undo.map(PlayerData.UndoRecord::getMemorySize).sum()
             debugLogger("Undo size: $sum")
-            if (RedenCarpetSettings.allowedUndoSizeInBytes >= 0) {
-                while (sum > RedenCarpetSettings.allowedUndoSizeInBytes) {
+            if (RedenCarpetSettings.Options.allowedUndoSizeInBytes >= 0) {
+                while (sum > RedenCarpetSettings.Options.allowedUndoSizeInBytes) {
                     removeRecord(playerView.undo.first().id)
                     playerView.undo.removeFirst()
                     debugLogger("Undo size: $sum, removing.")

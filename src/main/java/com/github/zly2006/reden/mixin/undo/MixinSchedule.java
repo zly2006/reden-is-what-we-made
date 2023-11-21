@@ -28,7 +28,7 @@ public class MixinSchedule {
             locals = LocalCapture.CAPTURE_FAILSOFT
     )
     private <T> void onRunSchedule(BiConsumer<BlockPos, T> ticker, CallbackInfo ci, OrderedTick orderedTick) {
-        if (RedenCarpetSettings.undoScheduledTicks) {
+        if (RedenCarpetSettings.Options.undoScheduledTicks) {
             long undoId = ((UndoableAccess) orderedTick).getUndoId();
             UpdateMonitorHelper.pushRecord(undoId, () -> "scheduled tick/" + orderedTick.pos().toShortString());
         }
@@ -43,7 +43,7 @@ public class MixinSchedule {
             locals = LocalCapture.CAPTURE_FAILSOFT
     )
     private void afterRunSchedule(BiConsumer<BlockPos, ?> ticker, CallbackInfo ci, OrderedTick orderedTick) {
-        if (RedenCarpetSettings.undoScheduledTicks) {
+        if (RedenCarpetSettings.Options.undoScheduledTicks) {
             UpdateMonitorHelper.popRecord(() -> "scheduled tick/" + orderedTick.pos().toShortString());
         }
     }
@@ -56,7 +56,7 @@ public class MixinSchedule {
     private <T> void onAddSchedule(OrderedTick<T> orderedTick, CallbackInfo ci) {
         UndoableAccess access = (UndoableAccess) orderedTick;
         PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
-        if (RedenCarpetSettings.undoScheduledTicks && recording != null) {
+        if (RedenCarpetSettings.Options.undoScheduledTicks && recording != null) {
             DebugKt.debugLogger.invoke("Scheduled tick at " + orderedTick.pos() + ", adding it into record " + recording.getId());
             // inherit parent id
             access.setUndoId(recording.getId());

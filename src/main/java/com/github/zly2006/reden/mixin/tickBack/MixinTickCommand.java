@@ -18,7 +18,7 @@ public class MixinTickCommand {
     )
     private static IntegerArgumentType onIntegerArg(int min, int max) {
         if (min == 1 && max == 72000) {
-            return IntegerArgumentType.integer(-RedenCarpetSettings.tickBackMaxTicks, max);
+            return IntegerArgumentType.integer(-RedenCarpetSettings.Options.tickBackMaxTicks, max);
         } else {
             return IntegerArgumentType.integer(min, max);
         }

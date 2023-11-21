@@ -42,7 +42,7 @@ public class MixinEntity implements UndoableAccess {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onEntitySpawn(EntityType<?> type, World world, CallbackInfo ci) {
-        if (!world.isClient && RedenCarpetSettings.undoEntities) {
+        if (!world.isClient && RedenCarpetSettings.Options.undoEntities) {
             UpdateMonitorHelper.entitySpawned((Entity) (Object) this);
         }
     }

@@ -34,7 +34,7 @@ public class MixinTracker {
     )
     private void onSendPacket(CallbackInfo ci) {
         if ((trackingTick % 2) == 0 && entity instanceof ItemEntity item) {
-            if (RedenCarpetSettings.fixInvisibleShadowingItems) {
+            if (RedenCarpetSettings.Options.fixInvisibleShadowingItems) {
                 ItemStack stack = item.getStack();
                 PlayerManager playerManager = world.getServer().getPlayerManager();
 

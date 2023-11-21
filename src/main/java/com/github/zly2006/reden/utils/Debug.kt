@@ -14,7 +14,7 @@ import java.time.Instant
 private val LOGGER = Reden.LOGGER
 @JvmField
 var debugLogger: (String) -> Unit = { if (isDebug) LOGGER.debug(it) }
-val isDebug: Boolean get() = if (isClient) DEBUG_LOGGER.booleanValue else RedenCarpetSettings.redenDebug
+val isDebug: Boolean get() = if (isClient) DEBUG_LOGGER.booleanValue else RedenCarpetSettings.Options.redenDebug
 
 private val debugAppender = RollingRandomAccessFileAppender.Builder()
     .withFileName("logs/reden-debug.log")

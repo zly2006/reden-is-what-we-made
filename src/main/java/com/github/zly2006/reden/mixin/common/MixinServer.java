@@ -36,7 +36,7 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
             while (serverData.getTickStageTree().hasNext()) {
                 var stage = serverData.getTickStageTree().next();
                 if (stage instanceof AbstractBlockUpdateStage<?>) {
-                    if (RedenCarpetSettings.redenDebug) {
+                    if (RedenCarpetSettings.Options.redenDebug) {
                         throw new RuntimeException("AbstractBlockUpdateStage should not be in the stage tree.");
                     }
                 }

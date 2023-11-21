@@ -96,7 +96,7 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                         TickStage stage = ((TickStageOwnerAccess) entry).getTickStage();
                         updaterData.appendStage(stage);
                         var next = updaterData.getTickStageTree().next();
-                        if (RedenCarpetSettings.redenDebug && stage != next) {
+                        if (RedenCarpetSettings.Options.redenDebug && stage != next) {
                             throw new RuntimeException("stage != next");
                         }
                         stage.tick();

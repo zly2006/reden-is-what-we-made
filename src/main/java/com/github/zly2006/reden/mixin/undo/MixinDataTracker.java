@@ -22,7 +22,7 @@ public class MixinDataTracker {
     )
     private <T> void beforeDataSet(TrackedData<T> key, T value, boolean force, CallbackInfo ci) {
         if (trackedEntity.getWorld().isClient ||
-                !RedenCarpetSettings.undoEntities) return;
+                !RedenCarpetSettings.Options.undoEntities) return;
         UpdateMonitorHelper.tryAddRelatedEntity(trackedEntity);
     }
     @Inject(

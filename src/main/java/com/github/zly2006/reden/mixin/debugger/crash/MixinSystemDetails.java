@@ -23,12 +23,12 @@ public abstract class MixinSystemDetails {
     private void fillSystemDetails(CallbackInfo info) {
         addSection("Reden Debugger", () -> {
             StringBuilder sb = new StringBuilder();
-            if (RedenCarpetSettings.redenDebuggerEnabled) {
+            if (RedenCarpetSettings.Options.redenDebuggerEnabled) {
                 sb.append("Enabled (");
-                if (RedenCarpetSettings.redenDebuggerBlockUpdates) {
+                if (RedenCarpetSettings.Debugger.debuggerBlockUpdates()) {
                     sb.append("Block Updates, ");
                 }
-                if (RedenCarpetSettings.redenDebuggerItemShadow) {
+                if (RedenCarpetSettings.Debugger.debuggerItemShadow()) {
                     sb.append("Item Shadows, ");
                 }
                 sb.append(")");

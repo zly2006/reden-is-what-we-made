@@ -30,7 +30,7 @@ class PlayerData(
 
     val canRecord: Boolean
         get() = if (!isClient) {
-            RedenCarpetSettings.allowedUndoSizeInBytes != 0
+            RedenCarpetSettings.Options.allowedUndoSizeInBytes != 0
         } else if (UNDO_CHEATING_ONLY.booleanValue) {
             true
         } else isSinglePlayerAndCheating

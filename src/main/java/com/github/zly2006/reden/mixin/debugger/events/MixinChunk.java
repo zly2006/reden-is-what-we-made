@@ -19,7 +19,7 @@ public class MixinChunk {
 
     @Inject(method = "setBlockState", at = @At("HEAD"))
     private void beforeSetBlockState(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
-        if (!world.isClient && RedenCarpetSettings.redenDebuggerEnabled) {
+        if (!world.isClient && RedenCarpetSettings.Options.redenDebuggerEnabled) {
             var event = new BlockChangedEvent(pos, state, state);
             event.fire();
         }

@@ -41,7 +41,7 @@ class Undo(
                 // set block
                 world.setBlockNoPP(pos, entry.state, Block.NOTIFY_LISTENERS)
                 // clear schedules
-                if (RedenCarpetSettings.undoApplyingClearScheduledTicks) {
+                if (RedenCarpetSettings.Options.undoApplyingClearScheduledTicks) {
                     world.syncedBlockEventQueue.removeIf { it.pos == pos }
                     val blockTickScheduler = world.getChunk(pos).blockTickScheduler as ChunkTickScheduler
                     val fluidTickScheduler = world.getChunk(pos).fluidTickScheduler as ChunkTickScheduler
