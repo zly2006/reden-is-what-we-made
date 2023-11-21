@@ -20,8 +20,9 @@ but if you enabled reden debugger, At.Shift.AFTER can also be executed before th
 
 ## 3. HEAD / TAIL
 
-Reden do not promise that HEAD and TAIL will be executed only once during that call. (Because I am lazyyy :/ )
-**This is a bug of Reden**, please report!
++ Reden do not promise that HEAD and TAIL will be executed only once during that call.
+
++ Sometimes TAIL / RETURN may be fired before vanilla logic is processed. **This is a bug of Reden**, please report!
 
 If you find a bug, please report it in issues, then I will fix that injection point if reden.
 There is no technical reason to not do that, but I am lazyyy :/
