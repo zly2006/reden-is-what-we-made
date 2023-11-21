@@ -30,16 +30,18 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
         // initialize the stage tree.
         assert serverData.getTickStage() != null;
         serverData.getTickStage().setShouldKeepTicking(shouldKeepTicking);
-        serverData.getTickStage().tick();
-        // tick the stage tree.
-        while (serverData.getTickStageTree().hasNext()) {
-            var stage = serverData.getTickStageTree().next();
-            if (stage instanceof AbstractBlockUpdateStage<?>) {
-                if (RedenCarpetSettings.redenDebug) {
-                    throw new RuntimeException("AbstractBlockUpdateStage should not be in the stage tree.");
+        if (RedenCarpetSettings.redenDebuggerEnabled) {
+            serverData.getTickStage().tick();
+            // tick the stage tree.
+            while (serverData.getTickStageTree().hasNext()) {
+                var stage = serverData.getTickStageTree().next();
+                if (stage instanceof AbstractBlockUpdateStage<?>) {
+                    if (RedenCarpetSettings.redenDebug) {
+                        throw new RuntimeException("AbstractBlockUpdateStage should not be in the stage tree.");
+                    }
                 }
+                stage.tick();
             }
-            stage.tick();
         }
     }
 
