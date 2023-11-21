@@ -2,6 +2,7 @@ package com.github.zly2006.reden.transformers
 
 import com.github.zly2006.reden.Reden
 import net.fabricmc.loader.impl.launch.knot.MixinServiceKnot
+import org.apache.logging.log4j.LogManager
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.tree.ClassNode
 import org.spongepowered.asm.mixin.MixinEnvironment
@@ -17,7 +18,7 @@ import kotlin.io.path.createDirectories
 class RedenMixinExtension: IExtension, IMixinConfigPlugin {
     companion object {
         @JvmField
-        val APPLY_DEBUGGER_MIXINS = System.getProperty("reden.debugger", "false").toBoolean()
+        val APPLY_DEBUGGER_MIXINS = System.getProperty("reden.debugger", "true").toBoolean()
     }
     init {
         // register self as an extension
@@ -27,7 +28,7 @@ class RedenMixinExtension: IExtension, IMixinConfigPlugin {
         (transformer.extensions as Extensions).add(this)
     }
     private val classNodeMap = mutableMapOf<String, ClassNode>()
-    private val LOGGER = org.apache.logging.log4j.LogManager.getLogger("Reden/MixinExt")!!
+    private val LOGGER = LogManager.getLogger("Reden/MixinExt")!!
     override fun checkActive(environment: MixinEnvironment): Boolean {
         return true
     }
