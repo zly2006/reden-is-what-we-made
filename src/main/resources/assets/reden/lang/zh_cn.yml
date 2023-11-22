@@ -1,7 +1,7 @@
 reden:
   debugger:
     tick_stage:
-      nc_update_6: "NC 更新 6 个方块面"
+      nc_update_6: "NC 更新 6"
       pp_update: "PP 更新"
       nc_update: "NC 更新"
       nc_update_with_source: "NC 使用源更新"
@@ -16,7 +16,7 @@ reden:
         1. 您计算机和系统的基本信息
           用于帮助我们了解用户群体并改进用户体验。这些数据是匿名的。
         2. 使用数据
-          此数据包括您使用功能的次数 或您玩 Minecraft 的时长等信息。
+          此数据包括您使用功能的次数或您玩 Minecraft 的时长等信息。
           它有助于我们了解哪些功能受欢迎，哪些功能不太受欢迎，以便我们决定应该重点关注哪些功能。这些数据是匿名的。
         3. 身份数据
           此数据包括您的 Minecraft 用户名和 UUID 等数据。它用于帮助我们识别您并提供更好的支持。
@@ -56,7 +56,7 @@ reden:
   chat:
     about: 关于 SuperRight
     copy: 复制
-    copy_click_command: 复制命令
+    copy_click_command: 复制点击时执行的命令
     copy_click_file: 复制文件
     copy_hover_raw: 复制悬停的原始文本
     copy_hover_uuid: 复制悬停的 UUID
