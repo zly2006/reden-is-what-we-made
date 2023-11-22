@@ -1,10 +1,10 @@
 reden:
   debugger:
     tick_stage:
-      nc_update_6: "nc update 6"
-      pp_update: "pp update"
-      nc_update: "nc update"
-      nc_update_with_source: "nc update with source"
+      nc_update_6: "NC 更新 6 个方块面"
+      pp_update: "PP 更新"
+      nc_update: "NC 更新"
+      nc_update_with_source: "NC 使用源更新"
 
   widget:
     privacy:
@@ -19,7 +19,7 @@ reden:
           此数据包括您使用功能的次数 或您玩 Minecraft 的时长等信息。
           它有助于我们了解哪些功能受欢迎，哪些功能不太受欢迎，以便我们决定应该重点关注哪些功能。这些数据是匿名的。
         3. 身份数据
-          此数据包括您的 Minecraft 用户名和 UUID。它用于帮助我们识别您并提供更好的支持。
+          此数据包括您的 Minecraft 用户名和 UUID 等数据。它用于帮助我们识别您并提供更好的支持。
           这些数据不是匿名的，但我们不会与第三方分享此信息。
     config:
       debug: 调试
@@ -104,19 +104,19 @@ reden:
       comment: |-
 
     allowCopyrightCheck:
-      .: 允许版权检查
+      .: 允许版权检查 #?
       comment: |-
 
     securityCommit:
-      .: 安全提交
+      .: 安全提交 #?
       comment: |-
 
     noTimeOut:
-      .: 无超时
+      .: 无超时 #?
       comment: |-
 
     rollbackKey:
-      .: 回滚键
+      .: 撤销快捷键
       comment: |-
 
     blockBorderAlpha:
@@ -124,7 +124,7 @@ reden:
       comment: |-
 
     redoKey:
-      .: 重做键
+      .: 重做快捷键
       comment: |-
 
     undoSupportLitematicaOperation:
@@ -144,7 +144,7 @@ reden:
     solidFaceShapePredicate:
       .: 实心面渲染选项
       comment: |-
-        实心面渲染的形状。可以是 "full"（完整）、"center"（中心）或者 "rigid"（刚性）。
+        实心面渲染的判定谓词。可以是 "full"（完整）、"center"（中心）或者 "rigid"（刚性）。
 
     maxRenderDistance:
       .: 最大渲染距离
@@ -162,7 +162,7 @@ reden:
         放置后事件
 
     toggleCuBreakpoint:
-      .: CuBreakpoint
+      .: CU断点
       comment: |-
         比较器更新事件
 
@@ -237,7 +237,7 @@ reden:
         最大链更新数，更改将会在重新打开后生效
 
     doAssertionChecks:
-      .: 执行 Assertion 检查
+      .: 执行断言检查
       comment: |-
 
     undoReportUnTrackedTnt:
