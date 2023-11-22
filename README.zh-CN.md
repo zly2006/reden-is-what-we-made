@@ -4,7 +4,7 @@
 
 红石伊甸园
 
-**英语** | [简体中文](./README.zh-CN.md)
+[English](./README.md) | **简体中文**]
 
 ## 撤销与重做
 
@@ -39,6 +39,7 @@ RVCHub，一个通用的机器分享平台，以及自动识别机器是否正�
 + 强制同步实体位置：`Micro Ticking -> toggleForceEntityPosSync` 强制同步实体位置到客户端，当你冻结游戏时可能会有用
 + 无超时：`General -> noTimeout` 在客户端禁用超时，如果你在调试服务器，可能需要这个
 + 物品分身探测器：carpet `redenDebuggerItemShadow` 检测是否有分身物品在库存中，开发中，**未来它将支持禁用可能破坏链接的操作**
++ 快速结构方块操作：`Ctrl+L`可以执行加载操作，`Ctrl+S`可以执行保存操作。操作对象是最后一次交互的结构方块
 
 ## Bug 修复
 

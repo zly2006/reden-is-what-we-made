@@ -37,6 +37,7 @@ Provide a one-stop working environment for redstone machine developers and becom
 + Force Sync Entity Pos: `Micro Ticking -> toggleForceEntityPosSync` force sync entity pos to clients, maybe useful when you freeze the game
 + No Time Out: `General -> noTimeout` disable timeout on clients, if you are debugging the server, you probably need this
 + Item Shadowing Detector: carpet `redenDebuggerItemShadow` Detect if there are shadowed items in the inventory, wip, **it will support to disable operations that may break the link in the future**
++ Structure Block Hotkey: `Ctrl+S` to save and `Ctrl+L` to load for you last interacted struct block.
 
 ## Bug fixes
 
