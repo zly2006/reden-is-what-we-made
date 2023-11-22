@@ -1,0 +1,293 @@
+reden:
+  debugger:
+    tick_stage:
+      nc_update_6: "nc update 6"
+      pp_update: "pp update"
+      nc_update: "nc update"
+      nc_update_with_source: "nc update with source"
+
+  widget:
+    privacy:
+      desc: |
+        欢迎使用 Reden！
+        
+        Reden 需要收集一些数据以提升用户体验。您可以在此页面中禁用它。
+        以下是我们收集的数据概述：
+        1. 您计算机和系统的基本信息
+          用于帮助我们了解用户群体并改进用户体验。这些数据是匿名的。
+        2. 使用数据
+          此数据包括您使用功能的次数 或您玩 Minecraft 的时长等信息。
+          它有助于我们了解哪些功能受欢迎，哪些功能不太受欢迎，以便我们决定应该重点关注哪些功能。这些数据是匿名的。
+        3. 身份数据
+          此数据包括您的 Minecraft 用户名和 UUID。它用于帮助我们识别您并提供更好的支持。
+          这些数据不是匿名的，但我们不会与第三方分享此信息。
+    config:
+      debug: 调试
+      generic: 通用
+      micro_tick: 微时序
+      rvc: RVC
+      super_right: SuperRight
+      title: Reden 配置
+      sponsor: 赞助者
+
+    button:
+      commandHotkeyListEdit: 编辑
+
+    title:
+      commandHotkeyListEdit: 编辑命令列表
+
+    rvc:
+      hud:
+        selected: "已选择：%s"
+        selected_nothing: "已选择：无"
+        trackpoints:
+          .: "追踪点数："
+          tracking: "%s 追踪中"
+          ignoring: "%s 忽略中"
+      structure:
+        export:
+          litematica: 导出至 Litematica
+        name: "名称：%s"
+        block_count: "%s 个方块"
+        entity_count: "%s 个实体"
+        scheduled_tick_unstable: |
+          该结构包含计划刻 或方块事件，可能会导致游戏不稳定。
+
+  chat:
+    about: 关于 SuperRight
+    copy: 复制
+    copy_click_command: 复制命令
+    copy_click_file: 复制文件
+    copy_hover_raw: 复制悬停的原始文本
+    copy_hover_uuid: 复制悬停的 UUID
+    copy_raw: 复制原始文本
+    copy_url: 复制URL
+    give_hover_item: 给予悬停的物品
+    copied: 已复制
+    done: 完成
+
+  feature:
+    undo:
+      cause:
+        break_block: 破坏方块
+        use_block: 使用方块
+        use_item: 使用物品
+        use_entity: 使用实体
+        attack_entity: 攻击实体
+        command: 命令
+        litematica_task: Litematica 任务
+        unknown: 未知
+
+  message:
+    undo:
+      base: "[Reden/Undo] %s"
+      rollback_success: 回滚成功
+      restore_success: 恢复成功
+      no_blocks_info: 没有方块信息
+      no_permission: 无权限
+      not_recording: 未录制
+      unknown_error: 未知错误
+      unknown_status: 未知状态
+
+  config:
+    # ===== Generic =====
+    redenConfigKey:
+      .: Reden 设置快捷键
+      comment: |-
+
+    selectionTool:
+      .: 选择工具
+      comment: |-
+
+    hudPosition:
+      .: HUD位置
+      comment: |-
+
+    allowCopyrightCheck:
+      .: 允许版权检查
+      comment: |-
+
+    securityCommit:
+      .: 安全提交
+      comment: |-
+
+    noTimeOut:
+      .: 无超时
+      comment: |-
+
+    rollbackKey:
+      .: 回滚键
+      comment: |-
+
+    blockBorderAlpha:
+      .: 方块边界透明度
+      comment: |-
+
+    redoKey:
+      .: 重做键
+      comment: |-
+
+    undoSupportLitematicaOperation:
+      .: 支持 Litematica 操作的撤销
+      comment: |-
+
+    undoCheatingOnly:
+      .: 仅在作弊时启用撤销功能
+      comment: |-
+      仅在作弊时启用撤销功能
+
+    solidFaceRenderer:
+      .: 实体面渲染器
+      comment: |-
+      在目标实心面上绘制标记
+
+    solidFaceShapePredicate:
+      .: 实心面渲染选项
+      comment: |-
+        实心面渲染的形状。可以是 "full"（完整）、"center"（中心）或者 "rigid"（刚性）。
+
+    maxRenderDistance:
+      .: 最大渲染距离
+      comment: |-
+
+    # ===== Micro Tick =====
+    toggleNcBreakpoint:
+      .: NcBreakpoint
+      comment: |-
+        邻居变更事件
+
+    togglePpBreakpoint:
+      .: PpBreakpoint
+      comment: |-
+        放置后事件
+
+    toggleCuBreakpoint:
+      .: CuBreakpoint
+      comment: |-
+        比较器更新事件
+
+    toggleForceEntityPosSync:
+      .: ForceEntityPosSync
+      comment: |-
+        强制实体位置同步
+
+
+    # ===== RVC =====
+    openRvcScreen:
+      .: 打开 RVC 屏幕
+      comment: |-
+        打开 RVC 屏幕
+
+    openSelectionList:
+      .: 打开 RVC 选区列表
+      comment: |-
+        打开 RVC 选区列表
+
+    rvcRecordMultiplayer:
+      .: 在多人游戏中启用 RVC
+      comment: |-
+        在多人游戏中启用 RVC
+
+    rvcForceLocally:
+      .: 强制本地运行 RVC
+      comment: |-
+        强制 RVC 在本地运行，即使远程服务器启用了 RVC
+
+    # ===== Super Right =====
+    chatRightClickMenu:
+      .: 在聊天中启用右键菜单
+      comment: |-
+        在聊天中启用右键菜单
+
+    structureBlockLoad:
+      .: 结构方块加载快捷键
+      comment: |-
+
+    structureBlockSave:
+      .: 结构方块保存快捷键
+      comment: |-
+
+    runCommand:
+      .: 运行命令快捷键
+      comment: |-
+
+    # ===== Debug =====
+    debugLogger:
+      .: debug：启用日志记录器
+      comment: |-
+        启用日志记录器
+
+    debugPacketLogger:
+      .: debug：启用数据包记录器
+      comment: |-
+
+    debugTagBlockPos:
+      .: debug：标记方块位置
+      comment: |-
+        标记方块位置
+
+    debugPreviewUndo:
+      .: debug：预览撤销
+      comment: |-
+        预览撤销
+
+    maxChainUpdates:
+      .: 最大链更新数
+      comment: |-
+        最大链更新数，更改将会在重新打开后生效
+
+    doAssertionChecks:
+      .: 执行 Assertion 检查
+      comment: |-
+
+    undoReportUnTrackedTnt:
+      .: 撤销未追踪TNT
+      comment: |-
+
+    openGithubAuthScreen:
+      .: 打开 Github 认证屏幕
+      comment: |-
+
+    githubToken:
+      .: GithubToken
+      comment: |-
+        Github的密钥，请不要向其他人泄露你的的密钥！
+
+    allowSocialFollow:
+      .: 允许社交媒体关注tips
+      comment: |-
+
+
+
+carpet:
+  rule:
+    redenDebuggerItemShadow:
+      desc: 启用 Reden 调试器的物品分身调试功能，这可以为物品分身提供一些必要的信息。
+    fixInvisibleShadowingItems:
+      desc: Igna
+    redenDebuggerEnabled:
+      desc: 启用 Reden 调试器
+    redenDebuggerBlockUpdates:
+      desc: debug：启用方块更新
+    stackOverflowUpdates:
+      desc: |-
+        TODO
+
+    allowedUndoSizeInBytes:
+      desc: |-
+        单个玩家可以用于撤销的内存大小。默认为 5MB，设为 0 禁用撤销功能，-1 不限制。
+
+    tickBackMaxTicks:
+      desc: |-
+        回退 ticks 的最大数量。默认为 100，0 禁用。
+
+    undoEntities:
+      desc: 允许撤销记录实体。默认为 true。
+    undoApplyingClearScheduledTicks:
+      desc: 如果该方块位置被撤销，则清除所有计划刻。
+    undoScheduledTicks:
+      desc: 允许撤销计划刻造成的更新。默认为 true。
+
+    redenDebug:
+      desc: |-
+        启用 Reden 调试模式。默认为 false。用于错误报告等。
