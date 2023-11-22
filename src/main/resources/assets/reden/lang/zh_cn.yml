@@ -104,15 +104,15 @@ reden:
       comment: |-
 
     allowCopyrightCheck:
-      .: 允许版权检查 #?
+      .: 允许版权检查
       comment: |-
 
     securityCommit:
-      .: 安全提交 #?
+      .: 安全提交
       comment: |-
 
     noTimeOut:
-      .: 无超时 #?
+      .: 无超时
       comment: |-
 
     rollbackKey:
@@ -134,12 +134,12 @@ reden:
     undoCheatingOnly:
       .: 仅在作弊时启用撤销功能
       comment: |-
-      仅在作弊时启用撤销功能
+        仅在作弊时启用撤销功能
 
     solidFaceRenderer:
       .: 实体面渲染器
       comment: |-
-      在目标实心面上绘制标记
+        在目标实心面上绘制标记
 
     solidFaceShapePredicate:
       .: 实心面渲染选项
@@ -152,19 +152,19 @@ reden:
 
     # ===== Micro Tick =====
     toggleNcBreakpoint:
-      .: NcBreakpoint
+      .: 添加/移除NC断点
       comment: |-
-        邻居变更事件
+        NC更新
 
     togglePpBreakpoint:
-      .: PpBreakpoint
+      .: 添加/移除PP断点
       comment: |-
-        放置后事件
+        PP更新
 
     toggleCuBreakpoint:
-      .: CU断点
+      .: 添加/移除CU断点
       comment: |-
-        比较器更新事件
+        比较器更新
 
     toggleForceEntityPosSync:
       .: ForceEntityPosSync
