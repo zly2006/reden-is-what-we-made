@@ -1,7 +1,7 @@
 reden:
   debugger:
     tick_stage:
-      nc_update_6: "NC 更新 6"
+      nc_update_6: "NC 六向更新"
       pp_update: "PP 更新"
       nc_update: "NC 更新"
       nc_update_with_source: "NC 使用源更新"
@@ -55,9 +55,9 @@ reden:
 
   chat:
     about: 关于 SuperRight
-    copy: 复制
+    copy: 复制文本
     copy_click_command: 复制点击时执行的命令
-    copy_click_file: 复制文件
+    copy_click_file: 复制文件路径
     copy_hover_raw: 复制悬停的原始文本
     copy_hover_uuid: 复制悬停的 UUID
     copy_raw: 复制原始文本
