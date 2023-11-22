@@ -29,6 +29,8 @@ import java.util.*
 
 var key = ""
 
+val httpClient = OkHttpClient()
+
 inline fun <reified T> Request.Builder.json(data: T) = apply {
     header("Content-Type", "application/json")
     post(Json.encodeToString(data).toRequestBody("application/json".toMediaTypeOrNull()))
@@ -48,7 +50,7 @@ class FeatureUsageData(
 
 fun doHeartHeat() {
     if (!data_USAGE.booleanValue || !data_BASIC.booleanValue) return
-    OkHttpClient().newCall(Request.Builder().apply {
+    httpClient.newCall(Request.Builder().apply {
         url("https://www.redenmc.com/api/mc/heartbeat")
         @Serializable
         class Player(
@@ -258,12 +260,11 @@ fun reportOnlineMC(client: MinecraftClient) {
                 val desc: String,
             )
 
-            val res =
-                jsonIgnoreUnknown.decodeFromString(Res.serializer(), OkHttpClient().newCall(Request.Builder().apply {
-                    url("https://www.redenmc.com/api/mc/online")
-                    json(req)
-                    ua()
-                }.build()).execute().body!!.string())
+            val res = jsonIgnoreUnknown.decodeFromString(Res.serializer(), httpClient.newCall(Request.Builder().apply {
+                url("https://www.redenmc.com/api/mc/online")
+                json(req)
+                ua()
+            }.build()).execute().body!!.string())
             if (res.shutdown) {
                 throw Error("Client closing due to copyright reasons, please go to https://www.redenmc.com/policy/copyright gor more information")
             }
@@ -286,7 +287,7 @@ fun reportOnlineMC(client: MinecraftClient) {
             class Req(
                 val key: String
             )
-            OkHttpClient().newCall(Request.Builder().apply {
+            httpClient.newCall(Request.Builder().apply {
                 url("https://www.redenmc.com/api/mc/offline")
                 json(Req(key))
                 ua()

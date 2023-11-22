@@ -30,9 +30,7 @@ class BreakpointsManager {
     fun read(buf: PacketByteBuf): BreakPoint {
         val id = buf.readIdentifier()
         val bpId = buf.readVarInt()
-        val flags = buf.readVarInt()
         return registry[id]?.create(bpId)?.apply {
-            this.flags = flags
             read(buf)
         } ?: throw Exception("Unknown BreakPoint $id")
     }
@@ -40,7 +38,6 @@ class BreakpointsManager {
     fun write(bp: BreakPoint, buf: PacketByteBuf) {
         buf.writeIdentifier(bp.type.id)
         buf.writeVarInt(bp.id)
-        buf.writeVarInt(bp.flags)
         bp.write(buf)
     }
 

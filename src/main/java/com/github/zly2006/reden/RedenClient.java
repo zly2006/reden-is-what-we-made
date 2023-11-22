@@ -11,6 +11,7 @@ import com.github.zly2006.reden.rvc.RvcLocalCommandKt;
 import com.github.zly2006.reden.rvc.gui.RvcHudRenderer;
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.SelectModeHudKt;
 import com.github.zly2006.reden.rvc.tracking.client.ClientTrackingKt;
+import com.github.zly2006.reden.sponsor.LuckToday;
 import com.github.zly2006.reden.utils.DebugKt;
 import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigManager;
@@ -29,6 +30,7 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.text.Text;
 
 import java.io.File;
 import java.io.IOException;
@@ -104,6 +106,12 @@ public class RedenClient implements ClientModInitializer {
             ClientGlowKt.register(dispatcher);
             dispatcher.register(ClientCommandManager.literal("qubit").executes(context -> {
                 throw new Error("Qu(b)it!");
+            }));
+            dispatcher.register(ClientCommandManager.literal("luck-today").executes(context -> {
+                context.getSource().sendFeedback(
+                        Text.literal(String.valueOf(LuckToday.Companion.getLuckValue().getData()))
+                );
+                return 1;
             }));
         });
         RDebuggerLayoutKt.register();
