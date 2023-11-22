@@ -3,7 +3,7 @@ package com.github.zly2006.reden.debugger.breakpoint
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
-import com.github.zly2006.reden.network.UpdateBreakpointPacket
+import com.github.zly2006.reden.network.SyncBreakpointsPacket
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
@@ -42,10 +42,7 @@ class BreakpointsManager {
     }
 
     fun sendAll(sender: PacketSender) {
-        // todo: send them in 1 packet to reduce network traffic
-        breakpointMap.forEach { (id, bp) ->
-            sender.sendPacket(UpdateBreakpointPacket(bp, UpdateBreakpointPacket.ADD, id))
-        }
+        sender.sendPacket(SyncBreakpointsPacket(breakpointMap.values))
     }
 
     fun clear() {
