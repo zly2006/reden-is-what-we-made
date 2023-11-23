@@ -27,12 +27,16 @@ public class MixinPlayerMode {
     @Shadow
     protected ServerWorld world;
 
-    @Inject(method = "tryBreakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
+    // Inject before onBreak
+    // Because tall or wide blocks such as doors or beds override [onBreak] to break the other part.
+    // (Along with AbstractBlock.getStateForNeighborUpdate.)
+    @Inject(method = "tryBreakBlock", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Lnet/minecraft/block/Block;onBreak(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/entity/player/PlayerEntity;)V"))
     private void onDestroy(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         UpdateMonitorHelper.playerStartRecording(player, PlayerData.UndoRecord.Cause.BREAK_BLOCK);
     }
 
-    @Inject(method = "tryBreakBlock", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/world/ServerWorld;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
+    // Inject after onBroken
+    @Inject(method = "tryBreakBlock", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/network/ServerPlayerInteractionManager;isCreative()Z"))
     private void afterDestroy(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         UpdateMonitorHelper.playerStopRecording(player);
     }
