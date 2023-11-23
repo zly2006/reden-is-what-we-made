@@ -81,8 +81,8 @@ reden:
   message:
     undo:
       base: "[Reden/Undo] %s"
-      rollback_success: 回滚成功
-      restore_success: 恢复成功
+      rollback_success: 撤销成功
+      restore_success: 重做成功
       no_blocks_info: 没有方块信息
       no_permission: 无权限
       not_recording: 未录制

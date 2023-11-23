@@ -63,6 +63,7 @@
     "undo.MixinTntEntity"
   ],
   "client": [
+    "MixinClientMain",
     "MixinScreen",
     "clientGlow.MixinClientWorld",
     "common.MixinClient",
@@ -83,7 +84,8 @@
     "render.MixinWorldRenderer",
     "superRight.chat.ChatHudMixin",
     "superRight.chat.ChatScreenMixin",
-    "superRight.chat.VisibleChatHudLineMixin"
+    "superRight.chat.VisibleChatHudLineMixin",
+    "yo.MixinTitleScreen"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Screen.class)
 public class MixinScreen {
-    @Shadow @Nullable protected MinecraftClient client;
+    @Shadow @Nullable public MinecraftClient client;
 
     @Inject(
             method = "handleTextClick",
@@ -40,6 +40,9 @@ public class MixinScreen {
             }
             else if (command.equals("stopClient")) {
                 client.stop();
+            }
+            else if (command.startsWith("playSound:")) {
+
             }
             cir.setReturnValue(true);
         }
