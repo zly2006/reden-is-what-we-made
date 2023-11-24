@@ -218,7 +218,7 @@ reden:
         启用日志记录器
 
     debugPacketLogger:
-      .: debug：启用数据包记录器
+      .: debug：启用网络包记录器
       comment: |-
 
     debugTagBlockPos:

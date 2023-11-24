@@ -69,6 +69,7 @@
     "common.MixinClient",
     "debug.undoReportUnTrackedTnt.MixinTntEntity",
     "debugger.gui.MixinClient",
+    "dynamicSound.MixinSoundManager",
     "forceSyncEntityPos.MixinClientNetwork",
     "forceSyncEntityPos.MixinTracker",
     "forceSyncEntityPos.MixinWorldRenderer",

@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = ServerPlayerInteractionManager.class, priority = 1001)
+@Mixin(ServerPlayerInteractionManager.class)
 public class MixinPlayerMode {
     @Shadow
     @Final
