@@ -23,6 +23,7 @@ public class MixinClientMain {
             method = "main",
             at = @At(
                     value = "INVOKE",
+                    remap = false,
                     target = "Ljoptsimple/ArgumentAcceptingOptionSpec;defaultsTo(Ljava/lang/Object;[Ljava/lang/Object;)Ljoptsimple/ArgumentAcceptingOptionSpec;"
             ),
             allow = 1

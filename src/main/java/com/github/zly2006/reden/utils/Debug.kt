@@ -3,7 +3,8 @@ package com.github.zly2006.reden.utils
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
-import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.Level.DEBUG
+import org.apache.logging.log4j.Level.INFO
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.appender.RollingRandomAccessFileAppender
@@ -32,12 +33,14 @@ private val debugAppender = RollingRandomAccessFileAppender.Builder()
 
 fun startDebugAppender() {
     val ctx = LogManager.getContext(false) as LoggerContext
-    ctx.configuration.getLoggerConfig(Reden.MOD_NAME).addAppender(debugAppender, Level.DEBUG, null)
+    ctx.configuration.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).level = DEBUG
+    ctx.configuration.getLoggerConfig(Reden.MOD_NAME).addAppender(debugAppender, DEBUG, null)
     ctx.updateLoggers()
 }
 
 fun stopDebugAppender() {
     val ctx = LogManager.getContext(false) as LoggerContext
+    ctx.configuration.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).level = INFO
     ctx.configuration.getLoggerConfig(Reden.MOD_NAME).removeAppender(debugAppender.name)
     ctx.updateLoggers()
 }
