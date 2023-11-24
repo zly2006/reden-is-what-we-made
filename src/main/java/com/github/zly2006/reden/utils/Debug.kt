@@ -28,24 +28,18 @@ private val debugAppender = RollingRandomAccessFileAppender.Builder()
     .setName("RedenDebugAppender")
     .setImmediateFlush(true)
     .build()
+    .apply { start() }
 
 fun startDebugAppender() {
-    if (!debugAppender.isStarted) {
-        debugAppender.start()
-        val ctx = LogManager.getContext(false) as LoggerContext
-        ctx.configuration.getLoggerConfig(Reden.MOD_NAME)
-            .addAppender(debugAppender, Level.DEBUG, null)
-        ctx.updateLoggers()
-    }
+    val ctx = LogManager.getContext(false) as LoggerContext
+    ctx.configuration.getLoggerConfig(Reden.MOD_NAME).addAppender(debugAppender, Level.DEBUG, null)
+    ctx.updateLoggers()
 }
 
 fun stopDebugAppender() {
-    if (debugAppender.isStarted) {
-        debugAppender.stop()
-        val ctx = LogManager.getContext(false) as LoggerContext
-        ctx.configuration.getLoggerConfig(Reden.MOD_NAME).removeAppender(debugAppender.name)
-        ctx.updateLoggers()
-    }
+    val ctx = LogManager.getContext(false) as LoggerContext
+    ctx.configuration.getLoggerConfig(Reden.MOD_NAME).removeAppender(debugAppender.name)
+    ctx.updateLoggers()
 }
 
 fun pauseHere(exception: Throwable? = null) {
