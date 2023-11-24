@@ -141,3 +141,4 @@ accessible method net/minecraft/server/world/ServerWorld tickBlock (Lnet/minecra
 accessible method net/minecraft/server/world/ServerWorld tickFluid (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/fluid/Fluid;)V
 accessible field net/minecraft/server/world/ServerWorld inBlockTick Z
 accessible method net/minecraft/server/world/ServerWorld processSyncedBlockEvents ()V
+accessible method net/minecraft/entity/mob/MobEntity initGoals ()V

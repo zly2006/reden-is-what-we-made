@@ -41,6 +41,11 @@ class StageTree: Iterator<TickStage> {
     ) {
         override fun toString() = "$stage ${if (!childrenUpdated) "<>" else "${iter?.previousIndex()} / ${stage.children.size}"}"
     }
+
+    companion object {
+        val debug = System.getProperty("reden.debugger.log", "false").toBoolean()
+    }
+
     var root: TreeNode? = null
     var child: TreeNode? = null
     val tickedStages = mutableListOf<TickStage>()
@@ -92,7 +97,7 @@ class StageTree: Iterator<TickStage> {
 
         tickedStages.add(child!!.stage)
         lastReturned = child
-        debugLogger("[StageTree#next] $child")
+        if (debug) debugLogger("[StageTree#next] $child")
         return lastReturned!!.stage
     }
 
@@ -166,7 +171,7 @@ class StageTree: Iterator<TickStage> {
     }
 
     fun insert2child(parent: TickStage, stage: TickStage) {
-        debugLogger("StageTree.insert2child $stage -> $parent")
+        if (debug) debugLogger("StageTree.insert2child $stage -> $parent")
         Reden.LOGGER.trace("[StageTree#insert2child] into {} -> {}", parent, stage)
 
         var node = lastReturned
@@ -198,7 +203,7 @@ class StageTree: Iterator<TickStage> {
      */
     @ApiStatus.Internal
     fun resetIterator(stage: TickStage) {
-        debugLogger("StageTree.resetIterator -> $stage")
+        if (debug) debugLogger("StageTree.resetIterator -> $stage")
         var node = lastReturned
         while (node != null) {
             if (node.stage == stage) {

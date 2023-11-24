@@ -21,11 +21,15 @@ class PlayerData(
     val player: ServerPlayerEntity,
 ) {
     fun topRedo() {
-        player.sendMessage(Text.of(redo.lastOrNull()?.toString()))
+        player.sendMessage(Text.of(redo.lastOrNull {
+            it.data.isNotEmpty() && it.entities.isNotEmpty()
+        }?.toString()))
     }
 
     fun topUndo() {
-        player.sendMessage(Text.of(undo.lastOrNull()?.toString()))
+        player.sendMessage(Text.of(undo.lastOrNull {
+            it.data.isNotEmpty() && it.entities.isNotEmpty()
+        }?.toString()))
     }
 
     val canRecord: Boolean
@@ -136,12 +140,16 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
         override val entity: EntityType<*>,
         override val nbt: NbtCompound,
         override val pos: BlockPos
-    ): EntityEntry
+    ): EntityEntry {
+        override fun toString() = "EntityEntryImpl(entity=$entity, nbt=..., pos=$pos)"
+    }
 
 
     object NotExistEntityEntry: EntityEntry {
         override val entity = null
         override val nbt: NbtCompound = NbtCompound()
         override val pos: BlockPos = BlockPos.ORIGIN
+
+        override fun toString() = "NotExistEntityEntry"
     }
 }
