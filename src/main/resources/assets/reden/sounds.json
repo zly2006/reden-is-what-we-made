@@ -10,5 +10,17 @@
     "sounds": [
       "reden:mikumiku"
     ]
+  },
+  "fuwafuwa-time": {
+    "sounds": [
+      "reden:fuwafuwa-time"
+    ],
+    "stream": true
+  },
+  "tenshi-ni-furetayo": {
+    "sounds": [
+      "reden:tenshi-ni-furetayo"
+    ],
+    "stream": true
   }
 }

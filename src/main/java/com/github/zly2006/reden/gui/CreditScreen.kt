@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.gui
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.Sounds
 import com.github.zly2006.reden.report.key
 import com.github.zly2006.reden.sponsor.SponsorScreen
 import com.github.zly2006.reden.utils.red
@@ -24,7 +25,7 @@ import java.net.URI
 
 class CreditScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
     object MikuSinging: AbstractSoundInstance(
-        Reden.identifier("miku_miku"),
+        Sounds.MIKU_MIKU.id,
         SoundCategory.MUSIC,
         Random.create()
     )
@@ -77,6 +78,13 @@ private fun labelComponent(text: Text): LabelComponent {
 }
 
 fun Screen.creditsScreenContent(): FlowLayout {
+    client!!.soundManager.play(
+        object: AbstractSoundInstance(
+            Sounds.TENSHI_NI_FURETAYO.id,
+            SoundCategory.MUSIC,
+            Random.create()
+        ) { }
+    )
     val content = Containers.verticalFlow(Sizing.fill(100), Sizing.content())
     content.child(labelComponent(
         Text.literal("Reden is an open source project under LGPL-3.0 license.").styled {

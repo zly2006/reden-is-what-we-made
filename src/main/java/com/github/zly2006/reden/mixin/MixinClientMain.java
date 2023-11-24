@@ -28,7 +28,6 @@ public class MixinClientMain {
             allow = 1
     )
     private static void changeUsername(Args args) {
-        System.out.println(args.get(0).toString());
         args.set(0, "Dev");
     }
 }
