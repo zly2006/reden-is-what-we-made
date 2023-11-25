@@ -19,6 +19,7 @@ class RedenMixinExtension: IExtension, IMixinConfigPlugin {
     companion object {
         @JvmField
         val APPLY_DEBUGGER_MIXINS = System.getProperty("reden.debugger", "true").toBoolean()
+        private val LOGGER = LogManager.getLogger("Reden/MixinExt")!!
     }
     init {
         // register self as an extension
@@ -27,8 +28,7 @@ class RedenMixinExtension: IExtension, IMixinConfigPlugin {
         val transformer = mGetTransformer.invoke(null) as IMixinTransformer
         (transformer.extensions as Extensions).add(this)
     }
-    private val classNodeMap = mutableMapOf<String, ClassNode>()
-    private val LOGGER = LogManager.getLogger("Reden/MixinExt")!!
+
     override fun checkActive(environment: MixinEnvironment): Boolean {
         return true
     }
@@ -113,7 +113,7 @@ class RedenMixinExtension: IExtension, IMixinConfigPlugin {
     override fun postApply(targetClassName: String, targetClass: ClassNode, mixinClassName: String, mixinInfo: IMixinInfo) {
         val classToTransform = RedenInjectConfig.targets[targetClass.name]
         if (mixinInfo.priority == Reden.REDEN_HIGHEST_MIXIN_PRIORITY && classToTransform != null) {
-            println("Ohh, " + mixinInfo.className + " is the highest priority mixin, I'm gonna transform it first")
+            LOGGER.info("Ohh, " + mixinInfo.className + " is the highest priority mixin, I'm gonna transform it first")
 
             LOGGER.info("Transforming class after Reden mixin: " + targetClass.name)
             classToTransform.node = targetClass

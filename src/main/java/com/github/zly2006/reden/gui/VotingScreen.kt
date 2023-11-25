@@ -11,18 +11,40 @@ import io.wispforest.owo.ui.core.OwoUIAdapter
 import io.wispforest.owo.ui.core.VerticalAlignment
 import kotlinx.serialization.Serializable
 import net.minecraft.client.MinecraftClient
+import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 
 class VotingScreen(
 
 ): BaseOwoScreen<FlowLayout>() {
     @Serializable
-    class Activity(
-        val id: Long,
-        val name: String,
-        val options: List<String>,
-        val url: String,
-    )
+    data class Voting(
+        val id: Int = -1,
+        val requireEarlyAccess: Boolean = false,
+        val name: TranslatableContent,
+        val choice: List<Choice>,
+        val maxChoose: Int = 1,
+        val minChoose: Int = 1,
+    ) {
+        @Serializable
+        class Choice(
+            val desc: TranslatableContent,
+            val url: String,
+            val name: String
+        )
+    }
+
+    @Serializable
+    class TranslatableContent(
+        val fallback: String?,
+        val key: String?,
+        val lang: Map<String, String>
+    ) {
+        fun get(): MutableText {
+            val lang = MinecraftClient.getInstance().languageManager.language
+            return Text.literal(this.lang[lang] ?: fallback ?: key ?: "???")
+        }
+    }
 
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
