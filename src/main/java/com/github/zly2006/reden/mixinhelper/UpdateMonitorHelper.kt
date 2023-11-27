@@ -122,7 +122,7 @@ object UpdateMonitorHelper {
         ONCE
     }
 
-    private var suggestedUndo = iEVER_USED_UNDO.booleanValue
+    private var suggestedUndo = if (isClient) iEVER_USED_UNDO.booleanValue else true
     @JvmStatic
     fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
         debugLogger("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState")
