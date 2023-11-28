@@ -60,6 +60,7 @@
     "undo.MixinServerWorld",
     "undo.MixinServerWorldChunk",
     "undo.MixinTntEntity",
+    "undo.data.MixinChunkSection",
     "yo.MixinPlayerList",
     "yo.MixinPlayerManager"
   ],

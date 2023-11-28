@@ -4,6 +4,7 @@ import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.malilib.UNDO_CHEATING_ONLY
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.isSinglePlayerAndCheating
+import com.github.zly2006.reden.utils.server
 import net.minecraft.block.BlockState
 import net.minecraft.command.EntitySelector
 import net.minecraft.entity.EntityType
@@ -46,8 +47,9 @@ class PlayerData(
     data class Entry(
         val state: BlockState,
         val blockEntity: NbtCompound?,
+        val time: Int
     ) {
-        fun getMemorySize() = blockEntity?.sizeInBytes ?: 0
+        fun getMemorySize() = (blockEntity?.sizeInBytes ?: 0) + 20
     }
     internal interface PlayerDataAccess {
         fun getRedenPlayerData(): PlayerData
@@ -78,7 +80,7 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
         fun fromWorld(world: World, pos: BlockPos, putNearByEntities: Boolean): Entry {
             val be = world.getBlockEntity(pos)
             val state = world.getBlockState(pos)
-            return Entry(state, be?.createNbtWithId()).apply {
+            return Entry(state, be?.createNbtWithId(), server.ticks).apply {
                 if (putNearByEntities &&
                     world.getBlockState(pos).getCollisionShape(world, pos).boundingBoxes.size != 0
                 ) {

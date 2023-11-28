@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.access.ChunkSectionInterface
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
@@ -37,8 +38,14 @@ class Undo(
         private fun operate(world: ServerWorld, record: PlayerData.UndoRedoRecord, redoRecord: PlayerData.RedoRecord?) {
             record.data.forEach { (posLong, entry) ->
                 val pos = BlockPos.fromLong(posLong)
-                debugLogger("undo ${BlockPos.fromLong(posLong)}, ${entry.state}")
+                debugLogger("undo ${pos}, ${entry.state}")
                 // set block
+                val sec = world.getChunk(pos).run { getSection(getSectionIndex(pos.y)) } as ChunkSectionInterface
+                if (sec.getModifyTime(pos) < entry.time) {
+                    debugLogger("undo $pos skipped (${sec.getModifyTime(pos)} < ${entry.time})")
+                    return@forEach
+                }
+                sec.setModifyTime(pos, entry.time)
                 world.setBlockNoPP(pos, entry.state, Block.NOTIFY_LISTENERS)
                 // clear schedules
                 if (RedenCarpetSettings.Options.undoApplyingClearScheduledTicks) {
