@@ -1,5 +1,7 @@
 package com.github.zly2006.reden.mixinhelper
 
+import com.github.zly2006.reden.access.BlockEntityInterface
+import com.github.zly2006.reden.access.ChunkSectionInterface
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
@@ -20,6 +22,8 @@ import com.github.zly2006.reden.utils.server
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.block.BlockState
+import net.minecraft.block.entity.BlockEntity
+import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.nbt.NbtCompound
@@ -123,11 +127,33 @@ object UpdateMonitorHelper {
     }
 
     private var suggestedUndo = if (isClient) iEVER_USED_UNDO.booleanValue else true
+
+    /**
+     * Monitor block changes.
+     *
+     * @param world the world where the block is changed
+     * @param pos the position of the block
+     * @param blockState only be `null` if the state does not change
+     */
     @JvmStatic
-    fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
+    fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState?) {
         debugLogger("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState")
+        // update modified time, so undo can work properly
+        world.getChunk(pos).run { getSection(getSectionIndex(pos.y)) as ChunkSectionInterface }
+            .setModifyTime(pos, server.ticks)
+
+        val beType = world.getBlockEntity(pos)?.type
+        val data = if (blockState == null) {
+            // if only nbt changed, we should get the real nbt before change
+            //   if failed (null), use the current nbt
+            (world.getBlockEntity(pos) as BlockEntityInterface?)?.getLastSavedNbt()
+        } else null
         recording?.data?.computeIfAbsent(pos.asLong()) {
-            recording!!.fromWorld(world, pos, true)
+            recording!!.fromWorld(world, pos, true).let {
+                if (data != null) {
+                    it.copy(blockEntity = prepareBEData(data, pos, beType as BlockEntityType<*>))
+                } else it
+            }
         }
         if (isClient && recording != null && !recording!!.notified && !suggestedUndo) {
             suggestedUndo = true
@@ -145,6 +171,13 @@ object UpdateMonitorHelper {
             }
         }
         recording?.lastChangedTick = server.ticks
+    }
+
+    private fun prepareBEData(data: NbtCompound?, pos: BlockPos, type: BlockEntityType<*>) = data?.apply {
+        BlockEntity.writeIdToNbt(this, type)
+        this.putInt("x", pos.x)
+        this.putInt("y", pos.y)
+        this.putInt("z", pos.z)
     }
 
     /**
