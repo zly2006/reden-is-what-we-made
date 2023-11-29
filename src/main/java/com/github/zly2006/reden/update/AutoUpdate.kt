@@ -11,6 +11,7 @@ import net.minecraft.util.Util.OperatingSystem
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import kotlin.io.path.*
 
 val customValues = getInstance().getModContainer(Reden.MOD_ID).get().metadata.getCustomValue("reden").asObject
@@ -49,27 +50,29 @@ fun relaunch(newJar: Path?) {
     @Suppress("NAME_SHADOWING")
     val newJar = newJar ?: if (currentJar != null) {
         val path = Path(".cache", "reden", "reden.jar")
-        Files.copy(currentJar, path)
+        Files.copy(currentJar, path, StandardCopyOption.REPLACE_EXISTING)
         path
     } else null
     val currentJarP = currentJar?.absolutePathString()?.quoted() ?: "null"
     val newJarP = newJar?.absolutePathString()?.quoted() ?: "null"
+    println(currentJarP)
+    println(newJarP)
     if (Util.getOperatingSystem() != OperatingSystem.WINDOWS) {
         Path(".cache", "reden", "relaunch.sh").writeText(
             """
-                #!/bin/sh
-                sleep 1
-                cd ${Paths.get("").absolutePathString().quoted()} || exit
-                ${
-                    if (newJar != null) {
-                        "echo Replacing $currentJarP with $newJarP... >> out.log\n" +
-                                "rm ${currentJarP}\n" +
-                                "mv $newJarP $currentJarP\n"
-                    } else "echo No new jar found. >> out.log\n"
-                }
-                echo "Relaunching..." >> out.log
-                $cmd 2>&1 >> out.log
-                echo "Exited with code $?" >> out.log
+#!/bin/sh
+sleep 1
+cd ${Paths.get("").absolutePathString().quoted()} || exit
+${
+    if (newJar != null) {
+        "echo Replacing $currentJarP with $newJarP... >> out.log\n" +
+                "rm ${currentJarP}\n" +
+                "cp $newJarP $currentJarP\n"
+    } else "echo No new jar found. >> out.log\n"
+}
+echo "Relaunching..." >> out.log
+$cmd 2>&1 >> out.log
+echo "Exited with code $?" >> out.log
             """.trimIndent()
         )
 
@@ -80,19 +83,19 @@ fun relaunch(newJar: Path?) {
     else {
         Path(".cache", "reden", "relaunch.bat").writeText(
             """
-                @echo off
-                timeout /t 1
-                cd ${Paths.get("").absolutePathString().quoted()}
-                ${
-                    if (newJar != null) {
-                        "echo Replacing $currentJarP with $newJarP... >> out.log\n" +
-                                "del $currentJarP\n" +
-                                "move $newJarP $currentJarP\n"
-                    } else "echo No new jar found. >> out.log\n"
-                }
-                echo Relaunching... >> out.log
-                $cmd >> out.log
-                echo Exited with code %ERRORLEVEL% >> out.log
+@echo off
+timeout /t 1
+cd ${Paths.get("").absolutePathString().quoted()}
+${
+    if (newJar != null) {
+        "echo Replacing $currentJarP with $newJarP... >> out.log\n" +
+                "del $currentJarP\n" +
+                "copy $newJarP $currentJarP\n"
+    } else "echo No new jar found. >> out.log\n"
+}
+echo Relaunching... >> out.log
+$cmd >> out.log
+echo Exited with code %ERRORLEVEL% >> out.log
             """.trimIndent()
         )
 
@@ -116,6 +119,10 @@ fun String.quoted(): String {
 private fun ProcessHandle.Info.cmd(): String {
     val cmd = command().orElseThrow().quoted()
     val args = arguments().orElse(emptyArray())
+    println("command: $cmd")
+    println("args: ${args.joinToString(" ")}")
+    println("cmdline: ${commandLine().orElse("null")}")
+    args.forEach { println(it) }
     return "$cmd -classpath ${
         System.getProperty("java.class.path").split(System.getProperty("path.separator"))
             .joinToString(System.getProperty("path.separator")) { it.quoted() }
