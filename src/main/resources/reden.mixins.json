@@ -45,6 +45,7 @@
     "tick.MixinTick",
     "tick.MixinWatchdog",
     "tickBack.MixinTickCommand",
+    "undo.MixinBlockEntity",
     "undo.MixinBlockEvent",
     "undo.MixinCommands",
     "undo.MixinDataTracker",

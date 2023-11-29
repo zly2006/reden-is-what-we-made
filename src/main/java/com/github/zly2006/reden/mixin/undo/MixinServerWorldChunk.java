@@ -1,8 +1,6 @@
 package com.github.zly2006.reden.mixin.undo;
 
-import com.github.zly2006.reden.access.ChunkSectionInterface;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
-import com.github.zly2006.reden.utils.UtilsKt;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.world.ServerWorld;
@@ -36,7 +34,5 @@ public abstract class MixinServerWorldChunk extends Chunk {
     private void monitorSetBlock(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
         if (world.isClient) return;
         UpdateMonitorHelper.monitorSetBlock((ServerWorld) world, pos, state);
-        ((ChunkSectionInterface) this.getSection(this.getSectionIndex(pos.getY())))
-                .setModifyTime(pos, UtilsKt.server.getTicks());
     }
 }
