@@ -1,15 +1,17 @@
 package com.github.zly2006.reden.update
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.utils.isClient
+import com.github.zly2006.reden.utils.server
 import net.fabricmc.loader.api.FabricLoader.getInstance
-import net.fabricmc.loader.impl.gui.FabricGuiEntry
 import net.fabricmc.loader.impl.util.LoaderUtil
-import net.fabricmc.loader.impl.util.UrlUtil
-import java.io.DataOutputStream
-import java.io.IOException
+import net.minecraft.client.MinecraftClient
+import net.minecraft.util.Util
+import net.minecraft.util.Util.OperatingSystem
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.*
 
 val customValues = getInstance().getModContainer(Reden.MOD_ID).get().metadata.getCustomValue("reden").asObject
 val shouldCheck = Reden.MOD_VERSION.friendlyString.contains("dev")
@@ -23,7 +25,7 @@ fun checkUpdate() {
     }
 }
 
-fun relaunch() {
+fun relaunch(newJar: Path?) {
     val javaBinDir = LoaderUtil.normalizePath(Paths.get(System.getProperty("java.home"), "bin"))
     val executables = arrayOf("javaw.exe", "java.exe", "java")
     var javaPath: Path? = null
@@ -35,26 +37,88 @@ fun relaunch() {
             break
         }
     }
+    if (javaPath == null) error("can't find java executable in $javaBinDir")
 
-    if (javaPath == null) throw RuntimeException("can't find java executable in $javaBinDir")
+    val cmd = ProcessHandle.current().info().cmd()
+    val currentJar = getInstance().getModContainer(Reden.MOD_ID).get().origin.paths.firstOrNull { it.extension == "jar" }
+    println(currentJar)
 
-    val process = ProcessBuilder(
-        javaPath.toString(), "-Xmx100M", "-cp", UrlUtil.LOADER_CODE_SOURCE.toString(),
-        FabricGuiEntry::class.java.getName()
-    )
-        .redirectOutput(ProcessBuilder.Redirect.INHERIT)
-        .redirectError(ProcessBuilder.Redirect.INHERIT)
-        .start()
+    println(cmd)
+    println(Path("").absolutePathString())
+    Path(".cache", "reden").createDirectories()
+    @Suppress("NAME_SHADOWING")
+    val newJar = newJar ?: if (currentJar != null) {
+        val path = Path(".cache", "reden", "reden.jar")
+        Files.copy(currentJar, path)
+        path
+    } else null
+    val currentJarP = currentJar?.absolutePathString()?.quoted() ?: "null"
+    val newJarP = newJar?.absolutePathString()?.quoted() ?: "null"
+    if (Util.getOperatingSystem() != OperatingSystem.WINDOWS) {
+        Path(".cache", "reden", "relaunch.sh").writeText(
+            """
+                #!/bin/sh
+                sleep 1
+                cd ${Paths.get("").absolutePathString().quoted()} || exit
+                ${
+                    if (newJar != null) {
+                        "echo Replacing $currentJarP with $newJarP... >> out.log\n" +
+                                "rm ${currentJarP}\n" +
+                                "mv $newJarP $currentJarP\n"
+                    } else "echo No new jar found. >> out.log\n"
+                }
+                echo "Relaunching..." >> out.log
+                $cmd 2>&1 >> out.log
+                echo "Exited with code $?" >> out.log
+            """.trimIndent()
+        )
 
-    val shutdownHook = Thread { process.destroy() }
+        val process = ProcessBuilder(
+            "/bin/sh", "-c", "chmod +x .cache/reden/relaunch.sh && .cache/reden/relaunch.sh"
+        ).start()
+    }
+    else {
+        Path(".cache", "reden", "relaunch.bat").writeText(
+            """
+                @echo off
+                timeout /t 1
+                cd ${Paths.get("").absolutePathString().quoted()}
+                ${
+                    if (newJar != null) {
+                        "echo Replacing $currentJarP with $newJarP... >> out.log\n" +
+                                "del $currentJarP\n" +
+                                "move $newJarP $currentJarP\n"
+                    } else "echo No new jar found. >> out.log\n"
+                }
+                echo Relaunching... >> out.log
+                $cmd >> out.log
+                echo Exited with code %ERRORLEVEL% >> out.log
+            """.trimIndent()
+        )
 
-    Runtime.getRuntime().addShutdownHook(shutdownHook)
+        val process = ProcessBuilder(
+            "cmd", "/c", "start .cache/reden/relaunch.bat"
+        ).start()
+    }
 
-    DataOutputStream(process.outputStream)
+    Reden.LOGGER.info("Waiting to restart...")
+    if (isClient) {
+        MinecraftClient.getInstance().stop()
+    } else {
+        server.stop(true)
+    }
+}
 
-    val rVal = process.waitFor()
+fun String.quoted(): String {
+    return "\"${this.replace("\"", "\\\"")}\""
+}
 
-    Runtime.getRuntime().removeShutdownHook(shutdownHook)
-
-    if (rVal != 0) throw IOException("subprocess exited with code $rVal")
+private fun ProcessHandle.Info.cmd(): String {
+    val cmd = command().orElseThrow().quoted()
+    val args = arguments().orElse(emptyArray())
+    return "$cmd -classpath ${
+        System.getProperty("java.class.path").split(System.getProperty("path.separator"))
+            .joinToString(System.getProperty("path.separator")) { it.quoted() }
+    } ${args.filter { "/private/var" !in it } // MacOS patch
+        .joinToString(" ") { it.quoted() }}"
 }
