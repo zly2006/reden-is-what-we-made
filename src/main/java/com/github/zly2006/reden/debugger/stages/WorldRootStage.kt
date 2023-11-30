@@ -41,6 +41,7 @@ class WorldRootStage(
         }
         children.add(world.data().blockEventsRootStage!!)
         children.add(EntitiesRootStage(this))
+        children.add(BlockEntitiesRootStage(this))
         yield()
     }
 

@@ -47,6 +47,8 @@ object StageIo {
 
         constructors["entities"] = Constructor { EntitiesRootStage(null) }
         constructors["entity"] = Constructor { EntityStage(it as EntitiesRootStage, null) }
+        constructors["block_entities_root"] = Constructor { BlockEntitiesRootStage(null) }
+        constructors["block_entity"] = Constructor { BlockEntityStage(it as BlockEntitiesRootStage, null) }
         constructors["block_events_root"] = Constructor { BlockEventsRootStage(null) }
         constructors["block_event"] = Constructor { BlockEventStage(it as BlockEventsRootStage, null) }
         constructors["block_scheduled_ticks_root"] = Constructor { BlockScheduledTicksRootStage(null) }

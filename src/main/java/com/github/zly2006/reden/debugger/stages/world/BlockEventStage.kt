@@ -36,9 +36,8 @@ class BlockEventStage(
         buf.writeInt(blockEvent!!.data)
     }
 
-    // Note: tick() method that does not call TickStage#tick
     override fun tick() {
-        assert(children.isEmpty())
+        super.tick()
 
         _parent.world!!.data().tickingBlockEvent = blockEvent!!
         _parent.world!!.processSyncedBlockEvents()

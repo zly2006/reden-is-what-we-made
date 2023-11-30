@@ -31,7 +31,7 @@ public class MixinMovingPiston {
             }
             PistonBlockEntity.tick(world1, pos, state1, be);
             if (shouldTrack) {
-                if (be instanceof UndoableAccess access) {
+                if (be instanceof UndoableAccess) {
                     UpdateMonitorHelper.popRecord(() -> "piston block entity tick/" + pos.toShortString());
                 }
             }

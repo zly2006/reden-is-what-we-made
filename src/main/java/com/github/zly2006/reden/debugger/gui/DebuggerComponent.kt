@@ -7,6 +7,7 @@ import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.GridLayout
 import io.wispforest.owo.ui.core.OwoUIAdapter
+import io.wispforest.owo.ui.core.OwoUIDrawContext
 import io.wispforest.owo.ui.core.Positioning
 import io.wispforest.owo.ui.core.Sizing
 import net.minecraft.text.Text
@@ -26,10 +27,21 @@ class DebuggerComponent(
         init {
             child(Components.label(node.stage.displayName ?: Text.literal("null")))
         }
+
+        override fun draw(context: OwoUIDrawContext, mouseX: Int, mouseY: Int, partialTicks: Float, delta: Float) {
+            context.fill(
+                x,
+                y,
+                x + determineHorizontalContentSize(Sizing.content()),
+                y + determineVerticalContentSize(Sizing.fill(100)),
+                0x80_00_00_00.toInt()
+            )
+            super.draw(context, mouseX, mouseY, partialTicks, delta)
+        }
     }
 
     fun stageTreeLayout(): GridLayout {
-        val layout = Containers.grid(Sizing.fill(100), Sizing.fill(100), stageTree.depth() + 1, 3)
+        val layout = Containers.grid(Sizing.fill(100), Sizing.content(), stageTree.depth() + 1, 3)
         layout.child(Components.label(Text.literal("Stage Tree")), 0, 1)
         var node = stageTree.lastReturned
         var depth = stageTree.depth()

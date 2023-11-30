@@ -245,6 +245,9 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
                     method_31420(profiler, entity); // do tick
                 });
                 profiler.pop();
+            }
+        } else if (stage instanceof BlockEntitiesRootStage) {
+            if (this.idleTimeout < 300) {
                 this.tickBlockEntities();
             }
             profiler.push("entityManagement");

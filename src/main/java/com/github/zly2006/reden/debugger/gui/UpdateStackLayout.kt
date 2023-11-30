@@ -30,13 +30,6 @@ class UpdateStackLayout(val tree: StageTree): FlowLayout(Sizing.content(), Sizin
     }
 
     override fun draw(context: OwoUIDrawContext, mouseX: Int, mouseY: Int, partialTicks: Float, delta: Float) {
-        context.fill(
-            0,
-            0,
-            determineHorizontalContentSize(null),
-            determineVerticalContentSize(null),
-            0x80_00_00_00.toInt()
-        )
         super.draw(context, mouseX, mouseY, partialTicks, delta)
     }
 

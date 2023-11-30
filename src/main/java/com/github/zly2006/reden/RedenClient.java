@@ -1,7 +1,6 @@
 package com.github.zly2006.reden;
 
 import com.github.zly2006.reden.clientGlow.ClientGlowKt;
-import com.github.zly2006.reden.debugger.gui.RDebuggerLayoutKt;
 import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.malilib.data.CommandHotkey;
@@ -119,7 +118,6 @@ public class RedenClient implements ClientModInitializer {
                 return 1;
             }));
         });
-        RDebuggerLayoutKt.register();
     }
 
     public static void saveMalilibOptions() {

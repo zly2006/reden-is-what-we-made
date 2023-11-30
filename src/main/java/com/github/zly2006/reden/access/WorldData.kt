@@ -5,6 +5,7 @@ import com.github.zly2006.reden.debugger.stages.world.BlockEventsRootStage
 import net.minecraft.server.world.BlockEvent
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.World
+import net.minecraft.world.chunk.BlockEntityTickInvoker
 
 class WorldData(
     val serverWorld: ServerWorld
@@ -13,6 +14,7 @@ class WorldData(
     lateinit var tickStage: WorldRootStage
     @JvmField var tickingBlockEvent: BlockEvent? = null
     @JvmField var blockEventsRootStage: BlockEventsRootStage? = null
+    @JvmField var blockEntityTickInvoker: BlockEntityTickInvoker? = null
 
     interface WorldDataAccess {
         fun getRedenWorldData(): WorldData

@@ -1,6 +1,8 @@
 reden:
   debugger:
     tick_stage:
+      entity: 'Entity/%s: %s'
+      block_entity: 'BlockEntity at %s'
       nc_update_6: NC Update 6 Sides
       pp_update: Post-Placement
       nc_update: Neighbor-Changed

@@ -30,6 +30,7 @@ class StageTreeS2CPacket(val tree: StageTree) : FabricPacket {
                         player.sendMessage(node.stage.displayName, false)
                         node = node.parent
                     }
+                    Hud.remove(Reden.identifier("debugger"))
                     Hud.add(Reden.identifier("debugger")) {
                         DebuggerComponent(packet.tree).asHud()
                     }
