@@ -41,22 +41,22 @@ object StageIo {
         constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it!!, null) }
         constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it!!, null) }
         constructors["pp_update"] = Constructor { StageBlockPPUpdate(it!!, null) }
-        // todo: add more stages
-        // BlockEventsRootStage
-        // BlockEventStage
-        // BlockScheduledTicksRootStage
-        // BlockScheduledTickStage
-        // EntitiesRootStage
-        // EntityStage
-        // FluidScheduledTicksRootStage
-        // FluidScheduledTickStage
-        // RaidStage
-        // RandomTickStage
-        // SpawnStage
-        // SpecialSpawnStage
-        // TimeStage
-        // WeatherStage
-        // WorldBorderStage
+
+        constructors["block_events_root"] = Constructor { EmptyWorldTickStage("block_events_root", it!!) }
+        constructors["block_event"] = Constructor { EmptyWorldTickStage("block_event", it!!) }
+        constructors["block_scheduled_ticks_root"] = Constructor { EmptyWorldTickStage("block_scheduled_ticks_root", it!!) }
+        constructors["block_scheduled_tick"] = Constructor { EmptyWorldTickStage("block_scheduled_tick", it!!) }
+        constructors["entities"] = Constructor { EmptyWorldTickStage("entities_root", it!!) }
+        constructors["entity"] = Constructor { EmptyWorldTickStage("entity", it!!) } //todo
+        constructors["fluid_scheduled_ticks_root"] = Constructor { EmptyWorldTickStage("fluid_scheduled_ticks_root", it!!) }
+        constructors["fluid_scheduled_tick"] = Constructor { EmptyWorldTickStage("fluid_scheduled_tick", it!!) }
+        constructors["raid"] = Constructor { EmptyWorldTickStage("raid", it!!) }
+        constructors["random_tick"] = Constructor { EmptyWorldTickStage("random_tick", it!!) }
+        constructors["spawn"] = Constructor { EmptyWorldTickStage("spawn", it!!) }
+        constructors["special_spawn"] = Constructor { EmptyWorldTickStage("special_spawn", it!!) }
+        constructors["time"] = Constructor { EmptyWorldTickStage("time", it!!) }
+        constructors["weather"] = Constructor { EmptyWorldTickStage("weather", it!!) }
+        constructors["world_border"] = Constructor { EmptyWorldTickStage("world_border", it!!) }
     }
 
     fun writeStage(stage: TickStage, buf: PacketByteBuf) {
@@ -126,12 +126,13 @@ object StageIo {
             } else {
                 if (iterIndex != 0) {
                     // set children if possible
-                    prevNode.stage.children[iterIndex - 1] = node.stage
+                   // prevNode.stage.children[iterIndex - 1] = node.stage
                 }
             }
             prevNode = node
         }
         tree.child = prevNode
+        tree.lastReturned = prevNode
         return tree
     }
 
