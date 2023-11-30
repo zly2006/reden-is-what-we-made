@@ -2,15 +2,19 @@ package com.github.zly2006.reden.debugger.stages.world
 
 import com.github.zly2006.reden.access.WorldData.Companion.data
 import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.utils.readBlock
 import com.github.zly2006.reden.utils.writeBlock
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.world.BlockEvent
+import net.minecraft.server.world.ServerWorld
 
 class BlockEventStage(
     val _parent: BlockEventsRootStage,
     var blockEvent: BlockEvent? = null
-): TickStage("block_event", _parent) {
+): TickStage("block_event", _parent), TickStageWithWorld {
+    override val world: ServerWorld get() = _parent.world
+
     override fun readByteBuf(buf: PacketByteBuf) {
         super.readByteBuf(buf)
         blockEvent = BlockEvent(
