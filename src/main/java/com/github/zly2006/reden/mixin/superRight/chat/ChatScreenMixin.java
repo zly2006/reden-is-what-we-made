@@ -78,7 +78,7 @@ public abstract class ChatScreenMixin extends Screen {
         if (quickMenuWidget != null) {
             quickMenuWidget.remove();
         }
-        quickMenuWidget = new QuickMenuWidget(this, mouseX, mouseY);
+        quickMenuWidget = new QuickMenuWidget(this, mouseX + 1, mouseY + 1);
         quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.about"), (e, b) ->
                 client.setScreen(new SuperRightIntro()));
         String message = text.getString();

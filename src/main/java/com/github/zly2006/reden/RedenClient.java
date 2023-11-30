@@ -12,6 +12,7 @@ import com.github.zly2006.reden.rvc.gui.RvcHudRenderer;
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.SelectModeHudKt;
 import com.github.zly2006.reden.rvc.tracking.client.ClientTrackingKt;
 import com.github.zly2006.reden.sponsor.LuckToday;
+import com.github.zly2006.reden.update.AutoUpdateKt;
 import com.github.zly2006.reden.utils.DebugKt;
 import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigManager;
@@ -111,6 +112,10 @@ public class RedenClient implements ClientModInitializer {
                 context.getSource().sendFeedback(
                         Text.literal(String.valueOf(LuckToday.Companion.getLuckValue().getData()))
                 );
+                return 1;
+            }));
+            dispatcher.register(ClientCommandManager.literal("relaunch").executes(context -> {
+                AutoUpdateKt.relaunch(null);
                 return 1;
             }));
         });

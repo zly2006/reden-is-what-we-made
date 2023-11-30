@@ -48,6 +48,9 @@
     "owo": "*"
   },
   "custom": {
+    "reden": {
+      "is_main_branch": "${is_main_branch}"
+    },
     "modmanager": {
 
     }

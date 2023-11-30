@@ -1,10 +1,12 @@
 package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.debugger.gui.DebuggerComponent
 import com.github.zly2006.reden.debugger.tree.StageIo
 import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.sendMessage
+import io.wispforest.owo.ui.hud.Hud
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
@@ -27,6 +29,9 @@ class StageTreeS2CPacket(val tree: StageTree) : FabricPacket {
                     while (node != null) {
                         player.sendMessage(node.stage.displayName, false)
                         node = node.parent
+                    }
+                    Hud.add(Reden.identifier("debugger")) {
+                        DebuggerComponent(packet.tree).asHud()
                     }
                 }
             }
