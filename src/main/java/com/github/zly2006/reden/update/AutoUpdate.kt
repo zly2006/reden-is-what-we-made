@@ -13,6 +13,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import kotlin.io.path.*
+import kotlin.random.Random.Default.nextInt
 
 val customValues = getInstance().getModContainer(Reden.MOD_ID).get().metadata.getCustomValue("reden").asObject
 val shouldCheck = Reden.MOD_VERSION.friendlyString.contains("dev")
@@ -67,11 +68,11 @@ ${
     if (newJar != null) {
         "echo Replacing $currentJarP with $newJarP... >> out.log\n" +
                 "rm ${currentJarP}\n" +
-                "cp $newJarP $currentJarP\n"
+                "cp $newJarP $currentJarP-${nextInt(10)}\n"
     } else "echo No new jar found. >> out.log\n"
 }
 echo "Relaunching..." >> out.log
-$cmd 2>&1 >> out.log
+$cmd >> out.log 2>&1
 echo "Exited with code $?" >> out.log
             """.trimIndent()
         )
@@ -90,7 +91,7 @@ ${
     if (newJar != null) {
         "echo Replacing $currentJarP with $newJarP... >> out.log\n" +
                 "del $currentJarP\n" +
-                "copy $newJarP $currentJarP\n"
+                "copy $newJarP $currentJarP-${nextInt(10)}\n"
     } else "echo No new jar found. >> out.log\n"
 }
 echo Relaunching... >> out.log
@@ -113,7 +114,7 @@ echo Exited with code %ERRORLEVEL% >> out.log
 }
 
 fun String.quoted(): String {
-    return "\"${this.replace("\"", "\\\"")}\""
+    return "\"${this.replace("\"", "\\\"").replace("$", "\\$")}\""
 }
 
 private fun ProcessHandle.Info.cmd(): String {
@@ -123,9 +124,10 @@ private fun ProcessHandle.Info.cmd(): String {
     println("args: ${args.joinToString(" ")}")
     println("cmdline: ${commandLine().orElse("null")}")
     args.forEach { println(it) }
-    return "$cmd -classpath ${
-        System.getProperty("java.class.path").split(System.getProperty("path.separator"))
+    val cp = if ("-cp" !in args && "-classpath" !in args) {
+        "-cp " + System.getProperty("java.class.path").split(System.getProperty("path.separator"))
             .joinToString(System.getProperty("path.separator")) { it.quoted() }
-    } ${args.filter { "/private/var" !in it } // MacOS patch
+    } else ""
+    return "$cmd $cp ${args.filter { "/private/var" !in it } // MacOS patch
         .joinToString(" ") { it.quoted() }}"
 }
