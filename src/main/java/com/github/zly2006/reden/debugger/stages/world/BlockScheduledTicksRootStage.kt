@@ -6,7 +6,7 @@ import net.minecraft.block.Block
 import net.minecraft.world.tick.OrderedTick
 
 class BlockScheduledTicksRootStage(
-    parent: WorldRootStage
+    parent: WorldRootStage?
 ): ScheduledTicksRootStage("block_scheduled_ticks_root", parent) {
     @Suppress("UNCHECKED_CAST")
     override fun createChild(orderedTick: OrderedTick<*>): TickStage {

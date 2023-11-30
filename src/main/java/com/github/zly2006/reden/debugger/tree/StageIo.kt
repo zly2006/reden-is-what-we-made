@@ -8,6 +8,7 @@ import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdate
 import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdateSixWay
 import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdateWithSource
 import com.github.zly2006.reden.debugger.stages.block.StageBlockPPUpdate
+import com.github.zly2006.reden.debugger.stages.world.*
 import com.github.zly2006.reden.debugger.tree.StageIo.Constructor
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.world.ServerWorld
@@ -19,8 +20,10 @@ object StageIo {
     val constructors = mutableMapOf<String, Constructor>()
 
     init {
-        class EmptyTickStage(name: String, parent: TickStage?): TickStage(name, parent)
-        class EmptyWorldTickStage(name: String, parent: TickStage?): TickStage(name, parent), TickStageWithWorld {
+        class EmptyTickStage(name: String, parent: TickStage?): TickStage(name, parent), TickStageWithWorld {
+            override fun readByteBuf(buf: PacketByteBuf) {
+                super.readByteBuf(buf)
+            }
             override val world: ServerWorld?
                 get() {
                     Reden.LOGGER.warn("Accessing world from client side at $name")
@@ -32,31 +35,32 @@ object StageIo {
         constructors["server_root"] = Constructor { EmptyTickStage("server_root", it) }
         constructors["end"] = Constructor { EmptyTickStage("end", it) }
 
-        constructors["world_root"] = Constructor { EmptyWorldTickStage("world_root", it) }
-        constructors["network"] = Constructor { EmptyWorldTickStage("network", it) }
-        constructors["update_block"] = Constructor { EmptyWorldTickStage("update_block", it!!) }
-        constructors["commands_stage"] = Constructor { EmptyWorldTickStage("commands_stage", it!!) }
+        constructors["world_root"] = Constructor { EmptyTickStage("world_root", it) }
+        constructors["network"] = Constructor { EmptyTickStage("network", it) }
+        constructors["update_block"] = Constructor { EmptyTickStage("update_block", it!!) }
+        constructors["commands_stage"] = Constructor { EmptyTickStage("commands_stage", it!!) }
 
         constructors["nc_update"] = Constructor { StageBlockNCUpdate(it!!, null) }
         constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it!!, null) }
         constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it!!, null) }
         constructors["pp_update"] = Constructor { StageBlockPPUpdate(it!!, null) }
 
-        constructors["block_events_root"] = Constructor { EmptyWorldTickStage("block_events_root", it!!) }
-        constructors["block_event"] = Constructor { EmptyWorldTickStage("block_event", it!!) }
-        constructors["block_scheduled_ticks_root"] = Constructor { EmptyWorldTickStage("block_scheduled_ticks_root", it!!) }
-        constructors["block_scheduled_tick"] = Constructor { EmptyWorldTickStage("block_scheduled_tick", it!!) }
-        constructors["entities"] = Constructor { EmptyWorldTickStage("entities_root", it!!) }
-        constructors["entity"] = Constructor { EmptyWorldTickStage("entity", it!!) } //todo
-        constructors["fluid_scheduled_ticks_root"] = Constructor { EmptyWorldTickStage("fluid_scheduled_ticks_root", it!!) }
-        constructors["fluid_scheduled_tick"] = Constructor { EmptyWorldTickStage("fluid_scheduled_tick", it!!) }
-        constructors["raid"] = Constructor { EmptyWorldTickStage("raid", it!!) }
-        constructors["random_tick"] = Constructor { EmptyWorldTickStage("random_tick", it!!) }
-        constructors["spawn"] = Constructor { EmptyWorldTickStage("spawn", it!!) }
-        constructors["special_spawn"] = Constructor { EmptyWorldTickStage("special_spawn", it!!) }
-        constructors["time"] = Constructor { EmptyWorldTickStage("time", it!!) }
-        constructors["weather"] = Constructor { EmptyWorldTickStage("weather", it!!) }
-        constructors["world_border"] = Constructor { EmptyWorldTickStage("world_border", it!!) }
+        constructors["entities"] = Constructor { EntitiesRootStage(null) }
+        constructors["entity"] = Constructor { EntityStage(it as EntitiesRootStage, null) }
+        constructors["block_events_root"] = Constructor { BlockEventsRootStage(null) }
+        constructors["block_event"] = Constructor { BlockEventStage(it as BlockEventsRootStage, null) }
+        constructors["block_scheduled_ticks_root"] = Constructor { BlockScheduledTicksRootStage(null) }
+        constructors["block_scheduled_tick"] = Constructor { BlockScheduledTickStage(it as BlockScheduledTicksRootStage, null) }
+        constructors["fluid_scheduled_ticks_root"] = Constructor { FluidScheduledTicksRootStage(null) }
+        constructors["fluid_scheduled_tick"] = Constructor { FluidScheduledTickStage(it as FluidScheduledTicksRootStage, null) }
+
+        constructors["raid"] = Constructor { EmptyTickStage("raid", it!!) }
+        constructors["random_tick"] = Constructor { EmptyTickStage("random_tick", it!!) }
+        constructors["spawn"] = Constructor { EmptyTickStage("spawn", it!!) }
+        constructors["special_spawn"] = Constructor { EmptyTickStage("special_spawn", it!!) }
+        constructors["time"] = Constructor { EmptyTickStage("time", it!!) }
+        constructors["weather"] = Constructor { EmptyTickStage("weather", it!!) }
+        constructors["world_border"] = Constructor { EmptyTickStage("world_border", it!!) }
     }
 
     fun writeStage(stage: TickStage, buf: PacketByteBuf) {
@@ -75,7 +79,8 @@ object StageIo {
         val childrenSize = buf.readVarInt()
         val name = buf.readString()
 
-        val stage = constructors[name]?.construct(parent) ?: error("Unknown stage name: $name")
+        val stage = constructors[name]?.construct(parent)
+            ?: error("Unknown stage name: $name")
         stage.readByteBuf(buf)
 
         for (i in 0 until childrenSize) {
@@ -113,7 +118,7 @@ object StageIo {
         var prevNode: StageTree.TreeNode? = null
         for (i in 0 until size) {
             val childrenUpdated = buf.readBoolean()
-            val iterIndex = buf.readVarInt()
+            val iterIndex = if (childrenUpdated) buf.readVarInt() else 0
             val stage = readStage(prevNode?.stage, buf)
             val node = StageTree.TreeNode(
                 prevNode,

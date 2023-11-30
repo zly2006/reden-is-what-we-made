@@ -7,13 +7,16 @@ import com.github.zly2006.reden.utils.readBlock
 import com.github.zly2006.reden.utils.writeBlock
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.world.BlockEvent
-import net.minecraft.server.world.ServerWorld
+import net.minecraft.text.Text
 
 class BlockEventStage(
     val _parent: BlockEventsRootStage,
     var blockEvent: BlockEvent? = null
 ): TickStage("block_event", _parent), TickStageWithWorld {
-    override val world: ServerWorld get() = _parent.world
+    override val world get() = _parent.world
+
+    override val displayName
+        get() = Text.translatable("reden.debugger.tick_stage.$name", blockEvent!!.pos.toShortString(), blockEvent!!.block.name, blockEvent!!.type, blockEvent!!.data)
 
     override fun readByteBuf(buf: PacketByteBuf) {
         super.readByteBuf(buf)
@@ -37,7 +40,7 @@ class BlockEventStage(
     override fun tick() {
         assert(children.isEmpty())
 
-        _parent.world.data().tickingBlockEvent = blockEvent!!
-        _parent.world.processSyncedBlockEvents()
+        _parent.world!!.data().tickingBlockEvent = blockEvent!!
+        _parent.world!!.processSyncedBlockEvents()
     }
 }

@@ -4,6 +4,7 @@ reden:
       nc_update_6: NC Update 6 Sides
       pp_update: Post-Placement
       nc_update: Neighbor-Changed
+      block_event: Block Event at %s, block %s, type %s, data %s
       nc_update_with_source: Neighbor-Changed
 
   widget:

@@ -7,7 +7,6 @@ import com.github.zly2006.reden.utils.readBlock
 import com.github.zly2006.reden.utils.writeBlock
 import net.minecraft.block.Block
 import net.minecraft.network.PacketByteBuf
-import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.tick.OrderedTick
 import net.minecraft.world.tick.TickPriority
 
@@ -15,16 +14,16 @@ class BlockScheduledTickStage(
     val _parent: BlockScheduledTicksRootStage,
     var orderedTick: OrderedTick<Block>?,
 ): TickStage("block_scheduled_tick", _parent), TickStageWithWorld {
-    override val world: ServerWorld get() = _parent.world
+    override val world get() = _parent.world
 
     @Suppress("UNCHECKED_CAST")
     // Note: tick() method that does not call TickStage#tick
     override fun tick() {
         assert(children.isEmpty())
-        val scheduler = _parent.world.blockTickScheduler
+        val scheduler = _parent.world!!.blockTickScheduler
         scheduler as WorldTickSchedulerAccess<Block>
         scheduler.setTickingTick(orderedTick!!)
-        scheduler.tick(_parent.world::tickBlock)
+        scheduler.tick(_parent.world!!::tickBlock)
     }
 
     override fun writeByteBuf(buf: PacketByteBuf) {

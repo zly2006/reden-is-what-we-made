@@ -6,7 +6,7 @@ import net.minecraft.fluid.Fluid
 import net.minecraft.world.tick.OrderedTick
 
 class FluidScheduledTicksRootStage(
-    parent: WorldRootStage
+    parent: WorldRootStage?
 ): ScheduledTicksRootStage("fluid_scheduled_ticks_root", parent) {
     @Suppress("UNCHECKED_CAST")
     override fun createChild(orderedTick: OrderedTick<*>): TickStage {
