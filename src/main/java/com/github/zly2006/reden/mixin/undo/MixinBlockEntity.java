@@ -31,6 +31,7 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
     @Override
     public void saveLastNbt() {
         if (world != null && !world.isClient) {
+            DebugKt.debugLogger.invoke("saving lastNBT at " + pos.toShortString());
             lastSavedNbt = this.createNbtWithIdentifyingData();
             DebugKt.debugLogger.invoke("saved lastNBT at " + pos.toShortString() + ", cause=manual, " + lastSavedNbt);
         }
@@ -57,6 +58,7 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
             at = @At("TAIL")
     )
     private void onReadNbt(NbtCompound nbt, CallbackInfo ci) {
+        DebugKt.debugLogger.invoke("saving lastNBT at " + pos.toShortString());
         lastSavedNbt = nbt;
         DebugKt.debugLogger.invoke("saved lastNBT at " + pos.toShortString() + ", cause=read, " + lastSavedNbt);
     }

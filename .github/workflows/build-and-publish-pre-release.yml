@@ -115,8 +115,9 @@ jobs:
           game-versions: 1.20.1
           game-version-filter: any
 
-          dependencies:
+          dependencies: |
             carpet
+            malilib
             fabric-api
             fabric-language-kotlin
             owo-lib
