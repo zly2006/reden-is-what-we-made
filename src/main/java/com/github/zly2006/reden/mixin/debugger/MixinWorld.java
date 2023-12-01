@@ -39,7 +39,7 @@ public abstract class MixinWorld implements WorldAccess, AutoCloseable {
     @Overwrite
     public void tickBlockEntities() {
         Profiler profiler = this.getProfiler();
-        Iterator<BlockEntityTickInvoker> iterator;
+        Iterator<BlockEntityTickInvoker> iterator = null;
         BlockEntityTickInvoker blockEntityTickInvoker;
         // Leave local captures here
 
