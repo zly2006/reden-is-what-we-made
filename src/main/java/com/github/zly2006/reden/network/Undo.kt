@@ -6,6 +6,7 @@ import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.modified
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.server
 import com.github.zly2006.reden.utils.setBlockNoPP
@@ -45,7 +46,7 @@ class Undo(
                     debugLogger("undo $pos skipped (${sec.getModifyTime(pos)} < ${entry.time})")
                     return@forEach
                 }
-                sec.setModifyTime(pos, entry.time)
+                world.modified(pos)
                 world.setBlockNoPP(pos, entry.state, Block.NOTIFY_LISTENERS)
                 // clear schedules
                 if (RedenCarpetSettings.Options.undoApplyingClearScheduledTicks) {
@@ -57,6 +58,7 @@ class Undo(
                 }
                 // apply block entity
                 entry.blockEntity?.let { beNbt ->
+                    debugLogger("undo block entity ${pos}, $beNbt")
                     world.addBlockEntity(BlockEntity.createFromNbt(pos, entry.state, beNbt))
                 }
             }

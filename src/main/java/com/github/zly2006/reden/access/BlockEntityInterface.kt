@@ -4,4 +4,5 @@ import net.minecraft.nbt.NbtCompound
 
 interface BlockEntityInterface {
     fun getLastSavedNbt(): NbtCompound?
+    fun saveLastNbt()
 }

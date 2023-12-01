@@ -8,7 +8,10 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,20 +19,34 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BlockEntity.class)
 public abstract class MixinBlockEntity implements BlockEntityInterface {
+    @Shadow @Nullable protected World world;
+
+    @Shadow public abstract NbtCompound createNbtWithIdentifyingData();
+
+    @Shadow private BlockState cachedState;
+    @Shadow @Final protected BlockPos pos;
     @Unique NbtCompound lastSavedNbt = null;
 
     @Override
+    public void saveLastNbt() {
+        if (world != null && !world.isClient) {
+            lastSavedNbt = this.createNbtWithIdentifyingData();
+        }
+    }
+
+    @Override
+    @Nullable
     public NbtCompound getLastSavedNbt() {
         return lastSavedNbt;
     }
 
     @Inject(
-            method = "markDirty(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V",
+            method = "markDirty()V",
             at = @At("HEAD")
     )
-    private static void onBlockEntityChanged(World world, BlockPos pos, BlockState state, CallbackInfo ci) {
+    private void onBlockEntityChanged(CallbackInfo ci) {
         if (world instanceof ServerWorld serverWorld) {
-            UpdateMonitorHelper.monitorSetBlock(serverWorld, pos, null);
+            UpdateMonitorHelper.postSetBlock(serverWorld, pos, cachedState, true);
         }
     }
 
@@ -38,14 +55,6 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
             at = @At("TAIL")
     )
     private void onReadNbt(NbtCompound nbt, CallbackInfo ci) {
-        lastSavedNbt = nbt;
-    }
-
-    @Inject(
-            method = "writeNbt",
-            at = @At("TAIL")
-    )
-    private void onWriteNbt(NbtCompound nbt, CallbackInfo ci) {
         lastSavedNbt = nbt;
     }
 }

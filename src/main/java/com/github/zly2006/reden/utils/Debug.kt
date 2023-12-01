@@ -3,12 +3,17 @@ package com.github.zly2006.reden.utils
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER
+import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.Level.DEBUG
 import org.apache.logging.log4j.Level.INFO
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Marker
+import org.apache.logging.log4j.core.Filter
+import org.apache.logging.log4j.core.Logger
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.appender.RollingRandomAccessFileAppender
 import org.apache.logging.log4j.core.appender.rolling.OnStartupTriggeringPolicy
+import org.apache.logging.log4j.core.filter.AbstractFilter
 import org.apache.logging.log4j.core.layout.PatternLayout
 import java.time.Instant
 
@@ -28,6 +33,18 @@ private val debugAppender = RollingRandomAccessFileAppender.Builder()
     .withFilePattern("logs/reden-debug-%i.log.gz")
     .setName("RedenDebugAppender")
     .setImmediateFlush(true)
+    .setFilter(object : AbstractFilter() {
+        override fun filter(
+            logger: Logger, level: Level, marker: Marker, msg: String,
+            vararg params: Any?
+        ): Filter.Result {
+            if (logger.name.contains("carpet:hello")) return Filter.Result.DENY // WTF packet is this?
+            if (logger.name.contains("FabricRegistrySync")) return Filter.Result.DENY // useless
+            if (logger.name.contains("Fabric") && level == DEBUG) return Filter.Result.DENY // deny fabric api debug
+
+            return Filter.Result.NEUTRAL
+        }
+    })
     .build()
     .apply { start() }
 

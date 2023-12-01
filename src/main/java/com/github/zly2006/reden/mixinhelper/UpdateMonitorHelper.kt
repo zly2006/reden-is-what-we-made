@@ -136,24 +136,13 @@ object UpdateMonitorHelper {
      * @param blockState only be `null` if the state does not change
      */
     @JvmStatic
-    fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState?) {
+    fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
         debugLogger("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState")
         // update modified time, so undo can work properly
-        world.getChunk(pos).run { getSection(getSectionIndex(pos.y)) as ChunkSectionInterface }
-            .setModifyTime(pos, server.ticks)
+        world.modified(pos)
 
-        val beType = world.getBlockEntity(pos)?.type
-        val data = if (blockState == null) {
-            // if only nbt changed, we should get the real nbt before change
-            //   if failed (null), use the current nbt
-            (world.getBlockEntity(pos) as BlockEntityInterface?)?.getLastSavedNbt()
-        } else null
         recording?.data?.computeIfAbsent(pos.asLong()) {
-            recording!!.fromWorld(world, pos, true).let {
-                if (data != null) {
-                    it.copy(blockEntity = prepareBEData(data, pos, beType as BlockEntityType<*>))
-                } else it
-            }
+            recording!!.fromWorld(world, pos, true)
         }
         if (isClient && recording != null && !recording!!.notified && !suggestedUndo) {
             suggestedUndo = true
@@ -171,6 +160,36 @@ object UpdateMonitorHelper {
             }
         }
         recording?.lastChangedTick = server.ticks
+    }
+
+    fun ServerWorld.modified(pos: BlockPos) = getChunk(pos).run {
+        setNeedsSaving(true)
+        getSection(getSectionIndex(pos.y)) as ChunkSectionInterface
+    }.setModifyTime(pos, server.ticks)
+
+    /**
+     * @param beChangeOnly if only block entities changed, we have not recorded this change in [monitorSetBlock],
+     *   so we should record it here
+     */
+    @JvmStatic
+    fun postSetBlock(world: ServerWorld, pos: BlockPos, finalState: BlockState, beChangeOnly: Boolean) {
+        if (finalState.hasBlockEntity()) {
+            val be = world.getBlockEntity(pos) as BlockEntityInterface
+            val data = be.getLastSavedNbt()
+            debugLogger("id ${recording?.id ?: 0}: set$pos, block entity lastSaved=$data")
+
+            if (beChangeOnly) {
+                world.modified(pos)
+                recording?.data?.computeIfAbsent(pos.asLong()) {
+                    recording!!.fromWorld(world, pos, true).let {
+                        if (data != null) it.copy(blockEntity = data)
+                        else it
+                    }
+                }
+            }
+
+            be.saveLastNbt()
+        }
     }
 
     private fun prepareBEData(data: NbtCompound?, pos: BlockPos, type: BlockEntityType<*>) = data?.apply {

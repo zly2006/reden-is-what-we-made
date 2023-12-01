@@ -3,6 +3,7 @@ package com.github.zly2006.reden.mixin.debugger;
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.access.WorldData;
+import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.debugger.TickStage;
 import com.github.zly2006.reden.debugger.stages.world.BlockEntitiesRootStage;
 import com.github.zly2006.reden.debugger.stages.world.BlockEntityStage;
@@ -22,15 +23,22 @@ import java.util.List;
 
 @Mixin(value = World.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public abstract class MixinWorld implements WorldAccess, AutoCloseable {
-    @Shadow public abstract Profiler getProfiler();
+    @Shadow
+    public abstract Profiler getProfiler();
 
-    @Shadow private boolean iteratingTickingBlockEntities;
+    @Shadow
+    private boolean iteratingTickingBlockEntities;
 
-    @Shadow @Final private List<BlockEntityTickInvoker> pendingBlockEntityTickers;
+    @Shadow
+    @Final
+    private List<BlockEntityTickInvoker> pendingBlockEntityTickers;
 
-    @Shadow @Final protected List<BlockEntityTickInvoker> blockEntityTickers;
+    @Shadow
+    @Final
+    protected List<BlockEntityTickInvoker> blockEntityTickers;
 
-    @Shadow public abstract boolean shouldTickBlockPos(BlockPos pos);
+    @Shadow
+    public abstract boolean shouldTickBlockPos(BlockPos pos);
 
     /**
      * @author zly2006
@@ -43,7 +51,8 @@ public abstract class MixinWorld implements WorldAccess, AutoCloseable {
         BlockEntityTickInvoker blockEntityTickInvoker;
         // Leave local captures here
 
-        if ((Object)this instanceof ServerWorld) {
+        //noinspection ConstantValue
+        if ((Object) this instanceof ServerWorld && RedenCarpetSettings.Options.redenDebuggerEnabled) {
             WorldData data = WorldData.data((ServerWorld) (Object) this);
             if (data.blockEntityTickInvoker == null) {
                 TickStage stage = ServerData.data(getServer()).getTickStageTree().peekLeaf();
@@ -56,7 +65,7 @@ public abstract class MixinWorld implements WorldAccess, AutoCloseable {
                     this.pendingBlockEntityTickers.clear();
                 }
 
-                for (BlockEntityTickInvoker ticker: this.blockEntityTickers) {
+                for (BlockEntityTickInvoker ticker : this.blockEntityTickers) {
                     stage.getChildren().add(new BlockEntityStage((BlockEntitiesRootStage) stage, ticker));
                 }
                 this.pendingBlockEntityTickers.clear();
@@ -66,8 +75,7 @@ public abstract class MixinWorld implements WorldAccess, AutoCloseable {
 
                 this.iteratingTickingBlockEntities = false;
                 profiler.pop();
-            }
-            else {
+            } else {
                 blockEntityTickInvoker = data.blockEntityTickInvoker;
                 if (blockEntityTickInvoker.isRemoved()) {
                     var stage = (BlockEntityStage) ServerData.data(getServer()).getTickStageTree().peekLeaf();
@@ -90,7 +98,7 @@ public abstract class MixinWorld implements WorldAccess, AutoCloseable {
 
         iterator = this.blockEntityTickers.iterator();
 
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             blockEntityTickInvoker = iterator.next();
             if (blockEntityTickInvoker.isRemoved()) {
                 iterator.remove();
