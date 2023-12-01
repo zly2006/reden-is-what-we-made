@@ -188,6 +188,7 @@ object UpdateMonitorHelper {
                 }
             }
 
+            debugLogger("postSetBlock: done.")
             be.saveLastNbt()
         }
     }

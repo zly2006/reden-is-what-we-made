@@ -2,6 +2,7 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.BlockEntityInterface;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -31,6 +32,7 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
     public void saveLastNbt() {
         if (world != null && !world.isClient) {
             lastSavedNbt = this.createNbtWithIdentifyingData();
+            DebugKt.debugLogger.invoke("saved lastNBT at " + pos.toShortString() + ", cause=manual, " + lastSavedNbt);
         }
     }
 
@@ -56,5 +58,6 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
     )
     private void onReadNbt(NbtCompound nbt, CallbackInfo ci) {
         lastSavedNbt = nbt;
+        DebugKt.debugLogger.invoke("saved lastNBT at " + pos.toShortString() + ", cause=read, " + lastSavedNbt);
     }
 }
