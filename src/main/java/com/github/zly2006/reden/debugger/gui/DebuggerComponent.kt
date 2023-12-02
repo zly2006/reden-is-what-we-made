@@ -61,10 +61,16 @@ class DebuggerComponent(
         positioning(Positioning.absolute(0, 0))
     }
 
-    fun asScreen() = DebuggerScreen(this)
+    fun asScreen(): BaseOwoScreen<FlowLayout> = DebuggerScreen(this)
 }
 
-class DebuggerScreen(private val component: DebuggerComponent): BaseOwoScreen<FlowLayout>() {
+private class DebuggerScreen(private val component: DebuggerComponent): BaseOwoScreen<FlowLayout>() {
+    val actionList by lazy {
+        client!!.options.run {
+            listOf(forwardKey, leftKey, backKey, rightKey, jumpKey, sneakKey)
+        }
+    }
+
     override fun createAdapter(): OwoUIAdapter<FlowLayout> {
         return OwoUIAdapter.create(this, Containers::verticalFlow)
     }
@@ -82,6 +88,27 @@ class DebuggerScreen(private val component: DebuggerComponent): BaseOwoScreen<Fl
 
     override fun shouldPause(): Boolean {
         return false
+    }
+
+    ///
+    /// Allowing player to move while debugging
+    ///
+    override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+        actionList.forEach {
+            if (it.matchesKey(keyCode, scanCode)) {
+                it.isPressed = true
+            }
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers)
+    }
+
+    override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+        actionList.forEach {
+            if (it.matchesKey(keyCode, scanCode)) {
+                it.isPressed = false
+            }
+        }
+        return super.keyReleased(keyCode, scanCode, modifiers)
     }
 }
 
