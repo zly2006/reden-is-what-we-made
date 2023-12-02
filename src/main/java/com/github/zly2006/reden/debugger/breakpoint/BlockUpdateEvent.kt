@@ -1,5 +1,8 @@
 package com.github.zly2006.reden.debugger.breakpoint
 
+import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
+import com.github.zly2006.reden.debugger.stages.block.NeighborChanged
+import com.github.zly2006.reden.debugger.stages.block.StageBlockPPUpdate
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.math.BlockPos
 
@@ -12,6 +15,7 @@ abstract class BlockUpdateEvent(
     companion object {
         const val PP = 1
         const val NC = 2
+        // todo
         const val CU = 4
     }
     override fun read(buf: PacketByteBuf) {
@@ -21,6 +25,18 @@ abstract class BlockUpdateEvent(
     override fun write(buf: PacketByteBuf) {
         buf.writeVarInt(options)
         buf.writeNullable(pos, PacketByteBuf::writeBlockPos)
+    }
+
+    override fun call(event: Any) {
+        if (event !is AbstractBlockUpdateStage<*>) {
+            throw RuntimeException("BlockUpdateEvent can only be called by AbstractBlockUpdateStage")
+        }
+        if (options and PP > 0 && event is StageBlockPPUpdate) {
+            super.call(event)
+        }
+        if (options and NC > 0 && event is NeighborChanged) {
+            super.call(event)
+        }
     }
 
     override fun toString() = buildString {

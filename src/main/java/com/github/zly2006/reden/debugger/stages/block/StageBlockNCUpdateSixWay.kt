@@ -27,7 +27,8 @@ import net.minecraft.world.block.NeighborUpdater
 class StageBlockNCUpdateSixWay(
     parent: TickStage,
     entry: ChainRestrictedNeighborUpdater.SixWayEntry?
-): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SixWayEntry>("nc_update_6", parent) {
+): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SixWayEntry>("nc_update_6", parent),
+NeighborChanged {
     override lateinit var entry: ChainRestrictedNeighborUpdater.SixWayEntry
     var lastTickedDirectionIndex = -1
 

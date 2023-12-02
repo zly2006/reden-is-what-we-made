@@ -24,10 +24,13 @@ fun tickPackets(server: MinecraftServer) {
         error("")
     }
     server.runTasks()
-    // handle disconnection
+    // tick connections
     server.networkIo!!.connections.filter { !it.isOpen }.forEach {
         server.networkIo!!.connections.remove(it)
         it.handleDisconnection()
+    }
+    server.networkIo!!.connections.filter { it.isOpen }.forEach {
+        it.tick()
     }
 }
 

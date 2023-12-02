@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixin.debugger.network;
 
 import com.github.zly2006.reden.access.ServerData;
+import com.github.zly2006.reden.debugger.TickStage;
 import com.github.zly2006.reden.debugger.stages.TickStageWorldProvider;
 import com.github.zly2006.reden.utils.UtilsKt;
 import net.minecraft.network.NetworkThreadUtils;
@@ -25,12 +26,13 @@ public class MixinNetworkThreadUtils {
             ServerData data = data(UtilsKt.server);
             if (packetListener instanceof ServerPlayNetworkHandler spnh) {
                 assert data.getTickStage() != null;
-                data.getTickStageTree().insert2child(data.getTickStage(),
-                        new TickStageWorldProvider(
-                                "network",
-                                data.getTickStage(),
-                                spnh.getPlayer().getServerWorld()
-                        )
+                TickStage stage = data.getTickStageTree().peekLeaf();
+                while (stage instanceof TickStageWorldProvider) {
+                    stage = stage.getParent();
+                }
+                data.getTickStageTree().insert2child(
+                        stage,
+                        new TickStageWorldProvider("network",stage, spnh.getPlayer().getServerWorld())
                 );
                 data.getTickStageTree().next().tick();
             }

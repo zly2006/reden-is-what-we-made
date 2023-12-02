@@ -2,7 +2,6 @@ package com.github.zly2006.reden.mixin.debugger.network;
 
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.debugger.stages.TickStageWorldProvider;
-import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -22,9 +21,6 @@ import static com.github.zly2006.reden.access.ServerData.data;
 @Mixin(ServerPlayNetworkHandler.class)
 public class MixinServerPlayNetworkHandler {
     @Shadow @Final private MinecraftServer server;
-
-    @Shadow @Final private ClientConnection connection;
-
     @Shadow public ServerPlayerEntity player;
 
     @Inject(

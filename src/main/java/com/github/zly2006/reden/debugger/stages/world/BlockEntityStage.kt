@@ -23,7 +23,7 @@ class BlockEntityStage(
     var pos = ticker?.pos
     var type = ticker?.type()
 
-    override val displayName = Text.translatable("reden.debugger.tick_stage.block_entity", pos?.toShortString(), type)
+    override val displayName get() = Text.translatable("reden.debugger.tick_stage.block_entity", pos?.toShortString(), type)
 
     override fun tick() {
         super.tick()

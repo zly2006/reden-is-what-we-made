@@ -23,7 +23,8 @@ import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 class StageBlockNCUpdate(
     parent: TickStage,
     entry: ChainRestrictedNeighborUpdater.SimpleEntry?
-): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SimpleEntry>("nc_update", parent) {
+): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SimpleEntry>("nc_update", parent),
+NeighborChanged {
     override lateinit var entry: ChainRestrictedNeighborUpdater.SimpleEntry
     init {
         if (entry != null) {
