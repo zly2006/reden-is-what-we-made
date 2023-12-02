@@ -7,6 +7,9 @@ import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.storage.BlocksResetStorage
 import com.github.zly2006.reden.debugger.tree.StageTree
+import com.github.zly2006.reden.network.TagBlockPos
+import com.github.zly2006.reden.render.BlockBorder
+import net.minecraft.client.MinecraftClient
 import net.minecraft.text.MutableText
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
@@ -64,6 +67,19 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
             stageOwnerAccess.tickStage = stage
             return stage
         }
+    }
+
+    override fun focused(mc: MinecraftClient) {
+        super.focused(mc)
+        BlockBorder[sourcePos] = TagBlockPos.green
+        if (targetPos != null) {
+            BlockBorder[targetPos!!] = TagBlockPos.red
+        }
+    }
+
+    override fun unfocused(mc: MinecraftClient) {
+        super.unfocused(mc)
+        BlockBorder.tags.clear()
     }
 }
 

@@ -18,16 +18,25 @@ import net.minecraft.text.Text
 
 class DebuggerComponent(
     val stageTree: StageTree
-): FlowLayout(Sizing.content(), Sizing.fill(80), Algorithm.VERTICAL) {
+): FlowLayout(Sizing.content(), Sizing.fill(70), Algorithm.VERTICAL) {
+    var focused: StageTree.TreeNode? = null
+        set(value) {
+            field?.stage?.unfocused(MinecraftClient.getInstance())
+            field = value
+            value?.stage?.focused(MinecraftClient.getInstance())
+            children.clear()
+            child(stageTreeLayout())
+        }
+
     init {
         child(Containers.verticalScroll(Sizing.fill(100), Sizing.fill(60), stageTreeLayout()))
-        // 40% height for infobox
+        // 30% height for infobox
     }
 
     class StageNodeComponent(
         val node: StageTree.TreeNode,
         val lrWidth: Int = 20,
-    ): FlowLayout(Sizing.fill(100), Sizing.content(), Algorithm.HORIZONTAL) {
+    ) : FlowLayout(Sizing.fill(100), Sizing.content(), Algorithm.HORIZONTAL) {
         init {
             child(Components.label(node.stage.displayName ?: Text.literal("null")))
         }
@@ -84,6 +93,7 @@ private class DebuggerScreen(private val component: DebuggerComponent): BaseOwoS
             val mc = MinecraftClient.getInstance()
             mc.setScreen(GameMenuScreen(true))
         })
+        component.focused = component.stageTree.lastReturned
     }
 
     override fun shouldPause(): Boolean {
@@ -109,6 +119,11 @@ private class DebuggerScreen(private val component: DebuggerComponent): BaseOwoS
             }
         }
         return super.keyReleased(keyCode, scanCode, modifiers)
+    }
+
+    override fun removed() {
+        super.removed()
+        component.focused = null
     }
 }
 
