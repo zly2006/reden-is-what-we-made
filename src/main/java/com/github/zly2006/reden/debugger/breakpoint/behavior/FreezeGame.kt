@@ -8,6 +8,8 @@ import com.github.zly2006.reden.network.GlobalStatus
 import com.github.zly2006.reden.network.StageTreeS2CPacket
 import com.github.zly2006.reden.transformers.sendToAll
 import com.github.zly2006.reden.utils.server
+import net.minecraft.nbt.NbtCompound
+import net.minecraft.util.Util
 
 class FreezeGame: BreakPointBehavior() {
     init {
@@ -19,11 +21,18 @@ class FreezeGame: BreakPointBehavior() {
 
         server.sendToAll(StageTreeS2CPacket(tree))
         server.data().addStatus(GlobalStatus.FROZEN)
+            .let {
+                GlobalStatus(it, NbtCompound().apply {
+                    putString("reason", "game-paused")
+                })
+            }.let(server::sendToAll)
 
-        while (server.data().hasStatus(GlobalStatus.FROZEN)) {
+        while (server.data().hasStatus(GlobalStatus.FROZEN) && server.isRunning) {
             tickPackets(server)
         }
 
+
+        server.timeReference = Util.getMeasuringTimeMs()
         server.sendToAll(BreakPointInterrupt(breakPoint.id, tree, false))
     }
 }
