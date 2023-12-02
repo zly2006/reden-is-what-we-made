@@ -61,26 +61,27 @@ class DebuggerComponent(
         positioning(Positioning.absolute(0, 0))
     }
 
-    fun asScreen() = object: BaseOwoScreen<FlowLayout>() {
-        override fun createAdapter(): OwoUIAdapter<FlowLayout> {
-            return OwoUIAdapter.create(this, Containers::verticalFlow)
-        }
+    fun asScreen() = DebuggerScreen(this)
+}
 
-        override fun build(rootComponent: FlowLayout) {
-            rootComponent.child(this@DebuggerComponent)
-            rootComponent.child(Components.button(Text.literal("Continue")) {
-                ClientPlayNetworking.send(Continue())
-                close()
-            })
-            rootComponent.child(Components.button(Text.literal("Open Game Menu")) {
-                val mc = MinecraftClient.getInstance()
-                mc.setScreen(GameMenuScreen(true))
-            })
-        }
+class DebuggerScreen(private val component: DebuggerComponent): BaseOwoScreen<FlowLayout>() {
+    override fun createAdapter(): OwoUIAdapter<FlowLayout> {
+        return OwoUIAdapter.create(this, Containers::verticalFlow)
+    }
 
-        override fun shouldPause(): Boolean {
-            return false
-        }
+    override fun build(rootComponent: FlowLayout) {
+        rootComponent.child(component)
+        rootComponent.child(Components.button(Text.literal("Continue")) {
+            ClientPlayNetworking.send(Continue())
+        })
+        rootComponent.child(Components.button(Text.literal("Open Game Menu")) {
+            val mc = MinecraftClient.getInstance()
+            mc.setScreen(GameMenuScreen(true))
+        })
+    }
+
+    override fun shouldPause(): Boolean {
+        return false
     }
 }
 

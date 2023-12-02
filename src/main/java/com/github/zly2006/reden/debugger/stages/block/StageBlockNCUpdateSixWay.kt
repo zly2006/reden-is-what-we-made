@@ -5,6 +5,7 @@ import com.github.zly2006.reden.utils.readDirection
 import com.github.zly2006.reden.utils.writeBlock
 import com.github.zly2006.reden.utils.writeDirection
 import net.minecraft.network.PacketByteBuf
+import net.minecraft.text.MutableText
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
@@ -31,6 +32,13 @@ class StageBlockNCUpdateSixWay(
 NeighborChanged {
     override lateinit var entry: ChainRestrictedNeighborUpdater.SixWayEntry
     var lastTickedDirectionIndex = -1
+
+    override val displayName: MutableText
+        get() = super.displayName.append(" ")
+            .append(entry.currentDirectionIndex.toString())
+            .append(" ")
+            .append(" except ")
+            .append(entry.except?.asString() ?: "null")
 
     override fun tick() {
         lastTickedDirectionIndex = entry.currentDirectionIndex

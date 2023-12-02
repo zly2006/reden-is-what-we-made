@@ -39,7 +39,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
 
     abstract val sourcePos: BlockPos
     abstract val targetPos: BlockPos?
-    override val displayName: MutableText?
+    override val displayName: MutableText
         get() = super.displayName.copy().append(" ").append(sourcePos.toShortString()).append(" -> ").append(targetPos?.toShortString())
 
     companion object {

@@ -17,7 +17,7 @@ class FreezeGame: BreakPointBehavior() {
     }
     override fun onBreakPoint(breakPoint: BreakPoint, event: Any) {
         val tree = server.data().tickStageTree
-        server.sendToAll(BreakPointInterrupt(breakPoint.id, tree))
+        server.sendToAll(BreakPointInterrupt(breakPoint.id, tree, true))
 
         server.sendToAll(StageTreeS2CPacket(tree))
         server.data().addStatus(GlobalStatus.FROZEN)

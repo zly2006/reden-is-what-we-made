@@ -16,23 +16,26 @@ import net.minecraft.network.PacketByteBuf
 data class BreakPointInterrupt(
     val bpId: Int,
     val tree: StageTree?,
-    val interrupted: Boolean = true
+    val interrupted: Boolean
 ): FabricPacket {
     override fun write(buf: PacketByteBuf) {
         buf.writeVarInt(bpId)
         buf.writeNullable(tree) { _, tree ->
             StageIo.writeStageTree(tree, buf)
         }
+        buf.writeBoolean(interrupted)
     }
 
-    override fun getType(): PacketType<BreakPointInterrupt> = pType
+    override fun getType() = pType
 
     companion object {
         val id = Reden.identifier("breakpoint_interrupt")
         val pType = PacketType.create(id) {
-            val id = it.readVarInt()
-            val tree = it.readNullable(StageIo::readStageTree)
-            BreakPointInterrupt(id, tree)
+            BreakPointInterrupt(
+                it.readVarInt(),
+                it.readNullable(StageIo::readStageTree),
+                it.readBoolean()
+            )
         }!!
         fun register() {
             if (isClient) {
@@ -42,11 +45,18 @@ data class BreakPointInterrupt(
                         ?: throw RuntimeException("Breakpoint ${packet.bpId} not found")
                     if (packet.tree != null) {
                         data.tickStageTree = packet.tree
-                        val mc = MinecraftClient.getInstance()
-                        mc.setScreen(DebuggerComponent(packet.tree).asScreen())
                     }
-                    BlockBorder.tags.clear()
-                    BlockBorder[breakpoint.pos!!] = TagBlockPos.green // todo: highlight
+                    val mc = MinecraftClient.getInstance()
+                    if (packet.interrupted) {
+                        mc.setScreen(DebuggerComponent(data.tickStageTree).asScreen())
+                        BlockBorder.tags.clear()
+                        BlockBorder[breakpoint.pos!!] = TagBlockPos.green
+
+                        // todo: highlight
+                    }
+                    else {
+                        BlockBorder.tags.clear()
+                    }
                 }
             }
         }

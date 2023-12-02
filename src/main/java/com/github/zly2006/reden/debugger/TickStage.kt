@@ -5,6 +5,7 @@ import com.github.zly2006.reden.debugger.stages.ServerRootStage
 import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.isDebug
+import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.Text
 
@@ -82,5 +83,13 @@ abstract class TickStage(
     }
 
     open fun endTask() {
+    }
+
+    open fun focused(mc: MinecraftClient) {
+        assert(mc.isOnThread) { "Focused on wrong thread" }
+    }
+
+    open fun unfocused(mc: MinecraftClient) {
+        assert(mc.isOnThread) { "Focused on wrong thread" }
     }
 }

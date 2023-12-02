@@ -27,7 +27,7 @@ class ServerData(version: Version, mcServer: MinecraftServer?) : StatusAccess {
     val breakpoints = BreakpointsManager(false)
 
     interface ServerDataAccess {
-        fun getRedenServerData(): ServerData
+        val redenServerData: ServerData
     }
 
     interface ClientSideServerDataAccess {
@@ -37,7 +37,7 @@ class ServerData(version: Version, mcServer: MinecraftServer?) : StatusAccess {
     companion object {
         @JvmStatic
         fun MinecraftServer.data(): ServerData {
-            return (this as ServerDataAccess).getRedenServerData()
+            return (this as ServerDataAccess).redenServerData
         }
         fun MinecraftClient.serverData(): ServerData? {
             return (this as ClientSideServerDataAccess).redenServerData
