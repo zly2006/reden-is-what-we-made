@@ -2,8 +2,10 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
+import com.github.zly2006.reden.debugger.gui.DebuggerComponent
 import com.github.zly2006.reden.debugger.tree.StageIo
 import com.github.zly2006.reden.debugger.tree.StageTree
+import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.utils.isClient
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
@@ -40,8 +42,11 @@ data class BreakPointInterrupt(
                         ?: throw RuntimeException("Breakpoint ${packet.bpId} not found")
                     if (packet.tree != null) {
                         data.tickStageTree = packet.tree
+                        val mc = MinecraftClient.getInstance()
+                        mc.setScreen(DebuggerComponent(packet.tree).asScreen())
                     }
-                    breakpoint.pos // todo: highlight
+                    BlockBorder.tags.clear()
+                    BlockBorder[breakpoint.pos!!] = TagBlockPos.green // todo: highlight
                 }
             }
         }

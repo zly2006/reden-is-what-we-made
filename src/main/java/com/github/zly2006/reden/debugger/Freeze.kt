@@ -17,8 +17,11 @@ fun tickPackets(server: MinecraftServer) {
     if (server is MinecraftDedicatedServer) {
         server.executeQueuedCommands()
     }
-    if (server.runningTasks != 0 || !server.isOnThread) {
-        error("")
+    if (!server.isOnThread) {
+        error("trying to tick packets out of server thread")
+        // server already ticking packets:
+        // server.runningTasks != 0
+        // dont check this.
     }
     server.runTasks()
     // tick connections
@@ -39,7 +42,7 @@ fun tickPackets(server: MinecraftServer) {
             }
         }
     }
-    LockSupport.parkNanos("[Reden] IDLE", 100_000L)
+    LockSupport.parkNanos("[Reden] IDLE", 100_000L) // to avoid 100% cpu usage
 }
 
 fun unfreeze(server: MinecraftServer) {

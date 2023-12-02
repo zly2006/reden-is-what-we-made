@@ -18,6 +18,10 @@ abstract class BreakPoint(
     val id: Int,
     open val type: BreakPointType
 ) {
+    /**
+     * Note: in this abstract class we only store world, pos is just something used like interface
+     * we will not check pos in this class, check it in subclasses [call] method
+     */
     abstract val pos: BlockPos?
     var world: Identifier? = null
     /**
