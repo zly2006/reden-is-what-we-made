@@ -35,6 +35,7 @@ class BreakpointsManager(val isClient: Boolean) {
         if (!isClient) {
             breakpointMap[0] = BlockUpdateOtherBreakpoint.create(0).apply {
                 pos = BlockPos.ORIGIN
+                options = BlockUpdateEvent.NC
                 world = World.OVERWORLD.value
                 handler.add(FreezeGame())
             }

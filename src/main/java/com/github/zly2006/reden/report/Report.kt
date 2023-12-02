@@ -114,7 +114,7 @@ fun doHeartHeat() {
 val featureUsageData = mutableListOf<FeatureUsageData>()
 var heartbeatThread: Thread? = null
 fun initHeartBeat() {
-    heartbeatThread = Thread {
+    heartbeatThread = Thread("RedenMC HeartBeat") {
         while (true) {
             Thread.sleep(1000 * 60 * 5)
             try {
@@ -124,6 +124,8 @@ fun initHeartBeat() {
     }
     heartbeatThread!!.start()
 }
+
+fun Thread(name: String, function: () -> Unit) = Thread(function, name)
 
 class ClientMetadataReq(
     val online_mode: Boolean,

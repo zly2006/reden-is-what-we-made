@@ -6,13 +6,14 @@ import com.github.zly2006.reden.transformers.sendToAll
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.dedicated.MinecraftDedicatedServer
+import net.minecraft.util.Util
 
 var disableWatchDog = false
 
 fun tickPackets(server: MinecraftServer) {
     server.data().addStatus(GlobalStatus.FROZEN)
     // todo: tick command introduced in 1.20.2
-    server.timeReference += 50
+    server.timeReference += 50 // for watchdog
     val globalStatus = GlobalStatus(server.data().status, NbtCompound().apply {
         putString("reason", "game-paused")
     })
@@ -32,6 +33,7 @@ fun tickPackets(server: MinecraftServer) {
     server.networkIo!!.connections.filter { it.isOpen }.forEach {
         it.tick()
     }
+    server.timeReference = Util.getMeasuringTimeMs()
 }
 
 fun unfreeze(server: MinecraftServer) {
