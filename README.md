@@ -9,6 +9,7 @@ Redstone EDEN
 ## Undo & Redo
 
 Ctrl+Z immediately undo the previous operation, making it much more convenient to develop redstone machines!
+For more information, please check [our wiki page](https://wiki.redenmc.com/Undo-and-Redo).
 
 ## Tick Back
 > Early Access Stage

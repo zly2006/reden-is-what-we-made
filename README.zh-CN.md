@@ -9,6 +9,7 @@
 ## 撤销与重做
 
 Ctrl+Z 可以立即撤销之前的操作，使得开发红石机器更加方便！Ctrl+Y可以重做。
+更多信息请参阅[wiki页面](https://wiki.redenmc.com/Undo-and-Redo)
 
 ## 倒退刻
 > 早期访问阶段
