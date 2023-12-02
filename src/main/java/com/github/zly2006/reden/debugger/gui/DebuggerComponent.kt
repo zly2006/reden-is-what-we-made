@@ -70,6 +70,7 @@ class DebuggerComponent(
             rootComponent.child(this@DebuggerComponent)
             rootComponent.child(Components.button(Text.literal("Continue")) {
                 ClientPlayNetworking.send(Continue())
+                close()
             })
             rootComponent.child(Components.button(Text.literal("Open Game Menu")) {
                 val mc = MinecraftClient.getInstance()
@@ -78,7 +79,7 @@ class DebuggerComponent(
         }
 
         override fun shouldPause(): Boolean {
-            return true
+            return false
         }
     }
 }
