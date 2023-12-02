@@ -32,7 +32,7 @@ abstract class TickStage(
     open fun readByteBuf(buf: PacketByteBuf) {
         if (isDebug) {
             val name = buf.readString()
-            println(name)
+            //println(name)
             assert(this.name == name) {
                 "Tick stage name mismatch: $name != ${this.name}"
             }

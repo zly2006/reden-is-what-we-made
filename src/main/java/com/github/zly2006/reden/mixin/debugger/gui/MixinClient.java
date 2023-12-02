@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixin.debugger.gui;
 
 import com.github.zly2006.reden.access.ServerData;
+import com.github.zly2006.reden.debugger.gui.DebuggerComponent;
 import com.github.zly2006.reden.network.GlobalStatus;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -15,6 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinClient implements ServerData.ClientSideServerDataAccess {
     @Shadow @Nullable public Screen currentScreen;
 
+    @Shadow public abstract void setScreen(@Nullable Screen screen);
+
     @Inject(
             method = "openPauseMenu",
             at = @At("HEAD"),
@@ -22,11 +25,12 @@ public abstract class MixinClient implements ServerData.ClientSideServerDataAcce
     )
     private void redirectPauseMenu(boolean pause, CallbackInfo ci) {
         // if server is frozen, open the debugger
-        if (getRedenServerData() == null) {
+        ServerData data = getRedenServerData();
+        if (data == null) {
             return;
         }
-        if (currentScreen == null && getRedenServerData().hasStatus(GlobalStatus.FROZEN)) {
-            // todo
+        if (currentScreen == null && data.hasStatus(GlobalStatus.FROZEN)) {
+            setScreen(new DebuggerComponent(data.getTickStageTree()).asScreen());
             ci.cancel();
         }
     }

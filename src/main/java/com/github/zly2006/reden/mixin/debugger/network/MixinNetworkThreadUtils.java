@@ -24,11 +24,14 @@ public class MixinNetworkThreadUtils {
         if (UtilsKt.server != null) {
             ServerData data = data(UtilsKt.server);
             if (packetListener instanceof ServerPlayNetworkHandler spnh) {
-                data.getTickStageTree().insert2child(new TickStageWorldProvider(
-                        "network",
-                        data.getTickStageTree().peekLeaf(),
-                        spnh.getPlayer().getServerWorld()
-                ));
+                assert data.getTickStage() != null;
+                data.getTickStageTree().insert2child(data.getTickStage(),
+                        new TickStageWorldProvider(
+                                "network",
+                                data.getTickStage(),
+                                spnh.getPlayer().getServerWorld()
+                        )
+                );
                 data.getTickStageTree().next().tick();
             }
         }

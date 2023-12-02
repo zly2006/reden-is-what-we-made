@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage;
+import com.github.zly2006.reden.network.GlobalStatus;
 import com.github.zly2006.reden.transformers.RedenMixinExtension;
 import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.NotNull;
@@ -44,6 +45,15 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
                 stage.tick();
             }
         }
+    }
+
+    @Inject(
+            method = "stop",
+            at = @At("HEAD")
+    )
+    private void stopping(CallbackInfo ci) {
+        serverData.removeStatus(GlobalStatus.FROZEN);
+        serverData.removeStatus(GlobalStatus.STARTED);
     }
 
     @NotNull

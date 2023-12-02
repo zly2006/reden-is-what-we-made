@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.debugger.gui
 
 import com.github.zly2006.reden.debugger.tree.StageTree
+import com.github.zly2006.reden.network.Continue
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
@@ -10,6 +11,9 @@ import io.wispforest.owo.ui.core.OwoUIAdapter
 import io.wispforest.owo.ui.core.OwoUIDrawContext
 import io.wispforest.owo.ui.core.Positioning
 import io.wispforest.owo.ui.core.Sizing
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+import net.minecraft.client.MinecraftClient
+import net.minecraft.client.gui.screen.GameMenuScreen
 import net.minecraft.text.Text
 
 class DebuggerComponent(
@@ -64,6 +68,17 @@ class DebuggerComponent(
 
         override fun build(rootComponent: FlowLayout) {
             rootComponent.child(this@DebuggerComponent)
+            rootComponent.child(Components.button(Text.literal("Continue")) {
+                ClientPlayNetworking.send(Continue())
+            })
+            rootComponent.child(Components.button(Text.literal("Open Game Menu")) {
+                val mc = MinecraftClient.getInstance()
+                mc.setScreen(GameMenuScreen(true))
+            })
+        }
+
+        override fun shouldPause(): Boolean {
+            return true
         }
     }
 }

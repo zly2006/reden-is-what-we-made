@@ -9,7 +9,7 @@ import com.github.zly2006.reden.network.StageTreeS2CPacket
 import com.github.zly2006.reden.transformers.sendToAll
 import com.github.zly2006.reden.utils.server
 
-class PauseGame: BreakPointBehavior() {
+class FreezeGame: BreakPointBehavior() {
     init {
         priority = 100
     }
@@ -19,6 +19,7 @@ class PauseGame: BreakPointBehavior() {
 
         server.sendToAll(StageTreeS2CPacket(tree))
         server.data().addStatus(GlobalStatus.FROZEN)
+
         while (server.data().hasStatus(GlobalStatus.FROZEN)) {
             tickPackets(server)
         }

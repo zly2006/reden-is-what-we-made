@@ -7,7 +7,7 @@ class ClientData(
     val mc: MinecraftClient
 ): StatusAccess {
     override var status: Long = 0
-    val breakpoints = BreakpointsManager()
+    val breakpoints = BreakpointsManager(true)
 
     interface ClientDataAccess {
         fun getRedenClientData(): ClientData

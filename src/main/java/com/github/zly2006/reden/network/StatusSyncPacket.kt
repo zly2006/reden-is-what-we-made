@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
 import com.github.zly2006.reden.access.WorldData.Companion.data
 import com.github.zly2006.reden.utils.isClient
+import com.github.zly2006.reden.utils.sendMessage
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
@@ -56,8 +57,9 @@ class GlobalStatus(status: Long, data: NbtCompound?)
 
         fun register() {
             if (isClient) {
-                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->
+                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, _ ->
                     MinecraftClient.getInstance().serverData()?.status = packet.status
+                    player.sendMessage("Global status: ${packet.status}")
                 }
             }
         }

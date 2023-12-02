@@ -10,16 +10,21 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.server.MinecraftServer
 import java.util.*
 
-class ServerData(version: Version, server: MinecraftServer?) : StatusAccess {
+class ServerData(version: Version, mcServer: MinecraftServer?) : StatusAccess {
+    init {
+        if (mcServer != null) {
+            server = mcServer
+        }
+    }
     @JvmField var realTicks = 0
     override var status: Long = 0
     var uuid: UUID? = null
     var address: String = ""
-    var tickStage = if (server != null) ServerRootStage(server) else null
+    var tickStage = if (mcServer != null) ServerRootStage(mcServer) else null
     var tickStageTree = StageTree()
     val featureSet = mutableSetOf<String>()
 
-    val breakpoints = BreakpointsManager()
+    val breakpoints = BreakpointsManager(false)
 
     interface ServerDataAccess {
         fun getRedenServerData(): ServerData
