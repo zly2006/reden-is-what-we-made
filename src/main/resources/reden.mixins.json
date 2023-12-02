@@ -90,6 +90,7 @@
     "superRight.chat.ChatHudMixin",
     "superRight.chat.ChatScreenMixin",
     "superRight.chat.VisibleChatHudLineMixin",
+    "yo.MixinLanguage",
     "yo.MixinTitleScreen"
   ],
   "injectors": {
