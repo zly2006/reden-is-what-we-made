@@ -23,7 +23,7 @@ class UpdaterData(
     }
 
     fun appendStage(stage: TickStage) {
-        tickStageTree.insert2child(stage.parent!!, stage)
+        tickStageTree.insert2childAtLast(stage.parent!!, stage)
     }
 
     val tickStageTree get() = server.data().tickStageTree

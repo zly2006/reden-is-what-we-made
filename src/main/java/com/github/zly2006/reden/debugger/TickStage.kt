@@ -69,6 +69,10 @@ abstract class TickStage(
         }
         root as ServerRootStage
         val tree = root.server.data().tickStageTree
+        if (!tree.canYield) {
+            debugLogger("StageTree.yield: !!disabled!!")
+            return
+        }
         val lastChildren = children.lastOrNull() ?: return
         if (StageTree.debug) debugLogger("StageTree.yield [=> $this")
         while (tree.hasNext()) {

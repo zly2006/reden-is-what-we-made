@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.network.PacketByteBuf
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 
 class Continue: FabricPacket {
@@ -17,12 +18,18 @@ class Continue: FabricPacket {
             Continue()
         }!!
 
+        fun <T> T.checkFrozen(player: ServerPlayerEntity, action: T.() -> Unit) {
+            if (player.server.data().hasStatus(GlobalStatus.FROZEN))
+                action()
+            else
+                player.sendMessage(Text.literal("The game is not frozen").red())
+        }
+
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { _, player, _ ->
-                if (player.server.data().hasStatus(GlobalStatus.FROZEN))
+                checkFrozen(player) {
                     unfreeze(player.server)
-                else
-                    player.sendMessage(Text.literal("The game is not frozen").red())
+                }
             }
         }
     }

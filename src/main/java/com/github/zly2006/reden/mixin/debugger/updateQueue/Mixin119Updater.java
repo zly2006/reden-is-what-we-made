@@ -95,14 +95,13 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
                     // Reden start
                     if (!world.isClient && // don't inject on the client
                             RedenCarpetSettings.Debugger.debuggerBlockUpdates()) {
-                        // do tick by our method
-                        TickStage stage = ((TickStageOwnerAccess) entry).getTickStage();
-                        updaterData.appendStage(stage);
-                        var next = updaterData.getTickStageTree().next();
-                        if (RedenCarpetSettings.Options.redenDebug && stage != next) {
-                            throw new RuntimeException("stage != next");
+                        // do tick by our method, return to the main tick stage loop
+                        for (Entry entry1 : queue) {
+                            // todo: i think this could be problematic
+                            TickStage stage = ((TickStageOwnerAccess) entry1).getTickStage();
+                            updaterData.appendStage(stage);
                         }
-                        stage.tick();
+                        updaterData.getTickStageTree().next().tick();
                     } else {
                         // do tick by original method
                         shouldEntryContinue = entry.update(this.world);

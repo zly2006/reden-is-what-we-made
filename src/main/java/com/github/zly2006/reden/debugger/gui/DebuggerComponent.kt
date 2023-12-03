@@ -2,6 +2,8 @@ package com.github.zly2006.reden.debugger.gui
 
 import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.network.Continue
+import com.github.zly2006.reden.network.StepInto
+import com.github.zly2006.reden.network.StepOver
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
@@ -88,8 +90,16 @@ private class DebuggerScreen(private val component: DebuggerComponent): BaseOwoS
 
     override fun build(rootComponent: FlowLayout) {
         rootComponent.child(component)
-        rootComponent.child(Components.button(Text.literal("Continue")) {
-            ClientPlayNetworking.send(Continue())
+        rootComponent.child(Containers.horizontalFlow(Sizing.fill(100), Sizing.content()).apply {
+            child(Components.button(Text.literal("Continue")) {
+                ClientPlayNetworking.send(Continue())
+            })
+            child(Components.button(Text.literal("Step Into")) {
+                ClientPlayNetworking.send(StepInto())
+            })
+            child(Components.button(Text.literal("Step Over")) {
+                ClientPlayNetworking.send(StepOver(false /* This value does not matter */))
+            })
         })
         rootComponent.child(Components.button(Text.literal("Open Game Menu")) {
             val mc = MinecraftClient.getInstance()

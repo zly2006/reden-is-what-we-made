@@ -15,7 +15,7 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.Text
 
 data class BreakPointInterrupt(
-    val bpId: Int,
+    val bpId: Int, // = -1
     val tree: StageTree?,
     val interrupted: Boolean
 ): FabricPacket {
@@ -43,7 +43,6 @@ data class BreakPointInterrupt(
                 ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, _ ->
                     val data = MinecraftClient.getInstance().serverData()!!
                     val breakpoint = data.breakpoints.breakpointMap[packet.bpId]
-                        ?: throw RuntimeException("Breakpoint ${packet.bpId} not found")
                     if (packet.tree != null) {
                         data.tickStageTree = packet.tree
                     }

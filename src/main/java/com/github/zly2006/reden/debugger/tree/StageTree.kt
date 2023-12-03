@@ -47,6 +47,7 @@ class StageTree: Iterator<TickStage> {
         val debug = System.getProperty("reden.debugger.log", "false").toBoolean()
     }
 
+    var canYield = true
     var root: TreeNode? = null
     var child: TreeNode? = null
     val tickedStages = mutableListOf<TickStage>()
@@ -66,7 +67,7 @@ class StageTree: Iterator<TickStage> {
      *
      * (i.e. [child] != null && [TreeNode.childrenUpdated])
      */
-    private fun checkIterators() {
+    internal fun checkIterators() {
         if (child!!.iter == null) {
             child!!.iter = child!!.stage.children.listIterator()
         }
@@ -230,5 +231,30 @@ class StageTree: Iterator<TickStage> {
         if (node == null) return
         if (node.iter == null) return
         node.iter = stage.children.listIterator(node.iter!!.nextIndex())
+    }
+
+    fun insert2childAtLast(parent: TickStage, stage: TickStage) {
+        if (debug) debugLogger("StageTree.insert2childAtLast $stage -> $parent")
+        Reden.LOGGER.trace("[StageTree#insert2childAtLast] into {} -> {}", parent, stage)
+
+        var node = lastReturned
+        while (node != null) {
+            if (node.stage == parent) {
+                break
+            }
+            node = node.parent
+        }
+        if (node == null) {
+            error("Parent $parent not found in this tree.")
+        }
+
+        node.stage.children.add(stage)
+        // reset iter
+        node.iter = node.stage.children.listIterator(node.iter?.nextIndex() ?: 0)
+
+        if (child == null) {
+            // Oops, the tree is empty, we need to update the child node.
+            child = node
+        }
     }
 }
