@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.disableWatchDog
 import com.github.zly2006.reden.utils.debugLogger
+import com.github.zly2006.reden.utils.isDebug
 import com.github.zly2006.reden.utils.server
 import io.netty.util.internal.UnstableApi
 import okhttp3.internal.toHexString
@@ -93,6 +94,20 @@ class StageTree: Iterator<TickStage> {
                 childrenUpdated = true, // we returned this stage, it should be ticked.
                 null
             )
+        }
+
+        if (isDebug) {
+            var node = child
+            val stages = mutableListOf<TickStage>()
+            while (node != null) {
+                stages.add(node.stage)
+                node = node.parent
+            }
+            val same = stages.groupBy { System.identityHashCode(it) }
+                .filter { it.value.size > 1 }
+            if (same.isNotEmpty()) {
+                Reden.LOGGER.error("StageTree has duplicate stages: $same")
+            }
         }
 
         tickedStages.add(child!!.stage)

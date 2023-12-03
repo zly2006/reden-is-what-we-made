@@ -4,6 +4,7 @@ import com.github.zly2006.reden.utils.readBlockState
 import com.github.zly2006.reden.utils.readDirection
 import com.github.zly2006.reden.utils.writeBlockState
 import com.github.zly2006.reden.utils.writeDirection
+import net.minecraft.block.Block
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
@@ -56,4 +57,6 @@ class StageBlockPPUpdate(
         get() = entry.neighborPos
     override val targetPos: BlockPos
         get() = entry.pos
+    override val sourceBlock: Block
+        get() = entry.neighborState.block
 }

@@ -38,7 +38,9 @@ class DebuggerComponent(
         val lrWidth: Int = 20,
     ) : FlowLayout(Sizing.fill(100), Sizing.content(), Algorithm.HORIZONTAL) {
         init {
-            child(Components.label(node.stage.displayName ?: Text.literal("null")))
+            child(Components.label(node.stage.displayName ?: Text.literal("null")).apply {
+                this.tooltip(node.stage.description)
+            })
         }
 
         override fun draw(context: OwoUIDrawContext, mouseX: Int, mouseY: Int, partialTicks: Float, delta: Float) {

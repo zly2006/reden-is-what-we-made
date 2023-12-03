@@ -4,6 +4,7 @@ import com.github.zly2006.reden.utils.readBlock
 import com.github.zly2006.reden.utils.readBlockState
 import com.github.zly2006.reden.utils.writeBlock
 import com.github.zly2006.reden.utils.writeBlockState
+import net.minecraft.block.Block
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
@@ -57,4 +58,6 @@ NeighborChanged {
         get() = entry.sourcePos
     override val targetPos: BlockPos
         get() = entry.pos
+    override val sourceBlock: Block
+        get() = entry.sourceBlock
 }

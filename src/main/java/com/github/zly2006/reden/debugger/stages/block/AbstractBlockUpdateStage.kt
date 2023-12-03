@@ -9,6 +9,7 @@ import com.github.zly2006.reden.debugger.storage.BlocksResetStorage
 import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.network.TagBlockPos
 import com.github.zly2006.reden.render.BlockBorder
+import net.minecraft.block.Block
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.MutableText
 import net.minecraft.util.math.BlockPos
@@ -42,8 +43,10 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
 
     abstract val sourcePos: BlockPos
     abstract val targetPos: BlockPos?
+    abstract val sourceBlock: Block
     override val displayName: MutableText
         get() = super.displayName.copy().append(" ").append(sourcePos.toShortString()).append(" -> ").append(targetPos?.toShortString())
+            .append(" by ").append(sourceBlock.name)
 
     companion object {
         @Suppress("UNCHECKED_CAST", "KotlinConstantConditions")

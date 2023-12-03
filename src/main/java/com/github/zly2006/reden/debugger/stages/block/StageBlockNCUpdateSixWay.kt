@@ -4,6 +4,7 @@ import com.github.zly2006.reden.utils.readBlock
 import com.github.zly2006.reden.utils.readDirection
 import com.github.zly2006.reden.utils.writeBlock
 import com.github.zly2006.reden.utils.writeDirection
+import net.minecraft.block.Block
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.MutableText
 import net.minecraft.util.math.BlockPos
@@ -34,11 +35,11 @@ NeighborChanged {
     var lastTickedDirectionIndex = -1
 
     override val displayName: MutableText
-        get() = super.displayName.append(" ")
-            .append(entry.currentDirectionIndex.toString())
-            .append(" ")
+        get() = super.displayName.append(" (")
+            .append(Direction.byId(entry.currentDirectionIndex).name)
             .append(" except ")
             .append(entry.except?.asString() ?: "null")
+            .append(")")
 
     override fun tick() {
         lastTickedDirectionIndex = entry.currentDirectionIndex
@@ -86,4 +87,6 @@ NeighborChanged {
         get() = entry.pos
     override val targetPos: BlockPos?
         get() = getPrevUpdate()?.let { entry.pos.offset(it) }
+    override val sourceBlock: Block
+        get() = entry.sourceBlock
 }
