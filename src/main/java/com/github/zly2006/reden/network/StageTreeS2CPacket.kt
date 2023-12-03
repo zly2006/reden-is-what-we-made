@@ -25,11 +25,6 @@ class StageTreeS2CPacket(val tree: StageTree) : FabricPacket {
                 ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, _ ->
                     val mc = MinecraftClient.getInstance()
                     player.sendMessage("Tick stage tree")
-                    var node = packet.tree.child
-                    while (node != null) {
-                        player.sendMessage(node.stage.displayName, false)
-                        node = node.parent
-                    }
                     Hud.remove(Reden.identifier("debugger"))
                     Hud.add(Reden.identifier("debugger")) {
                         DebuggerComponent(packet.tree).asHud()
