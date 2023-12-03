@@ -17,7 +17,6 @@ import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.undoRecords
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.undoRecordsMap
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.isClient
-import com.github.zly2006.reden.utils.isDebug
 import com.github.zly2006.reden.utils.server
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
@@ -93,7 +92,7 @@ object UpdateMonitorHelper {
     internal val undoRecords = mutableListOf<UndoRecordEntry>()
     @JvmStatic
     fun pushRecord(id: Long, reasonSupplier: () -> String): Boolean {
-        val reason = if (isDebug) reasonSupplier() else ""
+        val reason = reasonSupplier()
         debugLogger("[${undoRecords.size + 1}] id $id: push, $reason")
         return undoRecords.add(
             UndoRecordEntry(
@@ -105,7 +104,7 @@ object UpdateMonitorHelper {
     }
     @JvmStatic
     fun popRecord(reasonSupplier: () -> String): UndoRecordEntry {
-        val reason = if (isDebug) reasonSupplier() else ""
+        val reason = reasonSupplier()
         debugLogger("[${undoRecords.size}] id ${undoRecords.last().id}: pop, $reason")
         if (reason != undoRecords.last().reason) {
             throw IllegalStateException("Cannot pop record with different reason: $reason != ${undoRecords.last().reason}")
