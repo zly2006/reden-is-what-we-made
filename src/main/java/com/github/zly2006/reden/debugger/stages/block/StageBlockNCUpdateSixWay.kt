@@ -31,8 +31,21 @@ class StageBlockNCUpdateSixWay(
     entry: ChainRestrictedNeighborUpdater.SixWayEntry?
 ): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SixWayEntry>("nc_update_6", parent),
 NeighborChanged {
+    class StageBlockNCUpdateOneWay(
+        parent: TickStage,
+        override val entry: ChainRestrictedNeighborUpdater.SixWayEntry,
+        val direction: Direction
+    ): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SixWayEntry>("nc_update_1", parent) {
+        override val sourcePos: BlockPos
+            get() = entry.pos
+        override val targetPos: BlockPos
+            get() = entry.pos.offset(direction)
+        override val sourceBlock: Block
+            get() = entry.sourceBlock
+
+    }
     override lateinit var entry: ChainRestrictedNeighborUpdater.SixWayEntry
-    var lastTickedDirectionIndex = -1
+    private var lastTickedDirectionIndex = -1
 
     override val displayName: MutableText
         get() = super.displayName.append(" (")
@@ -44,11 +57,20 @@ NeighborChanged {
     override fun tick() {
         lastTickedDirectionIndex = entry.currentDirectionIndex
         super.tick()
+        initChildren()
     }
 
     init {
         if (entry != null) {
             this.entry = entry
+        }
+    }
+
+    fun initChildren() {
+        for (direction in NeighborUpdater.UPDATE_ORDER) {
+            if (direction != entry.except) {
+                this.children.add(StageBlockNCUpdateOneWay(this, entry, direction))
+            }
         }
     }
 
@@ -60,7 +82,6 @@ NeighborChanged {
             buf.readNullable(PacketByteBuf::readDirection)
         )
         entry.currentDirectionIndex = buf.readVarInt()
-        lastTickedDirectionIndex = buf.readVarInt()
     }
 
     override fun writeByteBuf(buf: PacketByteBuf) {
@@ -69,17 +90,9 @@ NeighborChanged {
         buf.writeBlock(entry.sourceBlock)
         buf.writeNullable(entry.except, PacketByteBuf::writeDirection)
         buf.writeVarInt(entry.currentDirectionIndex)
-        buf.writeVarInt(lastTickedDirectionIndex)
     }
 
-    fun getNextUpdate(): Direction {
-        if (NeighborUpdater.UPDATE_ORDER[entry.currentDirectionIndex] == entry.except) {
-            ++entry.currentDirectionIndex
-        }
-        return NeighborUpdater.UPDATE_ORDER[entry.currentDirectionIndex]
-    }
-
-    fun getPrevUpdate(): Direction? {
+    private fun getPrevUpdate(): Direction? {
         return NeighborUpdater.UPDATE_ORDER.getOrNull(lastTickedDirectionIndex)
     }
 

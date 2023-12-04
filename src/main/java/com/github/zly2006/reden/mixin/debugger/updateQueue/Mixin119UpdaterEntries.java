@@ -37,7 +37,7 @@ public class Mixin119UpdaterEntries implements TickStageOwnerAccess {
             at = @org.spongepowered.asm.mixin.injection.At("HEAD")
     )
     private void redirectUpdate(World world, CallbackInfoReturnable<Boolean> cir) {
-        if (world == null) { // if only notify mixins
+        if (world == null && stage != null) { // if only notify mixins
             stage.tick();
         }
     }
