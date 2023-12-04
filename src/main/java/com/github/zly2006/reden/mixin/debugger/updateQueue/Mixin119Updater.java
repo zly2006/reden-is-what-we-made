@@ -2,10 +2,8 @@ package com.github.zly2006.reden.mixin.debugger.updateQueue;
 
 
 import com.github.zly2006.reden.Reden;
-import com.github.zly2006.reden.access.TickStageOwnerAccess;
 import com.github.zly2006.reden.access.UpdaterData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
-import com.github.zly2006.reden.debugger.TickStage;
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -33,8 +31,6 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
 
     @Unique private final UpdaterData updaterData = new UpdaterData(this);
 
-    @Unique boolean shouldEntryContinue = false;
-
     @Override
     public void yieldUpdater() {
         // already overridden
@@ -54,7 +50,7 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
     private void onNewEntry(BlockPos pos, Entry entry, CallbackInfo ci) {
         if (!world.isClient && // don't inject on the client
                 RedenCarpetSettings.Debugger.debuggerBlockUpdates()) {
-            AbstractBlockUpdateStage.createStage(this, entry);
+            AbstractBlockUpdateStage.createAndInsert(this, entry);
         }
     }
 
@@ -64,19 +60,20 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
      */
     @Overwrite
     public final void runQueuedUpdates() {
-        if (updaterData.thenTickUpdate) {
-            // To keep injecting points, we need to call the original method
-            // Call this method with `thenTickUpdate` = true to tick update
-
-            // Note: This variable is used to let other mods locate injecting point
-            Entry entry = updaterData.getTickingEntry();
-            shouldEntryContinue = entry.update(this.world);
-
-            updaterData.tickingStage = null;
-            updaterData.thenTickUpdate = false;
+        if (updaterData.notifyMixinsOnly) {
             if (world.isClient) {
                 throw new RuntimeException("Ticking updates by stages at client");
             }
+            // To keep injecting points, we need to call the original method
+            // notify mixins only
+
+            // Note: This variable is used to let other mods locate injecting point
+            Entry entry = updaterData.getTickingEntry();
+            entry.update(this.world); // Note: this should be noop
+
+            updaterData.tickingStage = null;
+            updaterData.notifyMixinsOnly = false;
+
             return; // processing entry ends here
         }
 
@@ -93,21 +90,11 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
 
                 while (this.pending.isEmpty()) {
                     // Reden start
-                    if (!world.isClient && // don't inject on the client
-                            RedenCarpetSettings.Debugger.debuggerBlockUpdates()) {
-                        // do tick by our method, return to the main tick stage loop
-                        for (Entry entry1 : queue) {
-                            // todo: i think this could be problematic
-                            TickStage stage = ((TickStageOwnerAccess) entry1).getTickStage();
-                            updaterData.appendStage(stage);
-                        }
-                        updaterData.getTickStageTree().next().tick();
-                    } else {
-                        // do tick by original method
-                        shouldEntryContinue = entry.update(this.world);
+                    if (!world.isClient && RedenCarpetSettings.Debugger.debuggerBlockUpdates()) {
+                        throw new IllegalStateException("Why are you here?");
                     }
 
-                    if (!shouldEntryContinue) {
+                    if (!entry.update(this.world)) {
                         // Reden stop
 
                         // Note: call update multiple times is only used by six-way entries

@@ -51,7 +51,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
     companion object {
         @Suppress("UNCHECKED_CAST", "KotlinConstantConditions")
         @JvmStatic
-        fun <T : ChainRestrictedNeighborUpdater.Entry> createStage(updater: NeighborUpdater, entry: T): AbstractBlockUpdateStage<T> {
+        fun <T : ChainRestrictedNeighborUpdater.Entry> createAndInsert(updater: NeighborUpdater, entry: T): AbstractBlockUpdateStage<T> {
             val stageOwnerAccess = entry as TickStageOwnerAccess
             if (stageOwnerAccess.tickStage is AbstractBlockUpdateStage<*>) {
                 error("Already has a block update stage")
@@ -68,6 +68,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
                 else -> throw IllegalArgumentException("Unknown updater entry type: ${entry.javaClass}")
             } as AbstractBlockUpdateStage<T> // unchecked, but we know it's right
             stageOwnerAccess.tickStage = stage
+            data.tickStageTree.insert2childAtLast(parent, stage)
             return stage
         }
     }

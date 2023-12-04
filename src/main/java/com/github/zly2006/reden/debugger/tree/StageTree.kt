@@ -74,6 +74,9 @@ class StageTree: Iterator<TickStage> {
 
         while (child?.iter?.hasNext() == false) {
             child!!.stage.endTask()
+            if (child!!.stage.children.any { it !in tickedStages }) {
+                error("Stage ${child!!.stage} has un-ticked children: ${child!!.stage.children.filter { it !in tickedStages }}")
+            }
             child = child!!.parent
         }
     }
