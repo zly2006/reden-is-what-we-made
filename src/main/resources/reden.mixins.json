@@ -6,7 +6,7 @@
   "plugin": "com.github.zly2006.reden.transformers.RedenMixinExtension",
   "mixins": [
     "IMixinCommandNode",
-    "common.Mixin119UpdaterEntries",
+    "debugger.updateQueue.Mixin119UpdaterEntries",
     "common.MixinServer",
     "common.MixinServerPlayer",
     "common.MixinServerWorld",

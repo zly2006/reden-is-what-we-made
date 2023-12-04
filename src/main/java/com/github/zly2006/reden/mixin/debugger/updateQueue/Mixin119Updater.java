@@ -69,7 +69,7 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
 
             // Note: This variable is used to let other mods locate injecting point
             Entry entry = updaterData.getTickingEntry();
-            entry.update(this.world); // Note: this should be noop
+            entry.update(null); // Note: this should be noop (let it throw exception if not)
 
             updaterData.tickingStage = null;
             updaterData.notifyMixinsOnly = false;

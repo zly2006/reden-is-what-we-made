@@ -68,6 +68,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
                 else -> throw IllegalArgumentException("Unknown updater entry type: ${entry.javaClass}")
             } as AbstractBlockUpdateStage<T> // unchecked, but we know it's right
             stageOwnerAccess.tickStage = stage
+
             data.tickStageTree.insert2childAtLast(parent, stage)
             return stage
         }
