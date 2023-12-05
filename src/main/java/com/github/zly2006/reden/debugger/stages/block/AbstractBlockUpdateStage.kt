@@ -34,6 +34,11 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
         world!!.neighborUpdater.updaterData().tickEntry(this)
     }
 
+    /**
+     * Actual tick logic from vanilla code.
+     */
+    abstract fun doTick()
+
     override fun reset() {
         if (world == null) {
             error("World is null, are you ticking this stage at a client?")

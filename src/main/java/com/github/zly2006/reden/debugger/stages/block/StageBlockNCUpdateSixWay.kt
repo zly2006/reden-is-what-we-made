@@ -35,7 +35,8 @@ NeighborChanged {
         parent: TickStage,
         override val entry: ChainRestrictedNeighborUpdater.SixWayEntry,
         val direction: Direction
-    ): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SixWayEntry>("nc_update_1", parent) {
+    ): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SixWayEntry>("nc_update_1", parent),
+    NeighborChanged {
         override val sourcePos: BlockPos
             get() = entry.pos
         override val targetPos: BlockPos
@@ -43,9 +44,12 @@ NeighborChanged {
         override val sourceBlock: Block
             get() = entry.sourceBlock
 
+        override fun doTick() {
+            val blockState = world!!.getBlockState(targetPos)
+            blockState.neighborUpdate(world, targetPos, sourceBlock, sourcePos, false)
+        }
     }
     override lateinit var entry: ChainRestrictedNeighborUpdater.SixWayEntry
-    private var lastTickedDirectionIndex = -1
 
     override val displayName: MutableText
         get() = super.displayName.append(" (")
@@ -54,24 +58,20 @@ NeighborChanged {
             .append(entry.except?.asString() ?: "null")
             .append(")")
 
-    override fun tick() {
-        lastTickedDirectionIndex = entry.currentDirectionIndex
-        super.tick()
-        initChildren()
-    }
-
     init {
         if (entry != null) {
             this.entry = entry
         }
     }
 
-    fun initChildren() {
+    override fun doTick() {
+        // update children
         for (direction in NeighborUpdater.UPDATE_ORDER) {
             if (direction != entry.except) {
                 this.children.add(StageBlockNCUpdateOneWay(this, entry, direction))
             }
         }
+        yield()
     }
 
     override fun readByteBuf(buf: PacketByteBuf) {
@@ -81,7 +81,6 @@ NeighborChanged {
             buf.readBlock(),
             buf.readNullable(PacketByteBuf::readDirection)
         )
-        entry.currentDirectionIndex = buf.readVarInt()
     }
 
     override fun writeByteBuf(buf: PacketByteBuf) {
@@ -89,17 +88,12 @@ NeighborChanged {
         buf.writeBlockPos(entry.pos)
         buf.writeBlock(entry.sourceBlock)
         buf.writeNullable(entry.except, PacketByteBuf::writeDirection)
-        buf.writeVarInt(entry.currentDirectionIndex)
-    }
-
-    private fun getPrevUpdate(): Direction? {
-        return NeighborUpdater.UPDATE_ORDER.getOrNull(lastTickedDirectionIndex)
     }
 
     override val sourcePos: BlockPos
         get() = entry.pos
     override val targetPos: BlockPos?
-        get() = getPrevUpdate()?.let { entry.pos.offset(it) }
+        get() = null
     override val sourceBlock: Block
         get() = entry.sourceBlock
 }

@@ -29,6 +29,8 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
 
     @Shadow @Final private List<Entry> pending;
 
+    @Shadow protected abstract void runQueuedUpdates();
+
     @Unique private final UpdaterData updaterData = new UpdaterData(this);
 
     @Override
@@ -58,55 +60,37 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
      * @author zly2006
      * @reason Reden debugger
      */
-    @Overwrite
-    public final void runQueuedUpdates() {
+    @Inject(
+            method = "runQueuedUpdates",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    public final void onRunQueuedUpdates(CallbackInfo ci) {
         if (updaterData.notifyMixinsOnly) {
-            if (world.isClient) {
-                throw new RuntimeException("Ticking updates by stages at client");
-            }
-            // To keep injecting points, we need to call the original method
-            // notify mixins only
-
-            // Note: This variable is used to let other mods locate injecting point
-            Entry entry = updaterData.getTickingEntry();
-            entry.update(null); // Note: this should be noop (let it throw exception if not)
-
-            updaterData.tickingStage = null;
-            updaterData.notifyMixinsOnly = false;
-
-            return; // processing entry ends here
+            notifyMixins(ci);
+        } else if (!world.isClient && RedenCarpetSettings.Debugger.debuggerBlockUpdates()) {
+            redirectToStage(ci);
         }
+    }
 
-        try {
-            while (!this.queue.isEmpty() || !this.pending.isEmpty()) {
-                for (int i = this.pending.size() - 1; i >= 0; --i) {
-                    this.queue.push(this.pending.get(i));
-                }
-
-                this.pending.clear();
-
-                // Note: This variable is used to let other mods locate injecting point
-                Entry entry = this.queue.peek();
-
-                while (this.pending.isEmpty()) {
-                    // Reden start
-                    if (!world.isClient && RedenCarpetSettings.Debugger.debuggerBlockUpdates()) {
-                        throw new IllegalStateException("Why are you here?");
-                    }
-
-                    if (!entry.update(this.world)) {
-                        // Reden stop
-
-                        // Note: call update multiple times is only used by six-way entries
-                        this.queue.pop();
-                        break;
-                    }
-                }
-            }
-        } finally {
-            this.queue.clear();
-            this.pending.clear();
-            this.depth = 0;
+    private void notifyMixins(CallbackInfo ci) {
+        if (world.isClient) {
+            throw new RuntimeException("Ticking updates by stages at client");
         }
+        // To keep injecting points, we need to call the original method
+        // notify mixins only
+
+        // Note: This variable is used to let other mods locate injecting point
+        Entry entry = updaterData.getTickingEntry();
+        entry.update(null); // Note: this should be noop (let it throw exception if not)
+
+        updaterData.tickingStage = null;
+        updaterData.notifyMixinsOnly = false;
+        ci.cancel(); // processing entry ends here
+    }
+
+    private void redirectToStage(CallbackInfo ci) {
+        updaterData.getTickStageTree().next().tick();
+        ci.cancel();
     }
 }

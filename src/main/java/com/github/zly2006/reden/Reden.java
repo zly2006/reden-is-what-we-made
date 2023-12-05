@@ -135,14 +135,17 @@ public class Reden implements ModInitializer, CarpetExtension {
         });
         Sounds.init();
         ServerTickEvents.END_SERVER_TICK.register(TaskScheduler.INSTANCE);
-        LOGGER.info("Loading indexes...");
-        try {
-            IndexingKt.getEntityId();
-            IndexingKt.getBlockId();
-            IndexingKt.getPropertyId();
-        } catch (Exception e) {
-            Reden.LOGGER.error("", e);
-        }
+
+        new Thread(() -> {
+            LOGGER.info("Loading indexes...");
+            try {
+                IndexingKt.getEntityId();
+                IndexingKt.getBlockId();
+                IndexingKt.getPropertyId();
+            } catch (Exception e) {
+                Reden.LOGGER.error("Loading indexes.", e);
+            }
+        }, "Reden Indexer").start();
     }
 
     @Contract("_ -> new")

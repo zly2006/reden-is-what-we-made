@@ -254,6 +254,8 @@ class StageTree: Iterator<TickStage> {
         node.stage.children.add(stage)
         // reset iter
         node.iter = node.stage.children.listIterator(node.iter?.nextIndex() ?: 0)
+        node.iter!!.next()
+        node.iter!!.previous()
 
         if (child == null) {
             // Oops, the tree is empty, we need to update the child node.
