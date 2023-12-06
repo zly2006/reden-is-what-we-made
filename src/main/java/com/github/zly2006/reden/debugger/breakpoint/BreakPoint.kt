@@ -3,7 +3,11 @@ package com.github.zly2006.reden.debugger.breakpoint
 import com.github.zly2006.reden.debugger.breakpoint.behavior.BreakPointBehavior
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ADD
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
+import com.github.zly2006.reden.utils.server
 import net.minecraft.network.PacketByteBuf
+import net.minecraft.registry.RegistryKey
+import net.minecraft.registry.RegistryKeys
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
@@ -24,6 +28,9 @@ abstract class BreakPoint(
      */
     abstract val pos: BlockPos?
     var world: Identifier? = null
+    val serverWorld: ServerWorld?
+        get() = world?.let { server.getWorld(RegistryKey.of(RegistryKeys.WORLD, it)) }
+
     /**
      * @see com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion
      */

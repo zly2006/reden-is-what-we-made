@@ -48,6 +48,7 @@ class StageTree: Iterator<TickStage> {
     }
 
     var canYield = true
+    var paused = false
     var root: TreeNode? = null
     var child: TreeNode? = null
     val tickedStages = mutableListOf<TickStage>()
@@ -84,6 +85,10 @@ class StageTree: Iterator<TickStage> {
     override fun next(): TickStage {
         if (child == null) {
             error("No child")
+        }
+
+        if (paused) {
+            TODO()
         }
 
         // if we have not ticked the child node, tick it
