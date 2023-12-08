@@ -289,6 +289,8 @@ carpet:
       desc: Clear all scheduled tick if that block position undoed.
     undoScheduledTicks:
       desc: Allow undo record scheduled ticks. Default is true.
+    redenDebuggerUpdater:
+        desc: TODO
 
     redenDebug:
       desc: |-

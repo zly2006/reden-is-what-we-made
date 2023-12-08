@@ -287,6 +287,8 @@ carpet:
       desc: 如果该方块位置被撤销，则清除所有计划刻。
     undoScheduledTicks:
       desc: 允许撤销计划刻造成的更新。默认为 true。
+    redenDebuggerUpdater:
+      desc: TODO
 
     redenDebug:
       desc: |-

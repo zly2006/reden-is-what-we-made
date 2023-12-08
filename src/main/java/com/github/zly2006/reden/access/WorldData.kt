@@ -1,7 +1,9 @@
 package com.github.zly2006.reden.access
 
+import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.stages.WorldRootStage
 import com.github.zly2006.reden.debugger.stages.world.BlockEventsRootStage
+import com.github.zly2006.reden.mixinhelper.RedenNeighborUpdater
 import net.minecraft.server.world.BlockEvent
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.World
@@ -15,6 +17,9 @@ class WorldData(
     @JvmField var tickingBlockEvent: BlockEvent? = null
     @JvmField var blockEventsRootStage: BlockEventsRootStage? = null
     @JvmField var blockEntityTickInvoker: BlockEntityTickInvoker? = null
+    val redenNeighborUpdater by lazy {
+        RedenNeighborUpdater(serverWorld, serverWorld.server.data())
+    }
 
     interface WorldDataAccess {
         fun getRedenWorldData(): WorldData

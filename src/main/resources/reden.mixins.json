@@ -6,7 +6,6 @@
   "plugin": "com.github.zly2006.reden.transformers.RedenMixinExtension",
   "mixins": [
     "IMixinCommandNode",
-    "debugger.updateQueue.Mixin119UpdaterEntries",
     "common.MixinServer",
     "common.MixinServerPlayer",
     "common.MixinServerWorld",
@@ -34,6 +33,8 @@
     "debugger.paused.noUpdate.MixinSPInteractionManager",
     "debugger.paused.noUpdate.MixinWorld",
     "debugger.updateQueue.Mixin119Updater",
+    "debugger.updateQueue.Mixin119UpdaterEntries",
+    "debugger.updater.MixinServerWorld",
     "fakePlayer.MixinPlayerManager",
     "hopperDelaySync.MixinHoppers",
     "itemShadow.MixinAllInventories",
@@ -90,6 +91,7 @@
     "superRight.chat.ChatHudMixin",
     "superRight.chat.ChatScreenMixin",
     "superRight.chat.VisibleChatHudLineMixin",
+    "yo.MixinKeyboard",
     "yo.MixinLanguage",
     "yo.MixinTitleScreen"
   ],
