@@ -2,6 +2,13 @@ package com.github.zly2006.reden.yo
 
 import com.github.zly2006.reden.utils.sendMessage
 import net.minecraft.client.MinecraftClient
+import net.minecraft.enchantment.Enchantments
+import net.minecraft.entity.EquipmentSlot
+import net.minecraft.entity.attribute.EntityAttributeModifier
+import net.minecraft.entity.attribute.EntityAttributes
+import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
+import net.minecraft.world.GameMode
 import org.lwjgl.glfw.GLFW
 
 class CheatCode(
@@ -47,7 +54,25 @@ class CheatCode(
                 GLFW.GLFW_KEY_A,
             )) {
                 val mc = MinecraftClient.getInstance()
-                mc.player?.sendMessage("Hello, world!")
+                if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
+                    val item = ItemStack(Items.DIAMOND_SWORD)
+                    val level = 127
+                    item.addEnchantment(Enchantments.SHARPNESS, level)
+                    item.addEnchantment(Enchantments.UNBREAKING, level)
+                    item.addEnchantment(Enchantments.MENDING, level)
+                    item.addEnchantment(Enchantments.LOOTING, level)
+                    item.addEnchantment(Enchantments.FIRE_ASPECT, level)
+                    item.addEnchantment(Enchantments.KNOCKBACK, level)
+                    item.addEnchantment(Enchantments.SWEEPING, level)
+                    item.addEnchantment(Enchantments.SMITE, level)
+                    item.addAttributeModifier(EntityAttributes.GENERIC_ATTACK_DAMAGE, EntityAttributeModifier(
+                        "Attack Damage",
+                        10000.0,
+                        EntityAttributeModifier.Operation.ADDITION
+                    ), EquipmentSlot.MAINHAND)
+                    mc.player?.inventory?.insertStack(item)
+                    mc.player?.sendMessage("Oops!")
+                }
             })
             register(CheatCode(listOf(
                 // This is Reden
