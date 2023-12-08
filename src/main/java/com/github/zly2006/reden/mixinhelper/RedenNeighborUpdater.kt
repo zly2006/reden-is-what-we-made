@@ -41,8 +41,9 @@ class RedenNeighborUpdater(
         if (stage == rootStage) {
             rootStage = null
             stages.clear()
+        } else {
+            assert(stages.removeLast() == stage)
         }
-        assert(stages.removeLast() == stage)
     }
 
     override fun replaceWithStateForNeighborUpdate(direction: Direction, neighborState: BlockState, pos: BlockPos, neighborPos: BlockPos, flags: Int, maxUpdateDepth: Int) {

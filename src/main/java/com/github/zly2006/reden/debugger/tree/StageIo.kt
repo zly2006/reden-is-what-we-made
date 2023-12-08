@@ -4,10 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.stages.DummyStage
-import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdate
-import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdateSixWay
-import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdateWithSource
-import com.github.zly2006.reden.debugger.stages.block.StageBlockPPUpdate
+import com.github.zly2006.reden.debugger.stages.block.*
 import com.github.zly2006.reden.debugger.stages.world.*
 import com.github.zly2006.reden.debugger.tree.StageIo.Constructor
 import net.minecraft.network.PacketByteBuf
@@ -40,6 +37,7 @@ object StageIo {
         constructors["update_block"] = Constructor { EmptyTickStage("update_block", it!!) }
         constructors["commands_stage"] = Constructor { EmptyTickStage("commands_stage", it!!) }
 
+        constructors["block_update"] = Constructor { BlockUpdateStage(it!!) }
         constructors["nc_update"] = Constructor { StageBlockNCUpdate(it!!, null) }
         constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it!!, null) }
         constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it!!, null) }
