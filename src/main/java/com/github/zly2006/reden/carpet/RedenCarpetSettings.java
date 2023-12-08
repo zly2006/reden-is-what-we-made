@@ -85,8 +85,18 @@ public class RedenCarpetSettings {
                 categories = {CATEGORY_REDEN, CATEGORY_DEBUGGER},
                 validators = Debugger.Validators.class
         )
-        public static boolean redenDebuggerBlockUpdates = true;
+        public static boolean redenDebuggerUpdater = false;
 
+        /**
+         Note: this can cause updates loss, disabling it by default.
+         Use {@link com.github.zly2006.reden.mixinhelper.RedenNeighborUpdater},
+         {@link redenDebuggerUpdater} instead
+         */
+        @Rule(
+                categories = {CATEGORY_REDEN, CATEGORY_DEBUGGER},
+                validators = Debugger.Validators.class
+        )
+        public static boolean redenDebuggerBlockUpdates = false;
         @Rule(
                 categories = {CATEGORY_REDEN, CATEGORY_DEBUGGER},
                 validators = Debugger.Validators.class
