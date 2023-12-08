@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.yo
 
+import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.utils.sendMessage
 import net.minecraft.client.MinecraftClient
 import net.minecraft.enchantment.Enchantments
@@ -53,6 +54,7 @@ class CheatCode(
                 GLFW.GLFW_KEY_B,
                 GLFW.GLFW_KEY_A,
             )) {
+                onFunctionUsed("uuddlrlrba")
                 val mc = MinecraftClient.getInstance()
                 if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
                     val item = ItemStack(Items.DIAMOND_SWORD)
@@ -70,7 +72,10 @@ class CheatCode(
                         10000.0,
                         EntityAttributeModifier.Operation.ADDITION
                     ), EquipmentSlot.MAINHAND)
-                    mc.player?.inventory?.insertStack(item)
+                    val emptySlot = mc.player!!.inventory.emptySlot
+                    mc.player!!.inventory.insertStack(emptySlot, item.copy())
+                    val slotIndex = mc.player!!.playerScreenHandler.getSlotIndex(mc.player!!.inventory, emptySlot).orElse(-1)
+                    mc.interactionManager?.clickCreativeStack(item.copy(), slotIndex)
                     mc.player?.sendMessage("Oops!")
                 }
             })
@@ -88,6 +93,7 @@ class CheatCode(
                 GLFW.GLFW_KEY_E,
                 GLFW.GLFW_KEY_N,
             )) {
+                onFunctionUsed("this-is-reden")
                 val mc = MinecraftClient.getInstance()
                 mc.player?.sendMessage("This is Reden!")
             })
