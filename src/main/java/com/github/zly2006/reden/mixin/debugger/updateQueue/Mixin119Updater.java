@@ -68,6 +68,8 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
     public final void onRunQueuedUpdates(CallbackInfo ci) {
         if (updaterData.notifyMixinsOnly) {
             notifyMixins(ci);
+            // TODO: we failed to do this, dont notify mixin tho
+            //  wait until incompatible with other mods
         } else if (!world.isClient && RedenCarpetSettings.Debugger.debuggerBlockUpdates()) {
             redirectToStage(ci);
         }
@@ -77,13 +79,15 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
         if (world.isClient) {
             throw new RuntimeException("Ticking updates by stages at client");
         }
-        // To keep injecting points, we need to call the original method
-        // notify mixins only
+        // no-op
+        if (false) {
+            // To keep injecting points, we need to call the original method
+            // notify mixins only
 
-        // Note: This variable is used to let other mods locate injecting point
-        Entry entry = updaterData.getTickingEntry();
-        entry.update(null); // Note: this should be noop (let it throw exception if not)
-
+            // Note: This variable is used to let other mods locate injecting point
+            Entry entry = updaterData.getTickingEntry();
+            entry.update(null); // Note: this should be noop (let it throw exception if not)
+        }
         updaterData.tickingStage = null;
         updaterData.notifyMixinsOnly = false;
         ci.cancel(); // processing entry ends here

@@ -16,12 +16,14 @@ class UpdaterData(
     fun tickEntry(stage: AbstractBlockUpdateStage<*>) {
         tickingStage = stage
         notifyMixinsOnly = true
+        // noop to notify mixins
         when (updater) {
             is ChainRestrictedNeighborUpdater -> {
                 updater.runQueuedUpdates()
             }
             else -> {}
         }
+        stage.doTick() // todo: noop to notify mixins
         tickingStage = null
         notifyMixinsOnly = false
     }

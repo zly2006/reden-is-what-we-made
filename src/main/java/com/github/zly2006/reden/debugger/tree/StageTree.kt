@@ -93,6 +93,8 @@ class StageTree: Iterator<TickStage> {
 
         // if we have not ticked the child node, tick it
         if (!child!!.childrenUpdated) {
+            child!!.iter = null // reset iter
+            // Note: todo
             child!!.childrenUpdated = true
         } else {
             checkIterators()

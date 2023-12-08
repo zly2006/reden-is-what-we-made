@@ -22,14 +22,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
         ChainRestrictedNeighborUpdater.StateReplacementEntry.class,
 }, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public class Mixin119UpdaterEntries implements TickStageOwnerAccess {
+    @Unique boolean ticked = false;
     @Unique AbstractBlockUpdateStage<?> stage;
+
+    @Override
+    public boolean getTicked() {
+        return ticked;
+    }
+
+    @Override
+    public void setTicked(boolean ticked) {
+        this.ticked = ticked;
+    }
 
     public @NotNull AbstractBlockUpdateStage<?> getTickStage() {
         return stage;
     }
 
     @Override
-    public void setTickStage(@NotNull TickStage tickStage) {
+    public void setTickStage(TickStage tickStage) {
         stage = (AbstractBlockUpdateStage<?>) tickStage;
     }
 
@@ -40,6 +51,10 @@ public class Mixin119UpdaterEntries implements TickStageOwnerAccess {
     )
     private void redirectUpdate(World world, CallbackInfoReturnable<Boolean> cir) {
         if (world == null) { // if only notify mixins
+            if (ticked) {
+                cir.setReturnValue(false);
+                return;
+            }
             if (stage == null) {
                 throw new IllegalStateException("stage is null");
             }
