@@ -6,6 +6,7 @@ import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.isSinglePlayerAndCheating
 import com.github.zly2006.reden.utils.server
 import net.minecraft.block.BlockState
+import net.minecraft.block.entity.BlockEntity
 import net.minecraft.command.EntitySelector
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.TntEntity
@@ -51,6 +52,7 @@ class PlayerData(
     ) {
         fun getMemorySize() = (blockEntity?.sizeInBytes ?: 0) + 20
     }
+
     internal interface PlayerDataAccess {
         fun getRedenPlayerData(): PlayerData
     }
@@ -77,10 +79,11 @@ ${entities.map { "${it.key} = ${it.value}" }.joinToString("\n")}
 ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" }.joinToString("\n")}
             """.trimIndent()
         }
+
         fun fromWorld(world: World, pos: BlockPos, putNearByEntities: Boolean): Entry {
             val be = world.getBlockEntity(pos)
             val state = world.getBlockState(pos)
-            return Entry(state, be?.createNbtWithId(), server.ticks).apply {
+            return Entry(state, be?.getLastSavedNbt(), server.ticks).apply {
                 if (putNearByEntities &&
                     world.getBlockState(pos).getCollisionShape(world, pos).boundingBoxes.size != 0
                 ) {
@@ -103,6 +106,7 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
                 data.size * 16 +
                 entities.map { 16 + it.value.nbt.sizeInBytes }.sum()
     }
+
     class UndoRecord(
         id: Long,
         lastChangedTick: Int = 0,
@@ -111,6 +115,7 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
         val cause: Cause = Cause.UNKNOWN
     ) : UndoRedoRecord(id, lastChangedTick, entities, data) {
         var notified = false
+
         enum class Cause(message: Text) {
             BREAK_BLOCK(Text.translatable("reden.feature.undo.cause.break_block")),
             USE_BLOCK(Text.translatable("reden.feature.undo.cause.use_block")),
@@ -122,13 +127,14 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
             UNKNOWN(Text.translatable("reden.feature.undo.cause.unknown"))
         }
     }
+
     class RedoRecord(
         id: Long,
         lastChangedTick: Int = 0,
         entities: MutableMap<UUID, EntityEntry> = mutableMapOf(),
         data: MutableMap<Long, Entry> = mutableMapOf(),
         val undoRecord: UndoRecord
-    ): UndoRedoRecord(id, lastChangedTick, entities, data) {
+    ) : UndoRedoRecord(id, lastChangedTick, entities, data) {
         override fun getMemorySize() = super.getMemorySize() + undoRecord.getMemorySize()
     }
 
@@ -142,12 +148,12 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
         override val entity: EntityType<*>,
         override val nbt: NbtCompound,
         override val pos: BlockPos
-    ): EntityEntry {
+    ) : EntityEntry {
         override fun toString() = "EntityEntryImpl(entity=$entity, nbt=..., pos=$pos)"
     }
 
 
-    object NotExistEntityEntry: EntityEntry {
+    object NotExistEntityEntry : EntityEntry {
         override val entity = null
         override val nbt: NbtCompound = NbtCompound()
         override val pos: BlockPos = BlockPos.ORIGIN
@@ -155,3 +161,5 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
         override fun toString() = "NotExistEntityEntry"
     }
 }
+
+private fun BlockEntity.getLastSavedNbt() = (this as BlockEntityInterface).getLastSavedNbt()

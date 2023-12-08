@@ -180,6 +180,7 @@ object UpdateMonitorHelper {
             if (beChangeOnly) {
                 world.modified(pos)
                 recording?.data?.computeIfAbsent(pos.asLong()) {
+                    debugLogger("id ${recording?.id ?: 0}: set$pos, block entity, applying lastSavedNbt")
                     recording!!.fromWorld(world, pos, true).let {
                         if (data != null) it.copy(blockEntity = data)
                         else it
@@ -187,8 +188,8 @@ object UpdateMonitorHelper {
                 }
             }
 
-            debugLogger("postSetBlock: done.")
             be.saveLastNbt()
+            debugLogger("postSetBlock: done.")
         }
     }
 

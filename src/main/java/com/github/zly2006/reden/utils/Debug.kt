@@ -37,8 +37,8 @@ private val debugAppender = RollingRandomAccessFileAppender.Builder()
     .setImmediateFlush(true)
     .setFilter(object : AbstractFilter() {
         fun filterLoggers(loggerName: String): Filter.Result {
-            //if (loggerName.contains("FabricRegistrySync")) return Filter.Result.DENY // useless
-            //if (loggerName.contains("Fabric")) return Filter.Result.DENY // deny fabric api debug
+            if (loggerName.contains("FabricRegistrySync")) return Filter.Result.DENY // useless
+            if (loggerName.contains("Fabric")) return Filter.Result.DENY // deny fabric api debug
 
             return Filter.Result.NEUTRAL
         }

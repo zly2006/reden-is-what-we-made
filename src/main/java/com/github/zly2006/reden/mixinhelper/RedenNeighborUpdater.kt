@@ -2,14 +2,14 @@ package com.github.zly2006.reden.mixinhelper
 
 import com.github.zly2006.reden.access.ServerData
 import com.github.zly2006.reden.debugger.TickStage
-import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
-import com.github.zly2006.reden.debugger.stages.block.BlockUpdateStage
+import com.github.zly2006.reden.debugger.stages.block.*
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.block.NeighborUpdater
+import net.minecraft.world.block.ChainRestrictedNeighborUpdater as Updater119
 
 class RedenNeighborUpdater(
     val serverWorld: ServerWorld,
@@ -46,20 +46,24 @@ class RedenNeighborUpdater(
     }
 
     override fun replaceWithStateForNeighborUpdate(direction: Direction, neighborState: BlockState, pos: BlockPos, neighborPos: BlockPos, flags: Int, maxUpdateDepth: Int) {
-        val initStage = initStage()
-        initStage.children.forEach {
-            it.yield()
-        }
-        resetStage(initStage)
+        val parent = initStage()
+        pushStage(StageBlockPPUpdate(parent, Updater119.StateReplacementEntry(direction, neighborState, pos, neighborPos, flags, maxUpdateDepth - 1)))
+        stages.last().tick()
+        resetStage(parent)
     }
 
     override fun updateNeighbor(pos: BlockPos, sourceBlock: Block, sourcePos: BlockPos) {
-        TODO("Not yet implemented")
+        val parent = initStage()
+        pushStage(StageBlockNCUpdate(parent, Updater119.SimpleEntry(pos, sourceBlock, sourcePos)))
+        stages.last().tick()
+        resetStage(parent)
     }
 
     override fun updateNeighbor(state: BlockState, pos: BlockPos, sourceBlock: Block, sourcePos: BlockPos, notify: Boolean) {
-        TODO("Not yet implemented")
-        state.properties
+        val parent = initStage()
+        pushStage(StageBlockNCUpdateWithSource(parent, Updater119.StatefulEntry(state, pos, sourceBlock, sourcePos, notify)))
+        stages.last().tick()
+        resetStage(parent)
     }
 
     override fun updateNeighbors(pos: BlockPos, sourceBlock: Block, except: Direction?) {

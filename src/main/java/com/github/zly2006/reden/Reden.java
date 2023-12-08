@@ -2,6 +2,7 @@ package com.github.zly2006.reden;
 
 import carpet.CarpetExtension;
 import carpet.CarpetServer;
+import com.github.zly2006.reden.access.BlockEntityInterface;
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.fakePlayer.FakeConnection;
@@ -23,14 +24,18 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.ItemStackArgument;
 import net.minecraft.command.argument.ItemStackArgumentType;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Uuids;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -103,6 +108,23 @@ public class Reden implements ModInitializer, CarpetExtension {
                                     PlayerData.Companion.data(context.getSource().getPlayer()).topRedo();
                                     return 1;
                                 }))
+                        .then(CommandManager.literal("last-saved-nbt")
+                                .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
+                                        .executes(context -> {
+                                            BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
+                                            BlockEntity blockEntity = context.getSource().getWorld().getBlockEntity(pos);
+                                            if (blockEntity == null) {
+                                                context.getSource().sendError(Text.of("No block entity at " + pos.toShortString()));
+                                                return 0;
+                                            }
+                                            NbtCompound lastSavedNbt = ((BlockEntityInterface) blockEntity).getLastSavedNbt();
+                                            if (lastSavedNbt == null) {
+                                                context.getSource().sendError(Text.of("No last saved NBT at " + pos.toShortString()));
+                                                return 0;
+                                            }
+                                            context.getSource().sendMessage(Text.of(lastSavedNbt.toString()));
+                                            return 1;
+                                        })))
                         .then(CommandManager.literal("shadow-item")
                                 .then(CommandManager.argument("item", ItemStackArgumentType.itemStack(access))
                                         .executes(context -> {
