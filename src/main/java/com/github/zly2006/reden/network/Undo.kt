@@ -46,7 +46,7 @@ class Undo(
                     debugLogger("undo $pos skipped (${sec.getModifyTime(pos)} < ${entry.time})")
                     return@forEach
                 }
-                world.modified(pos)
+                world.modified(pos, entry.time)
                 world.setBlockNoPP(pos, entry.state, Block.NOTIFY_LISTENERS)
                 // clear schedules
                 if (RedenCarpetSettings.Options.undoApplyingClearScheduledTicks) {
