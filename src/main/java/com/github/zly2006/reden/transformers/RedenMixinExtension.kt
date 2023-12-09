@@ -1,8 +1,8 @@
 package com.github.zly2006.reden.transformers
 
 import com.github.zly2006.reden.Reden
-import com.github.zly2006.reden.transformers.mapping.Intermediary
 import com.github.zly2006.reden.transformers.mapping.Yarn
+import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.impl.launch.knot.MixinServiceKnot
 import net.fabricmc.loader.impl.util.mappings.TinyRemapperMappingsHelper
 import net.fabricmc.tinyremapper.OutputConsumerPath
@@ -44,41 +44,22 @@ class RedenMixinExtension: IExtension, IMixinConfigPlugin {
          */
         const val YARN = "named"
 
+        @OptIn(ExperimentalPathApi::class)
         fun exportClasses(path: Path) {
-            val mapping = Intermediary(Path.of("."))
+            error("Not supported.")
             val yarn = Yarn(Path.of("."))
             val intermediaryClientPath = Path(URLDecoder.decode(
                 MinecraftServer::class.java.protectionDomain.codeSource.location.path,
                 Charset.defaultCharset()
             ))
             LOGGER.info("Downloading intermediary -> yarn mapping")
-            mapping.download()
             yarn.download()
-            val tinyTree = mapping.load()
             val yarnTree = yarn.load()
-/*
-            if (!intermediaryClientPath.exists()) {
-                val mcRemapper = TinyRemapper.newRemapper()
-                    .withMappings(TinyRemapperMappingsHelper.create(tinyTree, OFFICIAL_OBFUSCATED, INTERMEDIARY))
-                    .build()
-                val mcTag = mcRemapper.createInputTag()
-                val clientPath =
-                    URLDecoder.decode(MinecraftServer::class.java.protectionDomain.codeSource.location.path, Charset.defaultCharset())
-                mcRemapper.readInputs(
-                    mcTag,
-                    Path(MinecraftServer::class.java.protectionDomain.codeSource.location.path)
-                )
-                val mcOutput = OutputConsumerPath.Builder(intermediaryClientPath)
-                    .assumeArchive(true)
-                    .build()
-                mcRemapper.apply(mcOutput, mcTag)
-            }
-
- */
-
+            path.deleteRecursively()
+            path.createDirectories()
             finalNodes.forEach { (name, node) ->
                 try {
-                    val classWriter = ClassWriter(3)
+                    val classWriter = ClassWriter(0)
                     node.accept(classWriter)
                     val file = path / "unmapped" / "$name.class"
                     file.parent.createDirectories()
@@ -87,11 +68,14 @@ class RedenMixinExtension: IExtension, IMixinConfigPlugin {
                     LOGGER.error("Failed to export class $name", e)
                 }
             }
-            TODO()
             val output = OutputConsumerPath.Builder(path / "mapped")
                 .build()
+            val isDev = FabricLoader.getInstance().isDevelopmentEnvironment
             val remapper = TinyRemapper.newRemapper()
-                .withMappings(TinyRemapperMappingsHelper.create(yarnTree, INTERMEDIARY, YARN))
+                .withMappings(TinyRemapperMappingsHelper.create(yarnTree,
+                    if (isDev) YARN else INTERMEDIARY,
+                    if (isDev) INTERMEDIARY else YARN
+                ))
                 .build()
             val moaTag = remapper.createInputTag()
             if (intermediaryClientPath.exists()) {
@@ -173,7 +157,7 @@ class RedenMixinExtension: IExtension, IMixinConfigPlugin {
     }
 
     override fun export(env: MixinEnvironment, name: String, force: Boolean, classNode: ClassNode) {
-        finalNodes[name] = classNode
+        finalNodes[classNode.name] = classNode
     }
 
     override fun onLoad(mixinPackage: String) { }
