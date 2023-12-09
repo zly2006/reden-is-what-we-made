@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.access.BlockEntityInterface
 import com.github.zly2006.reden.access.ChunkSectionInterface
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
@@ -60,6 +61,7 @@ class Undo(
                 entry.blockEntity?.let { beNbt ->
                     debugLogger("undo block entity ${pos}, $beNbt")
                     world.addBlockEntity(BlockEntity.createFromNbt(pos, entry.state, beNbt))
+                    (world.getBlockEntity(pos) as BlockEntityInterface).saveLastNbt()
                 }
             }
             record.entities.forEach {

@@ -11,6 +11,7 @@
     "common.MixinServerWorld",
     "common.remote.MixinMinecraftServer",
     "common.remote.MixinServerWorld",
+    "debug.MixinChiseledBookshelf",
     "debug.compatTest.MixinMinecraftServet_ct",
     "debug.compatTest.MixinServerChunkManager_ct",
     "debug.compatTest.MixinServerWorld_ct",

@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.access
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.malilib.UNDO_CHEATING_ONLY
 import com.github.zly2006.reden.utils.isClient
@@ -84,6 +85,9 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
             val be = world.getBlockEntity(pos)
             val state = world.getBlockState(pos)
             return Entry(state, be?.getLastSavedNbt(), server.ticks).apply {
+                if (state.hasBlockEntity() && blockEntity == null) {
+                    Reden.LOGGER.error("BlockEntity $be at $pos has no last saved nbt")
+                }
                 if (putNearByEntities &&
                     world.getBlockState(pos).getCollisionShape(world, pos).boundingBoxes.size != 0
                 ) {

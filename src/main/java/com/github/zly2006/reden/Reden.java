@@ -31,7 +31,9 @@ import net.minecraft.command.argument.ItemStackArgumentType;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Uuids;
@@ -138,6 +140,13 @@ public class Reden implements ModInitializer, CarpetExtension {
                                             context.getSource().getPlayer().currentScreenHandler.syncState();
                                             return 1;
                                         })))
+                        .then(CommandManager.literal("totem-of-undying").executes(context -> {
+                            ServerPlayerEntity player = context.getSource().getPlayer();
+                            if (player != null) {
+                                player.networkHandler.sendPacket(new EntityStatusS2CPacket(player, (byte) 35));
+                            }
+                            return 1;
+                        }))
                         .then(CommandManager.literal("delay-test")
                                 .executes(context -> {
                                     try {
