@@ -15,6 +15,7 @@ import com.github.zly2006.reden.rvc.gui.SelectionListScreen
 import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.remote.github.GithubAuthScreen
 import com.github.zly2006.reden.sponsor.SponsorScreen
+import com.github.zly2006.reden.transformers.RedenMixinExtension
 import com.github.zly2006.reden.utils.red
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.toBlockPos
@@ -202,6 +203,10 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             "reden.widget.config.title") {
             override fun getConfigs() = ConfigOptionWrapper.createFor(getAllOptions())
         })
+        true
+    }
+    DEBUG_EXPORT_MIXINS.keybind.setCallback { _, _ ->
+        RedenMixinExtension.exportClasses(mc.runDirectory.resolve("reden-mixins").toPath())
         true
     }
 }

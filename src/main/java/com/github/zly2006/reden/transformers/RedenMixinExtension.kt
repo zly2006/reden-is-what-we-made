@@ -1,7 +1,13 @@
 package com.github.zly2006.reden.transformers
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.transformers.mapping.Intermediary
+import com.github.zly2006.reden.transformers.mapping.Yarn
 import net.fabricmc.loader.impl.launch.knot.MixinServiceKnot
+import net.fabricmc.loader.impl.util.mappings.TinyRemapperMappingsHelper
+import net.fabricmc.tinyremapper.OutputConsumerPath
+import net.fabricmc.tinyremapper.TinyRemapper
+import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.tree.ClassNode
@@ -13,13 +19,90 @@ import org.spongepowered.asm.mixin.transformer.ext.Extensions
 import org.spongepowered.asm.mixin.transformer.ext.IExtension
 import org.spongepowered.asm.mixin.transformer.ext.ITargetClassContext
 import java.io.File
-import kotlin.io.path.createDirectories
+import java.net.URLDecoder
+import java.nio.charset.Charset
+import java.nio.file.Path
+import kotlin.io.path.*
 
 class RedenMixinExtension: IExtension, IMixinConfigPlugin {
     companion object {
         @JvmField
         val APPLY_DEBUGGER_MIXINS = System.getProperty("reden.debugger", "true").toBoolean()
         private val LOGGER = LogManager.getLogger("Reden/MixinExt")!!
+        val finalNodes = mutableMapOf<String, ClassNode>()
+
+        /**
+         * Fabric intermediary mapping
+         */
+        const val INTERMEDIARY = "intermediary"
+        /**
+         * Official obfuscated mapping
+         */
+        const val OFFICIAL_OBFUSCATED = "official"
+        /**
+         * Yarn mapping
+         */
+        const val YARN = "named"
+
+        fun exportClasses(path: Path) {
+            val mapping = Intermediary(Path.of("."))
+            val yarn = Yarn(Path.of("."))
+            val intermediaryClientPath = Path(URLDecoder.decode(
+                MinecraftServer::class.java.protectionDomain.codeSource.location.path,
+                Charset.defaultCharset()
+            ))
+            LOGGER.info("Downloading intermediary -> yarn mapping")
+            mapping.download()
+            yarn.download()
+            val tinyTree = mapping.load()
+            val yarnTree = yarn.load()
+/*
+            if (!intermediaryClientPath.exists()) {
+                val mcRemapper = TinyRemapper.newRemapper()
+                    .withMappings(TinyRemapperMappingsHelper.create(tinyTree, OFFICIAL_OBFUSCATED, INTERMEDIARY))
+                    .build()
+                val mcTag = mcRemapper.createInputTag()
+                val clientPath =
+                    URLDecoder.decode(MinecraftServer::class.java.protectionDomain.codeSource.location.path, Charset.defaultCharset())
+                mcRemapper.readInputs(
+                    mcTag,
+                    Path(MinecraftServer::class.java.protectionDomain.codeSource.location.path)
+                )
+                val mcOutput = OutputConsumerPath.Builder(intermediaryClientPath)
+                    .assumeArchive(true)
+                    .build()
+                mcRemapper.apply(mcOutput, mcTag)
+            }
+
+ */
+
+            finalNodes.forEach { (name, node) ->
+                try {
+                    val classWriter = ClassWriter(3)
+                    node.accept(classWriter)
+                    val file = path / "unmapped" / "$name.class"
+                    file.parent.createDirectories()
+                    file.writeBytes(classWriter.toByteArray())
+                } catch (e: Exception) {
+                    LOGGER.error("Failed to export class $name", e)
+                }
+            }
+            TODO()
+            val output = OutputConsumerPath.Builder(path / "mapped")
+                .build()
+            val remapper = TinyRemapper.newRemapper()
+                .withMappings(TinyRemapperMappingsHelper.create(yarnTree, INTERMEDIARY, YARN))
+                .build()
+            val moaTag = remapper.createInputTag()
+            if (intermediaryClientPath.exists()) {
+                remapper.readClassPath(intermediaryClientPath)
+            }
+            else {
+                LOGGER.warn("Intermediary client jar not found, skipping")
+            }
+            remapper.readInputs(moaTag, path / "unmapped")
+            remapper.apply(output, moaTag)
+        }
     }
     init {
         // register self as an extension
@@ -90,6 +173,7 @@ class RedenMixinExtension: IExtension, IMixinConfigPlugin {
     }
 
     override fun export(env: MixinEnvironment, name: String, force: Boolean, classNode: ClassNode) {
+        finalNodes[name] = classNode
     }
 
     override fun onLoad(mixinPackage: String) { }
