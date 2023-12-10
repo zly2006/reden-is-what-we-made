@@ -32,7 +32,7 @@ class FreezeGame: BreakPointBehavior() {
         }
 
 
-        server.timeReference = Util.getMeasuringTimeMs()
+        server.tickStartTimeNanos = Util.getMeasuringTimeMs()
         server.sendToAll(BreakPointInterrupt(breakPoint.id, tree, false))
     }
 }

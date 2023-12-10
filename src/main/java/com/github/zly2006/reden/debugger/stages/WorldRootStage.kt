@@ -6,7 +6,7 @@ import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.stages.world.*
 import com.github.zly2006.reden.utils.server
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.world.spawner.Spawner
+import net.minecraft.world.spawner.SpecialSpawner
 import java.util.function.BooleanSupplier
 
 class WorldRootStage(
@@ -15,7 +15,7 @@ class WorldRootStage(
     val shouldKeepTicking: BooleanSupplier
 ) : TickStage("world_root", parent = parent), TickStageWithWorld {
     var tickLabel = -1
-    @JvmField var tickingSpawner: Spawner? = null
+    @JvmField var tickingSpawner: SpecialSpawner? = null
     companion object {
         const val TICK_TIME = 0
     }

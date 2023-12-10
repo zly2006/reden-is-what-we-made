@@ -28,7 +28,7 @@ import net.minecraft.world.GameRules;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.spawner.Spawner;
+import net.minecraft.world.spawner.SpecialSpawner;
 import net.minecraft.world.tick.WorldTickScheduler;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -138,7 +138,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
 
     @Shadow
     @Final
-    private List<Spawner> spawners;
+    private List<SpecialSpawner> spawners;
 
     @Shadow
     @Final
@@ -265,7 +265,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
     public void tickSpawners(boolean spawnMonsters, boolean spawnAnimals) {
         // Vanilla local variables
         Iterator<?> iterator;
-        Spawner spawner;
+        SpecialSpawner spawner;
         // End
 
         WorldRootStage rootStage = getRedenWorldData().tickStage;

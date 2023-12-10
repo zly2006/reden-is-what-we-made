@@ -149,3 +149,4 @@ accessible field net/minecraft/world/chunk/WorldChunk$WrappedBlockEntityTickInvo
 accessible field net/minecraft/world/chunk/WorldChunk$DirectBlockEntityTickInvoker blockEntity Lnet/minecraft/block/entity/BlockEntity;
 accessible field net/minecraft/util/thread/ReentrantThreadExecutor runningTasks I
 accessible field net/minecraft/client/gui/hud/InGameHud overlayRemaining I
+accessible field net/minecraft/server/MinecraftServer tickStartTimeNanos J

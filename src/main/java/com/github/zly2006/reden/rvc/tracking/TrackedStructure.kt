@@ -344,7 +344,7 @@ class TrackedStructure (
         ySize = maxPos.y - minPos.y + 1
         zSize = maxPos.z - minPos.z + 1
         origin.set(minPos)
-        world.getNonSpectatingEntities(Entity::class.java, Box(minPos, maxPos)).asSequence()
+        world.getNonSpectatingEntities(Entity::class.java, Box.enclosing(minPos, maxPos)).asSequence()
             .filter {
                 it !is PlayerEntity
             }.forEach {

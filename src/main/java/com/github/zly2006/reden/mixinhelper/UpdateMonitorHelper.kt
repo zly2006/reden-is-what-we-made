@@ -239,7 +239,7 @@ object UpdateMonitorHelper {
             playerView.isRecording = true
             val record = addRecord(cause)
             playerView.undo.add(record)
-            pushRecord(record.id) { "player recording/${player.entityName}/$cause" }
+            pushRecord(record.id) { "player recording/${player.nameForScoreboard}/$cause" }
         }
     }
 
@@ -248,7 +248,7 @@ object UpdateMonitorHelper {
         val playerView = player.data()
         if (playerView.isRecording) {
             playerView.isRecording = false
-            popRecord { "player recording/${player.entityName}/${recording?.cause}" }
+            popRecord { "player recording/${player.nameForScoreboard}/${recording?.cause}" }
             playerView.redo
                 .onEach { removeRecord(it.id) }
                 .clear()

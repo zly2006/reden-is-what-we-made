@@ -144,7 +144,7 @@ class StageTree: Iterator<TickStage> {
     }
 
     fun pauseGame() {
-        server.timeReference = Long.MAX_VALUE
+        server.tickStartTimeNanos = Long.MAX_VALUE
         disableWatchDog = true
     }
 

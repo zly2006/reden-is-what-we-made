@@ -71,7 +71,7 @@ class GithubAuthScreen: Screen(Text.of("Login to Github")) {
     }
 
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-        renderBackground(context)
+        renderInGameBackground(context)
         cancelLogin.visible = auth.authState == GithubAuth.AuthState.POLLING
         login2GithubButton.active = auth.canRelogin
         super.render(context, mouseX, mouseY, delta)

@@ -50,7 +50,7 @@ class RvcTrackpointsC2SRequest(
                         structure.world = player.world
                         structure.trackPoints.addAll(packet.trackpoints)
                         structure.collectFromWorld()
-                        val path = Path("rvc", "sync", player.entityName, packet.name)
+                        val path = Path("rvc", "sync", player.nameForScoreboard, packet.name)
                         RvcFileIO.save(path, structure)
                         val baStream = ByteArrayOutputStream()
                         val zipStream = ZipOutputStream(baStream)

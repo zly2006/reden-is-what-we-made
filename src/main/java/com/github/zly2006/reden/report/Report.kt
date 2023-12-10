@@ -78,7 +78,7 @@ fun doHeartHeat() {
                 Player(
                     it.gameProfile.name,
                     it.gameProfile.id.toString(),
-                    it.pingMilliseconds,
+                    it.networkHandler.latency,
                     it.interactionManager.gameMode.name,
                 )
             }
@@ -243,7 +243,7 @@ fun reportOnlineMC(client: MinecraftClient) {
             )
             try {
                 client.sessionService.joinServer(
-                    client.session.profile,
+                    client.session.uuidOrNull,
                     client.session.accessToken,
                     "3cb49a79c3af1f1dba6c56eddd760ac7d50c518a"
                 )

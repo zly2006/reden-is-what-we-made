@@ -4,7 +4,7 @@ import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.impl.launch.FabricLauncherBase
-import net.fabricmc.mapping.tree.ClassDef
+import net.fabricmc.loader.impl.lib.mappingio.tree.MappingTree.ClassMapping
 import net.minecraft.server.MinecraftServer
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
@@ -75,7 +75,7 @@ object IntermediaryMappingAccess {
     val mapping = FabricLauncherBase.getLauncher().mappingConfiguration.getMappings()!!
     private val classMapping2default: Map<String, String> = mapping.run {
         classes.associate {
-            it.getName("intermediary") to it.getName(metadata.namespaces[0])
+            it.getName("intermediary")!! to it.getName(srcNamespace)!!
         }
     }
 
@@ -88,15 +88,15 @@ object IntermediaryMappingAccess {
             return methodMapping[name]!!
         }
         val targetNamespace = FabricLauncherBase.getLauncher().mappingConfiguration.targetNamespace
-        fun addMethods(classDef: ClassDef) {
+        fun addMethods(classDef: ClassMapping) {
             for (methodDef in classDef.methods) {
                 methodMapping.computeIfAbsent(
-                    methodDef.getName("intermediary")
+                    methodDef.getName("intermediary")!!
                 ) {
                     MethodInfo(
-                        classDef.getName(targetNamespace),
-                        methodDef.getName(targetNamespace),
-                        methodDef.getDescriptor(targetNamespace)
+                        classDef.getName(targetNamespace)!!,
+                        methodDef.getName(targetNamespace)!!,
+                        methodDef.getDesc(mapping.getNamespaceId(targetNamespace))!!
                     )
                 }
             }
@@ -105,9 +105,6 @@ object IntermediaryMappingAccess {
             for (classDef in mapping.classes) {
                 addMethods(classDef)
             }
-        } else {
-            val classDef = mapping.defaultNamespaceClassMap[classMapping2default[owner]]
-            classDef?.let(::addMethods)
         }
         return methodMapping[name]
     }

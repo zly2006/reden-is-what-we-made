@@ -23,7 +23,7 @@ fun selected(pos: Vec3d, sourceEntity: Entity?): List<Entity> {
         return mc.world!!.players
     }
     else if (selector.playerName != null) {
-        return mc.world!!.players.filter { it.entityName == selector.playerName }
+        return mc.world!!.players.filter { it.nameForScoreboard == selector.playerName }
     }
     else if (selector.uuid != null) {
         return mc.world!!.entities.filter { it.uuid == selector.uuid }

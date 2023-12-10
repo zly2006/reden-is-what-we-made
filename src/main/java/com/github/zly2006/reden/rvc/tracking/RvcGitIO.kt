@@ -42,7 +42,7 @@ object RvcGitIO: StructureIO {
                 if (isClient) {
                     val mc = MinecraftClient.getInstance()
                     appendLine("MC-Username: ${mc.session.username}")
-                    appendLine("MC-UUID: ${mc.session.uuid}")
+                    appendLine("MC-UUID: ${mc.session.uuidOrNull}")
                 }
                 appendLine("======END RVC COMMIT DATA======")
             }

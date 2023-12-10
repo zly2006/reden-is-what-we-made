@@ -1,13 +1,7 @@
 package com.github.zly2006.reden.transformers
 
 import com.github.zly2006.reden.Reden
-import com.github.zly2006.reden.transformers.mapping.Yarn
-import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.impl.launch.knot.MixinServiceKnot
-import net.fabricmc.loader.impl.util.mappings.TinyRemapperMappingsHelper
-import net.fabricmc.tinyremapper.OutputConsumerPath
-import net.fabricmc.tinyremapper.TinyRemapper
-import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.tree.ClassNode
@@ -19,10 +13,7 @@ import org.spongepowered.asm.mixin.transformer.ext.Extensions
 import org.spongepowered.asm.mixin.transformer.ext.IExtension
 import org.spongepowered.asm.mixin.transformer.ext.ITargetClassContext
 import java.io.File
-import java.net.URLDecoder
-import java.nio.charset.Charset
-import java.nio.file.Path
-import kotlin.io.path.*
+import kotlin.io.path.createDirectories
 
 class RedenMixinExtension: IExtension, IMixinConfigPlugin {
     companion object {
@@ -30,62 +21,6 @@ class RedenMixinExtension: IExtension, IMixinConfigPlugin {
         val APPLY_DEBUGGER_MIXINS = System.getProperty("reden.debugger", "true").toBoolean()
         private val LOGGER = LogManager.getLogger("Reden/MixinExt")!!
         val finalNodes = mutableMapOf<String, ClassNode>()
-
-        /**
-         * Fabric intermediary mapping
-         */
-        const val INTERMEDIARY = "intermediary"
-        /**
-         * Official obfuscated mapping
-         */
-        const val OFFICIAL_OBFUSCATED = "official"
-        /**
-         * Yarn mapping
-         */
-        const val YARN = "named"
-
-        @OptIn(ExperimentalPathApi::class)
-        fun exportClasses(path: Path) {
-            val yarn = Yarn(Path.of("."))
-            val intermediaryClientPath = Path(URLDecoder.decode(
-                MinecraftServer::class.java.protectionDomain.codeSource.location.path,
-                Charset.defaultCharset()
-            ))
-            LOGGER.info("Downloading intermediary -> yarn mapping")
-            yarn.download()
-            val yarnTree = yarn.load()
-            path.deleteRecursively()
-            path.createDirectories()
-            finalNodes.forEach { (name, node) ->
-                try {
-                    val classWriter = ClassWriter(0)
-                    node.accept(classWriter)
-                    val file = path / "unmapped" / "$name.class"
-                    file.parent.createDirectories()
-                    file.writeBytes(classWriter.toByteArray())
-                } catch (e: Exception) {
-                    LOGGER.error("Failed to export class $name", e)
-                }
-            }
-            val output = OutputConsumerPath.Builder(path / "mapped")
-                .build()
-            val isDev = FabricLoader.getInstance().isDevelopmentEnvironment
-            val remapper = TinyRemapper.newRemapper()
-                .withMappings(TinyRemapperMappingsHelper.create(yarnTree,
-                    if (isDev) YARN else INTERMEDIARY,
-                    if (isDev) INTERMEDIARY else YARN
-                ))
-                .build()
-            val moaTag = remapper.createInputTag()
-            if (intermediaryClientPath.exists()) {
-                remapper.readClassPath(intermediaryClientPath)
-            }
-            else {
-                LOGGER.warn("Intermediary client jar not found, skipping")
-            }
-            remapper.readInputs(moaTag, path / "unmapped")
-            remapper.apply(output, moaTag)
-        }
     }
     init {
         // register self as an extension
