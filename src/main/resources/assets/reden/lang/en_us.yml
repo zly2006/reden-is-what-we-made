@@ -290,7 +290,9 @@ carpet:
     undoScheduledTicks:
       desc: Allow undo record scheduled ticks. Default is true.
     redenDebuggerUpdater:
-        desc: TODO
+      desc: TODO
+    realFakePlayer:
+      desc: Tick fake players in network phase, like real player but a pig.
 
     redenDebug:
       desc: |-

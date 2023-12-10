@@ -135,6 +135,11 @@ public class RedenCarpetSettings {
                 validators = {InvisibleShadowingItemsValidator.class}
         )
         public static boolean fixInvisibleShadowingItems = false;
+
+        @Rule(
+                categories = RuleCategory.CREATIVE
+        )
+        public static boolean realFakePlayer = false;
     }
 
 

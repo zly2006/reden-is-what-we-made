@@ -43,6 +43,8 @@
     "otherMods.carpet.MixinTickStep",
     "otherMods.tweeakeroo.hopperDelaySync.MixinX",
     "pearl.MixinExplosion",
+    "realFakePlayer.MixinCarpetFakePlayer",
+    "realFakePlayer.MixinServerNetworkIo",
     "sctuctureBlock.MixinStructureBlock",
     "tick.MixinTick",
     "tick.MixinWatchdog",
