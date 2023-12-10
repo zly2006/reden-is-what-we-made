@@ -30,7 +30,7 @@ public class MixinPlayerMode {
     // Inject before onBreak
     // Because tall or wide blocks such as doors or beds override [onBreak] to break the other part.
     // (Along with AbstractBlock.getStateForNeighborUpdate.)
-    @Inject(method = "tryBreakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;onBreak(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/entity/player/PlayerEntity;)V"))
+    @Inject(method = "tryBreakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;onBreak(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/entity/player/PlayerEntity;)Lnet/minecraft/block/BlockState;"))
     private void onDestroy(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         UpdateMonitorHelper.playerStartRecording(player, PlayerData.UndoRecord.Cause.BREAK_BLOCK);
     }

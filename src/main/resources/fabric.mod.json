@@ -2,7 +2,6 @@
   "schemaVersion": 1,
   "id": "reden",
   "version": "${version}",
-
   "name": "Reden is What We Make",
   "description": "Redstone EDEN!",
   "authors": [
@@ -18,10 +17,8 @@
     "homepage": "https://www.redenmc.com/",
     "issues": "https://github.com/zly2006/reden-is-what-we-made/issues"
   },
-
   "license": "LGPL-v3",
   "icon": "assets/reden/icon.png",
-
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -41,7 +38,10 @@
   "depends": {
     "fabricloader": ">=0.14.19",
     "fabric-api": "*",
-    "minecraft": "~1.20",
+    "minecraft": [
+      "1.20.3",
+      "1.20.4"
+    ],
     "java": ">=17",
     "fabric-language-kotlin": "*",
     "carpet": "*",
@@ -52,7 +52,6 @@
       "is_main_branch": "${is_main_branch}"
     },
     "modmanager": {
-
     }
   }
 }

@@ -119,7 +119,7 @@ dependencies {
     // Kotlin support
     modApi("net.fabricmc:fabric-language-kotlin:1.9.2+kotlin.1.8.10")
     // MaLiLib, required on client
-    modApi "fi.dy.masa.malilib:malilib-fabric-1.20.1:0.16.2"
+    modApi files("classpath/malilib-fabric-1.20.3-0.18.0-beta.3.jar")
     // carpet, required on client & server
     modApi "carpet:fabric-carpet:1.20.3-1.4.128+v231205"
     // Game test
@@ -132,7 +132,7 @@ dependencies {
     modCompileOnly "curse.maven:litematica-308892:4626718"
     modCompileOnly "curse.maven:tweakeroo-297344:4623488"
     modCompileOnly "maven.modrinth:modmenu:7.2.1"
-    modApi "io.wispforest:owo-lib:${project.owo_version}"
+    modApi files('classpath/owo-lib-0.12.0-pre.3+1.20.3.jar', 'classpath/jankson-1.2.2.jar')
 }
 
 test {

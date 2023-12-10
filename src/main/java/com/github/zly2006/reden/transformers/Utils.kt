@@ -101,10 +101,8 @@ object IntermediaryMappingAccess {
                 }
             }
         }
-        if (owner == null) {
-            for (classDef in mapping.classes) {
-                addMethods(classDef)
-            }
+        for (classDef in mapping.classes) {
+            addMethods(classDef)
         }
         return methodMapping[name]
     }
