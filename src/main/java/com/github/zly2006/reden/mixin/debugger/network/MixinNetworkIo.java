@@ -8,7 +8,7 @@ import com.github.zly2006.reden.debugger.stages.NetworkStage;
 import com.github.zly2006.reden.mixin.debugger.MixinServer;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.PacketCallbacks;
-import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
+import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerNetworkIo;
 import net.minecraft.text.Text;

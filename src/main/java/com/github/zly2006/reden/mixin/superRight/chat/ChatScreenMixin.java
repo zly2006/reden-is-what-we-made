@@ -96,7 +96,7 @@ public abstract class ChatScreenMixin extends Screen {
             });
         }
         quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_raw"), (entry, button) -> {
-            client.keyboard.setClipboard(Text.Serializer.toJson(text));
+            client.keyboard.setClipboard(Text.Serialization.toJsonString(text));
             entry.setName(Text.translatable("reden.widget.chat.copied"));
         });
         quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy"), (entry, button) -> {
@@ -109,7 +109,7 @@ public abstract class ChatScreenMixin extends Screen {
                 if (action == HoverEvent.Action.SHOW_TEXT) {
                     quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_hover_raw"), (entry, button) -> {
                         Text hoverText = style.getHoverEvent().getValue(HoverEvent.Action.SHOW_TEXT);
-                        client.keyboard.setClipboard(Text.Serializer.toJson(hoverText));
+                        client.keyboard.setClipboard(Text.Serialization.toJsonString(hoverText));
                         entry.setName(Text.translatable("reden.widget.chat.copied"));
                     });
                 }

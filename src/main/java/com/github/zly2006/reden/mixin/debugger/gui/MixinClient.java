@@ -19,11 +19,11 @@ public abstract class MixinClient implements ServerData.ClientSideServerDataAcce
     @Shadow public abstract void setScreen(@Nullable Screen screen);
 
     @Inject(
-            method = "openPauseMenu",
+            method = "openGameMenu",
             at = @At("HEAD"),
             cancellable = true
     )
-    private void redirectPauseMenu(boolean pause, CallbackInfo ci) {
+    private void redirectPauseMenu(boolean pauseOnly, CallbackInfo ci) {
         // if server is frozen, open the debugger
         ServerData data = getServerData$reden();
         if (data == null) {

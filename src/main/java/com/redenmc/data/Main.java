@@ -14,10 +14,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import net.minecraft.client.WindowSettings;
 import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.session.Session;
+import net.minecraft.client.session.telemetry.GameLoadTimeEvent;
 import net.minecraft.client.util.GlException;
-import net.minecraft.client.util.Session;
-import net.minecraft.client.util.telemetry.GameLoadTimeEvent;
-import net.minecraft.client.util.telemetry.TelemetryEventProperty;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.Util;
 import net.minecraft.util.Uuids;
@@ -36,6 +35,7 @@ import java.net.Proxy;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.UUID;
 
 public class Main {
     public static final Logger LOGGER = LoggerFactory.getLogger("s");
@@ -45,8 +45,6 @@ public class Main {
     public static void main(String[] args) {
         Stopwatch stopwatch = Stopwatch.createStarted(Ticker.systemTicker());
         Stopwatch stopwatch2 = Stopwatch.createStarted(Ticker.systemTicker());
-        GameLoadTimeEvent.INSTANCE.addTimer(TelemetryEventProperty.LOAD_TIME_TOTAL_TIME_MS, stopwatch);
-        GameLoadTimeEvent.INSTANCE.addTimer(TelemetryEventProperty.LOAD_TIME_PRE_WINDOW_MS, stopwatch2);
         SharedConstants.createGameVersion();
         SharedConstants.enableDataFixerOptimization();
         OptionParser optionParser = new OptionParser();
@@ -64,7 +62,7 @@ public class Main {
         String string4 = getOption(optionSet, optionSpec18);
         String string5 = "release";
         File file = new File(".");
-        String string6 = Uuids.getOfflinePlayerUuid("Dev").toString();
+        UUID uuid = Uuids.getOfflinePlayerUuid("Dev");
         if (optionSet.has(optionSpec)) {
             FlightProfiler.INSTANCE.start(InstanceType.CLIENT);
         }
@@ -78,7 +76,7 @@ public class Main {
 
         Session session = new Session(
                 "Dev",
-                string6, optionSpec17.value(optionSet), Optional.empty(), Optional.empty(), accountType);
+                uuid, optionSpec17.value(optionSet), Optional.empty(), Optional.empty(), accountType);
         File file3 = new File(file, "resourcepacks/");
         File file2 = new File(file, "assets/");
         RunArgs runArgs = new RunArgs(
@@ -122,7 +120,7 @@ public class Main {
             CrashReportSection crashReportSection = crashReport.addElement("Initialization");
             WinNativeModuleUtil.addDetailTo(crashReportSection);
             MinecraftClient.addSystemDetailsToCrashReport(null, null, runArgs.game.version, null, crashReport);
-            MinecraftClient.printCrashReport(crashReport);
+            MinecraftClient.printCrashReport(null, new File("."), crashReport);
             return;
         }
 

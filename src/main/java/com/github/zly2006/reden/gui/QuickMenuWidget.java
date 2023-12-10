@@ -115,7 +115,7 @@ public class QuickMenuWidget implements Selectable, Drawable, Element {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         remove();
         return false;
     }

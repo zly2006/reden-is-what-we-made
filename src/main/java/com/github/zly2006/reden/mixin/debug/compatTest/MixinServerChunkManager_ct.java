@@ -4,7 +4,6 @@ import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.SpawnHelper;
-import net.minecraft.world.WorldProperties;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,7 +24,7 @@ public class MixinServerChunkManager_ct {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void localCaptureTest(CallbackInfo ci, long l, long m, boolean bl, WorldProperties worldProperties, Profiler profiler, int i, boolean bl2, int j, SpawnHelper.Info info, List list, boolean bl3, Iterator var14, ServerChunkManager.ChunkWithHolder chunkWithHolder, WorldChunk worldChunk2, ChunkPos chunkPos) {
+    private void localCaptureTest(CallbackInfo ci, long l, long m, Profiler profiler, List list, int i, SpawnHelper.Info info, boolean bl, int j, boolean bl2, Iterator var12, ServerChunkManager.ChunkWithHolder chunkWithHolder, WorldChunk worldChunk2, ChunkPos chunkPos) {
 
     }
 }

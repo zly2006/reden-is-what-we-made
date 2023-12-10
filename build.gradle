@@ -121,7 +121,7 @@ dependencies {
     // MaLiLib, required on client
     modApi "fi.dy.masa.malilib:malilib-fabric-1.20.1:0.16.2"
     // carpet, required on client & server
-    modApi "carpet:fabric-carpet:1.20-1.4.112+v230608"
+    modApi "carpet:fabric-carpet:1.20.3-1.4.128+v231205"
     // Game test
     modApi "net.fabricmc:fabric-loader-junit:${project.loader_version}"
     //include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
@@ -129,9 +129,9 @@ dependencies {
     include(implementation("com.squareup.okhttp3:okhttp:4.11.0"))
     include(implementation("org.eclipse.jgit:org.eclipse.jgit:6.6.0.202305301015-r"))
     include(implementation("com.squareup.okio:okio-jvm:3.2.0"))
-    modApi "curse.maven:litematica-308892:4626718"
-    modApi "curse.maven:tweakeroo-297344:4623488"
-    modApi "maven.modrinth:modmenu:7.2.1"
+    modCompileOnly "curse.maven:litematica-308892:4626718"
+    modCompileOnly "curse.maven:tweakeroo-297344:4623488"
+    modCompileOnly "maven.modrinth:modmenu:7.2.1"
     modApi "io.wispforest:owo-lib:${project.owo_version}"
 }
 

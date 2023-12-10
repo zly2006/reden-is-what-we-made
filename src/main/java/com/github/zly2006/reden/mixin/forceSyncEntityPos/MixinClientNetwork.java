@@ -32,7 +32,7 @@ public abstract class MixinClientNetwork {
             if (!entity.isLogicalSideForUpdatingMovement()) {
                 float g = (float)(packet.getYaw() * 360) / 256.0f;
                 float h = (float)(packet.getPitch() * 360) / 256.0f;
-                entity.updateTrackedPositionAndAngles(d, e, f, g, h, 3, true);
+                entity.updateTrackedPositionAndAngles(d, e, f, g, h, 3);
                 entity.setOnGround(packet.isOnGround());
             }
             ci.cancel();

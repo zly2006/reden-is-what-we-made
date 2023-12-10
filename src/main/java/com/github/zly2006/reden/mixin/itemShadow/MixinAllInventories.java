@@ -35,9 +35,9 @@ import java.util.List;
         AbstractFurnaceBlockEntity.class,
         BrewingStandBlockEntity.class,
         ChiseledBookshelfBlockEntity.class,
-        JukeboxBlockEntity.class,
         //todo
         //  LecternBlockEntity.class,
+        //  JukeboxBlockEntity.class,
         LootableContainerBlockEntity.class,
         CraftingInventory.class,
         CraftingResultInventory.class,
@@ -45,6 +45,8 @@ import java.util.List;
         SimpleInventory.class,
 })
 public class MixinAllInventories implements ItemStackOwner {
+    // todo:
+    //   SingleStackInventory
     @Inject(
             method = "setStack(ILnet/minecraft/item/ItemStack;)V",
             at = @At("HEAD"),

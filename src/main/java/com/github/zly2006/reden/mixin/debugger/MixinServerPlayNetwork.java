@@ -2,9 +2,8 @@ package com.github.zly2006.reden.mixin.debugger;
 
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.network.GlobalStatus;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
-import org.spongepowered.asm.mixin.Final;
+import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,9 +14,7 @@ import static com.github.zly2006.reden.access.ServerData.data;
 
 @Mixin(value = ServerPlayNetworkHandler.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public class MixinServerPlayNetwork {
-    @Shadow
-    @Final
-    private MinecraftServer server;
+    @Shadow public ServerPlayerEntity player;
 
     @Inject(
             method = "tick",
@@ -28,7 +25,7 @@ public class MixinServerPlayNetwork {
             cancellable = true
     )
     private void tick(CallbackInfo ci) {
-        if (data(server).hasStatus(GlobalStatus.FROZEN)) {
+        if (data(player.server).hasStatus(GlobalStatus.FROZEN)) {
             ci.cancel();
         }
     }

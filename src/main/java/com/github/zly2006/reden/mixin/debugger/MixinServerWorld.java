@@ -29,6 +29,7 @@ import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.spawner.SpecialSpawner;
+import net.minecraft.world.tick.TickManager;
 import net.minecraft.world.tick.WorldTickScheduler;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -151,7 +152,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
     @Shadow
     protected abstract boolean processBlockEvent(BlockEvent event);
 
-    @Shadow protected abstract void method_31420(Profiler par1, Entity par2);
+    @Shadow protected abstract void method_31420(TickManager par1, Profiler par2, Entity par3);
 
     /**
      * @author zly2006
@@ -160,12 +161,15 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
     @Overwrite
     public void tick(BooleanSupplier shouldKeepTicking) {
         Profiler profiler = this.getProfiler();
+        TickManager tickManager = this.getTickManager();
         TickStage stage = data(server).getTickStageTree().peekLeaf();
         if (stage instanceof WorldBorderStage) {
             this.inBlockTick = true;
+            if (!tickManager.shouldTick()) return;
             profiler.push("world border");
             this.getWorldBorder().tick();
         } else if (stage instanceof WeatherStage) {
+            if (!tickManager.shouldTick()) return;
             profiler.swap("weather");
             this.tickWeather();
         } else if (stage instanceof TimeStage) {
@@ -182,9 +186,11 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
                 }
             }
             this.calculateAmbientDarkness();
+            if (!tickManager.shouldTick()) return;
             this.tickTime();
         } else if (stage instanceof BlockScheduledTicksRootStage) {
             profiler.swap("tickPending");
+            if (!tickManager.shouldTick()) return;
             if (!this.isDebugWorld()) {
                 long time = this.getTime();
                 profiler.push("blockTicks");
@@ -195,6 +201,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
                 profiler.pop();
             }
         } else if (stage instanceof FluidScheduledTicksRootStage) {
+            if (!tickManager.shouldTick()) return;
             profiler.swap("tickPending");
             if (!this.isDebugWorld()) {
                 long time = this.getTime();
@@ -206,6 +213,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
                 profiler.pop();
             }
         } else if (stage instanceof RaidStage) {
+            if (!tickManager.shouldTick()) return;
             profiler.swap("raid");
             this.raidManager.tick();
         } else if (stage instanceof RandomTickStage) {
@@ -213,6 +221,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             profiler.swap("chunkSource");
             this.getChunkManager().tick(shouldKeepTicking, true);
         } else if (stage instanceof BlockEventsRootStage) {
+            if (!tickManager.shouldTick()) return;
             profiler.swap("blockEvents");
             this.processSyncedBlockEvents();
             // Reden start
@@ -231,7 +240,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             }
             if (bl || this.idleTimeout++ < 300) {
                 profiler.push("entities");
-                if (this.enderDragonFight != null) {
+                if (this.enderDragonFight != null && tickManager.shouldTick()) {
                     profiler.push("dragonFight");
                     this.enderDragonFight.tick();
                     profiler.pop();
@@ -242,7 +251,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
                     data(server).getTickStageTree().insert2child(ers, es);
 
                     data(server).getTickStageTree().next().tick(); // nop
-                    method_31420(profiler, entity); // do tick
+                    method_31420(tickManager, profiler, entity); // do tick
                 });
                 profiler.pop();
             }

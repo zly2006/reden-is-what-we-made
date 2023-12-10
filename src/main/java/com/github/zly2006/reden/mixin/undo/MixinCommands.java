@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(CommandManager.class)
 public class MixinCommands {
@@ -29,12 +29,12 @@ public class MixinCommands {
             method = "execute",
             at = @At(
                     value = "INVOKE",
-                    target = "Lcom/mojang/brigadier/CommandDispatcher;execute(Lcom/mojang/brigadier/ParseResults;)I",
+                    target = "Lnet/minecraft/server/command/CommandManager;callWithContext(Lnet/minecraft/server/command/ServerCommandSource;Ljava/util/function/Consumer;)V",
                     shift = At.Shift.BEFORE,
                     remap = false
             )
     )
-    private void onExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfoReturnable<Integer> cir) {
+    private void onExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfo ci) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {
             UpdateMonitorHelper.playerStartRecording(player, PlayerData.UndoRecord.Cause.COMMAND);
         }
@@ -44,12 +44,12 @@ public class MixinCommands {
             method = "execute",
             at = @At(
                     value = "INVOKE",
-                    target = "Lcom/mojang/brigadier/CommandDispatcher;execute(Lcom/mojang/brigadier/ParseResults;)I",
+                    target = "Lnet/minecraft/server/command/CommandManager;callWithContext(Lnet/minecraft/server/command/ServerCommandSource;Ljava/util/function/Consumer;)V",
                     shift = At.Shift.AFTER,
                     remap = false
             )
     )
-    private void afterExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfoReturnable<Integer> cir) {
+    private void afterExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfo ci) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {
             UpdateMonitorHelper.playerStopRecording(player);
         }
