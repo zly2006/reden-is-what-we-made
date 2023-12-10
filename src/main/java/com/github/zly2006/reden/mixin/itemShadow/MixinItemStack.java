@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.Unique;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(ItemStack.class)
 public class MixinItemStack implements ItemStackAccess {
     @Unique private List<ItemStackOwner> owners;

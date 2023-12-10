@@ -1,7 +1,8 @@
-package com.github.zly2006.reden.access;
+package com.github.zly2006.reden.access
 
-public interface UndoableAccess {
-    long getUndoId$reden();
-
-    void setUndoId$reden(long l);
+interface UndoableAccess {
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @get:JvmName("getUndoId\$reden")
+    @set:JvmName("setUndoId\$reden")
+    var undoId: Long
 }

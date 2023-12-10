@@ -5,7 +5,6 @@ import net.minecraft.server.world.BlockEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(BlockEvent.class)
 public class MixinBlockEvent implements UndoableAccess {
     @Unique

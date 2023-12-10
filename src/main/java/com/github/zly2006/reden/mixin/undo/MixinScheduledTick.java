@@ -5,7 +5,6 @@ import net.minecraft.world.tick.OrderedTick;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(OrderedTick.class)
 public class MixinScheduledTick implements UndoableAccess {
     @Unique

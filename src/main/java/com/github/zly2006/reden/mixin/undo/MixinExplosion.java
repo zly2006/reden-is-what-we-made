@@ -17,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(Explosion.class)
 public class MixinExplosion implements UndoableAccess {
     @Shadow @Final private World world;
@@ -39,33 +38,25 @@ public class MixinExplosion implements UndoableAccess {
     @Inject(method = "affectWorld", at = @At("HEAD"))
     private void beforeAffectWorld(boolean particles, CallbackInfo ci) {
         if (world.isClient) return;
-        if (undoId != 0) {
-            UpdateMonitorHelper.pushRecord(undoId, () -> "explosion.blocks");
-        }
+        UpdateMonitorHelper.pushRecord(undoId, () -> "explosion.blocks");
     }
 
     @Inject(method = "affectWorld", at = @At("RETURN"))
     private void afterAffectWorld(boolean particles, CallbackInfo ci) {
         if (world.isClient) return;
-        if (undoId != 0) {
-            UpdateMonitorHelper.popRecord(() -> "explosion.blocks");
-        }
+        UpdateMonitorHelper.popRecord(() -> "explosion.blocks");
     }
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("HEAD"))
     private void beforeDamageEntities(CallbackInfo ci) {
         if (world.isClient) return;
-        if (undoId != 0) {
-            UpdateMonitorHelper.pushRecord(undoId, () -> "explosion.entities");
-        }
+        UpdateMonitorHelper.pushRecord(undoId, () -> "explosion.entities");
     }
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
     private void afterDamageEntities(CallbackInfo ci) {
         if (world.isClient) return;
-        if (undoId != 0) {
-            UpdateMonitorHelper.popRecord(() -> "explosion.entities");
-        }
+        UpdateMonitorHelper.popRecord(() -> "explosion.entities");
     }
 
     @Override

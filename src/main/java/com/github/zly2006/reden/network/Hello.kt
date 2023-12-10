@@ -51,7 +51,7 @@ class Hello(
                             "hopper-cd" -> ClientPlayNetworking.registerReceiver(HopperCDSync.pType) { packet, _, _ ->
                                 val screen = MinecraftClient.getInstance().currentScreen
                                 if (screen is TransferCooldownAccess) {
-                                    screen.`transferCooldown$reden` = packet.cd
+                                    screen.transferCooldown = packet.cd
                                 }
                                 HopperCDSync.currentDelay = packet.cd
                                 HopperCDSync.currentPos = packet.pos

@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PistonBlockEntity.class)
-@SuppressWarnings("AddedMixinMembersNamePattern")
 public class MixinPistonEntity implements UndoableAccess {
     @Unique
     long undoId;

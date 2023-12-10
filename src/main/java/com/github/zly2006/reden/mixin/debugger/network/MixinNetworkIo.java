@@ -26,7 +26,6 @@ import java.util.function.BooleanSupplier;
 
 import static com.github.zly2006.reden.access.ServerData.data;
 
-@SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(value = ServerNetworkIo.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public class MixinNetworkIo {
     @Shadow @Final MinecraftServer server;

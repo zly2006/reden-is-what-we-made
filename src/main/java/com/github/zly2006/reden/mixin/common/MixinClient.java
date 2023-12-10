@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(MinecraftClient.class)
 public abstract class MixinClient implements ClientData.ClientDataAccess, ServerData.ClientSideServerDataAccess {
     @Shadow @Nullable public ClientPlayerEntity player;
