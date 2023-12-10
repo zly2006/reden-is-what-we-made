@@ -12,6 +12,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.ServerNetworkIo;
 import net.minecraft.server.function.CommandFunctionManager;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
@@ -121,6 +122,11 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
             //noinspection ForLoopReplaceableByForEach
             for (int i = 0; i < this.serverGuiTickables.size(); ++i) {
                 this.serverGuiTickables.get(i).run();
+            }
+
+            for (ServerPlayerEntity serverPlayerEntity : this.playerManager.getPlayerList()) {
+                serverPlayerEntity.networkHandler.chunkDataSender.sendChunkBatches(serverPlayerEntity);
+                serverPlayerEntity.networkHandler.enableFlush();
             }
 
             this.profiler.pop();
