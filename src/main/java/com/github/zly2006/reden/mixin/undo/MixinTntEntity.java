@@ -28,13 +28,13 @@ public abstract class MixinTntEntity extends Entity implements UndoableAccess {
         PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
         if (recording != null) {
             DebugKt.debugLogger.invoke("TNT spawned, adding it into record " + recording.getId());
-            setUndoId(recording.getId());
+            setUndoId$reden(recording.getId());
         }
     }
 
     @Inject(method = "explode", at = @At("HEAD"))
     private void beforeExplode(CallbackInfo ci) {
-        UpdateMonitorHelper.pushRecord(getUndoId(), () -> "tnt explode/" + getId());
+        UpdateMonitorHelper.pushRecord(getUndoId$reden(), () -> "tnt explode/" + getId());
     }
 
     @Inject(method = "explode", at = @At("TAIL"))

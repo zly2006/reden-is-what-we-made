@@ -72,7 +72,7 @@ NeighborChanged {
                 this.children.add(StageBlockNCUpdateOneWay(this, entry, direction))
             }
         }
-        (entry as TickStageOwnerAccess).ticked = true
+        (entry as TickStageOwnerAccess).`ticked$reden` = true
         yield()
     }
 

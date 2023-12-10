@@ -10,13 +10,13 @@ class ClientData(
     val breakpoints = BreakpointsManager(true)
 
     interface ClientDataAccess {
-        fun getRedenClientData(): ClientData
+        fun `getClientData$reden`(): ClientData
     }
 
     companion object {
         @JvmStatic
         fun MinecraftClient.data(): ClientData {
-            return (this as ClientDataAccess).getRedenClientData()
+            return (this as ClientDataAccess).`getClientData$reden`()
         }
     }
 }

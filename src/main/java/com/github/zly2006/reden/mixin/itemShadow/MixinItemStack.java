@@ -17,7 +17,7 @@ public class MixinItemStack implements ItemStackAccess {
     @Unique private List<ItemStackOwner> owners;
 
     @Override
-    public @NotNull List<ItemStackOwner> getStackOwners() {
+    public @NotNull List<ItemStackOwner> getStackOwners$reden() {
         if (owners == null) {
             if (RedenCarpetSettings.Debugger.debuggerItemShadow()) {
                 owners = new ArrayList<>(4);

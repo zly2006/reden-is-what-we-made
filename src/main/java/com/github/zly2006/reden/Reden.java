@@ -119,7 +119,7 @@ public class Reden implements ModInitializer, CarpetExtension {
                                                 context.getSource().sendError(Text.of("No block entity at " + pos.toShortString()));
                                                 return 0;
                                             }
-                                            NbtCompound lastSavedNbt = ((BlockEntityInterface) blockEntity).getLastSavedNbt();
+                                            NbtCompound lastSavedNbt = ((BlockEntityInterface) blockEntity).getLastSavedNbt$reden();
                                             if (lastSavedNbt == null) {
                                                 context.getSource().sendError(Text.of("No last saved NBT at " + pos.toShortString()));
                                                 return 0;

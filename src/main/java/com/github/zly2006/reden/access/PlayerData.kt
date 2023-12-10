@@ -84,7 +84,7 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
         fun fromWorld(world: World, pos: BlockPos, putNearByEntities: Boolean): Entry {
             val be = world.getBlockEntity(pos)
             val state = world.getBlockState(pos)
-            return Entry(state, be?.getLastSavedNbt(), server.ticks).apply {
+            return Entry(state, be?.`getLastSavedNbt$reden`(), server.ticks).apply {
                 if (state.hasBlockEntity() && blockEntity == null) {
                     Reden.LOGGER.error("BlockEntity $be at $pos has no last saved nbt")
                 }
@@ -166,4 +166,4 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
     }
 }
 
-private fun BlockEntity.getLastSavedNbt() = (this as BlockEntityInterface).getLastSavedNbt()
+private fun BlockEntity.`getLastSavedNbt$reden`() = (this as BlockEntityInterface).`getLastSavedNbt$reden`()

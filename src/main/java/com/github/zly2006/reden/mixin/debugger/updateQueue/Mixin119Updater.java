@@ -21,24 +21,15 @@ import java.util.List;
 
 @Mixin(value = ChainRestrictedNeighborUpdater.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.UpdaterDataAccess {
-    @Shadow private int depth;
-
     @Shadow @Final private World world;
 
     @Shadow @Final private ArrayDeque<Entry> queue;
 
     @Shadow @Final private List<Entry> pending;
 
-    @Shadow protected abstract void runQueuedUpdates();
-
     @Unique private final UpdaterData updaterData = new UpdaterData(this);
 
-    @Override
-    public void yieldUpdater() {
-        // already overridden
-        runQueuedUpdates();
-    }
-
+    @SuppressWarnings("AddedMixinMembersNamePattern")
     @NotNull
     @Override
     public UpdaterData getRedenUpdaterData() {
@@ -75,11 +66,11 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
         }
     }
 
-    private void notifyMixins(CallbackInfo ci) {
+    @Unique private void notifyMixins(CallbackInfo ci) {
         if (world.isClient) {
             throw new RuntimeException("Ticking updates by stages at client");
         }
-        // no-op
+        // no-op, removal
         if (false) {
             // To keep injecting points, we need to call the original method
             // notify mixins only
@@ -93,7 +84,7 @@ public abstract class Mixin119Updater implements NeighborUpdater, UpdaterData.Up
         ci.cancel(); // processing entry ends here
     }
 
-    private void redirectToStage(CallbackInfo ci) {
+    @Unique private void redirectToStage(CallbackInfo ci) {
         updaterData.getTickStageTree().next().tick();
         ci.cancel();
     }

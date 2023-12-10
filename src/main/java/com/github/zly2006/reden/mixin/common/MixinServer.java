@@ -58,7 +58,7 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
 
     @NotNull
     @Override
-    public ServerData getRedenServerData() {
+    public ServerData getServerData$reden() {
         return serverData;
     }
 }

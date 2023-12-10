@@ -58,7 +58,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
         @JvmStatic
         fun <T : ChainRestrictedNeighborUpdater.Entry> createAndInsert(updater: NeighborUpdater, entry: T): AbstractBlockUpdateStage<T> {
             val stageOwnerAccess = entry as TickStageOwnerAccess
-            if (stageOwnerAccess.tickStage is AbstractBlockUpdateStage<*>) {
+            if (stageOwnerAccess.`tickStage$reden` is AbstractBlockUpdateStage<*>) {
                 error("Already has a block update stage")
             }
             val data = updater.updaterData()
@@ -72,7 +72,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
                 is Updater119.SimpleEntry -> StageBlockNCUpdate(parent, entry)
                 else -> throw IllegalArgumentException("Unknown updater entry type: ${entry.javaClass}")
             } as AbstractBlockUpdateStage<T> // unchecked, but we know it's right
-            stageOwnerAccess.tickStage = stage
+            stageOwnerAccess.`tickStage$reden` = stage
 
             data.tickStageTree.insert2childAtLast(parent, stage)
             return stage

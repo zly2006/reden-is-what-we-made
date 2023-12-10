@@ -29,7 +29,7 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
     @Unique NbtCompound lastSavedNbt = null;
 
     @Override
-    public void saveLastNbt() {
+    public void saveLastNbt$reden() {
         if (world != null && !world.isClient) {
             DebugKt.debugLogger.invoke("before saving lastNBT at " + pos.toShortString() + ", data=" + lastSavedNbt);
             lastSavedNbt = this.createNbtWithIdentifyingData().copy();
@@ -39,7 +39,7 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
 
     @Override
     @Nullable
-    public NbtCompound getLastSavedNbt() {
+    public NbtCompound getLastSavedNbt$reden() {
         return lastSavedNbt;
     }
 

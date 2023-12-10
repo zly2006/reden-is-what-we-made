@@ -16,19 +16,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(HopperScreen.class)
 public abstract class MixinHopperScreen extends HandledScreen<HopperScreenHandler> implements TransferCooldownAccess {
     @Unique Text originalTitle;
     @Unique private int transferCooldown;
 
     @Override
-    public void setTransferCooldown(int transferCooldown) {
+    public void setTransferCooldown$reden(int transferCooldown) {
         this.transferCooldown = transferCooldown;
     }
 
     @Override
-    public int getTransferCooldown() {
+    public int getTransferCooldown$reden() {
         return transferCooldown;
     }
 

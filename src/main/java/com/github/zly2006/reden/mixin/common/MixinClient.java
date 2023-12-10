@@ -23,17 +23,17 @@ public abstract class MixinClient implements ClientData.ClientDataAccess, Server
 
     @NotNull
     @Override
-    public ClientData getRedenClientData() {
+    public ClientData getClientData$reden() {
         return clientData;
     }
 
     @Override
-    public ServerData getRedenServerData() {
+    public ServerData getServerData$reden() {
         return serverData;
     }
 
     @Override
-    public void setRedenServerData(@Nullable ServerData serverData) {
+    public void setServerData$reden(@Nullable ServerData serverData) {
         this.serverData = serverData;
     }
 

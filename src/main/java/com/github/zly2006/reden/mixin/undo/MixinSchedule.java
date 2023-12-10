@@ -29,7 +29,7 @@ public class MixinSchedule {
     )
     private <T> void onRunSchedule(BiConsumer<BlockPos, T> ticker, CallbackInfo ci, OrderedTick orderedTick) {
         if (RedenCarpetSettings.Options.undoScheduledTicks) {
-            long undoId = ((UndoableAccess) orderedTick).getUndoId();
+            long undoId = ((UndoableAccess) orderedTick).getUndoId$reden();
             UpdateMonitorHelper.pushRecord(undoId, () -> "scheduled tick/" + orderedTick.pos().toShortString());
         }
     }
@@ -59,7 +59,7 @@ public class MixinSchedule {
         if (RedenCarpetSettings.Options.undoScheduledTicks && recording != null) {
             DebugKt.debugLogger.invoke("Scheduled tick at " + orderedTick.pos() + ", adding it into record " + recording.getId());
             // inherit parent id
-            access.setUndoId(recording.getId());
+            access.setUndoId$reden(recording.getId());
         }
     }
 }

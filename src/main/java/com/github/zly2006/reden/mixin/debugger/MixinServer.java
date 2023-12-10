@@ -64,7 +64,7 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
         ServerWorld serverWorld;
 
         // Reden start
-        TickStage stage = getRedenServerData().getTickStageTree().peekLeaf();
+        TickStage stage = getServerData$reden().getTickStageTree().peekLeaf();
 
         if (stage instanceof ServerRootStage) {
             /**

@@ -46,7 +46,6 @@ class RedenMixinExtension: IExtension, IMixinConfigPlugin {
 
         @OptIn(ExperimentalPathApi::class)
         fun exportClasses(path: Path) {
-            error("Not supported.")
             val yarn = Yarn(Path.of("."))
             val intermediaryClientPath = Path(URLDecoder.decode(
                 MinecraftServer::class.java.protectionDomain.codeSource.location.path,

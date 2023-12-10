@@ -25,7 +25,7 @@ public abstract class MixinClient implements ServerData.ClientSideServerDataAcce
     )
     private void redirectPauseMenu(boolean pause, CallbackInfo ci) {
         // if server is frozen, open the debugger
-        ServerData data = getRedenServerData();
+        ServerData data = getServerData$reden();
         if (data == null) {
             return;
         }

@@ -32,7 +32,6 @@ class UpdaterData(
     val tickingEntry: Entry? get() = tickingStage?.entry
 
     interface UpdaterDataAccess {
-        fun yieldUpdater()
         fun getRedenUpdaterData(): UpdaterData
     }
 

@@ -12,12 +12,12 @@ public class MixinBlockEvent implements UndoableAccess {
     long undoId;
 
     @Override
-    public long getUndoId() {
+    public long getUndoId$reden() {
         return undoId;
     }
 
     @Override
-    public void setUndoId(long l) {
+    public void setUndoId$reden(long l) {
         undoId = l;
     }
 }

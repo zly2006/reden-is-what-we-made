@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.mixin.debugger.updateQueue;
 
-
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.TickStageOwnerAccess;
 import com.github.zly2006.reden.debugger.TickStage;
@@ -26,21 +25,22 @@ public class Mixin119UpdaterEntries implements TickStageOwnerAccess {
     @Unique AbstractBlockUpdateStage<?> stage;
 
     @Override
-    public boolean getTicked() {
+    public boolean getTicked$reden() {
         return ticked;
     }
 
     @Override
-    public void setTicked(boolean ticked) {
+    public void setTicked$reden(boolean ticked) {
         this.ticked = ticked;
     }
 
-    public @NotNull AbstractBlockUpdateStage<?> getTickStage() {
+    @Override
+    public @NotNull AbstractBlockUpdateStage<?> getTickStage$reden() {
         return stage;
     }
 
     @Override
-    public void setTickStage(TickStage tickStage) {
+    public void setTickStage$reden(TickStage tickStage) {
         stage = (AbstractBlockUpdateStage<?>) tickStage;
     }
 

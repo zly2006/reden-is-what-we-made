@@ -19,13 +19,13 @@ public class MixinChunkSection implements ChunkSectionInterface {
     }
 
     @Override
-    public int getModifyTime(@NotNull BlockPos pos) {
+    public int getModifyTime$reden(@NotNull BlockPos pos) {
         int index = getIndex(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
         return modifyTime[index];
     }
 
     @Override
-    public void setModifyTime(@NotNull BlockPos pos, int time) {
+    public void setModifyTime$reden(@NotNull BlockPos pos, int time) {
         int index = getIndex(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
         modifyTime[index] = time;
     }

@@ -55,7 +55,7 @@ public class MixinAllInventories implements ItemStackOwner {
             return;
         }
         if (RedenCarpetSettings.Debugger.debuggerItemShadow()) {
-            List<ItemStackOwner> stackOwners = ((ItemStackAccess) stack).getStackOwners();
+            List<ItemStackOwner> stackOwners = ((ItemStackAccess) stack).getStackOwners$reden();
             // I am an Inventory, of course!
             //noinspection SuspiciousMethodCalls
             if (!stackOwners.contains(this)) {
@@ -75,7 +75,7 @@ public class MixinAllInventories implements ItemStackOwner {
         }
         if (RedenCarpetSettings.Debugger.debuggerItemShadow()) {
             ((ItemStackAccess) stack).checkStackOwners();
-            List<ItemStackOwner> stackOwners = ((ItemStackAccess) stack).getStackOwners();
+            List<ItemStackOwner> stackOwners = ((ItemStackAccess) stack).getStackOwners$reden();
             if (stackOwners.size() > 1) {
                 MinecraftServer server = UtilsKt.server;
                 if (server != null) {

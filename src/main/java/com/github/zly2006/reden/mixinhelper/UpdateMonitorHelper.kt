@@ -164,7 +164,7 @@ object UpdateMonitorHelper {
     fun ServerWorld.modified(pos: BlockPos, time: Int = server.ticks) = getChunk(pos).run {
         setNeedsSaving(true)
         getSection(getSectionIndex(pos.y)) as ChunkSectionInterface
-    }.setModifyTime(pos, time)
+    }.`setModifyTime$reden`(pos, time)
 
     /**
      * @param beChangeOnly if only block entities changed, we have not recorded this change in [monitorSetBlock],
@@ -174,7 +174,7 @@ object UpdateMonitorHelper {
     fun postSetBlock(world: ServerWorld, pos: BlockPos, finalState: BlockState, beChangeOnly: Boolean) {
         val be = world.getBlockEntity(pos) as BlockEntityInterface?
         if (be != null) {
-            val data = be.getLastSavedNbt()
+            val data = be.`getLastSavedNbt$reden`()
             debugLogger("id ${recording?.id ?: 0}: set$pos, block entity lastSaved=$data")
 
             if (beChangeOnly) {
@@ -188,7 +188,7 @@ object UpdateMonitorHelper {
                 }
             }
 
-            be.saveLastNbt()
+            be.`saveLastNbt$reden`()
             debugLogger("postSetBlock: done.")
         }
     }

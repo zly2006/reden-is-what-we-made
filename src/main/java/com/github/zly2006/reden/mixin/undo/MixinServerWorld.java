@@ -27,7 +27,7 @@ public abstract class MixinServerWorld {
         if (curr instanceof UndoableAccess access) {
             PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
             if (recording != null) {
-                access.setUndoId(recording.getId());
+                access.setUndoId$reden(recording.getId());
             }
         }
         return instance.add((BlockEvent) curr);
@@ -41,7 +41,7 @@ public abstract class MixinServerWorld {
             )
     )
     private void beforeProcessBlockEvent(BlockEvent event, CallbackInfoReturnable<Boolean> cir) {
-        long undoId = ((UndoableAccess) event).getUndoId();
+        long undoId = ((UndoableAccess) event).getUndoId$reden();
         UpdateMonitorHelper.pushRecord(undoId, () -> "block event/" + event.pos().toShortString());
     }
     @Inject(

@@ -26,7 +26,7 @@ public class MixinMovingPiston {
                     && !world1.isClient; // server side
             if (shouldTrack) {
                 if (be instanceof UndoableAccess access) {
-                    UpdateMonitorHelper.pushRecord(access.getUndoId(), () -> "piston block entity tick/" + pos.toShortString());
+                    UpdateMonitorHelper.pushRecord(access.getUndoId$reden(), () -> "piston block entity tick/" + pos.toShortString());
                 }
             }
             PistonBlockEntity.tick(world1, pos, state1, be);

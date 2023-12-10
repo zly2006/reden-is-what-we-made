@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface ItemStackAccess {
     default void checkStackOwners() {
-        getStackOwners().removeIf(it -> !it.checkContains((ItemStack) this));
+        getStackOwners$reden().removeIf(it -> !it.checkContains((ItemStack) this));
     }
 
-    List<ItemStackOwner> getStackOwners();
+    List<ItemStackOwner> getStackOwners$reden();
 }

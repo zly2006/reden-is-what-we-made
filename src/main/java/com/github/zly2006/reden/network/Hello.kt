@@ -2,7 +2,6 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ServerData
-import com.github.zly2006.reden.access.TransferCooldownAccess
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.translateMessage
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
@@ -42,7 +41,7 @@ class Hello(
                     Reden.LOGGER.info("Hello from server: ${packet.version}")
                     Reden.LOGGER.info("Feature set: " + packet.featureSet.joinToString())
                     val mc = MinecraftClient.getInstance()
-                    (mc as ServerData.ClientSideServerDataAccess).redenServerData =
+                    (mc as ServerData.ClientSideServerDataAccess).`serverData$reden` =
                         ServerData(packet.version, null).apply {
                             featureSet.addAll(packet.featureSet)
                         }

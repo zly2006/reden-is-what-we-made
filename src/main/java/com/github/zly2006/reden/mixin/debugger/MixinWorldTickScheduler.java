@@ -38,12 +38,12 @@ public abstract class MixinWorldTickScheduler<T> implements TickStageOwnerAccess
 
     @Nullable
     @Override
-    public TickStage getTickStage() {
+    public TickStage getTickStage$reden() {
         return stage;
     }
 
     @Override
-    public void setTickStage(@Nullable TickStage tickStage) {
+    public void setTickStage$reden(@Nullable TickStage tickStage) {
         this.stage = (ScheduledTicksRootStage) tickStage;
     }
 

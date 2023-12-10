@@ -41,6 +41,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
         worldData = new WorldData((ServerWorld) (World) this);
     }
 
+    @SuppressWarnings("AddedMixinMembersNamePattern")
     @NotNull
     @Override
     public WorldData getRedenWorldData() {

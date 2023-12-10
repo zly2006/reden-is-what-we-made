@@ -189,7 +189,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
                 long time = this.getTime();
                 profiler.push("blockTicks");
                 // Reden start
-                ((TickStageOwnerAccess) this.blockTickScheduler).setTickStage(stage);
+                ((TickStageOwnerAccess) this.blockTickScheduler).setTickStage$reden(stage);
                 // Reden stop
                 this.blockTickScheduler.tick(time, 65536, this::tickBlock);
                 profiler.pop();
@@ -200,7 +200,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
                 long time = this.getTime();
                 profiler.push("fluidTicks");
                 // Reden start
-                ((TickStageOwnerAccess) this.fluidTickScheduler).setTickStage(stage);
+                ((TickStageOwnerAccess) this.fluidTickScheduler).setTickStage$reden(stage);
                 // Reden stop
                 this.fluidTickScheduler.tick(time, 65536, this::tickFluid);
                 profiler.pop();

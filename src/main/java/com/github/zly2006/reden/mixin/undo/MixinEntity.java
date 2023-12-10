@@ -18,12 +18,12 @@ public class MixinEntity implements UndoableAccess {
     @Unique long undoId;
 
     @Override
-    public long getUndoId() {
+    public long getUndoId$reden() {
         return undoId;
     }
 
     @Override
-    public void setUndoId(long undoId) {
+    public void setUndoId$reden(long undoId) {
         this.undoId = undoId;
     }
 

@@ -69,12 +69,12 @@ public class MixinExplosion implements UndoableAccess {
     }
 
     @Override
-    public void setUndoId(long undoId) {
+    public void setUndoId$reden(long undoId) {
         this.undoId = undoId;
     }
 
     @Override
-    public long getUndoId() {
+    public long getUndoId$reden() {
         return undoId;
     }
 }

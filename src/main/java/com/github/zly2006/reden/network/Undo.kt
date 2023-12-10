@@ -43,8 +43,8 @@ class Undo(
                 debugLogger("undo ${pos}, ${entry.state}")
                 // set block
                 val sec = world.getChunk(pos).run { getSection(getSectionIndex(pos.y)) } as ChunkSectionInterface
-                if (sec.getModifyTime(pos) < entry.time) {
-                    debugLogger("undo $pos skipped (${sec.getModifyTime(pos)} < ${entry.time})")
+                if (sec.`getModifyTime$reden`(pos) < entry.time) {
+                    debugLogger("undo $pos skipped (${sec.`getModifyTime$reden`(pos)} < ${entry.time})")
                     return@forEach
                 }
                 world.modified(pos, entry.time)
@@ -61,7 +61,7 @@ class Undo(
                 entry.blockEntity?.let { beNbt ->
                     debugLogger("undo block entity ${pos}, $beNbt")
                     world.addBlockEntity(BlockEntity.createFromNbt(pos, entry.state, beNbt))
-                    (world.getBlockEntity(pos) as BlockEntityInterface).saveLastNbt()
+                    (world.getBlockEntity(pos) as BlockEntityInterface).`saveLastNbt$reden`()
                 }
             }
             record.entities.forEach {
