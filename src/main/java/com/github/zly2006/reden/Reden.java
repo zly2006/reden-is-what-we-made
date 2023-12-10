@@ -28,6 +28,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.ItemStackArgument;
 import net.minecraft.command.argument.ItemStackArgumentType;
+import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -143,7 +144,7 @@ public class Reden implements ModInitializer, CarpetExtension {
                         .then(CommandManager.literal("totem-of-undying").executes(context -> {
                             ServerPlayerEntity player = context.getSource().getPlayer();
                             if (player != null) {
-                                player.networkHandler.sendPacket(new EntityStatusS2CPacket(player, (byte) 35));
+                                player.networkHandler.sendPacket(new EntityStatusS2CPacket(player, EntityStatuses.USE_TOTEM_OF_UNDYING));
                             }
                             return 1;
                         }))

@@ -30,6 +30,8 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.command.argument.ItemStackArgumentType;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 
 import java.io.File;
@@ -106,17 +108,22 @@ public class RedenClient implements ClientModInitializer {
             ClientGlowKt.register(dispatcher);
             dispatcher.register(ClientCommandManager.literal("qubit").executes(context -> {
                 throw new Error("Qu(b)it!");
-            }));
-            dispatcher.register(ClientCommandManager.literal("luck-today").executes(context -> {
+            }).then(ClientCommandManager.literal("floating-item")
+                    .then(ClientCommandManager.argument("item", ItemStackArgumentType.itemStack(registryAccess))
+                            .executes(context -> {
+                                MinecraftClient client = MinecraftClient.getInstance();
+                                client.gameRenderer.showFloatingItem(ItemStackArgumentType.getItemStackArgument(context, "item").createStack(1, false));
+                                client.world.playSound(client.player.getX(), client.player.getY(), client.player.getZ(), SoundEvents.ITEM_TOTEM_USE, client.player.getSoundCategory(), 1.0F, 1.0F, false);
+                                return 1;
+                            }))).then(ClientCommandManager.literal("luck-today").executes(context -> {
                 context.getSource().sendFeedback(
                         Text.literal(String.valueOf(LuckToday.Companion.getLuckValue().getData()))
                 );
                 return 1;
-            }));
-            dispatcher.register(ClientCommandManager.literal("relaunch").executes(context -> {
+            })).then(ClientCommandManager.literal("relaunch").executes(context -> {
                 AutoUpdateKt.relaunch(null);
                 return 1;
-            }));
+            })));
         });
     }
 
