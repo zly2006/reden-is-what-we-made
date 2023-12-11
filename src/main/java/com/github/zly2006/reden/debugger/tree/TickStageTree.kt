@@ -2,8 +2,9 @@ package com.github.zly2006.reden.debugger.tree
 
 import com.github.zly2006.reden.debugger.TickStage
 
-class TickStageTree {
-    val activeStages = mutableListOf<TickStage>()
+class TickStageTree(
+    val activeStages: MutableList<TickStage> = mutableListOf()
+) {
     val activeStage get() = activeStages.lastOrNull()
     private val history = mutableListOf<TickStage>()
 
@@ -21,6 +22,14 @@ class TickStageTree {
     }
 
     internal fun pop(): TickStage {
+        /*
+        if (stage4checking != null) {
+            require(stage4checking == activeStage) {
+                "Stage $stage4checking is not the active stage"
+            }
+        }
+
+         */
         val stage = activeStages.removeLast().also(history::add)
         stage.postTick()
         if (steppingInto) {

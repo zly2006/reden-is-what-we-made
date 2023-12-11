@@ -193,27 +193,26 @@ object StageIo {
         if (writeAllChildren) {
             TODO()
         }
+        var lastRead: TickStage? = null
+        fun readSingleTickStage(buf: PacketByteBuf): TickStage {
+            val parentId = buf.readNullable(PacketByteBuf::readVarInt)
+            val id = buf.readVarInt()
+            val childrenSize = buf.readVarInt()
+            val name = buf.readString()
 
-        val list = packetByteBuf.readCollection(::ArrayList, ::readSingleTickStage)
-        val tree = TickStageTree()
-        tree.activeStages.addAll(list)
-        return tree
-    }
+            val stage = constructors[name]?.construct(lastRead)
+                ?: error("Unknown stage name: $name")
+            stage.readByteBuf(buf)
 
-    private fun readSingleTickStage(buf: PacketByteBuf): TickStage {
-        val parentId = buf.readNullable(PacketByteBuf::readVarInt)
-        val id = buf.readVarInt()
-        val childrenSize = buf.readVarInt()
-        val name = buf.readString()
+            for (i in 0 until childrenSize) {
+                stage.children.add(DummyStage(stage))
+            }
 
-        val stage = constructors[name]?.construct(null)
-            ?: error("Unknown stage name: $name")
-        stage.readByteBuf(buf)
-
-        for (i in 0 until childrenSize) {
-            stage.children.add(DummyStage(stage))
+            lastRead = stage
+            return stage
         }
 
-        return stage
+        val list = packetByteBuf.readCollection(::ArrayList, ::readSingleTickStage)
+        return TickStageTree(activeStages = list)
     }
 }

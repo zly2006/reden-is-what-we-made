@@ -11,6 +11,7 @@ class ServerRootStage(
 ): TickStage("server_root", null) {
     var tickIndex = 0
     lateinit var shouldKeepTicking: BooleanSupplier
+    @Deprecated("TickStage is going not to be tickable.")
     override fun tick() {
         super.tick()
         server.worlds.forEach {

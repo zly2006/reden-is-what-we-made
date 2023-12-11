@@ -1,5 +1,4 @@
 package com.github.zly2006.reden.debugger.stages.block
-import com.github.zly2006.reden.access.TickStageOwnerAccess
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.utils.readBlock
 import com.github.zly2006.reden.utils.readDirection
@@ -11,7 +10,6 @@ import net.minecraft.text.MutableText
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
-import net.minecraft.world.block.NeighborUpdater
 
 /**
  * Code:
@@ -44,11 +42,6 @@ NeighborChanged {
             get() = entry.pos.offset(direction)
         override val sourceBlock: Block
             get() = entry.sourceBlock
-
-        override fun doTick() {
-            val blockState = world!!.getBlockState(targetPos)
-            blockState.neighborUpdate(world, targetPos, sourceBlock, sourcePos, false)
-        }
     }
     override lateinit var entry: ChainRestrictedNeighborUpdater.SixWayEntry
 
@@ -63,17 +56,6 @@ NeighborChanged {
         if (entry != null) {
             this.entry = entry
         }
-    }
-
-    override fun doTick() {
-        // update children
-        for (direction in NeighborUpdater.UPDATE_ORDER) {
-            if (direction != entry.except) {
-                this.children.add(StageBlockNCUpdateOneWay(this, entry, direction))
-            }
-        }
-        (entry as TickStageOwnerAccess).`ticked$reden` = true
-        yield()
     }
 
     override fun readByteBuf(buf: PacketByteBuf) {

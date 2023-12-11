@@ -1,7 +1,6 @@
 package com.github.zly2006.reden.debugger.stages.block
 
 import com.github.zly2006.reden.access.ServerData.Companion.data
-import com.github.zly2006.reden.access.UpdaterData.Companion.updaterData
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.storage.BlocksResetStorage
@@ -22,19 +21,10 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
     abstract val entry: T
     val resetStorage = BlocksResetStorage()
 
-    override fun tick() {
-        super.tick()
-        if (world == null) {
-            error("World is null, are you ticking this stage at a client?")
-        }
+    override fun preTick() {
+        super.preTick()
         world!!.server.data().breakpoints.checkBreakpointsForUpdating(this)
-        world!!.neighborUpdater.updaterData().tickEntry(this)
     }
-
-    /**
-     * Actual tick logic from vanilla code.
-     */
-    abstract fun doTick()
 
     override fun reset() {
         if (world == null) {
@@ -47,7 +37,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
     abstract val targetPos: BlockPos?
     abstract val sourceBlock: Block
     override val displayName: MutableText
-        get() = super.displayName.copy().append(" ").append(sourcePos.toShortString()).append(" -> ").append(targetPos?.toShortString())
+        get() = super.displayName.copy().append(" ").append(sourcePos.toShortString()).append(" -> ").append(targetPos?.toShortString() ?: "null")
             .append(" by ").append(sourceBlock.name)
 
     override fun focused(mc: MinecraftClient) {

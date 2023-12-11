@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerNetworkIo;
+import org.apache.http.util.Asserts;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,13 +24,20 @@ import static com.github.zly2006.reden.access.ServerData.data;
 
 @Mixin(value = ServerNetworkIo.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public class MixinNetworkIo {
-    @Shadow @Final MinecraftServer server;
+    @Shadow
+    @Final
+    MinecraftServer server;
 
-    @Shadow @Final private static Logger LOGGER;
+    @Shadow
+    @Final
+    private static Logger LOGGER;
 
-    @Shadow @Final private List<ClientConnection> connections;
+    @Shadow
+    @Final
+    private List<ClientConnection> connections;
 
-    @Unique GlobalNetworkStage stage;
+    @Unique
+    GlobalNetworkStage stage;
 
     @Inject(
             method = "tick",
@@ -58,5 +66,20 @@ public class MixinNetworkIo {
     )
     private void startConnectionTick(CallbackInfo ci, @Local(ordinal = 0) ClientConnection clientConnection) {
         data(server).getTickStageTree().push$reden_is_what_we_made(new NetworkStage(stage, clientConnection));
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/network/ClientConnection;tick()V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void endConnectionTick(CallbackInfo ci, @Local(ordinal = 0) ClientConnection clientConnection) {
+        Asserts.check(
+                data(server).getTickStageTree().pop$reden_is_what_we_made() instanceof NetworkStage,
+                "Popped stage is not a network stage."
+        );
     }
 }

@@ -73,6 +73,7 @@ object RedenInjectConfig {
                         && it.name == "transformerHint"
                         && it.desc == "(Ljava/lang/String;)V"
             }.map { it as MethodInsnNode }
+            if (hints.isEmpty()) return
             if (hints.size != 2) {
                 throw IllegalStateException("Cannot find transformer hints")
             }

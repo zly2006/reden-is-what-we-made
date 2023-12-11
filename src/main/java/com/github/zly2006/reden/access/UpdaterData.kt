@@ -3,7 +3,6 @@ package com.github.zly2006.reden.access
 import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
 import com.github.zly2006.reden.utils.server
-import net.minecraft.world.block.ChainRestrictedNeighborUpdater
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater.Entry
 import net.minecraft.world.block.NeighborUpdater
 
@@ -12,26 +11,11 @@ class UpdaterData(
 ) {
     @JvmField
     var tickingStage: AbstractBlockUpdateStage<*>? = null
-    @JvmField
+    @JvmField @Deprecated("removed")
     var notifyMixinsOnly = false
-
-    fun tickEntry(stage: AbstractBlockUpdateStage<*>) {
-        tickingStage = stage
-        notifyMixinsOnly = true
-        // noop to notify mixins
-        when (updater) {
-            is ChainRestrictedNeighborUpdater -> {
-                updater.runQueuedUpdates()
-            }
-
-            else -> {}
-        }
-        stage.doTick() // todo: noop to notify mixins
-        tickingStage = null
-        notifyMixinsOnly = false
-    }
-
+    @Deprecated("")
     val tickStageTree get() = server.data().stageTree
+    @Deprecated("removed", ReplaceWith("tickingStage?.entry"))
     val tickingEntry: Entry? get() = tickingStage?.entry
 
     @Deprecated("removed")

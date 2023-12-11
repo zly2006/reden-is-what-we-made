@@ -8,7 +8,6 @@ import net.minecraft.block.Block
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
-import net.minecraft.world.block.NeighborUpdater
 
 /**
  * Code:
@@ -52,18 +51,6 @@ class StageBlockPPUpdate(
         buf.writeBlockPos(entry.neighborPos)
         buf.writeInt(entry.updateFlags)
         buf.writeInt(entry.updateLimit)
-    }
-
-    override fun doTick() {
-        NeighborUpdater.replaceWithStateForNeighborUpdate(
-            world,
-            entry.direction,
-            entry.neighborState,
-            entry.pos,
-            entry.neighborPos,
-            entry.updateFlags,
-            entry.updateLimit
-        )
     }
 
     override val sourcePos: BlockPos

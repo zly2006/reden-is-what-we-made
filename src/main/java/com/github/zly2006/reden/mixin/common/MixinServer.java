@@ -2,8 +2,6 @@ package com.github.zly2006.reden.mixin.common;
 
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
-import com.github.zly2006.reden.carpet.RedenCarpetSettings;
-import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage;
 import com.github.zly2006.reden.network.GlobalStatus;
 import com.github.zly2006.reden.transformers.RedenMixinExtension;
 import net.minecraft.server.MinecraftServer;
@@ -33,16 +31,23 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
         assert serverData.getTickStage() != null;
         serverData.getTickStage().setShouldKeepTicking(shouldKeepTicking);
         if (RedenMixinExtension.APPLY_DEBUGGER_MIXINS) {
-            serverData.getTickStage().tick();
-            // tick the stage tree.
-            while (serverData.getStageTree().hasNext()) {
-                var stage = serverData.getStageTree().next();
-                if (stage instanceof AbstractBlockUpdateStage<?>) {
-                    if (RedenCarpetSettings.Options.redenDebug) {
-                        throw new RuntimeException("AbstractBlockUpdateStage should not be in the stage tree.");
-                    }
-                }
-                stage.tick();
+            serverData.getTickStageTree().push$reden_is_what_we_made(serverData.getTickStage());
+        }
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/MinecraftServer;tickWorlds(Ljava/util/function/BooleanSupplier;)V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void tickStageTreeEnd(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+        if (RedenMixinExtension.APPLY_DEBUGGER_MIXINS) {
+            serverData.getTickStageTree().pop$reden_is_what_we_made();
+            if (serverData.getTickStageTree().getActiveStage() != null) {
+                throw new IllegalStateException("Tick stage tree is not empty after popping all stages.");
             }
         }
     }

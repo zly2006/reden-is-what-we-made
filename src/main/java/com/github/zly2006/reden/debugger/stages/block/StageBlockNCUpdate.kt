@@ -6,7 +6,6 @@ import net.minecraft.block.Block
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater
-import net.minecraft.world.block.NeighborUpdater
 
 /**
  * Code:
@@ -48,11 +47,6 @@ NeighborChanged {
         buf.writeBlockPos(entry.pos)
         buf.writeBlock(entry.sourceBlock)
         buf.writeBlockPos(entry.sourcePos)
-    }
-
-    override fun doTick() {
-        val blockState = world!!.getBlockState(targetPos)
-        NeighborUpdater.tryNeighborUpdate(world, blockState, targetPos, sourceBlock, sourcePos, false)
     }
 
     override val sourcePos: BlockPos
