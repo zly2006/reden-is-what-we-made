@@ -18,7 +18,7 @@ import kotlin.io.path.createDirectories
 class RedenMixinExtension: IExtension, IMixinConfigPlugin {
     companion object {
         @JvmField
-        val APPLY_DEBUGGER_MIXINS = System.getProperty("reden.debugger", "false").toBoolean()
+        val APPLY_DEBUGGER_MIXINS = System.getProperty("reden.debugger", "true").toBoolean()
         private val LOGGER = LogManager.getLogger("Reden/MixinExt")!!
         val finalNodes = mutableMapOf<String, ClassNode>()
     }

@@ -39,6 +39,7 @@ object StageIo {
 
         constructors["block_update"] = Constructor { BlockUpdateStage(it!!) }
         constructors["nc_update"] = Constructor { StageBlockNCUpdate(it!!, null) }
+        constructors["nc_update_1"] = Constructor { StageBlockNCUpdateSixWay.StageBlockNCUpdateOneWay(it!!, direction = null) }
         constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it!!, null) }
         constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it!!, null) }
         constructors["pp_update"] = Constructor { StageBlockPPUpdate(it!!, null) }
@@ -90,17 +91,12 @@ object StageIo {
         return stage
     }
 
-    fun writeStageTree(tree: StageTree, buf: PacketByteBuf) {
-        val list = mutableListOf<StageTree.TreeNode>()
-        var node = tree.lastReturned
-        while (node != null) {
-            list.add(node)
-            node = node.parent
-        }
+    fun writeStageTree(buf: PacketByteBuf, tree: StageTree) {
+        val list = tree.currentNodes
 
         buf.writeVarInt(list.size)
         for (i in list.size - 1 downTo 0) {
-            node = list[i]
+            val node = list[i]
             buf.writeBoolean(node.childrenUpdated)
             if (node.childrenUpdated) {
                 if (node.iter == null) {

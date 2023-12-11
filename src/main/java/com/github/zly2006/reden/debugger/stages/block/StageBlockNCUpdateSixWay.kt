@@ -34,8 +34,8 @@ class StageBlockNCUpdateSixWay(
 NeighborChanged {
     class StageBlockNCUpdateOneWay(
         parent: TickStage,
-        override val entry: ChainRestrictedNeighborUpdater.SixWayEntry,
-        val direction: Direction
+        override val entry: ChainRestrictedNeighborUpdater.SixWayEntry = (parent as StageBlockNCUpdateSixWay).entry,
+        val direction: Direction?
     ): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SixWayEntry>("nc_update_1", parent),
     NeighborChanged {
         override val sourcePos: BlockPos

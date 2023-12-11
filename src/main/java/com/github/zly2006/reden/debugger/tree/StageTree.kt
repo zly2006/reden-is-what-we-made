@@ -2,10 +2,8 @@ package com.github.zly2006.reden.debugger.tree
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
-import com.github.zly2006.reden.debugger.disableWatchDog
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.isDebug
-import com.github.zly2006.reden.utils.server
 import io.netty.util.internal.UnstableApi
 import okhttp3.internal.toHexString
 import org.jetbrains.annotations.ApiStatus
@@ -40,7 +38,8 @@ class StageTree: Iterator<TickStage> {
         var childrenUpdated: Boolean,
         var iter: ListIterator<TickStage>?,
     ) {
-        override fun toString() = "$stage ${if (!childrenUpdated) "<>" else "${iter?.previousIndex()} / ${stage.children.size}"}"
+        override fun toString() =
+            "$stage ${if (!childrenUpdated) "<>" else "${iter?.previousIndex()} / ${stage.children.size}"}"
     }
 
     companion object {
@@ -143,11 +142,6 @@ class StageTree: Iterator<TickStage> {
         stagesToReset.forEach { it.reset() }
     }
 
-    fun pauseGame() {
-        server.tickStartTimeNanos = Long.MAX_VALUE
-        disableWatchDog = true
-    }
-
     fun peekLeaf(): TickStage {
         return lastReturned?.stage
             ?: error("No last returned")
@@ -161,15 +155,15 @@ class StageTree: Iterator<TickStage> {
     }
 
     @TestOnly
-    fun assertInTree(stage: TickStage) {
+    fun isInTree(stage: TickStage): Boolean {
         var node = child
         while (node != null) {
             if (node.stage == stage) {
-                return
+                return true
             }
             node = node.parent
         }
-        error("Stage $stage not in this tree.")
+        return false
     }
 
     @TestOnly
@@ -264,9 +258,18 @@ class StageTree: Iterator<TickStage> {
         node.iter!!.next()
         node.iter!!.previous()
 
-        if (child == null) {
+        if (!isInTree(parent)) {
             // Oops, the tree is empty, we need to update the child node.
             child = node
         }
     }
+
+    val currentNodes
+        get() = mutableListOf<TreeNode>().apply {
+            var node = lastReturned
+            while (node != null) {
+                this.add(node)
+                node = node.parent
+            }
+        }
 }

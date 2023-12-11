@@ -34,7 +34,7 @@ class StageTreeS2CPacket(val tree: StageTree) : FabricPacket {
         }
     }
     override fun write(buf: PacketByteBuf) {
-        StageIo.writeStageTree(tree, buf)
+        StageIo.writeStageTree(buf, tree)
     }
 
     override fun getType() = pType

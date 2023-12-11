@@ -10,7 +10,7 @@ class TickStageWorldProvider(
     override val world: ServerWorld?
 ): TickStage(name, parent), TickStageWithWorld {
     override fun toString(): String {
-        return "$name/${world?.registryKey?.value}"
+        return "general/$name/${world?.registryKey?.value}"
     }
 
     override fun tick() {

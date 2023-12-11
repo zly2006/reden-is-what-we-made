@@ -21,9 +21,7 @@ data class BreakPointInterrupt(
 ): FabricPacket {
     override fun write(buf: PacketByteBuf) {
         buf.writeVarInt(bpId)
-        buf.writeNullable(tree) { _, tree ->
-            StageIo.writeStageTree(tree, buf)
-        }
+        buf.writeNullable(tree, StageIo::writeStageTree)
         buf.writeBoolean(interrupted)
     }
 
@@ -40,7 +38,7 @@ data class BreakPointInterrupt(
         }!!
         fun register() {
             if (isClient) {
-                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, _ ->
+                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->
                     val data = MinecraftClient.getInstance().serverData()!!
                     val breakpoint = data.breakpoints.breakpointMap[packet.bpId]
                     if (packet.tree != null) {

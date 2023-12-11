@@ -9,4 +9,7 @@ class BlockUpdateStage(
 ): TickStage("block_update", parent), TickStageWithWorld {
     override val world: ServerWorld?
         get() = (parent as? TickStageWithWorld)?.world
+
+    override fun endTask() {
+    }
 }

@@ -5,6 +5,7 @@ import com.github.zly2006.reden.debugger.stages.ServerRootStage
 import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.isDebug
+import com.github.zly2006.reden.utils.server
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.Text
@@ -13,6 +14,7 @@ abstract class TickStage(
     val name: String,
     val parent: TickStage?,
 ) {
+    val createdAt = Thread.getAllStackTraces()[Thread.currentThread()]
     private var debugExpectedChildrenSize = -1
     init {
         /*
@@ -49,6 +51,9 @@ abstract class TickStage(
     open fun tick() {
         if (debugExpectedChildrenSize != -1 && debugExpectedChildrenSize != children.size) {
             error("Children should be null!!!!!")
+        }
+        if (parent != null && !server.data().tickStageTree.isInTree(parent)) {
+            error("Parent is not in tree")
         }
         debugExpectedChildrenSize = -1
         children.clear()

@@ -25,21 +25,36 @@ class RedenNeighborUpdater(
      */
     private fun initStage(): TickStage {
         val tree = serverData.tickStageTree
-        if (rootStage == null) {
+        val r = if (rootStage == null) {
             rootStage = BlockUpdateStage(serverData.tickStageTree.peekLeaf())
             tree.insert2child(rootStage as BlockUpdateStage)
-            return rootStage as BlockUpdateStage
+            assert(tree.next() == rootStage) {
+                "next() should return rootStage"
+            } // add rootStage to tree
+            rootStage as BlockUpdateStage
+        } else stages.last()
+        if (!tree.isInTree(r)) {
+            error("Stage $r is not in tree")
         }
-        return tree.peekLeaf()
+        return r
     }
 
     private fun pushStage(stage: AbstractBlockUpdateStage<*>) {
         stages.add(stage)
+        serverData.tickStageTree.insert2childAtLast(stage.parent!!, stage)
     }
 
-    private fun resetStage(stage: TickStage) {
+    private fun nextStage(): AbstractBlockUpdateStage<*> {
+        val stage = stages.last()
+        val next = serverData.tickStageTree.next()
+        assert(next == stage)
+        return stage
+    }
+
+    private fun popStage(stage: TickStage) {
         if (stage == rootStage) {
             rootStage = null
+            println(stages.size)
             stages.clear()
         } else {
             assert(stages.removeLast() == stage)
@@ -49,25 +64,28 @@ class RedenNeighborUpdater(
     override fun replaceWithStateForNeighborUpdate(direction: Direction, neighborState: BlockState, pos: BlockPos, neighborPos: BlockPos, flags: Int, maxUpdateDepth: Int) {
         val parent = initStage()
         pushStage(StageBlockPPUpdate(parent, Updater119.StateReplacementEntry(direction, neighborState, pos, neighborPos, flags, maxUpdateDepth - 1)))
-        stages.last().tick()
-        resetStage(parent)
+        nextStage().tick()
+        popStage(parent)
     }
 
     override fun updateNeighbor(pos: BlockPos, sourceBlock: Block, sourcePos: BlockPos) {
         val parent = initStage()
         pushStage(StageBlockNCUpdate(parent, Updater119.SimpleEntry(pos, sourceBlock, sourcePos)))
-        stages.last().tick()
-        resetStage(parent)
+        nextStage().tick()
+        popStage(parent)
     }
 
     override fun updateNeighbor(state: BlockState, pos: BlockPos, sourceBlock: Block, sourcePos: BlockPos, notify: Boolean) {
         val parent = initStage()
         pushStage(StageBlockNCUpdateWithSource(parent, Updater119.StatefulEntry(state, pos, sourceBlock, sourcePos, notify)))
-        stages.last().tick()
-        resetStage(parent)
+        nextStage().tick()
+        popStage(parent)
     }
 
     override fun updateNeighbors(pos: BlockPos, sourceBlock: Block, except: Direction?) {
-        super.updateNeighbors(pos, sourceBlock, except)
+        val parent = initStage()
+        pushStage(StageBlockNCUpdateSixWay(parent, Updater119.SixWayEntry(pos, sourceBlock, except)))
+        nextStage().tick()
+        popStage(parent)
     }
 }
