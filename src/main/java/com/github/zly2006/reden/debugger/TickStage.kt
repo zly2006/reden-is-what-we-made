@@ -14,6 +14,10 @@ abstract class TickStage(
     val name: String,
     val parent: TickStage?,
 ) {
+    companion object {
+        private var id = 0
+    }
+    val id = TickStage.id++
     val createdAt = Thread.getAllStackTraces()[Thread.currentThread()]
     private var debugExpectedChildrenSize = -1
     init {
@@ -48,11 +52,12 @@ abstract class TickStage(
      *  Usually, this should call the caller of the target method,
      *       because in the caller there may have some mixins.
      */
+    @Deprecated("TickStage is going not to be tickable.")
     open fun tick() {
         if (debugExpectedChildrenSize != -1 && debugExpectedChildrenSize != children.size) {
             error("Children should be null!!!!!")
         }
-        if (parent != null && !server.data().tickStageTree.isInTree(parent)) {
+        if (parent != null && !server.data().stageTree.isInTree(parent)) {
             error("Parent is not in tree")
         }
         debugExpectedChildrenSize = -1
@@ -73,7 +78,7 @@ abstract class TickStage(
             root = root.parent!!
         }
         root as ServerRootStage
-        val tree = root.server.data().tickStageTree
+        val tree = root.server.data().stageTree
         if (!tree.canYield) {
             debugLogger("StageTree.yield: !!disabled!!")
             return
@@ -91,7 +96,11 @@ abstract class TickStage(
         debugExpectedChildrenSize = children.size
     }
 
-    open fun endTask() {
+    open fun postTick() {
+    }
+
+    open fun preTick() {
+
     }
 
     open fun focused(mc: MinecraftClient) {

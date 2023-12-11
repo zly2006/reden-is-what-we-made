@@ -2,27 +2,22 @@ package com.github.zly2006.reden.mixin.debugger.network;
 
 
 import com.github.zly2006.reden.Reden;
-import com.github.zly2006.reden.debugger.TickStage;
 import com.github.zly2006.reden.debugger.stages.GlobalNetworkStage;
 import com.github.zly2006.reden.debugger.stages.NetworkStage;
-import com.github.zly2006.reden.mixin.debugger.MixinServer;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.PacketCallbacks;
-import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerNetworkIo;
-import net.minecraft.text.Text;
-import net.minecraft.util.crash.CrashException;
-import net.minecraft.util.crash.CrashReport;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 
 import static com.github.zly2006.reden.access.ServerData.data;
 
@@ -34,47 +29,34 @@ public class MixinNetworkIo {
 
     @Shadow @Final private List<ClientConnection> connections;
 
-    /**
-     * Called by {@link MixinServer#tickWorlds(BooleanSupplier)} iff {@code stage instanceof GlobalNetworkStage}
-     * <br>
-     * Called by {@link NetworkStage#tick()}
-     * @author zly2006
-     * @reason Reden debugger
-     */
-    @Overwrite
-    public void tick() {
-        //noinspection SynchronizeOnNonFinalField
-        synchronized (this.connections) {
-            @SuppressWarnings("unused") // Leave variables for other mods to inject
-            Iterator<ClientConnection> iterator;
-            ClientConnection clientConnection;
+    @Unique GlobalNetworkStage stage;
 
-            TickStage tickStage = data(server).getTickStageTree().peekLeaf();
-            Reden.LOGGER.trace("[ServerNetworkIo#tick] tickStage = " + tickStage);
-            if (tickStage instanceof GlobalNetworkStage) {
-                return;
-            }
-            NetworkStage stage = (NetworkStage) tickStage;
-            clientConnection = stage.getConnection();
-            //
-            if (clientConnection.isOpen()) {
-                try {
-                    clientConnection.tick();
-                } catch (Exception var7) {
-                    if (clientConnection.isLocal()) {
-                        throw new CrashException(CrashReport.create(var7, "Ticking memory connection"));
-                    }
+    @Inject(
+            method = "tick",
+            at = @At("HEAD")
+    )
+    private void startTick(CallbackInfo ci) {
+        stage = new GlobalNetworkStage(data(server).getTickStage());
+        data(server).getTickStageTree().push$reden_is_what_we_made(stage);
+    }
 
-                    LOGGER.warn("Failed to handle packet for {}", clientConnection.getAddress(), var7);
-                    Text text = Text.literal("Internal server error");
-                    clientConnection.send(new DisconnectS2CPacket(text), PacketCallbacks.always(() ->
-                            clientConnection.disconnect(text)));
-                    clientConnection.disableAutoRead();
-                }
-            } else {
-                connections.remove(clientConnection);
-                clientConnection.handleDisconnection();
-            }
-        }
+    @Inject(
+            method = "tick",
+            at = @At("RETURN")
+    )
+    private void endTick(CallbackInfo ci) {
+        data(server).getTickStageTree().pop$reden_is_what_we_made();
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/network/ClientConnection;tick()V",
+                    shift = At.Shift.BEFORE
+            )
+    )
+    private void startConnectionTick(CallbackInfo ci, @Local(ordinal = 0) ClientConnection clientConnection) {
+        data(server).getTickStageTree().push$reden_is_what_we_made(new NetworkStage(stage, clientConnection));
     }
 }

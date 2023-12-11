@@ -3,6 +3,7 @@ package com.github.zly2006.reden.access
 import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
 import com.github.zly2006.reden.debugger.stages.ServerRootStage
 import com.github.zly2006.reden.debugger.tree.StageTree
+import com.github.zly2006.reden.debugger.tree.TickStageTree
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
 import net.fabricmc.loader.api.Version
@@ -21,7 +22,9 @@ class ServerData(version: Version, mcServer: MinecraftServer?) : StatusAccess {
     var uuid: UUID? = null
     var address: String = ""
     var tickStage = if (mcServer != null) ServerRootStage(mcServer) else null
-    var tickStageTree = StageTree()
+    @Deprecated("removed")
+    var stageTree = StageTree()
+    var tickStageTree = TickStageTree()
     val featureSet = mutableSetOf<String>()
 
     val breakpoints = BreakpointsManager(false)

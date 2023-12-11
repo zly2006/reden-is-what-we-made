@@ -23,23 +23,19 @@ public class Mixin119UpdaterEntries implements TickStageOwnerAccess {
     @Unique boolean ticked = false;
     @Unique AbstractBlockUpdateStage<?> stage;
 
-    @Override
-    public boolean getTicked$reden() {
+    public boolean getTicked() {
         return ticked;
     }
 
-    @Override
-    public void setTicked$reden(boolean ticked) {
+    public void setTicked(boolean ticked) {
         this.ticked = ticked;
     }
 
-    @Override
-    public @NotNull AbstractBlockUpdateStage<?> getTickStage$reden() {
+    public @NotNull AbstractBlockUpdateStage<?> getTickStage() {
         return stage;
     }
 
-    @Override
-    public void setTickStage$reden(TickStage tickStage) {
+    public void setTickStage(TickStage tickStage) {
         stage = (AbstractBlockUpdateStage<?>) tickStage;
     }
 

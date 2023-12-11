@@ -24,9 +24,9 @@ class RedenNeighborUpdater(
      * @return parent stage of the new stage
      */
     private fun initStage(): TickStage {
-        val tree = serverData.tickStageTree
+        val tree = serverData.stageTree
         val r = if (rootStage == null) {
-            rootStage = BlockUpdateStage(serverData.tickStageTree.peekLeaf())
+            rootStage = BlockUpdateStage(serverData.stageTree.peekLeaf())
             tree.insert2child(rootStage as BlockUpdateStage)
             assert(tree.next() == rootStage) {
                 "next() should return rootStage"
@@ -41,12 +41,12 @@ class RedenNeighborUpdater(
 
     private fun pushStage(stage: AbstractBlockUpdateStage<*>) {
         stages.add(stage)
-        serverData.tickStageTree.insert2childAtLast(stage.parent!!, stage)
+        serverData.stageTree.insert2childAtLast(stage.parent!!, stage)
     }
 
     private fun nextStage(): AbstractBlockUpdateStage<*> {
         val stage = stages.last()
-        val next = serverData.tickStageTree.next()
+        val next = serverData.stageTree.next()
         assert(next == stage)
         return stage
     }

@@ -4,7 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
 import com.github.zly2006.reden.debugger.gui.DebuggerComponent
 import com.github.zly2006.reden.debugger.tree.StageIo
-import com.github.zly2006.reden.debugger.tree.StageTree
+import com.github.zly2006.reden.debugger.tree.TickStageTree
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.red
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
@@ -16,12 +16,12 @@ import net.minecraft.text.Text
 
 data class BreakPointInterrupt(
     val bpId: Int, // = -1
-    val tree: StageTree?,
+    val tree: TickStageTree?,
     val interrupted: Boolean
 ): FabricPacket {
     override fun write(buf: PacketByteBuf) {
         buf.writeVarInt(bpId)
-        buf.writeNullable(tree, StageIo::writeStageTree)
+        buf.writeNullable(tree, StageIo::writeTickStageTree)
         buf.writeBoolean(interrupted)
     }
 
@@ -32,7 +32,7 @@ data class BreakPointInterrupt(
         val pType = PacketType.create(id) {
             BreakPointInterrupt(
                 it.readVarInt(),
-                it.readNullable(StageIo::readStageTree),
+                it.readNullable(StageIo::readTickStageTree),
                 it.readBoolean()
             )
         }!!

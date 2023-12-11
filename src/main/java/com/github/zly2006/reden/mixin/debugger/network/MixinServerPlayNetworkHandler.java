@@ -27,7 +27,15 @@ public class MixinServerPlayNetworkHandler {
     private void startCommandExecute(CommandExecutionC2SPacket commandExecutionC2SPacket, Optional<?> optional, CallbackInfo ci) {
         ServerData data = data(player.server);
         ServerWorld world = player.getServerWorld();
-        data.getTickStageTree().insert2child(new TickStageWorldProvider("commands_stage", data.getTickStageTree().peekLeaf(), world));
-        data.getTickStageTree().next().tick();
+        data.getTickStageTree().push$reden_is_what_we_made(new TickStageWorldProvider("commands_stage", data.getTickStageTree().getActiveStage(), world));
+    }
+
+    @Inject(
+            method = "method_44356",
+            at = @At("RETURN")
+    )
+    private void endCommandExecute(CommandExecutionC2SPacket commandExecutionC2SPacket, Optional<?> optional, CallbackInfo ci) {
+        ServerData data = data(player.server);
+        data.getTickStageTree().pop$reden_is_what_we_made();
     }
 }

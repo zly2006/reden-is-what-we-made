@@ -64,6 +64,7 @@ object StageIo {
         constructors["world_border"] = Constructor { EmptyTickStage("world_border", it!!) }
     }
 
+    @Deprecated("", replaceWith = ReplaceWith("writeSingleTickStage", imports = ["com.github.zly2006.reden.debugger.tree.StageIo"]))
     fun writeStage(stage: TickStage, buf: PacketByteBuf) {
         buf.writeBoolean(stage.parent != null)
         buf.writeVarInt(stage.children.size)
@@ -163,5 +164,56 @@ object StageIo {
             buf.writeVarInt(node.stage.children.size)
             buf.writeVarInt(node.iter!!.nextIndex())
         }
+    }
+
+    fun writeTickStageTree(packetByteBuf: PacketByteBuf, tickStageTree: TickStageTree) {
+        writeTickStageTree(packetByteBuf, tickStageTree, false)
+    }
+
+    fun writeTickStageTree(packetByteBuf: PacketByteBuf, tickStageTree: TickStageTree, writeAllChildren: Boolean) {
+        packetByteBuf.writeBoolean(writeAllChildren)
+        if (writeAllChildren) {
+            TODO()
+        }
+
+        val list = tickStageTree.activeStages
+        packetByteBuf.writeCollection(list, ::writeSingleTickStage)
+    }
+
+    fun writeSingleTickStage(buf: PacketByteBuf, tickStage: TickStage) {
+        buf.writeNullable(tickStage.parent?.id, PacketByteBuf::writeVarInt)
+        buf.writeVarInt(tickStage.id)
+        buf.writeVarInt(tickStage.children.size)
+        buf.writeString(tickStage.name)
+        tickStage.writeByteBuf(buf)
+    }
+
+    fun readTickStageTree(packetByteBuf: PacketByteBuf): TickStageTree {
+        val writeAllChildren = packetByteBuf.readBoolean()
+        if (writeAllChildren) {
+            TODO()
+        }
+
+        val list = packetByteBuf.readCollection(::ArrayList, ::readSingleTickStage)
+        val tree = TickStageTree()
+        tree.activeStages.addAll(list)
+        return tree
+    }
+
+    private fun readSingleTickStage(buf: PacketByteBuf): TickStage {
+        val parentId = buf.readNullable(PacketByteBuf::readVarInt)
+        val id = buf.readVarInt()
+        val childrenSize = buf.readVarInt()
+        val name = buf.readString()
+
+        val stage = constructors[name]?.construct(null)
+            ?: error("Unknown stage name: $name")
+        stage.readByteBuf(buf)
+
+        for (i in 0 until childrenSize) {
+            stage.children.add(DummyStage(stage))
+        }
+
+        return stage
     }
 }

@@ -2,7 +2,6 @@ package com.github.zly2006.reden.mixin.debugger.network;
 
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.debugger.TickStage;
-import com.github.zly2006.reden.debugger.stages.EndStage;
 import com.github.zly2006.reden.debugger.stages.TickStageWorldProvider;
 import com.github.zly2006.reden.utils.UtilsKt;
 import net.minecraft.network.NetworkThreadUtils;
@@ -26,17 +25,23 @@ public class MixinNetworkThreadUtils {
         if (UtilsKt.server != null) {
             ServerData data = data(UtilsKt.server);
             if (packetListener instanceof ServerPlayNetworkHandler spnh) {
-                assert data.getTickStage() != null;
-                TickStage stage = data.getTickStageTree().peekLeaf();
-                while (!(stage instanceof EndStage)) {
-                    stage = stage.getParent();
-                    if (stage == null) throw new RuntimeException("TickStageTree is broken! failed to find an end stage.");
-                }
-                data.getTickStageTree().insert2child(
-                        stage,
+                TickStage stage = data.getTickStageTree().getActiveStage();
+                data.getTickStageTree().push$reden_is_what_we_made(
                         new TickStageWorldProvider("network",stage, spnh.getPlayer().getServerWorld())
                 );
-                data.getTickStageTree().next().tick();
+            }
+        }
+    }
+
+    @Inject(
+            method = "method_11072",
+            at = @At("RETURN")
+    )
+    private static void end(PacketListener packetListener, Packet<?> packet, CallbackInfo ci) {
+        if (UtilsKt.server != null) {
+            ServerData data = data(UtilsKt.server);
+            if (packetListener instanceof ServerPlayNetworkHandler) {
+                data.getTickStageTree().pop$reden_is_what_we_made();
             }
         }
     }

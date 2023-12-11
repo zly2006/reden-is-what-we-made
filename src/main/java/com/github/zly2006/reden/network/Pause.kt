@@ -19,7 +19,7 @@ class Pause(
 
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
-                val tree = player.server.data().tickStageTree
+                val tree = player.server.data().stageTree
                 tree.paused = packet.paused
 
                 player.server.sendToAll(Pause(packet.paused))

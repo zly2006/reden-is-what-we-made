@@ -20,6 +20,7 @@ import org.jetbrains.annotations.TestOnly
  *
  * You cannot remove a stage from a StageTree, because it is not necessary.
  */
+@Deprecated("", replaceWith = ReplaceWith("TickStageTree", imports = ["com.github.zly2006.reden.debugger.tree.TickStageTree"]))
 class StageTree: Iterator<TickStage> {
     /**
      * A node in the tree.
@@ -73,7 +74,7 @@ class StageTree: Iterator<TickStage> {
         }
 
         while (child?.iter?.hasNext() == false) {
-            child!!.stage.endTask()
+            child!!.stage.postTick()
             if (child!!.stage.children.any { it !in tickedStages }) {
                 error("Stage ${child!!.stage} has un-ticked children: ${child!!.stage.children.filter { it !in tickedStages }}")
             }

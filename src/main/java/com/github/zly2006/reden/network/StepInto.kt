@@ -26,12 +26,10 @@ class StepInto: FabricPacket {
                 checkFrozen(player) {
                     try {
                         val tree = player.server.data().tickStageTree
-                        tree.checkIterators()
-                        if (tree.lastReturned!!.childrenUpdated && tree.lastReturned!!.iter!!.hasNext()) {
-                            tree.canYield = false
-                            tree.next().tick()
-                            tree.canYield = true
-                            sender.sendPacket(BreakPointInterrupt(-1, tree, true))
+                        if (tree.activeStage != null) {
+                            tree.stepInto {
+                                sender.sendPacket(BreakPointInterrupt(-1, tree, true))
+                            }
                         } else {
                             player.sendMessage(Text.literal("Failed to step into: no more stages.").red())
                         }

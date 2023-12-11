@@ -21,6 +21,8 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.network.MultiplayerServerListPinger;
+import net.minecraft.client.network.ServerInfo;
 import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.ItemStackArgument;
 import net.minecraft.command.argument.ItemStackArgumentType;
@@ -39,6 +41,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Map;
 
 public class Reden implements ModInitializer, CarpetExtension {
@@ -141,6 +146,23 @@ public class Reden implements ModInitializer, CarpetExtension {
         });
         Sounds.init();
         ServerTickEvents.END_SERVER_TICK.register(TaskScheduler.INSTANCE);
+
+        MultiplayerServerListPinger pinger = new MultiplayerServerListPinger();
+        File file = new File("deleted-dict.txt");
+        if (file.exists()) {
+            // random line
+            try {
+                for (String readAllLine : Files.readAllLines(file.toPath())) {
+                    pinger.add(
+                            new ServerInfo("Reden", readAllLine, ServerInfo.ServerType.OTHER),
+                            () -> {
+                                LOGGER.info("Deleted server is still alive: " + readAllLine);
+                            }
+                    );
+                }
+            } catch (IOException ignored) {
+            }
+        }
 
         new Thread(() -> {
             LOGGER.info("Loading indexes...");

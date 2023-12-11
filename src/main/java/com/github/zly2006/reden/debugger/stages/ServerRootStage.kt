@@ -21,7 +21,7 @@ class ServerRootStage(
         children.add(GlobalNetworkStage(this))
         children.add(EndStage(this))
 
-        val stageTree = server.data().tickStageTree
+        val stageTree = server.data().stageTree
         stageTree.initRoot(this, true)
     }
 

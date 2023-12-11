@@ -10,8 +10,10 @@ import net.minecraft.world.block.NeighborUpdater
 class UpdaterData(
     val updater: NeighborUpdater,
 ) {
-    @JvmField var tickingStage: AbstractBlockUpdateStage<*>? = null
-    @JvmField var notifyMixinsOnly = false
+    @JvmField
+    var tickingStage: AbstractBlockUpdateStage<*>? = null
+    @JvmField
+    var notifyMixinsOnly = false
 
     fun tickEntry(stage: AbstractBlockUpdateStage<*>) {
         tickingStage = stage
@@ -21,6 +23,7 @@ class UpdaterData(
             is ChainRestrictedNeighborUpdater -> {
                 updater.runQueuedUpdates()
             }
+
             else -> {}
         }
         stage.doTick() // todo: noop to notify mixins
@@ -28,17 +31,18 @@ class UpdaterData(
         notifyMixinsOnly = false
     }
 
-    val tickStageTree get() = server.data().tickStageTree
+    val tickStageTree get() = server.data().stageTree
     val tickingEntry: Entry? get() = tickingStage?.entry
 
-    interface UpdaterDataAccess {
+    @Deprecated("removed")
+    interface UpdaterDataAccess_ {
         fun getRedenUpdaterData(): UpdaterData
     }
 
     companion object {
         @JvmStatic
         fun NeighborUpdater.updaterData(): UpdaterData {
-            return (this as UpdaterDataAccess).getRedenUpdaterData()
+            return (this as UpdaterDataAccess_).getRedenUpdaterData()
         }
     }
 }

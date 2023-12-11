@@ -19,6 +19,7 @@ class WorldRootStage(
     companion object {
         const val TICK_TIME = 0
     }
+    @Deprecated("TickStage is going not to be tickable.")
     override fun tick() {
         super.tick()
         tickLabel = 0

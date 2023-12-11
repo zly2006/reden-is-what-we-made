@@ -1,6 +1,8 @@
 package com.github.zly2006.reden.debugger.gui
 
+import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.tree.StageTree
+import com.github.zly2006.reden.debugger.tree.TickStageTree
 import com.github.zly2006.reden.network.Continue
 import com.github.zly2006.reden.network.StepInto
 import com.github.zly2006.reden.network.StepOver
@@ -19,13 +21,13 @@ import net.minecraft.client.gui.screen.GameMenuScreen
 import net.minecraft.text.Text
 
 class DebuggerComponent(
-    val stageTree: StageTree
+    val stageTree: TickStageTree
 ): FlowLayout(Sizing.content(), Sizing.fill(70), Algorithm.VERTICAL) {
-    var focused: StageTree.TreeNode? = null
+    var focused: TickStage? = null
         set(value) {
-            field?.stage?.unfocused(MinecraftClient.getInstance())
+            field?.unfocused(MinecraftClient.getInstance())
             field = value
-            value?.stage?.focused(MinecraftClient.getInstance())
+            value?.focused(MinecraftClient.getInstance())
             children.clear()
             child(stageTreeLayout())
         }
@@ -36,12 +38,12 @@ class DebuggerComponent(
     }
 
     class StageNodeComponent(
-        val node: StageTree.TreeNode,
+        val stage: TickStage,
         val lrWidth: Int = 20,
     ) : FlowLayout(Sizing.fill(100), Sizing.content(), Algorithm.HORIZONTAL) {
         init {
-            child(Components.label(node.stage.displayName ?: Text.literal("null")).apply {
-                this.tooltip(node.stage.description)
+            child(Components.label(stage.displayName ?: Text.literal("null")).apply {
+                this.tooltip(stage.description)
             })
         }
 
@@ -58,14 +60,10 @@ class DebuggerComponent(
     }
 
     fun stageTreeLayout(): GridLayout {
-        val layout = Containers.grid(Sizing.fill(100), Sizing.content(), stageTree.depth() + 1, 3)
+        val layout = Containers.grid(Sizing.fill(100), Sizing.content(), stageTree.activeStages.size + 1, 3)
         layout.child(Components.label(Text.literal("Stage Tree")), 0, 1)
-        var node = stageTree.lastReturned
-        var depth = stageTree.depth()
-        while (node != null) {
-            layout.child(StageNodeComponent(node), depth, 0)
-            node = node.parent
-            depth--
+        stageTree.activeStages.mapIndexed { index, stage ->
+            layout.child(StageNodeComponent(stage), index + 1, 0)
         }
         return layout
     }
@@ -105,7 +103,7 @@ private class DebuggerScreen(private val component: DebuggerComponent): BaseOwoS
             val mc = MinecraftClient.getInstance()
             mc.setScreen(GameMenuScreen(true))
         })
-        component.focused = component.stageTree.lastReturned
+        component.focused = component.stageTree.activeStage
     }
 
     override fun shouldPause(): Boolean {

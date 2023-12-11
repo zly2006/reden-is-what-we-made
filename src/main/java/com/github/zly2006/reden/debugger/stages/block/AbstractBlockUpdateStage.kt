@@ -1,8 +1,6 @@
 package com.github.zly2006.reden.debugger.stages.block
 
-import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ServerData.Companion.data
-import com.github.zly2006.reden.access.TickStageOwnerAccess
 import com.github.zly2006.reden.access.UpdaterData.Companion.updaterData
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
@@ -14,8 +12,6 @@ import net.minecraft.block.Block
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.MutableText
 import net.minecraft.util.math.BlockPos
-import net.minecraft.world.block.ChainRestrictedNeighborUpdater
-import net.minecraft.world.block.NeighborUpdater
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater as Updater119
 
 abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
@@ -53,40 +49,6 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
     override val displayName: MutableText
         get() = super.displayName.copy().append(" ").append(sourcePos.toShortString()).append(" -> ").append(targetPos?.toShortString())
             .append(" by ").append(sourceBlock.name)
-
-    companion object {
-        @Suppress("UNCHECKED_CAST", "KotlinConstantConditions")
-        @JvmStatic
-        fun <T : ChainRestrictedNeighborUpdater.Entry> createAndInsert(
-            updater: NeighborUpdater,
-            entry: T
-        ): AbstractBlockUpdateStage<T> {
-            val stageOwnerAccess = entry as TickStageOwnerAccess
-            if (stageOwnerAccess.`tickStage$reden` is AbstractBlockUpdateStage<*>) {
-                error("Already has a block update stage")
-            }
-            val data = updater.updaterData()
-            Reden.LOGGER.debug("===Start: get parent for {}===", entry.javaClass)
-            val parent = data.tickingStage?.also {
-                Reden.LOGGER.debug("Parent is {}", it)
-            }
-                ?: data.tickStageTree.peekNonBlockStage()?.also {
-                    Reden.LOGGER.debug("Parent is {}", it)
-                }
-                ?: error("No parent stage found")
-            val stage = when (entry) {
-                is Updater119.StateReplacementEntry -> StageBlockPPUpdate(parent, entry)
-                is Updater119.SixWayEntry -> StageBlockNCUpdateSixWay(parent, entry)
-                is Updater119.StatefulEntry -> StageBlockNCUpdateWithSource(parent, entry)
-                is Updater119.SimpleEntry -> StageBlockNCUpdate(parent, entry)
-                else -> throw IllegalArgumentException("Unknown updater entry type: ${entry.javaClass}")
-            } as AbstractBlockUpdateStage<T> // unchecked, but we know it's right
-            stageOwnerAccess.`tickStage$reden` = stage
-
-            //data.tickStageTree.insert2childAtLast(parent, stage)
-            return stage
-        }
-    }
 
     override fun focused(mc: MinecraftClient) {
         super.focused(mc)
