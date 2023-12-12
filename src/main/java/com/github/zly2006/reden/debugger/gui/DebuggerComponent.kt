@@ -3,6 +3,7 @@ package com.github.zly2006.reden.debugger.gui
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.debugger.tree.TickStageTree
+import com.github.zly2006.reden.mixin.otherMods.IScrollContainer
 import com.github.zly2006.reden.network.Continue
 import com.github.zly2006.reden.network.StepInto
 import com.github.zly2006.reden.network.StepOver
@@ -16,9 +17,11 @@ import io.wispforest.owo.ui.core.OwoUIDrawContext
 import io.wispforest.owo.ui.core.Positioning
 import io.wispforest.owo.ui.core.Sizing
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+import net.minecraft.block.Blocks
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.GameMenuScreen
 import net.minecraft.text.Text
+import org.lwjgl.glfw.GLFW
 
 class DebuggerComponent(
     val stageTree: TickStageTree
@@ -28,44 +31,91 @@ class DebuggerComponent(
             field?.unfocused(MinecraftClient.getInstance())
             field = value
             value?.focused(MinecraftClient.getInstance())
-            children.clear()
-            child(stageTreeLayout())
+            refreshStages()
         }
 
     init {
-        child(Containers.verticalScroll(Sizing.fill(100), Sizing.fill(60), stageTreeLayout()))
+        refreshStages()
         // 30% height for infobox
+    }
+
+    fun refreshStages() {
+        val sizing = Sizing.fill()
+        val scrolledAmount = (children.getOrNull(0) as IScrollContainer?)?.scrollOffset ?: 0.0
+        children.clear()
+        child(Containers.verticalScroll(Sizing.fill(100), sizing, StageTreeLayout(this)).apply {
+            (this as IScrollContainer).scrollOffset = scrolledAmount
+            (this as IScrollContainer).currentScrollPosition = scrolledAmount
+        })
+        child(Components.block(Blocks.ACACIA_LOG.defaultState).sizing(Sizing.fixed(30)))
+    }
+
+    override fun onKeyPress(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+        val index = stageTree.activeStages.indexOf(focused)
+        if (keyCode == GLFW.GLFW_KEY_UP) {
+            if (index > 0) {
+                focused = stageTree.activeStages[index - 1]
+            }
+            return true
+        } else if (keyCode == GLFW.GLFW_KEY_DOWN) {
+            if (index < stageTree.activeStages.size - 1) {
+                focused = stageTree.activeStages[index + 1]
+            }
+            return true
+        }
+        return super.onKeyPress(keyCode, scanCode, modifiers)
     }
 
     class StageNodeComponent(
         val stage: TickStage,
+        val rootComponent: DebuggerComponent,
         val lrWidth: Int = 20,
     ) : FlowLayout(Sizing.fill(100), Sizing.content(), Algorithm.HORIZONTAL) {
         init {
             child(Components.label(stage.displayName ?: Text.literal("null")).apply {
                 this.tooltip(stage.description)
+                this.mouseDown().subscribe { x, y, b ->
+                    if (b == 0) {
+                        rootComponent.focused = stage
+                        true
+                    } else false
+                }
             })
         }
 
         override fun draw(context: OwoUIDrawContext, mouseX: Int, mouseY: Int, partialTicks: Float, delta: Float) {
+            val color = if (stage == rootComponent.focused) {
+                0x80_00_00_FF.toInt()
+            } else if (hovered) {
+                0x80_00_00_80.toInt()
+            } else {
+                0x80_00_00_00.toInt()
+            }
             context.fill(
                 x,
                 y,
                 x + determineHorizontalContentSize(Sizing.content()),
                 y + determineVerticalContentSize(Sizing.fill(100)),
-                0x80_00_00_00.toInt()
+                color
             )
             super.draw(context, mouseX, mouseY, partialTicks, delta)
         }
     }
 
-    fun stageTreeLayout(): GridLayout {
-        val layout = Containers.grid(Sizing.fill(100), Sizing.content(), stageTree.activeStages.size + 1, 3)
-        layout.child(Components.label(Text.literal("Stage Tree")), 0, 1)
-        stageTree.activeStages.mapIndexed { index, stage ->
-            layout.child(StageNodeComponent(stage), index + 1, 0)
+    class StageTreeLayout(
+        val root: DebuggerComponent
+    ): GridLayout(
+        Sizing.fill(100),
+        Sizing.content(),
+        root.stageTree.activeStages.size + 1,
+        3
+    ) {
+        init {
+            child(Components.label(Text.literal("Stage Tree")), 0, 1)
+            root.stageTree.activeStages.mapIndexed { index, stage ->
+                child(StageNodeComponent(stage, root), index + 1, 0)
+            }
         }
-        return layout
     }
 
     fun asHud() = apply {
@@ -119,6 +169,8 @@ private class DebuggerScreen(private val component: DebuggerComponent): BaseOwoS
                 it.isPressed = true
             }
         }
+        if (component.onKeyPress(keyCode, scanCode, modifiers))
+            return true
         return super.keyPressed(keyCode, scanCode, modifiers)
     }
 

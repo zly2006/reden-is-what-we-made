@@ -39,6 +39,7 @@
     "hopperDelaySync.MixinHoppers",
     "itemShadow.MixinAllInventories",
     "itemShadow.MixinItemStack",
+    "otherMods.IScrollContainer",
     "otherMods.tweeakeroo.hopperDelaySync.MixinX",
     "pearl.MixinExplosion",
     "realFakePlayer.MixinCarpetFakePlayer",
