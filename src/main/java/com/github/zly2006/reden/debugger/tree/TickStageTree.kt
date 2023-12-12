@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.debugger.tree
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
 
 class TickStageTree(
@@ -16,6 +17,9 @@ class TickStageTree(
     internal fun push(stage: TickStage) {
         require(stage.parent == activeStage) {
             "Stage $stage is not a child of $activeStage"
+        }
+        if (stage in activeStages) {
+            Reden.LOGGER.error("Stage $stage is already active")
         }
         activeStages.add(stage)
         stage.preTick()

@@ -2,7 +2,10 @@ package com.github.zly2006.reden.mixinhelper
 
 import com.github.zly2006.reden.access.ServerData
 import com.github.zly2006.reden.debugger.TickStage
-import com.github.zly2006.reden.debugger.stages.block.*
+import com.github.zly2006.reden.debugger.stages.block.BlockUpdateStage
+import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdate
+import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdateWithSource
+import com.github.zly2006.reden.debugger.stages.block.StageBlockPPUpdate
 import com.github.zly2006.reden.debugger.tree.TickStageTree
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
@@ -38,9 +41,9 @@ class RedenNeighborUpdater(
     }
 
     override fun updateNeighbors(pos: BlockPos, sourceBlock: Block, except: Direction?) = wrapUpdate {
-        with(StageBlockNCUpdateSixWay(it, Updater119.SixWayEntry(pos, sourceBlock, except))) {
+//        with(StageBlockNCUpdateSixWay(it, Updater119.SixWayEntry(pos, sourceBlock, except))) {
             super.updateNeighbors(pos, sourceBlock, except)
-        }
+//        }
     }
 
     private fun wrapUpdate(action: TickStageTree.(TickStage /* parent */) -> Unit) {

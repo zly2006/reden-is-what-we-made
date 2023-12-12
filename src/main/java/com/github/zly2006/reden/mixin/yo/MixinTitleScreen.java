@@ -12,6 +12,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinTitleScreen extends Screen {
     protected MixinTitleScreen(Text title) {
         super(title);
+        title.asOrderedText().accept((s, a, v) -> {
+            System.out.println(((char) s));
+            return true;
+        });
     }
 
     @Inject(

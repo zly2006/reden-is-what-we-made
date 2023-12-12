@@ -19,9 +19,8 @@ import net.minecraft.client.option.ServerList
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.Text
+import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.userAgent
 import okio.use
@@ -29,7 +28,18 @@ import java.util.*
 
 var key = ""
 
-val httpClient = OkHttpClient()
+val httpClient = OkHttpClient.Builder().apply {
+
+    cookieJar(object : CookieJar {
+        override fun loadForRequest(url: HttpUrl): List<Cookie> {
+            TODO("Not yet implemented")
+        }
+
+        override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+            TODO("Not yet implemented")
+        }
+    })
+}.build()
 
 inline fun <reified T> Request.Builder.json(data: T) = apply {
     header("Content-Type", "application/json")

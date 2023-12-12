@@ -35,6 +35,7 @@
     "debugger.paused.noUpdate.MixinWorld",
     "debugger.updateQueue.Mixin119Updater",
     "debugger.updateQueue.Mixin119UpdaterEntries",
+    "debugger.updater.MixinOrderedTick",
     "debugger.updater.MixinServerWorld",
     "hopperDelaySync.MixinHoppers",
     "itemShadow.MixinAllInventories",
