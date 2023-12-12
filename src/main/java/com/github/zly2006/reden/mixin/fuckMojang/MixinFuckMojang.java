@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.fuckMojang;
 
+import net.fabricmc.loader.api.FabricLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -13,6 +14,7 @@ public class MixinFuckMojang {
             cancellable = true
     )
     private void fuck(CallbackInfoReturnable<Boolean> cir) {
-        cir.setReturnValue(true);
+        if (FabricLoader.getInstance().isDevelopmentEnvironment())
+            cir.setReturnValue(true);
     }
 }

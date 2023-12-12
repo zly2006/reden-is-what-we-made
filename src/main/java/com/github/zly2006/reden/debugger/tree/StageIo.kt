@@ -18,9 +18,6 @@ object StageIo {
 
     init {
         class EmptyTickStage(name: String, parent: TickStage?): TickStage(name, parent), TickStageWithWorld {
-            override fun readByteBuf(buf: PacketByteBuf) {
-                super.readByteBuf(buf)
-            }
             override val world: ServerWorld?
                 get() {
                     Reden.LOGGER.warn("Accessing world from client side at $name")
