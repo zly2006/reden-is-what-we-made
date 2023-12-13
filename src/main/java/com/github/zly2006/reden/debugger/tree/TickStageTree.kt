@@ -20,6 +20,15 @@ class TickStageTree(
     private var steppingInto = false
     private var stepIntoCallback: (() -> Unit)? = null
 
+    fun clear() {
+        activeStages.clear()
+        history.clear()
+        steppingInto = false
+        stepOverUntil = null
+        stepOverCallback = null
+        stepIntoCallback = null
+    }
+
     internal fun push(stage: TickStage) {
         require(stage.parent == activeStage) {
             "Stage $stage is not a child of $activeStage"

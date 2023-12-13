@@ -17,7 +17,7 @@ abstract class TickStage(
         private var id = 0
     }
     val id = TickStage.id++
-    val createdAt = Thread.getAllStackTraces()[Thread.currentThread()]
+    // val createdAt = Thread.getAllStackTraces()[Thread.currentThread()]
     private var debugExpectedChildrenSize = -1
     init {
         /*
