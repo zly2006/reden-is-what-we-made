@@ -80,6 +80,10 @@ object IntermediaryMappingAccess {
     }
 
     private val methodMapping = mutableMapOf<String, MethodInfo>()
+
+    /**
+     * Get name info in current namespace by an intermediary method name.
+     */
     fun getMethod(owner: String?, name: String): MethodInfo? {
         if (owner?.contains('.') == true) {
             throw IllegalArgumentException("Found '.' in owner: $owner, do you mean ${owner.replace('.', '/')}?")

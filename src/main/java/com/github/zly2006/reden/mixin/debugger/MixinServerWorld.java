@@ -183,4 +183,124 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
     private void afterFluidScheduledTick(CallbackInfo ci) {
         data(server).getTickStageTree().pop$reden_is_what_we_made();
     }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/village/raid/RaidManager;tick()V",
+                    shift = At.Shift.BEFORE
+            )
+    )
+    private void beforeRaidTick(CallbackInfo ci) {
+        data(server).getTickStageTree().push$reden_is_what_we_made(new RaidStage(worldRootStage));
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/village/raid/RaidManager;tick()V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void afterRaidTick(CallbackInfo ci) {
+        data(server).getTickStageTree().pop$reden_is_what_we_made();
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/world/ServerChunkManager;tick(Ljava/util/function/BooleanSupplier;Z)V",
+                    shift = At.Shift.BEFORE
+            )
+    )
+    private void beforeChunkManagerTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+        data(server).getTickStageTree().push$reden_is_what_we_made(new RandomTickStage(worldRootStage));
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/world/ServerChunkManager;tick(Ljava/util/function/BooleanSupplier;Z)V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void afterChunkManagerTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+        data(server).getTickStageTree().pop$reden_is_what_we_made();
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/world/ServerWorld;processSyncedBlockEvents()V",
+                    shift = At.Shift.BEFORE
+            )
+    )
+    private void beforeBlockEventsTick(CallbackInfo ci) {
+        data(server).getTickStageTree().push$reden_is_what_we_made(new BlockEventsRootStage(worldRootStage));
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/world/ServerWorld;processSyncedBlockEvents()V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void afterBlockEventsTick(CallbackInfo ci) {
+        data(server).getTickStageTree().pop$reden_is_what_we_made();
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/EntityList;forEach(Ljava/util/function/Consumer;)V",
+                    shift = At.Shift.BEFORE
+            )
+    )
+    private void beforeEntitiesTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+        data(server).getTickStageTree().push$reden_is_what_we_made(new EntitiesRootStage(worldRootStage));
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/EntityList;forEach(Ljava/util/function/Consumer;)V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void afterEntitiesTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+        data(server).getTickStageTree().pop$reden_is_what_we_made();
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/world/ServerWorld;tickBlockEntities()V",
+                    shift = At.Shift.BEFORE
+            )
+    )
+    private void beforeBlockEntitiesTick(CallbackInfo ci) {
+        data(server).getTickStageTree().push$reden_is_what_we_made(new BlockEntitiesRootStage(worldRootStage));
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/world/ServerWorld;tickBlockEntities()V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void afterBlockEntitiesTick(CallbackInfo ci) {
+        data(server).getTickStageTree().pop$reden_is_what_we_made();
+    }
 }
