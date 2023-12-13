@@ -93,12 +93,10 @@ class Undo(
                     } else {
                         val entry = it.value
                         debugLogger("undo entity ${it.key} reading nbt")
-                        entity.readNbt(entry.nbt)
                         if (entity is MobEntity) {
                             entity.clearGoalsAndTasks()
-                            // todo
-//                               entity.initGoals()
                         }
+                        entity.readNbt(entry.nbt)
                     }
                 }
             }

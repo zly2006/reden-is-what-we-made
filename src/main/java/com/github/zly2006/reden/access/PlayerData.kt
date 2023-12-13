@@ -128,6 +128,7 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
             ATTACK_ENTITY(Text.translatable("reden.feature.undo.cause.attack_entity")),
             COMMAND(Text.translatable("reden.feature.undo.cause.command")),
             LITEMATICA_TASK(Text.translatable("reden.feature.undo.cause.litematica_task")),
+            PROJECTILE(Text.translatable("reden.feature.undo.cause.projectile")),
             UNKNOWN(Text.translatable("reden.feature.undo.cause.unknown"))
         }
     }
