@@ -7,9 +7,7 @@ import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.fakePlayer.FakeConnection;
 import com.github.zly2006.reden.fakePlayer.RedenFakePlayer;
-import com.github.zly2006.reden.indexing.IndexingKt;
 import com.github.zly2006.reden.network.ChannelsKt;
-import com.github.zly2006.reden.rvc.RvcCommandKt;
 import com.github.zly2006.reden.transformers.ThisIsReden;
 import com.github.zly2006.reden.utils.ResourceLoader;
 import com.github.zly2006.reden.utils.TaskScheduler;
@@ -81,7 +79,7 @@ public class Reden implements ModInitializer, CarpetExtension {
         CommandRegistrationCallback.EVENT.register((dispatcher, access, environment) -> {
             boolean isDev = false;
             // Debug command
-            if (FabricLoader.getInstance().isDevelopmentEnvironment() || isDev) {
+            if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
                 dispatcher.register(CommandManager.literal("fake-player")
                         .then(CommandManager.literal("spawn")
                                 .then(CommandManager.argument("name", StringArgumentType.word())
@@ -158,7 +156,6 @@ public class Reden implements ModInitializer, CarpetExtension {
                                     return 1;
                                 })));
             }
-            RvcCommandKt.register(dispatcher);
             if (!(dispatcher instanceof ThisIsReden)) {
                 throw new RuntimeException("This is not Reden!");
             } else {
@@ -167,17 +164,6 @@ public class Reden implements ModInitializer, CarpetExtension {
         });
         Sounds.init();
         ServerTickEvents.END_SERVER_TICK.register(TaskScheduler.INSTANCE);
-
-        new Thread(() -> {
-            LOGGER.info("Loading indexes...");
-            try {
-                IndexingKt.getEntityId();
-                IndexingKt.getBlockId();
-                IndexingKt.getPropertyId();
-            } catch (Exception e) {
-                Reden.LOGGER.error("Loading indexes.", e);
-            }
-        }, "Reden Indexer").start();
     }
 
     @Contract("_ -> new")

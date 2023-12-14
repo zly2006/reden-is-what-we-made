@@ -3,11 +3,7 @@ package com.github.zly2006.reden;
 import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.malilib.data.CommandHotkey;
-import com.github.zly2006.reden.pearl.PearlTask;
 import com.github.zly2006.reden.report.ReportKt;
-import com.github.zly2006.reden.rvc.gui.RvcHudRenderer;
-import com.github.zly2006.reden.rvc.gui.hud.gameplay.SelectModeHudKt;
-import com.github.zly2006.reden.rvc.tracking.client.ClientTrackingKt;
 import com.github.zly2006.reden.utils.DebugKt;
 import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigManager;
@@ -15,7 +11,6 @@ import fi.dy.masa.malilib.config.ConfigUtils;
 import fi.dy.masa.malilib.config.IConfigHandler;
 import fi.dy.masa.malilib.event.InitializationHandler;
 import fi.dy.masa.malilib.event.InputEventHandler;
-import fi.dy.masa.malilib.event.RenderEventHandler;
 import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.malilib.hotkeys.IKeybindManager;
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
@@ -32,10 +27,7 @@ import java.nio.file.Files;
 public class RedenClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        PearlTask.Companion.register();
-        SelectModeHudKt.registerHud();
         InitializationHandler.getInstance().registerInitializationHandler(() -> {
-            RenderEventHandler.getInstance().registerGameOverlayRenderer(RvcHudRenderer.INSTANCE);
             ConfigManager.getInstance().registerConfigHandler("reden", new IConfigHandler() {
                 @Override
                 public void load() {
@@ -59,7 +51,6 @@ public class RedenClient implements ClientModInitializer {
                     saveMalilibOptions();
                 }
             });
-            ClientTrackingKt.registerSelectionTool();
             InputEventHandler.getKeybindManager().registerKeybindProvider(new IKeybindProvider() {
                 @Override
                 public void addKeysToMap(IKeybindManager iKeybindManager) {
