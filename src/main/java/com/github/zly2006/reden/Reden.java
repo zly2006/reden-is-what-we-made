@@ -79,7 +79,7 @@ public class Reden implements ModInitializer, CarpetExtension {
         ChannelsKt.register();
         CarpetServer.manageExtension(this);
         CommandRegistrationCallback.EVENT.register((dispatcher, access, environment) -> {
-            boolean isDev = true;
+            boolean isDev = false;
             // Debug command
             if (FabricLoader.getInstance().isDevelopmentEnvironment() || isDev) {
                 dispatcher.register(CommandManager.literal("fake-player")

@@ -1,17 +1,13 @@
 package com.github.zly2006.reden;
 
-import com.github.zly2006.reden.clientGlow.ClientGlowKt;
 import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.malilib.data.CommandHotkey;
 import com.github.zly2006.reden.pearl.PearlTask;
 import com.github.zly2006.reden.report.ReportKt;
-import com.github.zly2006.reden.rvc.RvcLocalCommandKt;
 import com.github.zly2006.reden.rvc.gui.RvcHudRenderer;
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.SelectModeHudKt;
 import com.github.zly2006.reden.rvc.tracking.client.ClientTrackingKt;
-import com.github.zly2006.reden.sponsor.LuckToday;
-import com.github.zly2006.reden.update.AutoUpdateKt;
 import com.github.zly2006.reden.utils.DebugKt;
 import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigManager;
@@ -25,14 +21,9 @@ import fi.dy.masa.malilib.hotkeys.IKeybindManager;
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.util.FileUtils;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.command.argument.ItemStackArgumentType;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,28 +94,6 @@ public class RedenClient implements ClientModInitializer {
             KeyCallbacksKt.configureKeyCallbacks(MinecraftClient.getInstance());
         });
         ClientLifecycleEvents.CLIENT_STARTED.register(ReportKt::reportOnlineMC);
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            RvcLocalCommandKt.register(dispatcher);
-            ClientGlowKt.register(dispatcher);
-            dispatcher.register(ClientCommandManager.literal("qubit").executes(context -> {
-                throw new Error("Qu(b)it!");
-            }).then(ClientCommandManager.literal("floating-item")
-                    .then(ClientCommandManager.argument("item", ItemStackArgumentType.itemStack(registryAccess))
-                            .executes(context -> {
-                                MinecraftClient client = MinecraftClient.getInstance();
-                                client.gameRenderer.showFloatingItem(ItemStackArgumentType.getItemStackArgument(context, "item").createStack(1, false));
-                                client.world.playSound(client.player.getX(), client.player.getY(), client.player.getZ(), SoundEvents.ITEM_TOTEM_USE, client.player.getSoundCategory(), 1.0F, 1.0F, false);
-                                return 1;
-                            }))).then(ClientCommandManager.literal("luck-today").executes(context -> {
-                context.getSource().sendFeedback(
-                        Text.literal(String.valueOf(LuckToday.Companion.getLuckValue().getData()))
-                );
-                return 1;
-            })).then(ClientCommandManager.literal("relaunch").executes(context -> {
-                AutoUpdateKt.relaunch(null);
-                return 1;
-            })));
-        });
     }
 
     public static void saveMalilibOptions() {
