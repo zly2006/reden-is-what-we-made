@@ -9,7 +9,6 @@ import java.util.function.BooleanSupplier
 class ServerRootStage(
     val server: MinecraftServer
 ): TickStage("server_root", null) {
-    var tickIndex = 0
     lateinit var shouldKeepTicking: BooleanSupplier
     override fun tick() {
         super.tick()

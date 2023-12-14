@@ -67,7 +67,8 @@ ext {
     }
 }
 
-setVersion(project.getModVersion())
+//setVersion(project.getModVersion())
+version = "${project.mod_version}+1.20.1-stable"
 group = project.maven_group
 
 allprojects {
