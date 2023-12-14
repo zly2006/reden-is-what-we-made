@@ -35,11 +35,13 @@ public abstract class MixinLightningEntity extends Entity implements UndoableAcc
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void beforeTick(CallbackInfo ci) {
+        if (getWorld().isClient) return;
         UpdateMonitorHelper.pushRecord(getUndoId$reden(), () -> "lightning tick/" + getId());
     }
 
     @Inject(method = "tick", at = @At("RETURN"))
     private void afterTick(CallbackInfo ci) {
+        if (getWorld().isClient) return;
         UpdateMonitorHelper.popRecord(() -> "lightning tick/" + getId());
     }
 }
