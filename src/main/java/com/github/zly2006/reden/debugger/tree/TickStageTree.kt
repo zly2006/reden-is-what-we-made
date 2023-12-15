@@ -73,9 +73,18 @@ class TickStageTree(
     }
 
     fun with(stage: TickStage, block: () -> Unit) {
-        push(stage)
-        block()
-        pop()
+        try {
+            push(stage)
+            block()
+        } catch (e: Exception) {
+            Reden.LOGGER.error("Exception in stage $stage", e)
+            Reden.LOGGER.error("Active stages:")
+            for (tickStage in activeStages) {
+                Reden.LOGGER.error("  $tickStage")
+            }
+        } finally {
+            pop()
+        }
     }
 
     fun stepOver(activeStage: TickStage, callback: () -> Unit): Boolean {
