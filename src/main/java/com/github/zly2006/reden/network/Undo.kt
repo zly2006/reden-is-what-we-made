@@ -37,17 +37,22 @@ class Undo(
         val pType = PacketType.create(id) {
             Undo(it.readVarInt())
         }
-        private fun operate(world: ServerWorld, record: PlayerData.UndoRedoRecord, redoRecord: PlayerData.RedoRecord?) {
+        private fun operate(world: ServerWorld, record: PlayerData.UndoRedoRecord, redoRecord: PlayerData.RedoRecord?, isUndo: Boolean = true) {
+            debugLogger("undoing record ${record.id}, isUndo=$isUndo")
             record.data.forEach { (posLong, entry) ->
                 val pos = BlockPos.fromLong(posLong)
                 debugLogger("undo ${pos}, ${entry.state}")
                 // set block
                 val sec = world.getChunk(pos).run { getSection(getSectionIndex(pos.y)) } as ChunkSectionInterface
-                if (sec.`getModifyTime$reden`(pos) < entry.time) {
+                if (sec.`getModifyTime$reden`(pos) < entry.time && isUndo) {
                     debugLogger("undo $pos skipped (${sec.`getModifyTime$reden`(pos)} < ${entry.time})")
                     return@forEach
                 }
                 world.modified(pos, entry.time)
+                // two situations:
+                // if isUndo, the block is modified by the undo record, so we need to set the modify time to the undo record's time
+                // if isRedo, the block is modified by the player operations, so we need to set the modify time to the current time
+                //  luckily, the redo record's time is the current time
                 world.setBlockNoPP(pos, entry.state, Block.NOTIFY_LISTENERS)
                 // clear schedules
                 if (RedenCarpetSettings.Options.undoApplyingClearScheduledTicks) {
@@ -156,7 +161,7 @@ class Undo(
                     1 -> view.redo.lastValid()?.let {
                         view.redo.removeLast()
                         server.execute {
-                            operate(player.serverWorld, it, null)
+                            operate(player.serverWorld, it, null, isUndo = false)
                             view.undo.add(it.undoRecord)
                             sendStatus(1)
                         }
