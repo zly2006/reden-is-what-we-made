@@ -8,6 +8,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
+import net.fabricmc.loader.impl.discovery.ModResolutionException
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
@@ -162,3 +163,15 @@ fun URL.openStreamRetrying(retries: Int = 3): InputStream {
     throw IOException("Opening $this: max retries exceeded.")
 }
 
+fun checkMalilib() {
+    try {
+        if (isClient)
+            Class.forName("fi.dy.masa.malilib.util.FileUtils")
+    } catch (_: ClassNotFoundException) {
+        throw ModResolutionException("""
+            Dependency not found!
+            Reden requires Malilib to run on the clients.
+            Please install Malilib from https://www.curseforge.com/minecraft/mc-mods/malilib
+        """.trimIndent())
+    }
+}

@@ -13,6 +13,7 @@ import com.github.zly2006.reden.rvc.tracking.client.ClientTrackingKt;
 import com.github.zly2006.reden.sponsor.LuckToday;
 import com.github.zly2006.reden.update.AutoUpdateKt;
 import com.github.zly2006.reden.utils.DebugKt;
+import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.config.ConfigUtils;
@@ -41,6 +42,7 @@ import java.nio.file.Files;
 public class RedenClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
+        UtilsKt.checkMalilib();
         PearlTask.Companion.register();
         SelectModeHudKt.registerHud();
         InitializationHandler.getInstance().registerInitializationHandler(() -> {

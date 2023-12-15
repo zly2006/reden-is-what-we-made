@@ -27,6 +27,9 @@
     "client": [
       "com.github.zly2006.reden.RedenClient"
     ],
+    "preLaunch": [
+      "com.github.zly2006.reden.PreLaunch"
+    ],
     "modmenu": [
       "com.github.zly2006.reden.ModMenu"
     ]
