@@ -10,12 +10,6 @@ class NetworkStage(
     parent: GlobalNetworkStage,
     val connection: ClientConnection
 ): TickStage("network", parent), TickStageWithWorld {
-    override fun tick() {
-        parent as GlobalNetworkStage
-        super.tick()
-        parent.io.tick()
-    }
-
     override val world
         get() = (connection.packetListener as? ServerPlayNetworkHandler)?.player?.serverWorld
 

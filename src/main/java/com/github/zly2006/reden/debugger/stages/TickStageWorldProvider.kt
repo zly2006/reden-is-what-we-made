@@ -12,9 +12,4 @@ class TickStageWorldProvider(
     override fun toString(): String {
         return "general/$name/${world?.registryKey?.value}"
     }
-
-    override fun tick() {
-        super.tick()
-        yield()
-    }
 }

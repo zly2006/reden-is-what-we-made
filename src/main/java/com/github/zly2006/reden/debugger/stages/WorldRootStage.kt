@@ -20,8 +20,7 @@ class WorldRootStage(
         const val TICK_TIME = 0
     }
     @Deprecated("TickStage is going not to be tickable.")
-    override fun tick() {
-        super.tick()
+    fun tick() {
         tickLabel = 0
         // tick the world
         server.tickWorlds(shouldKeepTicking)
@@ -43,7 +42,6 @@ class WorldRootStage(
         children.add(world.data().blockEventsRootStage!!)
         children.add(EntitiesRootStage(this))
         children.add(BlockEntitiesRootStage(this))
-        yield()
     }
 
     override fun reset() {

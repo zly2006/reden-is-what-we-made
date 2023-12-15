@@ -12,10 +12,4 @@ abstract class AbstractWorldChildStage(
     val _parent: WorldRootStage?
 ): TickStage(name, _parent), TickStageWithWorld {
     override val world get() = _parent?.world
-
-    override fun tick() {
-        super.tick()
-        world!!.tick(_parent!!.shouldKeepTicking)
-        yield()
-    }
 }

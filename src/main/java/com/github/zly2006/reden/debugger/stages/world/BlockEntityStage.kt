@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.debugger.stages.world
 
-import com.github.zly2006.reden.access.WorldData.Companion.data
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import net.minecraft.block.entity.BlockEntityType
@@ -24,13 +23,6 @@ class BlockEntityStage(
     var type = ticker?.type()
 
     override val displayName get() = Text.translatable("reden.debugger.tick_stage.block_entity", pos?.toShortString(), type)
-
-    override fun tick() {
-        super.tick()
-
-        _parent.world!!.data().blockEntityTickInvoker = ticker!!
-        _parent.world!!.tickBlockEntities()
-    }
 
     override fun readByteBuf(buf: PacketByteBuf) {
         super.readByteBuf(buf)

@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.debugger.stages.world
 
-import com.github.zly2006.reden.access.WorldData.Companion.data
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.utils.readBlock
@@ -34,12 +33,5 @@ class BlockEventStage(
         buf.writeBlock(blockEvent!!.block)
         buf.writeInt(blockEvent!!.type)
         buf.writeInt(blockEvent!!.data)
-    }
-
-    override fun tick() {
-        super.tick()
-
-        _parent.world!!.data().tickingBlockEvent = blockEvent!!
-        _parent.world!!.processSyncedBlockEvents()
     }
 }
