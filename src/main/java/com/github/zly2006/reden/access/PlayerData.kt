@@ -8,6 +8,7 @@ import com.github.zly2006.reden.utils.isSinglePlayerAndCheating
 import com.github.zly2006.reden.utils.server
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
+import net.minecraft.client.MinecraftClient
 import net.minecraft.command.EntitySelector
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.TntEntity
@@ -84,6 +85,9 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
         fun fromWorld(world: World, pos: BlockPos, putNearByEntities: Boolean): Entry {
             val be = world.getBlockEntity(pos)
             val state = world.getBlockState(pos)
+            if (isClient && MinecraftClient.getInstance().server?.isOnThread == false) {
+                error("Cannot call undo stuff off main thread.")
+            }
             return Entry(state, be?.`getLastSavedNbt$reden`(), server.ticks).apply {
                 if (state.hasBlockEntity() && blockEntity == null) {
                     Reden.LOGGER.error("BlockEntity $be at $pos has no last saved nbt")

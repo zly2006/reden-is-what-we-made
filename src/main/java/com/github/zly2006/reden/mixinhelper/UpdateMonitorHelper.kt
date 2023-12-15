@@ -5,6 +5,7 @@ import com.github.zly2006.reden.access.ChunkSectionInterface
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
+import com.github.zly2006.reden.malilib.DEBUG_LOGGER_IGNORE_UNDO_ID_0
 import com.github.zly2006.reden.malilib.iEVER_USED_UNDO
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.monitorSetBlock
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.playerStartRecording
@@ -90,10 +91,15 @@ object UpdateMonitorHelper {
     private var recordId = 20060210L
     val undoRecordsMap: MutableMap<Long, PlayerData.UndoRecord> = HashMap()
     internal val undoRecords = mutableListOf<UndoRecordEntry>()
+
+    private fun filterLogById(undoId: Long) =
+        undoId != 0L || if (isClient) !DEBUG_LOGGER_IGNORE_UNDO_ID_0.booleanValue else true
+
     @JvmStatic
     fun pushRecord(id: Long, reasonSupplier: () -> String): Boolean {
         val reason = reasonSupplier()
-        debugLogger("[${undoRecords.size + 1}] id $id: push, $reason")
+        if (filterLogById(id))
+            debugLogger("[${undoRecords.size + 1}] id $id: push, $reason")
         return undoRecords.add(
             UndoRecordEntry(
                 id,
@@ -105,7 +111,8 @@ object UpdateMonitorHelper {
     @JvmStatic
     fun popRecord(reasonSupplier: () -> String): UndoRecordEntry {
         val reason = reasonSupplier()
-        debugLogger("[${undoRecords.size}] id ${undoRecords.last().id}: pop, $reason")
+        if (filterLogById(undoRecords.last().id))
+            debugLogger("[${undoRecords.size}] id ${undoRecords.last().id}: pop, $reason")
         if (reason != undoRecords.last().reason) {
             throw IllegalStateException("Cannot pop record with different reason: $reason != ${undoRecords.last().reason}")
         }
@@ -273,7 +280,8 @@ object UpdateMonitorHelper {
         if (entity.noClip) return
         if (entity is ServerPlayerEntity) return
         if (!isInitializingEntity) {
-            debugLogger("id ${recording?.id ?: 0}: add ${entity.uuid}, type ${entity.type.name}")
+            if (filterLogById(recording?.id ?: 0))
+                debugLogger("id ${recording?.id ?: 0}: add ${entity.uuid}, type ${entity.type.name}")
             recording?.entities?.computeIfAbsent(entity.uuid) {
                 PlayerData.EntityEntryImpl(
                     entity.type,
@@ -294,7 +302,8 @@ object UpdateMonitorHelper {
     @JvmStatic
     fun entitySpawned(entity: Entity) {
         if (entity is ServerPlayerEntity) return
-        debugLogger("id ${recording?.id ?: 0}: spawn ${entity.uuid}, type ${entity.type.name}")
+        if (filterLogById(recording?.id ?: 0))
+            debugLogger("id ${recording?.id ?: 0}: spawn ${entity.uuid}, type ${entity.type.name}")
         recording?.entities?.putIfAbsent(entity.uuid, PlayerData.NotExistEntityEntry)
     }
 

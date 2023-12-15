@@ -6,6 +6,7 @@ import com.github.zly2006.reden.access.BlockEntityInterface;
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.indexing.IndexingKt;
+import com.github.zly2006.reden.issueTracker.GithubIssue;
 import com.github.zly2006.reden.network.ChannelsKt;
 import com.github.zly2006.reden.rvc.RvcCommandKt;
 import com.github.zly2006.reden.transformers.ThisIsReden;
@@ -15,6 +16,7 @@ import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -152,6 +154,14 @@ public class Reden implements ModInitializer, CarpetExtension {
                 Reden.LOGGER.error("Loading indexes.", e);
             }
         }, "Reden Indexer").start();
+        ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
+            try {
+                GithubIssue issue = new GithubIssue("zly2006", "reden-is-what-we-made", 38);
+                System.out.println(issue);
+            } catch (Exception e) {
+                Reden.LOGGER.error("", e);
+            }
+        });
     }
 
     @Contract("_ -> new")
