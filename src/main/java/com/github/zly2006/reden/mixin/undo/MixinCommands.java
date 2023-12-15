@@ -30,8 +30,7 @@ public class MixinCommands {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/command/CommandManager;callWithContext(Lnet/minecraft/server/command/ServerCommandSource;Ljava/util/function/Consumer;)V",
-                    shift = At.Shift.BEFORE,
-                    remap = false
+                    shift = At.Shift.BEFORE
             )
     )
     private void onExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfo ci) {
@@ -45,8 +44,7 @@ public class MixinCommands {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/command/CommandManager;callWithContext(Lnet/minecraft/server/command/ServerCommandSource;Ljava/util/function/Consumer;)V",
-                    shift = At.Shift.AFTER,
-                    remap = false
+                    shift = At.Shift.AFTER
             )
     )
     private void afterExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfo ci) {

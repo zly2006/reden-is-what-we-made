@@ -2,7 +2,6 @@ package com.github.zly2006.reden.transformers
 
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.impl.launch.FabricLauncherBase
 import net.fabricmc.loader.impl.lib.mappingio.tree.MappingTree.ClassMapping
 import net.minecraft.server.MinecraftServer
@@ -66,18 +65,13 @@ fun ClassNode.findMixinMergedField(name: String, mixinPrefix: String = "com.gith
 class MethodInfo(
     val owner: String,
     val name: String,
-    val desc: String,
+    val desc: String?,
 ) {
-    fun toInsn(opcode: Int) = MethodInsnNode(opcode, owner, name, desc)
+    fun toInsn(opcode: Int) = MethodInsnNode(opcode, owner, name, desc!!)
 }
 
 object IntermediaryMappingAccess {
     val mapping = FabricLauncherBase.getLauncher().mappingConfiguration.getMappings()!!
-    private val classMapping2default: Map<String, String> = mapping.run {
-        classes.associate {
-            it.getName("intermediary")!! to it.getName(srcNamespace)!!
-        }
-    }
 
     private val methodMapping = mutableMapOf<String, MethodInfo>()
 
@@ -92,6 +86,16 @@ object IntermediaryMappingAccess {
             return methodMapping[name]!!
         }
         val targetNamespace = FabricLauncherBase.getLauncher().mappingConfiguration.targetNamespace
+        if (targetNamespace == "intermediary" && owner != null) {
+            return MethodInfo(
+                owner,
+                name,
+                null
+            )
+        }
+        if (targetNamespace == "intermediary") {
+            TODO()
+        }
         fun addMethods(classDef: ClassMapping) {
             for (methodDef in classDef.methods) {
                 methodMapping.computeIfAbsent(
@@ -113,34 +117,6 @@ object IntermediaryMappingAccess {
     fun getMethodOrDefault(owner: String, name: String): MethodInfo {
         return getMethod(owner, name) ?: MethodInfo(owner, name, "")
     }
-}
-
-fun getMappedMethod(info: MethodInfo): MethodInfo {
-    val name = FabricLoader.getInstance().mappingResolver.mapMethodName(
-        "intermediary",
-        info.owner.replace('/', '.'),
-        info.name,
-        info.desc
-    )
-    FabricLauncherBase.getLauncher().mappingConfiguration.getMappings()
-    var desc = info.desc
-    val regex = Regex("""L([^;]+);""")
-    val matches = regex.findAll(desc)
-    for (match in matches) {
-        val mapped = FabricLoader.getInstance().mappingResolver.mapClassName(
-            "intermediary",
-            match.groupValues[1].replace('/', '.')
-        ).replace('.', '/')
-        desc = desc.replace(match.value, "L$mapped;")
-    }
-    return MethodInfo(
-        FabricLoader.getInstance().mappingResolver.mapClassName(
-            "intermediary",
-            info.owner.replace('/', '.')
-        ).replace('.', '/'),
-        name,
-        desc
-    )
 }
 
 fun MinecraftServer.sendToAll(packet: FabricPacket) {
