@@ -42,7 +42,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             mc.player?.sendMessage(translateMessage("undo", "busy"))
             return@setCallback false
         }
-        if (mc.serverData()?.featureSet?.contains("undo") != true) {
+        if (mc.serverData?.featureSet?.contains("undo") != true) {
             mc.player?.sendMessage(Text.literal("Sorry, this server doesn't support undo.").red(), true)
             return@setCallback false
         }

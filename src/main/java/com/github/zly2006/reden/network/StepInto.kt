@@ -25,7 +25,7 @@ class StepInto: FabricPacket {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
                 checkFrozen(player) {
                     try {
-                        val tree = player.server.data().tickStageTree
+                        val tree = player.server.data.tickStageTree
                         if (tree.activeStage != null) {
                             tree.stepInto {
                                 sender.sendPacket(BreakPointInterrupt(-1, tree, true))

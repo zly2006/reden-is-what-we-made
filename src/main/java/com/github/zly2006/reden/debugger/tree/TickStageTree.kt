@@ -21,6 +21,7 @@ class TickStageTree(
     private var stepIntoCallback: (() -> Unit)? = null
 
     fun clear() {
+        Reden.LOGGER.debug("TickStageTree: clear()")
         activeStages.clear()
         history.clear()
         steppingInto = false
@@ -37,21 +38,23 @@ class TickStageTree(
             Reden.LOGGER.error("Stage $stage is already active")
         }
         activeStages.add(stage)
+        Reden.LOGGER.debug("TickStageTree: [{}] push {}", activeStages.size, stage)
 
         if (steppingInto) {
             steppingInto = false
             stepIntoCallback?.invoke()
             stepIntoCallback = null
-            server.data().addStatus(GlobalStatus.FROZEN)
-                .let {
-                    GlobalStatus(it, NbtCompound().apply {
-                        putString("reason", "step-into")
-                    })
-                }.let(server::sendToAll)
+            Reden.LOGGER.debug("TickStageTree: step into")
+            server.data.frozen = true
+            GlobalStatus(server.data.status, NbtCompound().apply {
+                putString("reason", "step-into")
+            }).let(server::sendToAll)
+
+            while (server.data.frozen && server.isRunning) {
+                tickPackets(server)
+            }
         }
-        while (server.data().hasStatus(GlobalStatus.FROZEN) && server.isRunning) {
-            tickPackets(server)
-        }
+        Reden.LOGGER.debug("TickStageTree: preTick {}", stage)
         stage.preTick()
     }
 
@@ -62,16 +65,17 @@ class TickStageTree(
             stepOverUntil = null
             stepOverCallback?.invoke()
             stepOverCallback = null
-            server.data().addStatus(GlobalStatus.FROZEN)
+            server.data.addStatus(GlobalStatus.FROZEN)
                 .let {
                     GlobalStatus(it, NbtCompound().apply {
                         putString("reason", "step-over")
                     })
                 }.let(server::sendToAll)
+            while (server.data.frozen && server.isRunning) {
+                tickPackets(server)
+            }
         }
-        while (server.data().hasStatus(GlobalStatus.FROZEN) && server.isRunning) {
-            tickPackets(server)
-        }
+        Reden.LOGGER.debug("TickStageTree: preTick {}", stage)
         return stage
     }
 
@@ -93,7 +97,7 @@ class TickStageTree(
     fun stepOver(activeStage: TickStage, callback: () -> Unit): Boolean {
         stepOverUntil = activeStage
         stepOverCallback = callback
-        server.data().removeStatus(GlobalStatus.FROZEN)
+        server.data.removeStatus(GlobalStatus.FROZEN)
         return true
     }
 
@@ -101,6 +105,6 @@ class TickStageTree(
         stepOverUntil = null
         steppingInto = true
         stepIntoCallback = callback
-        server.data().removeStatus(GlobalStatus.FROZEN)
+        server.data.removeStatus(GlobalStatus.FROZEN)
     }
 }

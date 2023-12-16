@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.github.zly2006.reden.access.ServerData.data;
+import static com.github.zly2006.reden.access.ServerData.getData;
 
 @Mixin(NetworkThreadUtils.class)
 public class MixinNetworkThreadUtils {
@@ -23,7 +23,7 @@ public class MixinNetworkThreadUtils {
     )
     private static void begin(PacketListener packetListener, Packet<?> packet, CallbackInfo ci) {
         if (UtilsKt.server != null) {
-            ServerData data = data(UtilsKt.server);
+            ServerData data = getData(UtilsKt.server);
             if (packetListener instanceof ServerPlayNetworkHandler spnh) {
                 TickStage stage = data.getTickStageTree().getActiveStage();
                 data.getTickStageTree().push$reden_is_what_we_made(
@@ -39,7 +39,7 @@ public class MixinNetworkThreadUtils {
     )
     private static void end(PacketListener packetListener, Packet<?> packet, CallbackInfo ci) {
         if (UtilsKt.server != null) {
-            ServerData data = data(UtilsKt.server);
+            ServerData data = getData(UtilsKt.server);
             if (packetListener instanceof ServerPlayNetworkHandler) {
                 data.getTickStageTree().pop$reden_is_what_we_made();
             }

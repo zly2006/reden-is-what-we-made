@@ -39,7 +39,7 @@ data class BreakPointInterrupt(
         fun register() {
             if (isClient) {
                 ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->
-                    val data = MinecraftClient.getInstance().serverData()!!
+                    val data = MinecraftClient.getInstance().serverData!!
                     val breakpoint = data.breakpoints.breakpointMap[packet.bpId]
                     if (packet.tree != null) {
                         data.tickStageTree = packet.tree

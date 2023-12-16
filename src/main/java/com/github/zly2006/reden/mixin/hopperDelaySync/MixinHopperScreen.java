@@ -41,7 +41,7 @@ public abstract class MixinHopperScreen extends HandledScreen<HopperScreenHandle
     )
     private void sendReqOnInit(HopperScreenHandler handler, PlayerInventory inventory, Text title, CallbackInfo ci) {
         if (client != null) {
-            ServerData data = ServerData.Companion.serverData(client);
+            ServerData data = ServerData.Companion.getServerData(client);
             if (data != null && data.getFeatureSet().contains("hopper-cd")) {
                 ClientPlayNetworking.send(HopperCDSync.clientQueryPacket());
             }

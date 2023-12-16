@@ -36,14 +36,14 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
     }
 
     @Inject(
-            method = "tick",
+            method = "runServer",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/MinecraftServer;tickWorlds(Ljava/util/function/BooleanSupplier;)V",
+                    target = "Lnet/minecraft/server/MinecraftServer;endTickMetrics()V",
                     shift = At.Shift.AFTER
             )
     )
-    private void tickStageTreeEnd(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+    private void tickStageTreeEnd(CallbackInfo ci) {
         if (RedenMixinExtension.APPLY_DEBUGGER_MIXINS) {
             serverData.getTickStageTree().pop$reden_is_what_we_made();
             if (serverData.getTickStageTree().getActiveStage() != null) {

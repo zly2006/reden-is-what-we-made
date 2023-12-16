@@ -38,7 +38,7 @@ public class MixinX {
     private static void capture(MinecraftClient mc, DrawContext drawContext, CallbackInfo ci, World world, Entity cameraEntity, HitResult trace, Inventory inv, ShulkerBoxBlock block, LivingEntity entityLivingBase, int xCenter, int yCenter, int x, int y, boolean isHorse, int totalSlots, int firstSlot, InventoryOverlay.InventoryRenderType type, InventoryOverlay.InventoryProperties props, int rows, int xInv, int yInv) {
         tickCount++;
         if (type == InventoryOverlay.InventoryRenderType.HOPPER) {
-            ServerData data = ServerData.Companion.serverData(mc);
+            ServerData data = ServerData.Companion.getServerData(mc);
             if (data != null && data.getFeatureSet().contains("hopper-cd")) {
                 BlockPos pos = ((BlockHitResult) trace).getBlockPos();
                 if (pos.equals(HopperCDSync.Companion.getCurrentPos())) {

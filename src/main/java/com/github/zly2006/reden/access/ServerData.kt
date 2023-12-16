@@ -2,8 +2,8 @@ package com.github.zly2006.reden.access
 
 import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
 import com.github.zly2006.reden.debugger.stages.ServerRootStage
-import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.debugger.tree.TickStageTree
+import com.github.zly2006.reden.network.GlobalStatus
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
 import net.fabricmc.loader.api.Version
@@ -22,36 +22,42 @@ class ServerData(version: Version, mcServer: MinecraftServer?) : StatusAccess {
     var uuid: UUID? = null
     var address: String = ""
     var tickStage = if (mcServer != null) ServerRootStage(mcServer) else null
-    @Deprecated("removed")
-    var stageTree = StageTree()
     var tickStageTree = TickStageTree()
+    var frozen: Boolean
+        get() = hasStatus(GlobalStatus.FROZEN)
+        set(value) {
+            if (value) addStatus(GlobalStatus.FROZEN) else removeStatus(GlobalStatus.FROZEN)
+        }
     val featureSet = mutableSetOf<String>()
 
     val breakpoints = BreakpointsManager(false)
 
     interface ServerDataAccess {
-        val `serverData$reden`: ServerData
+        @Suppress("INAPPLICABLE_JVM_NAME")
+        @get:JvmName("getServerData\$reden")
+        val serverData: ServerData
     }
 
     interface ClientSideServerDataAccess {
-        var `serverData$reden`: ServerData?
+        @Suppress("INAPPLICABLE_JVM_NAME")
+        @get:JvmName("getServerData\$reden")
+        @set:JvmName("setServerData\$reden")
+        var serverData: ServerData?
     }
 
     companion object {
         @JvmStatic
-        fun MinecraftServer.data(): ServerData {
-            return (this as ServerDataAccess).`serverData$reden`
-        }
-        fun MinecraftClient.serverData(): ServerData? {
-            return (this as ClientSideServerDataAccess).`serverData$reden`
-        }
+        val MinecraftServer.data: ServerData
+            get() = (this as ServerDataAccess).serverData
+        val MinecraftClient.serverData: ServerData?
+            get() = (this as ClientSideServerDataAccess).serverData
         @JvmStatic
         fun getServerData() = if (!isClient) {
-            server.data()
+            server.data
         } else {
             val mc = MinecraftClient.getInstance()
-            if (mc.isInSingleplayer) mc.server?.data()
-            else mc.serverData()
+            if (mc.isInSingleplayer) mc.server?.data
+            else mc.serverData
         }
     }
 

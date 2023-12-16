@@ -57,7 +57,7 @@ class GlobalStatus(status: Long, data: NbtCompound?)
         fun register() {
             if (isClient) {
                 ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, _ ->
-                    MinecraftClient.getInstance().serverData()?.status = packet.status
+                    MinecraftClient.getInstance().serverData?.status = packet.status
                 }
             }
         }
