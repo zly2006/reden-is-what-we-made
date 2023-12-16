@@ -72,6 +72,10 @@ class BreakpointsManager(val isClient: Boolean) {
             .forEach { it.call(stage) }
     }
 
+    fun checkBreakpointsForScheduledTick() {
+
+    }
+
     companion object {
         fun getBreakpointManager() = if (isClient) {
             MinecraftClient.getInstance().data().breakpoints

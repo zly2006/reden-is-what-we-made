@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.debugger.stages.world
 
+import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import net.minecraft.fluid.Fluid
@@ -15,7 +16,7 @@ class FluidScheduledTickStage(
     override val world get() = _parent.world
 
     override fun preTick() {
-        // todo: scheduled ticks
+        world!!.server.data().breakpoints.checkBreakpointsForScheduledTick()
         super.preTick()
     }
 

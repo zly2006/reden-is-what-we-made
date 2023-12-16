@@ -181,7 +181,7 @@ fun Screen.creditsScreenContent(): FlowLayout {
             Util.getOperatingSystem().open(URI("https://www.redenmc.com/policy/PRIVACY.md"))
         })
         this.child(Components.button(Text.literal("Delete My Data").red()) {
-            Util.getOperatingSystem().open(URI("https://www.redenmc.com/privacy/deletekey=$key"))
+            Util.getOperatingSystem().open(URI("https://www.redenmc.com/privacy/delete?key=$key"))
         })
         children().forEach { it.margins(Insets.of(5)) }
     }))

@@ -49,7 +49,16 @@ class TickStageTree(
                     })
                 }.let(server::sendToAll)
         }
-        else if (stage == stepOverUntil) {
+        while (server.data().hasStatus(GlobalStatus.FROZEN) && server.isRunning) {
+            tickPackets(server)
+        }
+        stage.preTick()
+    }
+
+    internal fun pop(): TickStage {
+        val stage = activeStages.removeLast().also(history::add)
+        stage.postTick()
+        if (stage == stepOverUntil) {
             stepOverUntil = null
             stepOverCallback?.invoke()
             stepOverCallback = null
@@ -63,12 +72,6 @@ class TickStageTree(
         while (server.data().hasStatus(GlobalStatus.FROZEN) && server.isRunning) {
             tickPackets(server)
         }
-        stage.preTick()
-    }
-
-    internal fun pop(): TickStage {
-        val stage = activeStages.removeLast().also(history::add)
-        stage.postTick()
         return stage
     }
 
