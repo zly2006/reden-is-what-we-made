@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Supplier;
 
-import static com.github.zly2006.reden.access.ServerData.data;
+import static com.github.zly2006.reden.access.ServerData.getData;
 
 @Mixin(value = SystemDetails.class, priority = 1001/* Make it apply later */)
 public abstract class MixinSystemDetails {
@@ -33,7 +33,7 @@ public abstract class MixinSystemDetails {
                 }
                 sb.append(")");
                 if (UtilsKt.server != null) {
-                    ServerData serverData = data(UtilsKt.server);
+                    ServerData serverData = getData(UtilsKt.server);
                     if (serverData.realTicks > 1) {
                         sb.append(" Incredible! Reden Debugger worked for more than %d full tick!!"
                                 .formatted(serverData.realTicks - 1));

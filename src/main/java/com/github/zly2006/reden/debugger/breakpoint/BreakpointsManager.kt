@@ -80,7 +80,7 @@ class BreakpointsManager(val isClient: Boolean) {
         fun getBreakpointManager() = if (isClient) {
             MinecraftClient.getInstance().data().breakpoints
         } else {
-            server.data().breakpoints
+            server.data.breakpoints
         }
     }
 }

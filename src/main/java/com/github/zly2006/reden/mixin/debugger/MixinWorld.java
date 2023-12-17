@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-import static com.github.zly2006.reden.access.ServerData.data;
+import static com.github.zly2006.reden.access.ServerData.getData;
 
 @Mixin(value = World.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public abstract class MixinWorld implements WorldAccess, AutoCloseable {
@@ -45,7 +45,7 @@ public abstract class MixinWorld implements WorldAccess, AutoCloseable {
     )
     private void beforeBlockEntityTick(CallbackInfo ci, @Local BlockEntityTickInvoker blockEntityTickInvoker) {
         if (isClient) return;
-        TickStageTree tree = data(getServer()).getTickStageTree();
+        TickStageTree tree = getData(getServer()).getTickStageTree();
         tree.push$reden_is_what_we_made(new BlockEntityStage(
                 (BlockEntitiesRootStage) tree.getActiveStage(),
                 blockEntityTickInvoker
@@ -62,6 +62,6 @@ public abstract class MixinWorld implements WorldAccess, AutoCloseable {
     )
     private void afterBlockEntityTick(CallbackInfo ci) {
         if (isClient) return;
-        data(getServer()).getTickStageTree().pop$reden_is_what_we_made();
+        getData(getServer()).getTickStageTree().pop$reden_is_what_we_made();
     }
 }

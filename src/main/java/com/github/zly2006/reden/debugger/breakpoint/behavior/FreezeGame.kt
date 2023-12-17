@@ -15,17 +15,17 @@ class FreezeGame: BreakPointBehavior() {
         priority = 100
     }
     override fun onBreakPoint(breakPoint: BreakPoint, event: Any) {
-        val tree = server.data().tickStageTree
+        val tree = server.data.tickStageTree
         server.sendToAll(BreakPointInterrupt(breakPoint.id, tree, true))
 
-        server.data().addStatus(GlobalStatus.FROZEN)
+        server.data.addStatus(GlobalStatus.FROZEN)
             .let {
                 GlobalStatus(it, NbtCompound().apply {
                     putString("reason", "game-paused")
                 })
             }.let(server::sendToAll)
 
-        while (server.data().hasStatus(GlobalStatus.FROZEN) && server.isRunning) {
+        while (server.data.hasStatus(GlobalStatus.FROZEN) && server.isRunning) {
             tickPackets(server)
         }
 

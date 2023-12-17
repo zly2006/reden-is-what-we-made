@@ -18,7 +18,7 @@ class WorldData(
     @JvmField var blockEventsRootStage: BlockEventsRootStage? = null
     @JvmField var blockEntityTickInvoker: BlockEntityTickInvoker? = null
     val redenNeighborUpdater by lazy {
-        RedenNeighborUpdater(serverWorld, serverWorld.server.data())
+        RedenNeighborUpdater(serverWorld, serverWorld.server.data)
     }
 
     interface WorldDataAccess {

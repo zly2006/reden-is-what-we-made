@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-import static com.github.zly2006.reden.access.ServerData.data;
+import static com.github.zly2006.reden.access.ServerData.getData;
 
 @Mixin(value = ServerNetworkIo.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public class MixinNetworkIo {
@@ -44,8 +44,8 @@ public class MixinNetworkIo {
             at = @At("HEAD")
     )
     private void startTick(CallbackInfo ci) {
-        stage = new GlobalNetworkStage(data(server).getTickStage());
-        data(server).getTickStageTree().push$reden_is_what_we_made(stage);
+        stage = new GlobalNetworkStage(getData(server).getTickStage());
+        getData(server).getTickStageTree().push$reden_is_what_we_made(stage);
     }
 
     @Inject(
@@ -53,7 +53,7 @@ public class MixinNetworkIo {
             at = @At("RETURN")
     )
     private void endTick(CallbackInfo ci) {
-        data(server).getTickStageTree().pop$reden_is_what_we_made();
+        getData(server).getTickStageTree().pop$reden_is_what_we_made();
     }
 
     @Inject(
@@ -65,7 +65,7 @@ public class MixinNetworkIo {
             )
     )
     private void startConnectionTick(CallbackInfo ci, @Local(ordinal = 0) ClientConnection clientConnection) {
-        data(server).getTickStageTree().push$reden_is_what_we_made(new NetworkStage(stage, clientConnection));
+        getData(server).getTickStageTree().push$reden_is_what_we_made(new NetworkStage(stage, clientConnection));
     }
 
     @Inject(
@@ -78,7 +78,7 @@ public class MixinNetworkIo {
     )
     private void endConnectionTick(CallbackInfo ci, @Local(ordinal = 0) ClientConnection clientConnection) {
         Asserts.check(
-                data(server).getTickStageTree().pop$reden_is_what_we_made() instanceof NetworkStage,
+                getData(server).getTickStageTree().pop$reden_is_what_we_made() instanceof NetworkStage,
                 "Popped stage is not a network stage."
         );
     }

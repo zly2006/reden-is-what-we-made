@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.github.zly2006.reden.access.ServerData.data;
+import static com.github.zly2006.reden.access.ServerData.getData;
 
 @Mixin(value = ObserverBlock.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public class MixinObserver {
@@ -22,7 +22,7 @@ public class MixinObserver {
     )
     private void cancelObserverPP(WorldAccess world, BlockPos pos, CallbackInfo ci) {
         if (world instanceof ServerWorld sw) {
-            boolean frozen = data(sw.getServer()).hasStatus(GlobalStatus.FROZEN);
+            boolean frozen = getData(sw.getServer()).hasStatus(GlobalStatus.FROZEN);
             if (frozen) {
                 ci.cancel();
             }

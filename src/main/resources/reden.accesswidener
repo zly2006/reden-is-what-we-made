@@ -146,3 +146,4 @@ accessible field net/minecraft/util/thread/ReentrantThreadExecutor runningTasks 
 accessible field net/minecraft/client/gui/hud/InGameHud overlayRemaining I
 accessible field net/minecraft/server/MinecraftServer tickStartTimeNanos J
 accessible method net/minecraft/client/gui/widget/TextIconButtonWidget <init> (IILnet/minecraft/text/Text;IILnet/minecraft/util/Identifier;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V
+extendable method net/minecraft/client/gui/widget/TextIconButtonWidget <init> (IILnet/minecraft/text/Text;IILnet/minecraft/util/Identifier;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V

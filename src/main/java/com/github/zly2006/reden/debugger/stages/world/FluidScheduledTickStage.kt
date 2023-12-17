@@ -16,7 +16,7 @@ class FluidScheduledTickStage(
     override val world get() = _parent.world
 
     override fun preTick() {
-        world!!.server.data().breakpoints.checkBreakpointsForScheduledTick()
+        world!!.server.data.breakpoints.checkBreakpointsForScheduledTick()
         super.preTick()
     }
 

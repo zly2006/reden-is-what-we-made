@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.github.zly2006.reden.access.ServerData.data;
+import static com.github.zly2006.reden.access.ServerData.getData;
 
 @Mixin(value = ServerPlayNetworkHandler.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public class MixinServerPlayNetwork {
@@ -25,7 +25,7 @@ public class MixinServerPlayNetwork {
             cancellable = true
     )
     private void tick(CallbackInfo ci) {
-        if (data(player.server).hasStatus(GlobalStatus.FROZEN)) {
+        if (getData(player.server).hasStatus(GlobalStatus.FROZEN)) {
             ci.cancel();
         }
     }

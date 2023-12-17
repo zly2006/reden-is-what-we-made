@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-import static com.github.zly2006.reden.access.ServerData.data;
+import static com.github.zly2006.reden.access.ServerData.getData;
 
 @Mixin(value = ServerWorld.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public abstract class MixinServerWorld extends World implements WorldData.WorldDataAccess {
@@ -46,8 +46,8 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             at = @At("HEAD")
     )
     private void redenTickBefore(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        final TickStageTree tree = data(server).getTickStageTree();
-        worldRootStage = new WorldRootStage((ServerWorld) (Object) this, data(server).getTickStage(), shouldKeepTicking);
+        final TickStageTree tree = getData(server).getTickStageTree();
+        worldRootStage = new WorldRootStage((ServerWorld) (Object) this, getData(server).getTickStage(), shouldKeepTicking);
         tree.push$reden_is_what_we_made(worldRootStage);
     }
 
@@ -56,7 +56,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             at = @At("RETURN")
     )
     private void redenTickAfter(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        final TickStageTree tree = data(server).getTickStageTree();
+        final TickStageTree tree = getData(server).getTickStageTree();
         tree.pop$reden_is_what_we_made();
     }
 
@@ -69,7 +69,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void beforeWorldBorderTick(CallbackInfo ci) {
-        data(server).getTickStageTree().push$reden_is_what_we_made(new WorldBorderStage(worldRootStage));
+        getData(server).getTickStageTree().push$reden_is_what_we_made(new WorldBorderStage(worldRootStage));
     }
 
     @Inject(
@@ -81,7 +81,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterWorldBorderTick(CallbackInfo ci) {
-        data(server).getTickStageTree().pop$reden_is_what_we_made();
+        getData(server).getTickStageTree().pop$reden_is_what_we_made();
     }
 
     @Inject(
@@ -93,7 +93,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void beforeWeatherTick(CallbackInfo ci) {
-        data(server).getTickStageTree().push$reden_is_what_we_made(new WeatherStage(worldRootStage));
+        getData(server).getTickStageTree().push$reden_is_what_we_made(new WeatherStage(worldRootStage));
     }
 
     @Inject(
@@ -105,7 +105,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterWeatherTick(CallbackInfo ci) {
-        data(server).getTickStageTree().pop$reden_is_what_we_made();
+        getData(server).getTickStageTree().pop$reden_is_what_we_made();
     }
 
     @Inject(
@@ -117,7 +117,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void beforeTimeTick(CallbackInfo ci) {
-        data(server).getTickStageTree().push$reden_is_what_we_made(new TimeStage(worldRootStage));
+        getData(server).getTickStageTree().push$reden_is_what_we_made(new TimeStage(worldRootStage));
     }
 
     @Inject(
@@ -129,7 +129,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterTimeTick(CallbackInfo ci) {
-        data(server).getTickStageTree().pop$reden_is_what_we_made();
+        getData(server).getTickStageTree().pop$reden_is_what_we_made();
     }
 
     @Inject(
@@ -142,7 +142,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void beforeBlockScheduledTick(CallbackInfo ci) {
-        data(server).getTickStageTree().push$reden_is_what_we_made(new BlockScheduledTicksRootStage(worldRootStage));
+        getData(server).getTickStageTree().push$reden_is_what_we_made(new BlockScheduledTicksRootStage(worldRootStage));
     }
 
     @Inject(
@@ -155,7 +155,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterBlockScheduledTick(CallbackInfo ci) {
-        data(server).getTickStageTree().pop$reden_is_what_we_made();
+        getData(server).getTickStageTree().pop$reden_is_what_we_made();
     }
 
     @Inject(
@@ -168,7 +168,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void beforeFluidScheduledTick(CallbackInfo ci) {
-        data(server).getTickStageTree().push$reden_is_what_we_made(new FluidScheduledTicksRootStage(worldRootStage));
+        getData(server).getTickStageTree().push$reden_is_what_we_made(new FluidScheduledTicksRootStage(worldRootStage));
     }
 
     @Inject(
@@ -181,7 +181,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterFluidScheduledTick(CallbackInfo ci) {
-        data(server).getTickStageTree().pop$reden_is_what_we_made();
+        getData(server).getTickStageTree().pop$reden_is_what_we_made();
     }
 
     @Inject(
@@ -193,7 +193,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void beforeRaidTick(CallbackInfo ci) {
-        data(server).getTickStageTree().push$reden_is_what_we_made(new RaidStage(worldRootStage));
+        getData(server).getTickStageTree().push$reden_is_what_we_made(new RaidStage(worldRootStage));
     }
 
     @Inject(
@@ -205,7 +205,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterRaidTick(CallbackInfo ci) {
-        data(server).getTickStageTree().pop$reden_is_what_we_made();
+        getData(server).getTickStageTree().pop$reden_is_what_we_made();
     }
 
     @Inject(
@@ -217,7 +217,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void beforeChunkManagerTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        data(server).getTickStageTree().push$reden_is_what_we_made(new RandomTickStage(worldRootStage));
+        getData(server).getTickStageTree().push$reden_is_what_we_made(new RandomTickStage(worldRootStage));
     }
 
     @Inject(
@@ -229,7 +229,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterChunkManagerTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        data(server).getTickStageTree().pop$reden_is_what_we_made();
+        getData(server).getTickStageTree().pop$reden_is_what_we_made();
     }
 
     @Inject(
@@ -241,7 +241,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void beforeBlockEventsTick(CallbackInfo ci) {
-        data(server).getTickStageTree().push$reden_is_what_we_made(new BlockEventsRootStage(worldRootStage));
+        getData(server).getTickStageTree().push$reden_is_what_we_made(new BlockEventsRootStage(worldRootStage));
     }
 
     @Inject(
@@ -253,7 +253,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterBlockEventsTick(CallbackInfo ci) {
-        data(server).getTickStageTree().pop$reden_is_what_we_made();
+        getData(server).getTickStageTree().pop$reden_is_what_we_made();
     }
 
     @Inject(
@@ -265,7 +265,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void beforeEntitiesTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        data(server).getTickStageTree().push$reden_is_what_we_made(new EntitiesRootStage(worldRootStage));
+        getData(server).getTickStageTree().push$reden_is_what_we_made(new EntitiesRootStage(worldRootStage));
     }
 
     @Inject(
@@ -277,7 +277,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterEntitiesTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        data(server).getTickStageTree().pop$reden_is_what_we_made();
+        getData(server).getTickStageTree().pop$reden_is_what_we_made();
     }
 
     @Inject(
@@ -289,7 +289,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void beforeBlockEntitiesTick(CallbackInfo ci) {
-        data(server).getTickStageTree().push$reden_is_what_we_made(new BlockEntitiesRootStage(worldRootStage));
+        getData(server).getTickStageTree().push$reden_is_what_we_made(new BlockEntitiesRootStage(worldRootStage));
     }
 
     @Inject(
@@ -301,6 +301,6 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterBlockEntitiesTick(CallbackInfo ci) {
-        data(server).getTickStageTree().pop$reden_is_what_we_made();
+        getData(server).getTickStageTree().pop$reden_is_what_we_made();
     }
 }

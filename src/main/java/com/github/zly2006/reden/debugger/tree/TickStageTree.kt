@@ -60,8 +60,10 @@ class TickStageTree(
 
     internal fun pop(): TickStage {
         val stage = activeStages.removeLast().also(history::add)
+        Reden.LOGGER.debug("TickStageTree: [{}] pop {}", activeStages.size, stage)
         stage.postTick()
         if (stage == stepOverUntil) {
+            Reden.LOGGER.debug("stage == stepOverUntil")
             stepOverUntil = null
             stepOverCallback?.invoke()
             stepOverCallback = null

@@ -44,12 +44,12 @@ data class UpdateBreakpointPacket(
         }
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, _ ->
-                updateBreakpoint(packet, player.server.data().breakpoints)
+                updateBreakpoint(packet, player.server.data.breakpoints)
                 // sync
                 player.server.sendToAll(packet.copy(sender = player.uuid))
             }
             ServerPlayConnectionEvents.JOIN.register { _, sender, server ->
-                server.data().breakpoints.sendAll(sender)
+                server.data.breakpoints.sendAll(sender)
             }
             if (isClient) {
                 ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->

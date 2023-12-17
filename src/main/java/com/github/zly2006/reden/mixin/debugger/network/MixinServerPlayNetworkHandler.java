@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
 
-import static com.github.zly2006.reden.access.ServerData.data;
+import static com.github.zly2006.reden.access.ServerData.getData;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public class MixinServerPlayNetworkHandler {
@@ -25,7 +25,7 @@ public class MixinServerPlayNetworkHandler {
             at = @At("HEAD")
     )
     private void startCommandExecute(CommandExecutionC2SPacket commandExecutionC2SPacket, Optional<?> optional, CallbackInfo ci) {
-        ServerData data = data(player.server);
+        ServerData data = getData(player.server);
         ServerWorld world = player.getServerWorld();
         data.getTickStageTree().push$reden_is_what_we_made(new TickStageWorldProvider("commands_stage", data.getTickStageTree().getActiveStage(), world));
     }
@@ -35,7 +35,7 @@ public class MixinServerPlayNetworkHandler {
             at = @At("RETURN")
     )
     private void endCommandExecute(CommandExecutionC2SPacket commandExecutionC2SPacket, Optional<?> optional, CallbackInfo ci) {
-        ServerData data = data(player.server);
+        ServerData data = getData(player.server);
         data.getTickStageTree().pop$reden_is_what_we_made();
     }
 }

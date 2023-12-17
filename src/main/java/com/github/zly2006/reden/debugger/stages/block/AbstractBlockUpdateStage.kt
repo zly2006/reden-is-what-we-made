@@ -23,7 +23,7 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
 
     override fun preTick() {
         super.preTick()
-        world!!.server.data().breakpoints.checkBreakpointsForUpdating(this)
+        world!!.server.data.breakpoints.checkBreakpointsForUpdating(this)
     }
 
     override fun reset() {

@@ -30,7 +30,7 @@ class StepOver(
             ServerPlayNetworking.registerGlobalReceiver(pType) { _, player, sender ->
                 checkFrozen(player) {
                     try {
-                        val tree = player.server.data().tickStageTree
+                        val tree = player.server.data.tickStageTree
 
                         if (tree.activeStage == null ||
                             !tree.stepOver(tree.activeStage!!) {
