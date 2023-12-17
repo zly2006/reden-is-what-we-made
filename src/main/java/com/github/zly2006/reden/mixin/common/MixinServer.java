@@ -5,16 +5,23 @@ import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.network.GlobalStatus;
 import com.github.zly2006.reden.transformers.RedenMixinExtension;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerTask;
+import net.minecraft.util.thread.ReentrantThreadExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MinecraftServer.class)
-public abstract class MixinServer implements ServerData.ServerDataAccess {
+public abstract class MixinServer extends ReentrantThreadExecutor<ServerTask> implements ServerData.ServerDataAccess {
     @Unique ServerData serverData = new ServerData(Reden.MOD_VERSION, (MinecraftServer) (Object) this);
+
+    public MixinServer() {
+        super("What?");
+    }
 
     @Inject(
             method = "runServer",
@@ -66,5 +73,15 @@ public abstract class MixinServer implements ServerData.ServerDataAccess {
     @Override
     public ServerData getServerData$reden() {
         return serverData;
+    }
+
+    @Inject(
+            method = "canExecute(Lnet/minecraft/server/ServerTask;)Z",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private void patchAsync(ServerTask serverTask, CallbackInfoReturnable<Boolean> cir) {
+        // Note: idk why
+        if (serverData.isFrozen()) cir.setReturnValue(true);
     }
 }
