@@ -2,7 +2,6 @@ package com.github.zly2006.reden.mixin.debugger.paused.noUpdate;
 
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
-import com.github.zly2006.reden.network.GlobalStatus;
 import net.minecraft.block.Block;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
@@ -23,11 +22,7 @@ public class MixinWorld {
     )
     private int cancelNC(int flag) {
         ServerData data = ServerData.getServerData();
-        boolean frozen = false;
-        if (data != null) {
-            frozen = data.hasStatus(GlobalStatus.FROZEN);
-        }
-        if (frozen) {
+        if (data != null && data.isFrozen()) {
             return flag & ~Block.NOTIFY_NEIGHBORS;
         }
         return flag;

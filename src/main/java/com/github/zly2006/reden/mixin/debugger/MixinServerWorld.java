@@ -14,6 +14,7 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import org.junit.jupiter.api.Assertions;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -81,7 +82,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterWorldBorderTick(CallbackInfo ci) {
-        getData(server).getTickStageTree().pop$reden_is_what_we_made();
+        Assertions.assertInstanceOf(WorldBorderStage.class, getData(getServer()).getTickStageTree().pop$reden_is_what_we_made());
     }
 
     @Inject(
@@ -105,7 +106,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterWeatherTick(CallbackInfo ci) {
-        getData(server).getTickStageTree().pop$reden_is_what_we_made();
+        Assertions.assertInstanceOf(WeatherStage.class, getData(getServer()).getTickStageTree().pop$reden_is_what_we_made());
     }
 
     @Inject(
@@ -129,7 +130,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterTimeTick(CallbackInfo ci) {
-        getData(server).getTickStageTree().pop$reden_is_what_we_made();
+        Assertions.assertInstanceOf(TimeStage.class, getData(getServer()).getTickStageTree().pop$reden_is_what_we_made());
     }
 
     @Inject(
@@ -155,7 +156,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterBlockScheduledTick(CallbackInfo ci) {
-        getData(server).getTickStageTree().pop$reden_is_what_we_made();
+        Assertions.assertInstanceOf(BlockScheduledTicksRootStage.class, getData(server).getTickStageTree().pop$reden_is_what_we_made());
     }
 
     @Inject(
@@ -181,7 +182,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterFluidScheduledTick(CallbackInfo ci) {
-        getData(server).getTickStageTree().pop$reden_is_what_we_made();
+        Assertions.assertInstanceOf(FluidScheduledTicksRootStage.class, getData(server).getTickStageTree().pop$reden_is_what_we_made());
     }
 
     @Inject(
@@ -205,7 +206,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterRaidTick(CallbackInfo ci) {
-        getData(server).getTickStageTree().pop$reden_is_what_we_made();
+        Assertions.assertInstanceOf(RaidStage.class, getData(server).getTickStageTree().pop$reden_is_what_we_made());
     }
 
     @Inject(
@@ -229,7 +230,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterChunkManagerTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        getData(server).getTickStageTree().pop$reden_is_what_we_made();
+        Assertions.assertInstanceOf(RandomTickStage.class, getData(server).getTickStageTree().pop$reden_is_what_we_made());
     }
 
     @Inject(
@@ -253,7 +254,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterBlockEventsTick(CallbackInfo ci) {
-        getData(server).getTickStageTree().pop$reden_is_what_we_made();
+        Assertions.assertInstanceOf(BlockEventsRootStage.class, getData(server).getTickStageTree().pop$reden_is_what_we_made());
     }
 
     @Inject(
@@ -277,7 +278,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterEntitiesTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        getData(server).getTickStageTree().pop$reden_is_what_we_made();
+        Assertions.assertInstanceOf(EntitiesRootStage.class, getData(server).getTickStageTree().pop$reden_is_what_we_made());
     }
 
     @Inject(
@@ -301,6 +302,6 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterBlockEntitiesTick(CallbackInfo ci) {
-        getData(server).getTickStageTree().pop$reden_is_what_we_made();
+        Assertions.assertInstanceOf(BlockEntitiesRootStage.class, getData(server).getTickStageTree().pop$reden_is_what_we_made());
     }
 }

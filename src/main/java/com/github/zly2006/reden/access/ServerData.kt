@@ -23,7 +23,9 @@ class ServerData(version: Version, mcServer: MinecraftServer?) : StatusAccess {
     var address: String = ""
     var tickStage = if (mcServer != null) ServerRootStage(mcServer) else null
     var tickStageTree = TickStageTree()
+
     var frozen: Boolean
+        @JvmName("isFrozen")
         get() = hasStatus(GlobalStatus.FROZEN)
         set(value) {
             if (value) addStatus(GlobalStatus.FROZEN) else removeStatus(GlobalStatus.FROZEN)

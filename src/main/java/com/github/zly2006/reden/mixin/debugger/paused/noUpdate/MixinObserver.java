@@ -1,7 +1,6 @@
 package com.github.zly2006.reden.mixin.debugger.paused.noUpdate;
 
 import com.github.zly2006.reden.Reden;
-import com.github.zly2006.reden.network.GlobalStatus;
 import net.minecraft.block.ObserverBlock;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -22,8 +21,7 @@ public class MixinObserver {
     )
     private void cancelObserverPP(WorldAccess world, BlockPos pos, CallbackInfo ci) {
         if (world instanceof ServerWorld sw) {
-            boolean frozen = getData(sw.getServer()).hasStatus(GlobalStatus.FROZEN);
-            if (frozen) {
+            if (getData(sw.getServer()).isFrozen()) {
                 ci.cancel();
             }
         }

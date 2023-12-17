@@ -25,7 +25,7 @@ class FreezeGame: BreakPointBehavior() {
                 })
             }.let(server::sendToAll)
 
-        while (server.data.hasStatus(GlobalStatus.FROZEN) && server.isRunning) {
+        while (server.data.frozen && server.isRunning) {
             tickPackets(server)
         }
 

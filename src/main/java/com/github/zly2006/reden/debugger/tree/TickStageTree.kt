@@ -14,6 +14,7 @@ class TickStageTree(
 ) {
     val activeStage get() = activeStages.lastOrNull()
     private val history = mutableListOf<TickStage>()
+    private val stacktraces = mutableListOf<Array<StackTraceElement>?>()
 
     private var stepOverUntil: TickStage? = null
     private var stepOverCallback: (() -> Unit)? = null
@@ -21,6 +22,7 @@ class TickStageTree(
     private var stepIntoCallback: (() -> Unit)? = null
 
     fun clear() {
+        checkOnThread()
         Reden.LOGGER.debug("TickStageTree: clear()")
         activeStages.clear()
         history.clear()
@@ -31,6 +33,7 @@ class TickStageTree(
     }
 
     internal fun push(stage: TickStage) {
+        checkOnThread()
         require(stage.parent == activeStage) {
             "Stage $stage is not a child of $activeStage"
         }
@@ -38,6 +41,7 @@ class TickStageTree(
             Reden.LOGGER.error("Stage $stage is already active")
         }
         activeStages.add(stage)
+        stacktraces.add(Thread.getAllStackTraces()[Thread.currentThread()])
         Reden.LOGGER.debug("TickStageTree: [{}] push {}", activeStages.size, stage)
 
         if (steppingInto) {
@@ -58,8 +62,15 @@ class TickStageTree(
         stage.preTick()
     }
 
+    private fun checkOnThread() {
+        if (!server.isOnThread) error("Calling tick stage tree off thread.")
+    }
+
     internal fun pop(): TickStage {
+        checkOnThread()
+
         val stage = activeStages.removeLast().also(history::add)
+        stacktraces.removeLast()
         Reden.LOGGER.debug("TickStageTree: [{}] pop {}", activeStages.size, stage)
         stage.postTick()
         if (stage == stepOverUntil) {
@@ -99,7 +110,7 @@ class TickStageTree(
     fun stepOver(activeStage: TickStage, callback: () -> Unit): Boolean {
         stepOverUntil = activeStage
         stepOverCallback = callback
-        server.data.removeStatus(GlobalStatus.FROZEN)
+        server.data.frozen = false
         return true
     }
 
@@ -107,6 +118,6 @@ class TickStageTree(
         stepOverUntil = null
         steppingInto = true
         stepIntoCallback = callback
-        server.data.removeStatus(GlobalStatus.FROZEN)
+        server.data.frozen = false
     }
 }

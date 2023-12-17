@@ -2,7 +2,6 @@ package com.github.zly2006.reden.mixin.debugger.gui;
 
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.debugger.gui.DebuggerComponent;
-import com.github.zly2006.reden.network.GlobalStatus;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +28,7 @@ public abstract class MixinClient implements ServerData.ClientSideServerDataAcce
         if (data == null) {
             return;
         }
-        if (currentScreen == null && data.hasStatus(GlobalStatus.FROZEN)) {
+        if (currentScreen == null && data.isFrozen()) {
             setScreen(new DebuggerComponent(data.getTickStageTree()).asScreen());
             ci.cancel();
         }

@@ -19,7 +19,7 @@ class Continue: FabricPacket {
         }!!
 
         fun <T> T.checkFrozen(player: ServerPlayerEntity, action: T.() -> Unit) {
-            if (player.server.data.hasStatus(GlobalStatus.FROZEN))
+            if (player.server.data.frozen)
                 action()
             else
                 player.sendMessage(Text.literal("The game is not frozen").red())

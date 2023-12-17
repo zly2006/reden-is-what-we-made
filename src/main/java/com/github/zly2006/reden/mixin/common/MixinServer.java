@@ -12,24 +12,25 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.function.BooleanSupplier;
-
 @Mixin(MinecraftServer.class)
 public abstract class MixinServer implements ServerData.ServerDataAccess {
     @Unique ServerData serverData = new ServerData(Reden.MOD_VERSION, (MinecraftServer) (Object) this);
 
     @Inject(
-            method = "tick",
+            method = "runServer",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/MinecraftServer;tickWorlds(Ljava/util/function/BooleanSupplier;)V"
+                    target = "Lnet/minecraft/server/MinecraftServer;tick(Ljava/util/function/BooleanSupplier;)V"
             )
     )
-    private void tickStageTree(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+    private void tickStageTree(CallbackInfo ci) {
         serverData.realTicks++;
         // initialize the stage tree.
         assert serverData.getTickStage() != null;
         if (RedenMixinExtension.APPLY_DEBUGGER_MIXINS) {
+            if (!serverData.getTickStageTree().getActiveStages().isEmpty()) {
+                Reden.LOGGER.error("tree is not empty: {}", serverData.getTickStageTree().getActiveStages());
+            }
             serverData.getTickStageTree().clear();
             serverData.getTickStageTree().push$reden_is_what_we_made(serverData.getTickStage());
         }

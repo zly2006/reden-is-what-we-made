@@ -1,7 +1,6 @@
 package com.github.zly2006.reden.mixin.debugger;
 
 import com.github.zly2006.reden.Reden;
-import com.github.zly2006.reden.network.GlobalStatus;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,7 +24,7 @@ public class MixinServerPlayNetwork {
             cancellable = true
     )
     private void tick(CallbackInfo ci) {
-        if (getData(player.server).hasStatus(GlobalStatus.FROZEN)) {
+        if (getData(player.server).isFrozen()) {
             ci.cancel();
         }
     }

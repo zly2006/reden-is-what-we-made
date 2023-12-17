@@ -11,7 +11,7 @@ import java.util.concurrent.locks.LockSupport
 var disableWatchDog = false
 
 fun tickPackets(server: MinecraftServer) {
-    server.data.addStatus(GlobalStatus.FROZEN)
+    server.data.frozen = true
     // todo: tick command introduced in 1.20.2
     server.tickStartTimeNanos += 50 // for watchdog
     if (server is MinecraftDedicatedServer) {
@@ -46,7 +46,7 @@ fun tickPackets(server: MinecraftServer) {
 }
 
 fun unfreeze(server: MinecraftServer) {
-    server.data.removeStatus(GlobalStatus.FROZEN)
+    server.data.frozen = false
     val globalStatus = GlobalStatus(server.data.status, NbtCompound().apply {
         putString("reason", "game-resumed")
     })
