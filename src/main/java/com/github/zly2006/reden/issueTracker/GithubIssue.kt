@@ -4,6 +4,7 @@ import com.github.zly2006.reden.malilib.GITHUB_TOKEN
 import com.github.zly2006.reden.report.httpClient
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import okhttp3.Request
@@ -23,6 +24,7 @@ class GithubIssue(
         val html_url: String,
         val user: User,
         val labels: List<Label>,
+        val timeline_url: String,
         val state: State
     ) {
         @Serializable
@@ -50,6 +52,42 @@ class GithubIssue(
         val description: String,
         val color: String
     )
+    @Serializable
+    data class TimelineItem(
+        val id: Long,
+        val url: String,
+        val actor: User,
+        val event: String,
+        val created_at: String,
+        /**
+         * [event]` == "labeled"`
+         */
+        val label: TimeLineLabeld? = null,
+        /**
+         * [event]` == "commented"`
+         */
+        val body: String? = null,
+        /**
+         * [event]` == "referenced"`
+         */
+        val commit_id: String? = null,
+        /**
+         * [event]` == "referenced"`
+         */
+        val commit_url: String? = null,
+    ) {
+        companion object {
+            val labeled = "labeled"
+            val commented = "commented"
+            val referenced = "referenced"
+            val closed = "closed"
+        }
+        @Serializable
+        data class TimeLineLabeld(
+            val name: String,
+            val color: String
+        )
+    }
     val url = "https://api.github.com/repos/$user/$repo/issues/$id"
     val info = httpClient.newCall(Request.Builder().apply {
         url(url)
@@ -62,8 +100,12 @@ class GithubIssue(
             throw RuntimeException("Failed to get Github issue: Code=${it.code}, Response=${it.body?.string()}")
         }
     }
-    init {
-
+    val timeline = httpClient.newCall(Request.Builder().apply {
+        url(info.timeline_url)
+        githubApiKey()
+    }.build()).execute().use {
+        val s = it.body!!.string()
+        json.decodeFromString<List<TimelineItem>>(s)
     }
     fun update() {
     }

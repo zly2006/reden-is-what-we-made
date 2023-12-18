@@ -28,6 +28,7 @@ object StageIo {
         // Note: these stages have no extra data, so we can use empty constructor to simplify code
         constructors["server_root"] = Constructor { EmptyTickStage("server_root", it) }
         constructors["end"] = Constructor { EmptyTickStage("end", it) }
+        constructors["global_network"] = Constructor { EmptyTickStage("global_network", it) }
 
         constructors["world_root"] = Constructor { EmptyTickStage("world_root", it) }
         constructors["network"] = Constructor { EmptyTickStage("network", it) }
