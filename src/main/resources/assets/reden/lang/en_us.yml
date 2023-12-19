@@ -8,7 +8,25 @@ reden:
       nc_update: Neighbor-Changed
       block_event: Block Event at %s, block %s, type %s, data %s
       nc_update_with_source: Neighbor-Changed
+      world_root: Ticking world %s
+      block_scheduled_ticks_root:
+        .: Block scheduled ticks
+        desc: ''
+      fluid_scheduled_ticks_root:
+        .: Fluid scheduled ticks
+        desc: ''
+      block_scheduled_tick:
+        .: Block scheduled ticks at %s
+        desc: ''
+      fluid_scheduled_tick:
+        .: Fluid scheduled ticks at %s
+        desc: ''
 
+  constants:
+    world:
+      overworld: Overworld
+      the_nether: The Nether
+      the_end: The End
   widget:
     privacy:
       desc: |

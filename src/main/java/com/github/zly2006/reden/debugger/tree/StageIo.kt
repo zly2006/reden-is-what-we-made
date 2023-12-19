@@ -4,6 +4,8 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.stages.DummyStage
+import com.github.zly2006.reden.debugger.stages.ServerRootStage
+import com.github.zly2006.reden.debugger.stages.WorldRootStage
 import com.github.zly2006.reden.debugger.stages.block.*
 import com.github.zly2006.reden.debugger.stages.world.*
 import com.github.zly2006.reden.debugger.tree.StageIo.Constructor
@@ -26,11 +28,11 @@ object StageIo {
         }
 
         // Note: these stages have no extra data, so we can use empty constructor to simplify code
-        constructors["server_root"] = Constructor { EmptyTickStage("server_root", it) }
+        constructors["server_root"] = Constructor { ServerRootStage(null) }
         constructors["end"] = Constructor { EmptyTickStage("end", it) }
         constructors["global_network"] = Constructor { EmptyTickStage("global_network", it) }
 
-        constructors["world_root"] = Constructor { EmptyTickStage("world_root", it) }
+        constructors["world_root"] = Constructor { WorldRootStage(null, it!!, null) }
         constructors["network"] = Constructor { EmptyTickStage("network", it) }
         constructors["update_block"] = Constructor { EmptyTickStage("update_block", it!!) }
         constructors["commands_stage"] = Constructor { EmptyTickStage("commands_stage", it!!) }

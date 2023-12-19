@@ -48,7 +48,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
     )
     private void redenTickBefore(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         final TickStageTree tree = getData(server).getTickStageTree();
-        worldRootStage = new WorldRootStage((ServerWorld) (Object) this, getData(server).getTickStage(), shouldKeepTicking);
+        worldRootStage = new WorldRootStage((ServerWorld) (Object) this, getData(server).getTickStage(), getRegistryKey().getValue());
         tree.push$reden_is_what_we_made(worldRootStage);
     }
 
