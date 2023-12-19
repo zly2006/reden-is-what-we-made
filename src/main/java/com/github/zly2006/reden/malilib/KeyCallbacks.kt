@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.Sounds
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
+import com.github.zly2006.reden.debugger.gui.UpdateBreakpointScreen
 import com.github.zly2006.reden.gui.CreditScreen
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
 import com.github.zly2006.reden.network.RvcDataS2CPacket
@@ -202,6 +203,16 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             "reden.widget.config.title") {
             override fun getConfigs() = ConfigOptionWrapper.createFor(getAllOptions())
         })
+        true
+    }
+    EDIT_BREAKPOINTS.keybind.setCallback { _, _ ->
+        val breakpoint = mc.serverData?.breakpoints?.breakpointMap?.values?.firstOrNull {
+            it.world == mc.world?.registryKey?.value && it.pos == mc.crosshairTarget?.pos?.toBlockPos()
+        } ?: run {
+            mc.player?.sendMessage("Not found")
+            return@setCallback false
+        }
+        mc.setScreen(UpdateBreakpointScreen(breakpoint))
         true
     }
 }

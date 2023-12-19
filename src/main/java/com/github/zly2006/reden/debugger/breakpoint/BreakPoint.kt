@@ -22,6 +22,7 @@ abstract class BreakPoint(
     val id: Int,
     open val type: BreakPointType
 ) {
+    var name: String = ""
     /**
      * Note: in this abstract class we only store world, pos is just something used like interface
      * we will not check pos in this class, check it in subclasses [call] method
