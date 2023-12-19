@@ -73,7 +73,7 @@ class DebuggerComponent(
         val stage: TickStage,
         val rootComponent: DebuggerComponent,
         val lrWidth: Int = 20,
-    ) : FlowLayout(Sizing.fill(100), Sizing.content(), Algorithm.HORIZONTAL) {
+    ) : FlowLayout(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL) {
         init {
             child(Components.label(stage.displayName ?: Text.literal("null")).apply {
                 this.tooltip(stage.description)

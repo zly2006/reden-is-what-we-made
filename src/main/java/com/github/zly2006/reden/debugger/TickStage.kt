@@ -2,12 +2,20 @@ package com.github.zly2006.reden.debugger
 
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
+import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 
 abstract class TickStage(
     val name: String,
     val parent: TickStage?,
+    open val displayName: MutableText,
+    open val description: MutableText = Text.empty()
 ) {
+    constructor(name: String, parent: TickStage?): this(
+        name, parent,
+        Text.translatable("reden.debugger.tick_stage.$name"),
+        Text.translatable("reden.debugger.tick_stage.$name.desc")
+    )
     companion object {
         private var id = 0
     }
@@ -20,8 +28,6 @@ abstract class TickStage(
         require(nameRegex.matches(name)) { "Invalid tick stage name: $name" }
          */
     }
-    open val displayName = Text.translatable("reden.debugger.tick_stage.$name")
-    val description = Text.translatable("reden.debugger.tick_stage.$name.desc")
     val children = mutableListOf<TickStage>()
 
     open fun writeByteBuf(buf: PacketByteBuf) {

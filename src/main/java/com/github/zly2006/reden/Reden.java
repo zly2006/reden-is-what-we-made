@@ -157,7 +157,6 @@ public class Reden implements ModInitializer, CarpetExtension {
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
             try {
                 GithubIssue issue = new GithubIssue("zly2006", "reden-is-what-we-made", 38);
-                System.out.println(issue);
             } catch (Exception e) {
                 Reden.LOGGER.error("", e);
             }
