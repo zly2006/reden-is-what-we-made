@@ -4,7 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.Sounds
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
-import com.github.zly2006.reden.debugger.gui.UpdateBreakpointScreen
+import com.github.zly2006.reden.debugger.gui.BreakpointInfoScreen
 import com.github.zly2006.reden.gui.CreditScreen
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
 import com.github.zly2006.reden.network.RvcDataS2CPacket
@@ -212,7 +212,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             mc.player?.sendMessage("Not found")
             return@setCallback false
         }
-        mc.setScreen(UpdateBreakpointScreen(breakpoint))
+        mc.setScreen(BreakpointInfoScreen(breakpoint))
         true
     }
 }

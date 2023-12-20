@@ -13,7 +13,17 @@ import io.wispforest.owo.ui.core.OwoUIDrawContext
 import io.wispforest.owo.ui.core.Sizing
 import net.minecraft.text.Text
 
-class UpdateBreakpointScreen(
+/**
+ * Show player a specified breakpoint's information.
+ *
+ * Some functions like:
+ * + Rename
+ * + Delete
+ * + Change behavior (by displaying all breakpoints ordered by priority)
+ *  -- Add, remove, update, etc.
+ * + Show info, position, world, and everything should be visible to players.
+ */
+class BreakpointInfoScreen(
     val breakpoint: BreakPoint
 ): BaseOwoScreen<ScrollContainer<FlowLayout>>() {
     private var previousName: String = breakpoint.name

@@ -4,7 +4,6 @@ import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.storage.BlocksResetStorage
-import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.network.TagBlockPos
 import com.github.zly2006.reden.render.BlockBorder
 import net.minecraft.block.Block
@@ -61,14 +60,5 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
         super.unfocused(mc)
         BlockBorder.tags.remove(sourcePos.asLong())
         if (targetPos != null) BlockBorder.tags.remove(targetPos!!.asLong())
-        sourceBlock.name.append("")
     }
-}
-
-private fun StageTree.peekNonBlockStage(): TickStage? {
-    var stage: TickStage? = this.peekLeaf()
-    while (stage !is BlockUpdateStage) {
-        stage = stage!!.parent
-    }
-    return stage
 }

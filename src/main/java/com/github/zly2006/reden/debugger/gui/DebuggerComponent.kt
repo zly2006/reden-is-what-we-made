@@ -6,6 +6,7 @@ import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.debugger.tree.TickStageTree
 import com.github.zly2006.reden.mixin.otherMods.IScrollContainer
 import com.github.zly2006.reden.network.Continue
+import com.github.zly2006.reden.network.GlobalStatus.Companion.FROZEN
 import com.github.zly2006.reden.network.StepInto
 import com.github.zly2006.reden.network.StepOver
 import io.wispforest.owo.ui.base.BaseOwoScreen
@@ -26,6 +27,18 @@ import net.minecraft.client.gui.widget.TexturedButtonWidget
 import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 
+/**
+ * Our main debugger UI.
+ *
+ * It has two forms: as a HUD, or a screen.
+ *
+ * The screen form will replace the game menu when you press ESC,
+ * making it easier for players to have access to our debugger features.
+ *
+ * We allow player to move (i.e., WASD) while debugging.
+ *
+ * The HUD form will be shown when game was [FROZEN].
+ */
 class DebuggerComponent(
     val stageTree: TickStageTree
 ): FlowLayout(Sizing.content(), Sizing.fill(70), Algorithm.VERTICAL) {
@@ -75,7 +88,7 @@ class DebuggerComponent(
         val lrWidth: Int = 20,
     ) : FlowLayout(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL) {
         init {
-            child(Components.label(stage.displayName ?: Text.literal("null")).apply {
+            child(Components.label(stage.displayName).apply {
                 this.tooltip(stage.description)
                 this.mouseDown().subscribe { x, y, b ->
                     if (b == 0) {
