@@ -21,7 +21,7 @@ class ServerData(version: Version, mcServer: MinecraftServer?) : StatusAccess {
     override var status: Long = 0
     var uuid: UUID? = null
     var address: String = ""
-    var tickStage = if (mcServer != null) ServerRootStage(mcServer) else null
+    var tickStage: ServerRootStage? = null
     var tickStageTree = TickStageTree()
 
     var frozen: Boolean

@@ -21,7 +21,9 @@ data class BreakPointInterrupt(
 ): FabricPacket {
     override fun write(buf: PacketByteBuf) {
         buf.writeVarInt(bpId)
-        buf.writeNullable(tree, StageIo::writeTickStageTree)
+        buf.writeNullable(tree) { _, _ ->
+            StageIo.writeTickStageTree(buf, tree!!, true)
+        }
         buf.writeBoolean(interrupted)
     }
 

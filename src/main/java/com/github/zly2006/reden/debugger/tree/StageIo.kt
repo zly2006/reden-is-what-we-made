@@ -9,6 +9,7 @@ import com.github.zly2006.reden.debugger.stages.WorldRootStage
 import com.github.zly2006.reden.debugger.stages.block.*
 import com.github.zly2006.reden.debugger.stages.world.*
 import com.github.zly2006.reden.debugger.tree.StageIo.Constructor
+import com.github.zly2006.reden.utils.pauseHere
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.world.ServerWorld
@@ -85,6 +86,9 @@ object StageIo {
             val indexes = IntArrayList(tickStageTree.activeStages.size - 1)
             tickStageTree.activeStages.asSequence().drop(1).forEach { stage ->
                 indexes.add(lastStage.children.indexOf(stage))
+                if (stage !in lastStage.children) {
+                    pauseHere()
+                }
                 lastStage = stage
             }
             fun writeStage(stage: TickStage) {
@@ -96,6 +100,7 @@ object StageIo {
 
             buf.writeIntList(indexes)
             writeStage(tickStageTree.activeStages.first())
+            buf.writeVarInt(6) // check end
         } else {
             val list = tickStageTree.activeStages
             buf.writeCollection(list, ::writeSingleTickStage)
@@ -134,17 +139,16 @@ object StageIo {
         if (writeAllChildren) {
             fun readStage(): TickStage {
                 val thisStage = readSingleTickStage(buf)
-                thisStage.children.clear()
-                repeat(thisStage.children.size) {
+                for (index in 0 until thisStage.children.size) {
                     lastRead = thisStage // reset the last read stage in our loop.
-                    thisStage.children.add(readStage())
+                    thisStage.children[index] = readStage()
                 }
-                assert(buf.readVarInt() == 233) // 233
                 return thisStage
             }
 
             val indexes = buf.readIntList()
             val root = readStage()
+            assert(buf.readVarInt() == 6) // check end
             list = ArrayList(indexes.size + 1)
             list.add(root)
             indexes.fold(root) { prev, index ->

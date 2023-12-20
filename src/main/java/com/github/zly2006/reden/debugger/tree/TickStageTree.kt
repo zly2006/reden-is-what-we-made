@@ -40,6 +40,7 @@ class TickStageTree(
         if (stage in activeStages) {
             Reden.LOGGER.error("Stage $stage is already active")
         }
+        activeStage?.children?.add(stage)
         activeStages.add(stage)
         //stacktraces.add(Thread.getAllStackTraces()[Thread.currentThread()])
         Reden.LOGGER.debug("TickStageTree: [{}] push {}", activeStages.size, stage)
