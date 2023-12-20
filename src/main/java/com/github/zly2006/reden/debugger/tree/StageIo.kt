@@ -9,6 +9,7 @@ import com.github.zly2006.reden.debugger.stages.WorldRootStage
 import com.github.zly2006.reden.debugger.stages.block.*
 import com.github.zly2006.reden.debugger.stages.world.*
 import com.github.zly2006.reden.debugger.tree.StageIo.Constructor
+import it.unimi.dsi.fastutil.ints.IntArrayList
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.world.ServerWorld
 
@@ -73,111 +74,32 @@ object StageIo {
         stage.writeByteBuf(buf)
     }
 
-    fun readStage(parent: TickStage?, buf: PacketByteBuf): TickStage {
-        val hasParent = buf.readBoolean()
-        if (hasParent && parent == null) {
-            error("Stage has parent but parent is null")
-        }
-        val childrenSize = buf.readVarInt()
-        val name = buf.readString()
-
-        val stage = constructors[name]?.construct(parent)
-            ?: error("Unknown stage name: $name")
-        stage.readByteBuf(buf)
-
-        for (i in 0 until childrenSize) {
-            stage.children.add(DummyStage(stage))
-        }
-
-        return stage
-    }
-
-    fun writeStageTree(buf: PacketByteBuf, tree: StageTree) {
-        val list = tree.currentNodes
-
-        buf.writeVarInt(list.size)
-        for (i in list.size - 1 downTo 0) {
-            val node = list[i]
-            buf.writeBoolean(node.childrenUpdated)
-            if (node.childrenUpdated) {
-                if (node.iter == null) {
-                    node.iter = node.stage.children.listIterator()
-                }
-                buf.writeVarInt(node.iter!!.nextIndex())
-            }
-            writeStage(node.stage, buf)
-        }
-    }
-
-    fun readStageTree(buf: PacketByteBuf): StageTree {
-        val tree = StageTree()
-        val size = buf.readVarInt()
-        var prevNode: StageTree.TreeNode? = null
-        for (i in 0 until size) {
-            val childrenUpdated = buf.readBoolean()
-            val iterIndex = if (childrenUpdated) buf.readVarInt() else 0
-            val stage = readStage(prevNode?.stage, buf)
-            val node = StageTree.TreeNode(
-                prevNode,
-                stage,
-                childrenUpdated,
-                if (childrenUpdated) stage.children.listIterator(iterIndex) else null
-            )
-            if (prevNode == null) {
-                tree.root = node
-            } else {
-                if (iterIndex != 0) {
-                    // set children if possible
-                   // prevNode.stage.children[iterIndex - 1] = node.stage
-                }
-            }
-            prevNode = node
-        }
-        tree.child = prevNode
-        tree.lastReturned = prevNode
-        return tree
-    }
-
-    /**
-     * Def: node=
-     *
-     * {
-     *
-     * - name
-     * - custom data
-     * - if children updated:
-     *
-     * }
-     *
-     * - (in) entries
-     * - (foreach) i
-     * - children [i] node
-     */
-    fun writeStageTreeNode(buf: PacketByteBuf, node: StageTree.TreeNode, writeAllChildren: Boolean) {
-        buf.writeString(node.stage.name)
-        node.stage.writeByteBuf(buf)
-        buf.writeBoolean(node.childrenUpdated)
-        if (node.childrenUpdated) {
-            if (node.iter == null) {
-                node.iter = node.stage.children.listIterator()
-            }
-            buf.writeVarInt(node.stage.children.size)
-            buf.writeVarInt(node.iter!!.nextIndex())
-        }
-    }
-
     fun writeTickStageTree(packetByteBuf: PacketByteBuf, tickStageTree: TickStageTree) {
         writeTickStageTree(packetByteBuf, tickStageTree, false)
     }
 
-    fun writeTickStageTree(packetByteBuf: PacketByteBuf, tickStageTree: TickStageTree, writeAllChildren: Boolean) {
-        packetByteBuf.writeBoolean(writeAllChildren)
+    fun writeTickStageTree(buf: PacketByteBuf, tickStageTree: TickStageTree, writeAllChildren: Boolean) {
+        buf.writeBoolean(writeAllChildren)
         if (writeAllChildren) {
-            TODO()
-        }
+            var lastStage = tickStageTree.activeStages.first()
+            val indexes = IntArrayList(tickStageTree.activeStages.size - 1)
+            tickStageTree.activeStages.asSequence().drop(1).forEach { stage ->
+                indexes.add(lastStage.children.indexOf(stage))
+                lastStage = stage
+            }
+            fun writeStage(stage: TickStage) {
+                writeSingleTickStage(buf, stage)
+                stage.children.forEach(::writeStage)
 
-        val list = tickStageTree.activeStages
-        packetByteBuf.writeCollection(list, ::writeSingleTickStage)
+                buf.writeVarInt(233) // 233
+            }
+
+            buf.writeIntList(indexes)
+            writeStage(tickStageTree.activeStages.first())
+        } else {
+            val list = tickStageTree.activeStages
+            buf.writeCollection(list, ::writeSingleTickStage)
+        }
     }
 
     fun writeSingleTickStage(buf: PacketByteBuf, tickStage: TickStage) {
@@ -188,11 +110,8 @@ object StageIo {
         tickStage.writeByteBuf(buf)
     }
 
-    fun readTickStageTree(packetByteBuf: PacketByteBuf): TickStageTree {
-        val writeAllChildren = packetByteBuf.readBoolean()
-        if (writeAllChildren) {
-            TODO()
-        }
+    fun readTickStageTree(buf: PacketByteBuf): TickStageTree {
+        val writeAllChildren = buf.readBoolean()
         var lastRead: TickStage? = null
         fun readSingleTickStage(buf: PacketByteBuf): TickStage {
             val parentId = buf.readNullable(PacketByteBuf::readVarInt)
@@ -208,11 +127,37 @@ object StageIo {
                 stage.children.add(DummyStage(stage))
             }
 
-            lastRead = stage
             return stage
         }
 
-        val list = packetByteBuf.readCollection(::ArrayList, ::readSingleTickStage)
+        val list: ArrayList<TickStage>
+        if (writeAllChildren) {
+            fun readStage(): TickStage {
+                val thisStage = readSingleTickStage(buf)
+                thisStage.children.clear()
+                repeat(thisStage.children.size) {
+                    lastRead = thisStage // reset the last read stage in our loop.
+                    thisStage.children.add(readStage())
+                }
+                assert(buf.readVarInt() == 233) // 233
+                return thisStage
+            }
+
+            val indexes = buf.readIntList()
+            val root = readStage()
+            list = ArrayList(indexes.size + 1)
+            list.add(root)
+            indexes.fold(root) { prev, index ->
+                prev.children[index]
+                    .also { list.add(it) }
+            }
+        } else {
+            list = buf.readCollection(::ArrayList) {
+                val stage = readSingleTickStage(buf)
+                lastRead = stage
+                stage
+            }
+        }
         return TickStageTree(activeStages = list)
     }
 }
