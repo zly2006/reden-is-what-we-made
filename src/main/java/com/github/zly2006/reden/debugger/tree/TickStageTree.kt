@@ -14,7 +14,7 @@ class TickStageTree(
 ) {
     val activeStage get() = activeStages.lastOrNull()
     private val history = mutableListOf<TickStage>()
-    private val stacktraces = mutableListOf<Array<StackTraceElement>?>()
+    private val stacktraces: MutableList<Array<StackTraceElement>?> = mutableListOf()
 
     private var stepOverUntil: TickStage? = null
     private var stepOverCallback: (() -> Unit)? = null
@@ -41,7 +41,7 @@ class TickStageTree(
             Reden.LOGGER.error("Stage $stage is already active")
         }
         activeStages.add(stage)
-        stacktraces.add(Thread.getAllStackTraces()[Thread.currentThread()])
+        //stacktraces.add(Thread.getAllStackTraces()[Thread.currentThread()])
         Reden.LOGGER.debug("TickStageTree: [{}] push {}", activeStages.size, stage)
 
         if (steppingInto) {
@@ -70,7 +70,7 @@ class TickStageTree(
         checkOnThread()
 
         val stage = activeStages.removeLast().also(history::add)
-        stacktraces.removeLast()
+        stacktraces.removeLastOrNull()
         Reden.LOGGER.debug("TickStageTree: [{}] pop {}", activeStages.size, stage)
         stage.postTick()
         if (stage == stepOverUntil) {

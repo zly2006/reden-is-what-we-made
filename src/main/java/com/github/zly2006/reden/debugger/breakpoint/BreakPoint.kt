@@ -28,8 +28,8 @@ abstract class BreakPoint(
     )
     var name: String = ""
     /**
-     * Note: in this abstract class we only store world, pos is just something used like interface
-     * we will not check pos in this class, check it in subclasses [call] method
+     * Note: in this abstract class we only store [world].
+     * We will neither **check pos** nor **serialize it** in this class, check it in subclasses [call] method
      */
     abstract val pos: BlockPos?
     var world: Identifier? = null

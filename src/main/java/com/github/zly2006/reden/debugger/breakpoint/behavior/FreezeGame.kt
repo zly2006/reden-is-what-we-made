@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.debugger.breakpoint.behavior
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.tickPackets
@@ -11,6 +12,7 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.Util
 
 class FreezeGame: BreakPointBehavior() {
+    override val id = Reden.identifier("freeze_game_behavior")
     init {
         defaultPriority = 100
     }

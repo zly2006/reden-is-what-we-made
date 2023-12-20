@@ -2,10 +2,12 @@ package com.github.zly2006.reden.debugger.breakpoint
 
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.access.ServerData.Companion.data
+import com.github.zly2006.reden.debugger.breakpoint.behavior.BreakPointBehavior
 import com.github.zly2006.reden.debugger.breakpoint.behavior.FreezeGame
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
 import com.github.zly2006.reden.network.SyncBreakpointsPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket
+import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
@@ -20,18 +22,25 @@ import net.minecraft.world.block.ChainRestrictedNeighborUpdater.Entry as Updater
 
 class BreakpointsManager(val isClient: Boolean) {
     val registry = mutableMapOf<Identifier, BreakPointType>()
+    private val behaviorRegistry = mutableMapOf<Identifier, BreakPointBehavior>()
     private var currentBpId = 0
     val breakpointMap = Int2ObjectOpenHashMap<BreakPoint>()
 
     fun register(type: BreakPointType) {
-        if (registry.containsKey(type.id)) throw Exception("Duplicate BreakPointType ${type.id}")
+        if (registry.containsKey(type.id)) error("Duplicate BreakPointType ${type.id}")
         registry[type.id] = type
+    }
+    fun register(behavior: BreakPointBehavior) {
+        if (behaviorRegistry.containsKey(behavior.id)) error("Duplicate BreakPointBehaviorType ${behavior.id}")
+        behaviorRegistry[behavior.id] = behavior
     }
 
     init {
         register(BlockUpdateOtherBreakpoint)
         register(BlockUpdatedBreakpoint)
         register(RedstoneMeterBreakpoint)
+
+        register(FreezeGame())
 
         // todo: debug only
         if (!isClient) {
@@ -51,6 +60,16 @@ class BreakpointsManager(val isClient: Boolean) {
         val bpId = buf.readVarInt()
         return registry[id]?.create(bpId)?.apply {
             name = buf.readString()
+            world = buf.readIdentifier()
+            val handlerSize = buf.readVarInt()
+            repeat(handlerSize) {
+                handler.add(
+                    BreakPoint.Handler(
+                        behaviorRegistry[buf.readIdentifier()] ?: error("Unknown behavior type: $id"),
+                        buf.readVarInt()
+                    )
+                )
+            }
             read(buf)
         } ?: throw Exception("Unknown BreakPoint $id")
     }
@@ -59,6 +78,12 @@ class BreakpointsManager(val isClient: Boolean) {
         buf.writeIdentifier(bp.type.id)
         buf.writeVarInt(bp.id)
         buf.writeString(bp.name)
+        buf.writeIdentifier(bp.world!!)
+        buf.writeVarInt(bp.handler.size)
+        bp.handler.forEach {
+            buf.writeIdentifier(it.type.id)
+            buf.writeVarInt(it.priority)
+        }
         bp.write(buf)
     }
 
@@ -71,9 +96,9 @@ class BreakpointsManager(val isClient: Boolean) {
     }
 
     fun <T : UpdaterEntry> checkBreakpointsForUpdating(stage: AbstractBlockUpdateStage<T>) {
-        val worldId = stage.world?.registryKey?.value
         breakpointMap.values.asSequence()
-            .filter { worldId == it.world }
+            .filter { it.flags and ENABLED != 0 }
+            .filter { stage.world == it.serverWorld }
             .forEach { it.call(stage) }
     }
 

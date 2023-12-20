@@ -18,7 +18,6 @@ import io.wispforest.owo.ui.core.OwoUIDrawContext
 import io.wispforest.owo.ui.core.Positioning
 import io.wispforest.owo.ui.core.Sizing
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.minecraft.block.Blocks
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.ButtonTextures
 import net.minecraft.client.gui.screen.GameMenuScreen
@@ -62,7 +61,6 @@ class DebuggerComponent(
             (this as IScrollContainer).scrollOffset = scrolledAmount
             (this as IScrollContainer).currentScrollPosition = scrolledAmount
         })
-        child(Components.block(Blocks.ACACIA_LOG.defaultState).sizing(Sizing.fixed(30)))
     }
 
     override fun onKeyPress(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
@@ -84,8 +82,8 @@ class DebuggerComponent(
     class StageNodeComponent(
         val stage: TickStage,
         val rootComponent: DebuggerComponent,
-        val lrWidth: Int = 20,
-    ) : FlowLayout(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL) {
+        verticalSizing: Sizing = Sizing.fixed(9),
+    ) : FlowLayout(Sizing.content(), verticalSizing, Algorithm.HORIZONTAL) {
         init {
             child(Components.label(stage.displayName).apply {
                 this.tooltip(stage.description)
@@ -110,7 +108,7 @@ class DebuggerComponent(
                 x,
                 y,
                 x + determineHorizontalContentSize(Sizing.content()),
-                y + determineVerticalContentSize(Sizing.fill(100)),
+                y + 9,
                 color
             )
             super.draw(context, mouseX, mouseY, partialTicks, delta)
@@ -120,7 +118,7 @@ class DebuggerComponent(
     class StageTreeLayout(
         val root: DebuggerComponent
     ): GridLayout(
-        Sizing.fill(100),
+        Sizing.content(),
         Sizing.content(),
         root.stageTree.activeStages.size + 1,
         3
@@ -128,7 +126,15 @@ class DebuggerComponent(
         init {
             child(Components.label(Text.literal("Stage Tree")), 0, 1)
             root.stageTree.activeStages.mapIndexed { index, stage ->
-                child(StageNodeComponent(stage, root), index + 1, 0)
+                child(Components.button(Text.literal("<")) {
+
+                }.verticalSizing(Sizing.fixed(9)), index + 1, 0)
+
+                child(StageNodeComponent(stage, root), index + 1, 1)
+
+                child(Components.button(Text.literal(">")) {
+
+                }.verticalSizing(Sizing.fixed(9)), index + 1, 2)
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.debugger.breakpoint.behavior
 
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
+import net.minecraft.util.Identifier
 
 /**
  * 挂起
@@ -9,5 +10,6 @@ import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
  */
 abstract class BreakPointBehavior {
     var defaultPriority = 50; protected set
+    abstract val id: Identifier
     abstract fun onBreakPoint(breakPoint: BreakPoint, event: Any)
 }
