@@ -2,7 +2,6 @@ package com.github.zly2006.reden.debugger.gui
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
-import com.github.zly2006.reden.debugger.tree.StageTree
 import com.github.zly2006.reden.debugger.tree.TickStageTree
 import com.github.zly2006.reden.mixin.otherMods.IScrollContainer
 import com.github.zly2006.reden.network.Continue
@@ -212,14 +211,4 @@ private class DebuggerScreen(private val component: DebuggerComponent): BaseOwoS
         super.removed()
         component.focused = null
     }
-}
-
-private fun StageTree.depth(): Int {
-    var depth = 0
-    var node = lastReturned
-    while (node != null) {
-        depth++
-        node = node.parent
-    }
-    return depth
 }

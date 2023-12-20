@@ -77,6 +77,9 @@ class BreakpointInfoScreen(
             child(renameButton)
         })
         root.child(infoMetric)
+        root.child(Containers.verticalFlow(Sizing.fill(), Sizing.content()).apply {
+
+        })
     }
 
     class BreakpointBehaviorComponent {
