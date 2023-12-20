@@ -22,6 +22,10 @@ abstract class BreakPoint(
     val id: Int,
     open val type: BreakPointType
 ) {
+    class Handler(
+        val type: BreakPointBehavior,
+        val priority: Int = type.defaultPriority
+    )
     var name: String = ""
     /**
      * Note: in this abstract class we only store world, pos is just something used like interface
@@ -36,10 +40,10 @@ abstract class BreakPoint(
      * @see com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion
      */
     var flags = ADD or ENABLED
-    open var handler: MutableList<BreakPointBehavior> = mutableListOf(); protected set
+    open var handler: MutableList<Handler> = mutableListOf(); protected set
     open fun call(event: Any) {
         handler.sortBy { it.priority }
-        handler.forEach { it.onBreakPoint(this, event) }
+        handler.forEach { it.type.onBreakPoint(this, event) }
     }
     abstract fun write(buf: PacketByteBuf)
     abstract fun read(buf: PacketByteBuf)

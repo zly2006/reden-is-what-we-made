@@ -5,9 +5,11 @@ import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.breakpoint.behavior.FreezeGame
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
 import com.github.zly2006.reden.network.SyncBreakpointsPacket
+import com.github.zly2006.reden.network.UpdateBreakpointPacket
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
@@ -37,7 +39,8 @@ class BreakpointsManager(val isClient: Boolean) {
                 pos = BlockPos.ORIGIN
                 options = BlockUpdateEvent.NC
                 world = World.OVERWORLD.value
-                handler.add(FreezeGame())
+                name = "Test"
+                handler.add(BreakPoint.Handler(FreezeGame()))
             }
             currentBpId++
         }
@@ -47,6 +50,7 @@ class BreakpointsManager(val isClient: Boolean) {
         val id = buf.readIdentifier()
         val bpId = buf.readVarInt()
         return registry[id]?.create(bpId)?.apply {
+            name = buf.readString()
             read(buf)
         } ?: throw Exception("Unknown BreakPoint $id")
     }
@@ -54,6 +58,7 @@ class BreakpointsManager(val isClient: Boolean) {
     fun write(bp: BreakPoint, buf: PacketByteBuf) {
         buf.writeIdentifier(bp.type.id)
         buf.writeVarInt(bp.id)
+        buf.writeString(bp.name)
         bp.write(buf)
     }
 
@@ -74,6 +79,17 @@ class BreakpointsManager(val isClient: Boolean) {
 
     fun checkBreakpointsForScheduledTick() {
 
+    }
+
+    fun sync(breakpoint: BreakPoint) {
+        if (isClient) {
+            ClientPlayNetworking.send(UpdateBreakpointPacket(
+                breakpoint,
+                UpdateBreakpointPacket.ADD,
+                breakpoint.id
+            ))
+        } else {
+        }
     }
 
     companion object {

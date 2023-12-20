@@ -71,7 +71,7 @@ data class UpdateBreakpointPacket(
     }
 
     override fun write(buf: PacketByteBuf) {
-        breakPoint.write(buf)
+        BreakpointsManager.getBreakpointManager().write(breakPoint, buf)
         buf.writeVarInt(flag)
         buf.writeVarInt(bpId)
         buf.writeNullable(sender, PacketByteBuf::writeUuid)

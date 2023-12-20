@@ -12,7 +12,7 @@ import net.minecraft.util.Util
 
 class FreezeGame: BreakPointBehavior() {
     init {
-        priority = 100
+        defaultPriority = 100
     }
     override fun onBreakPoint(breakPoint: BreakPoint, event: Any) {
         val tree = server.data.tickStageTree

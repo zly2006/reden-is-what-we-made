@@ -1,9 +1,10 @@
 package com.github.zly2006.reden.debugger.gui
 
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
+import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
 import io.wispforest.owo.ui.base.BaseOwoScreen
+import io.wispforest.owo.ui.component.ButtonComponent
 import io.wispforest.owo.ui.component.Components
-import io.wispforest.owo.ui.component.TextBoxComponent
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.GridLayout
@@ -27,19 +28,20 @@ class BreakpointInfoScreen(
     val breakpoint: BreakPoint
 ): BaseOwoScreen<ScrollContainer<FlowLayout>>() {
     private var previousName: String = breakpoint.name
-    val nameInput: TextBoxComponent = Components.textBox(Sizing.fill(70))!!.apply {
-        tooltip(Text.literal("Rename this"))
-        onChanged().subscribe {
-            if (it != previousName) renameButton.active(true)
-            else renameButton.active(false)
-        }
+    val nameInput = Components.textBox(Sizing.fill(40), breakpoint.name).apply {
+        height = 12
+        setDrawsBackground(false)
     }
     val renameButton = Components.button(Text.literal("Rename")) {
         if (nameInput.text != previousName) {
             breakpoint.name = nameInput.text
             previousName = nameInput.text
+            BreakpointsManager.getBreakpointManager().sync(breakpoint)
         }
-    }!!
+    }!!.apply {
+        verticalSizing(Sizing.fixed(12))
+        renderer(ButtonComponent.Renderer.VANILLA)
+    }
     val infoMetric = object: GridLayout(Sizing.fill(100), Sizing.content(), 3, 2){
         init {
             child(Components.label(Text.literal("Type: ")), 0, 0)
@@ -70,6 +72,7 @@ class BreakpointInfoScreen(
     override fun build(p0: ScrollContainer<FlowLayout>) {
         val root = p0.child()
         root.child(Containers.horizontalFlow(Sizing.fill(100), Sizing.content()).apply {
+            child(Components.label(Text.literal("Name")))
             child(nameInput)
             child(renameButton)
         })
