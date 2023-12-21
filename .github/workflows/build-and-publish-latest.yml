@@ -88,8 +88,6 @@ jobs:
           version-type: release
 
           loaders: fabric
-          game-versions: 1.20.1
-          game-version-filter: any
 
           dependencies: |
             carpet
