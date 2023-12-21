@@ -41,7 +41,7 @@ public class MixinNetworkThreadUtils {
         if (UtilsKt.server != null) {
             ServerData data = getData(UtilsKt.server);
             if (packetListener instanceof ServerPlayNetworkHandler) {
-                data.getTickStageTree().pop$reden_is_what_we_made();
+                data.getTickStageTree().pop(TickStageWorldProvider.class);
             }
         }
     }

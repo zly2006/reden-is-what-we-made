@@ -63,6 +63,6 @@ public abstract class MixinWorld implements WorldAccess, AutoCloseable {
     )
     private void afterBlockEntityTick(CallbackInfo ci) {
         if (isClient) return;
-        Assertions.assertInstanceOf(BlockEntityStage.class, getData(getServer()).getTickStageTree().pop$reden_is_what_we_made());
+        getData(getServer()).getTickStageTree().pop(BlockEntityStage.class);
     }
 }

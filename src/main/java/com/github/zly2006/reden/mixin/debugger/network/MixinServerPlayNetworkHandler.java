@@ -36,6 +36,6 @@ public class MixinServerPlayNetworkHandler {
     )
     private void endCommandExecute(CommandExecutionC2SPacket commandExecutionC2SPacket, Optional<?> optional, CallbackInfo ci) {
         ServerData data = getData(player.server);
-        data.getTickStageTree().pop$reden_is_what_we_made();
+        data.getTickStageTree().pop(TickStageWorldProvider.class);
     }
 }

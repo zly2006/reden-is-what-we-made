@@ -62,7 +62,7 @@ public abstract class MixinServer extends ReentrantThreadExecutor<ServerTask> im
     )
     private void tickStageTreeEnd(CallbackInfo ci) {
         if (RedenMixinExtension.APPLY_DEBUGGER_MIXINS) {
-            serverData.getTickStageTree().pop$reden_is_what_we_made();
+            serverData.getTickStageTree().pop(ServerRootStage.class);
             serverData.setTickStage(null);
             if (serverData.getTickStageTree().getActiveStage() != null) {
                 throw new IllegalStateException("Tick stage tree is not empty after popping all stages.");

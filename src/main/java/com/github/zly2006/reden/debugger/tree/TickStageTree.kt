@@ -67,6 +67,12 @@ class TickStageTree(
         if (!server.isOnThread) error("Calling tick stage tree off thread.")
     }
 
+    fun pop(clazz: Class<out TickStage>) {
+        assert(clazz.isInstance(pop())) {
+            "popped stage expected to be $clazz"
+        }
+    }
+
     internal fun pop(): TickStage {
         checkOnThread()
 

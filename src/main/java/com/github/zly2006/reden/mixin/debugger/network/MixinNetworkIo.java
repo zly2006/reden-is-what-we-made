@@ -53,7 +53,7 @@ public class MixinNetworkIo {
             at = @At("RETURN")
     )
     private void endTick(CallbackInfo ci) {
-        getData(server).getTickStageTree().pop$reden_is_what_we_made();
+        getData(server).getTickStageTree().pop(GlobalNetworkStage.class);
     }
 
     @Inject(
@@ -77,9 +77,6 @@ public class MixinNetworkIo {
             )
     )
     private void endConnectionTick(CallbackInfo ci, @Local(ordinal = 0) ClientConnection clientConnection) {
-        Asserts.check(
-                getData(server).getTickStageTree().pop$reden_is_what_we_made() instanceof NetworkStage,
-                "Popped stage is not a network stage."
-        );
+        getData(server).getTickStageTree().pop(NetworkStage.class);
     }
 }
