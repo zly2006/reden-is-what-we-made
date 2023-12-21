@@ -38,7 +38,7 @@ import org.lwjgl.glfw.GLFW
  * The HUD form will be shown when game was [FROZEN].
  */
 class DebuggerComponent(
-    val stageTree: TickStageTree
+    var stageTree: TickStageTree
 ): FlowLayout(Sizing.content(), Sizing.fill(70), Algorithm.VERTICAL) {
     var focused: TickStage? = null
         set(value) {
@@ -126,14 +126,28 @@ class DebuggerComponent(
         init {
             child(Components.label(Text.literal("Stage Tree")), 0, 1)
             root.stageTree.activeStages.mapIndexed { index, stage ->
+                fun fillChildren(offset: Int) {
+                    val subList = root.stageTree.activeStages.subList(0, index + 1).toMutableList()
+                    var lastOrNull: TickStage?
+                    lastOrNull = subList.removeLast().let {
+                        subList.last().children.getOrNull(subList.last().children.indexOf(it) + offset)
+                    }
+                    while (lastOrNull != null) {
+                        subList.add(lastOrNull)
+                        lastOrNull = lastOrNull.children.firstOrNull()
+                    }
+                    root.stageTree = TickStageTree(subList)
+                    root.focused = null
+                    root.refreshStages()
+                }
                 child(Components.button(Text.literal("<")) {
-
+                    fillChildren(-1)
                 }.verticalSizing(Sizing.fixed(9)), index + 1, 0)
 
                 child(StageNodeComponent(stage, root), index + 1, 1)
 
                 child(Components.button(Text.literal(">")) {
-
+                    fillChildren(1)
                 }.verticalSizing(Sizing.fixed(9)), index + 1, 2)
             }
         }

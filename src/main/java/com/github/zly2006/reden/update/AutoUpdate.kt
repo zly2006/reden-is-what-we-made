@@ -8,6 +8,7 @@ import net.fabricmc.loader.impl.util.LoaderUtil
 import net.minecraft.client.MinecraftClient
 import net.minecraft.util.Util
 import net.minecraft.util.Util.OperatingSystem
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -125,8 +126,8 @@ private fun ProcessHandle.Info.cmd(): String {
     println("cmdline: ${commandLine().orElse("null")}")
     args.forEach { println(it) }
     val cp = if ("-cp" !in args && "-classpath" !in args) {
-        "-cp " + System.getProperty("java.class.path").split(System.getProperty("path.separator"))
-            .joinToString(System.getProperty("path.separator")) { it.quoted() }
+        "-cp " + System.getProperty("java.class.path").split(File.pathSeparator)
+            .joinToString(File.pathSeparator) { it.quoted() }
     } else ""
     return "$cmd $cp ${args.filter { "/private/var" !in it } // MacOS patch
         .joinToString(" ") { it.quoted() }}"

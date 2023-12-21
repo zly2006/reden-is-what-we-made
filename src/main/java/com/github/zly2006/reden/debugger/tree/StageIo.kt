@@ -112,7 +112,9 @@ object StageIo {
         buf.writeVarInt(tickStage.id)
         buf.writeVarInt(tickStage.children.size)
         buf.writeString(tickStage.name)
+        buf.writeVarInt(100)
         tickStage.writeByteBuf(buf)
+        buf.writeVarInt(101)
     }
 
     fun readTickStageTree(buf: PacketByteBuf): TickStageTree {
@@ -120,13 +122,16 @@ object StageIo {
         var lastRead: TickStage? = null
         fun readSingleTickStage(buf: PacketByteBuf): TickStage {
             val parentId = buf.readNullable(PacketByteBuf::readVarInt)
+            assert(parentId == lastRead?.id)
             val id = buf.readVarInt()
             val childrenSize = buf.readVarInt()
             val name = buf.readString()
 
             val stage = constructors[name]?.construct(lastRead)
                 ?: error("Unknown stage name: $name")
+            buf.assertVarInt(100)
             stage.readByteBuf(buf)
+            buf.assertVarInt(101)
 
             for (i in 0 until childrenSize) {
                 stage.children.add(DummyStage(stage))
@@ -143,12 +148,13 @@ object StageIo {
                     lastRead = thisStage // reset the last read stage in our loop.
                     thisStage.children[index] = readStage()
                 }
+                buf.assertVarInt(233)
                 return thisStage
             }
 
             val indexes = buf.readIntList()
             val root = readStage()
-            assert(buf.readVarInt() == 6) // check end
+            buf.assertVarInt(6) // check end
             list = ArrayList(indexes.size + 1)
             list.add(root)
             indexes.fold(root) { prev, index ->
@@ -163,5 +169,12 @@ object StageIo {
             }
         }
         return TickStageTree(activeStages = list)
+    }
+}
+
+private fun PacketByteBuf.assertVarInt(expect: Int) {
+    val actual = readVarInt()
+    if (actual != expect) {
+        error("Expected $expect, got $actual")
     }
 }
