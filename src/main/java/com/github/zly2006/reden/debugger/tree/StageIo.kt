@@ -66,15 +66,6 @@ object StageIo {
         constructors["world_border"] = Constructor { EmptyTickStage("world_border", it!!) }
     }
 
-    @Deprecated("", replaceWith = ReplaceWith("writeSingleTickStage", imports = ["com.github.zly2006.reden.debugger.tree.StageIo"]))
-    fun writeStage(stage: TickStage, buf: PacketByteBuf) {
-        buf.writeBoolean(stage.parent != null)
-        buf.writeVarInt(stage.children.size)
-        buf.writeString(stage.name)
-
-        stage.writeByteBuf(buf)
-    }
-
     fun writeTickStageTree(packetByteBuf: PacketByteBuf, tickStageTree: TickStageTree) {
         writeTickStageTree(packetByteBuf, tickStageTree, false)
     }

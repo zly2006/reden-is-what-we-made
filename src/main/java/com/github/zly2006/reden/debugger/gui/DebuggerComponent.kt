@@ -3,7 +3,6 @@ package com.github.zly2006.reden.debugger.gui
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.tree.TickStageTree
-import com.github.zly2006.reden.mixin.otherMods.IScrollContainer
 import com.github.zly2006.reden.network.Continue
 import com.github.zly2006.reden.network.GlobalStatus.Companion.FROZEN
 import com.github.zly2006.reden.network.StepInto
@@ -45,22 +44,13 @@ class DebuggerComponent(
             field?.unfocused(MinecraftClient.getInstance())
             field = value
             value?.focused(MinecraftClient.getInstance())
-            refreshStages()
+            (children()[0] as StageTreeComponent).refresh()
         }
 
     init {
-        refreshStages()
-        // 30% height for infobox
-    }
-
-    fun refreshStages() {
-        val sizing = Sizing.fill()
-        val scrolledAmount = (children.getOrNull(0) as IScrollContainer?)?.scrollOffset ?: 0.0
-        children.clear()
-        child(Containers.verticalScroll(Sizing.fill(100), sizing, StageTreeLayout(this)).apply {
-            (this as IScrollContainer).scrollOffset = scrolledAmount
-            (this as IScrollContainer).currentScrollPosition = scrolledAmount
+        child(StageTreeComponent(this, Sizing.fill(), Sizing.fill()).apply {
         })
+        // 30% height for infobox
     }
 
     override fun onKeyPress(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
@@ -79,6 +69,7 @@ class DebuggerComponent(
         return super.onKeyPress(keyCode, scanCode, modifiers)
     }
 
+    @Deprecated("", level = DeprecationLevel.WARNING)
     class StageNodeComponent(
         val stage: TickStage,
         val rootComponent: DebuggerComponent,
@@ -115,6 +106,7 @@ class DebuggerComponent(
         }
     }
 
+    @Deprecated("", level = DeprecationLevel.HIDDEN)
     class StageTreeLayout(
         val root: DebuggerComponent
     ): GridLayout(
@@ -138,7 +130,7 @@ class DebuggerComponent(
                     }
                     root.stageTree = TickStageTree(subList)
                     root.focused = null
-                    root.refreshStages()
+                    (root.children()[0] as StageTreeComponent).refresh()
                 }
                 child(Components.button(Text.literal("<")) {
                     fillChildren(-1)
