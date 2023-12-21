@@ -5,7 +5,10 @@ import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer
-import io.wispforest.owo.ui.core.*
+import io.wispforest.owo.ui.core.Insets
+import io.wispforest.owo.ui.core.Sizing
+import io.wispforest.owo.ui.core.Surface
+import io.wispforest.owo.ui.core.VerticalAlignment
 import net.minecraft.text.Text
 
 class StageTreeComponent(
@@ -20,10 +23,20 @@ class StageTreeComponent(
     inner class Node(
         val indent: Int,
         val stage: TickStage,
-        var expanded: Boolean,
     ): FlowLayout(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL) {
-        override fun mount(parent: ParentComponent?, x: Int, y: Int) {
-            // Lazy init our components
+        var expanded: Boolean = false
+            set(value) {
+                button.message = Text.literal(if (value) "[-]" else "[+]")
+                button.tooltip(Text.literal(if (value) "Fold" else "Expand"))
+                field = value
+            }
+        private val button = Components.button(Text.literal(if (expanded) "[-]" else "[+]")) {
+            expanded = !expanded
+            refresh()
+        }.apply {
+            verticalSizing(Sizing.fixed(12))
+        }
+        init {
             child(Components.label(stage.displayName).apply {
                 tooltip(stage.description)
                 verticalSizing(Sizing.fixed(12))
@@ -31,21 +44,12 @@ class StageTreeComponent(
                 surface(Surface.VANILLA_TRANSLUCENT)
             })
             if (stage.children.isNotEmpty()) {
-                child(Components.button(Text.literal(if (expanded) "[-]" else "[+]")) {
-                    expanded = !expanded
-                    it.tooltip(Text.literal(if (expanded) "Fold" else "Expand"))
-                    it.message = Text.literal(if (expanded) "[-]" else "[+]")
-                    refresh()
-                }.apply {
-                    verticalSizing(Sizing.fixed(12))
-                })
+                child(button)
             }
-
-            super.mount(parent, x, y)
         }
 
         val childrenNodes = lazy {
-            stage.children.map { Node(indent + 1, it, false) }
+            stage.children.map { Node(indent + 1, it) }
         }
         fun appendChildren() {
             child.child(this)
@@ -55,10 +59,11 @@ class StageTreeComponent(
             padding(Insets.left(6 * indent))
         }
     }
-    val root = Node(0, debugger.stageTree.activeStages.first(), true)
+    val root = Node(0, debugger.stageTree.activeStages.first())
     init {
         // expand all nodes in stageTree.activeStages
         var node = root
+        root.expanded = true
         for (stage in debugger.stageTree.activeStages.drop(1)) {
             node = node.childrenNodes.value.first { it.stage == stage }
             node.expanded = true
