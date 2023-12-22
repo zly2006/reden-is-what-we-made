@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.debugger.gui
 
 import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
@@ -65,23 +66,26 @@ class StageTreeComponent(
             }
             padding(Insets.left(6 * indent))
             if (debugger.focused == stage) {
-                println("Hit!")
                 surface(Surface.flat(0x80_00_00_FF.toInt()))
             } else {
                 surface(Surface.VANILLA_TRANSLUCENT)
             }
         }
     }
-    val root = Node(0, debugger.stageTree.activeStages.first())
+    val root by lazy { Node(0, debugger.stageTree.activeStages.first()) }
     init {
-        // expand all nodes in stageTree.activeStages
-        var node = root
-        root.expanded = true
-        for (stage in debugger.stageTree.activeStages.drop(1)) {
-            node = node.childrenNodes.value.first { it.stage == stage }
-            node.expanded = true
+        if (debugger.stageTree.activeStages.isEmpty()) {
+            child.child(Components.label(Text.literal("Fatal: No tick stages present.").red()))
+        } else {
+            // expand all nodes in stageTree.activeStages
+            var node = root
+            root.expanded = true
+            for (stage in debugger.stageTree.activeStages.drop(1)) {
+                node = node.childrenNodes.value.first { it.stage == stage }
+                node.expanded = true
+            }
+            root.appendChildren()
         }
-        root.appendChildren()
     }
 
     fun refresh() {

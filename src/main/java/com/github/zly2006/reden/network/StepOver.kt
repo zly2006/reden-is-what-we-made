@@ -34,12 +34,12 @@ class StepOver(
                 checkFrozen(player) {
                     try {
                         val tree = player.server.data.tickStageTree
+                        val target = tree.activeStages.firstOrNull { it.id == packet.stageId }
 
-                        if (tree.activeStage == null ||
-                            !tree.stepOver(tree.activeStages.first { it.id == packet.stageId } ) {
+                        if (target == null || !tree.stepOver(target) {
                                 sender.sendPacket(BreakPointInterrupt(-2, tree, true))
                             }
-                        ) player.sendMessage(Text.literal("Failed to step over: no more stages.").red())
+                        ) player.sendMessage(Text.literal("Failed to step over: stage not found.").red())
                     } catch (e: Exception) {
                         player.sendMessage(Text.literal("Failed to step over.").red())
                         Reden.LOGGER.error("There is something wrong, but it is not your bad.", e)

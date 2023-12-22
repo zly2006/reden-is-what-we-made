@@ -117,6 +117,7 @@ class TickStageTree(
     fun stepOver(activeStage: TickStage, callback: () -> Unit): Boolean {
         stepOverUntil = activeStage
         stepOverCallback = callback
+        steppingInto = false
         server.data.frozen = false
         return true
     }
