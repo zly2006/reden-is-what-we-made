@@ -13,27 +13,30 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.Text
 
 class StepOver(
-    val success: Boolean,
+    /**
+     * Step over, until the stage is ticked.
+     */
+    val stageId: Int,
 ): FabricPacket {
     override fun getType(): PacketType<*> = pType
     override fun write(buf: PacketByteBuf) {
-        buf.writeBoolean(success)
+        buf.writeVarInt(stageId)
     }
 
     companion object {
         val id = Reden.identifier("step_over")
         val pType = PacketType.create(id) {
-            val untilSuppression = it.readBoolean()
-            StepOver(untilSuppression)
+            val stageId = it.readVarInt()
+            StepOver(stageId)
         }!!
         fun register() {
-            ServerPlayNetworking.registerGlobalReceiver(pType) { _, player, sender ->
+            ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
                 checkFrozen(player) {
                     try {
                         val tree = player.server.data.tickStageTree
 
                         if (tree.activeStage == null ||
-                            !tree.stepOver(tree.activeStage!!) {
+                            !tree.stepOver(tree.activeStages.first { it.id == packet.stageId } ) {
                                 sender.sendPacket(BreakPointInterrupt(-2, tree, true))
                             }
                         ) player.sendMessage(Text.literal("Failed to step over: no more stages.").red())

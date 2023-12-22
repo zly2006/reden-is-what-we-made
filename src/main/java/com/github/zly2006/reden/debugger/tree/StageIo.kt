@@ -121,6 +121,7 @@ object StageIo {
             val stage = constructors[name]?.construct(lastRead)
                 ?: error("Unknown stage name: $name")
             buf.assertVarInt(100)
+            stage.id = id
             stage.readByteBuf(buf)
             buf.assertVarInt(101)
 

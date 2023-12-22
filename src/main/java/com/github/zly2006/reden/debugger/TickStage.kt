@@ -19,7 +19,7 @@ abstract class TickStage(
     companion object {
         private var id = 0
     }
-    val id = TickStage.id++
+    var id = TickStage.id++
     // val createdAt = Thread.getAllStackTraces()[Thread.currentThread()]
     private var debugExpectedChildrenSize = -1
     init {
