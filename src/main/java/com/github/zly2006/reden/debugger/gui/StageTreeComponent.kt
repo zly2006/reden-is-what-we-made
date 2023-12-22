@@ -30,22 +30,29 @@ class StageTreeComponent(
                 button.tooltip(Text.literal(if (value) "Fold" else "Expand"))
                 field = value
             }
-        private val button = Components.button(Text.literal(if (expanded) "[-]" else "[+]")) {
-            expanded = !expanded
-            refresh()
-        }.apply {
-            verticalSizing(Sizing.fixed(12))
+        private val button by lazy {
+            Components.button(Text.literal(if (expanded) "[-]" else "[+]")) {
+                expanded = !expanded
+                refresh()
+            }.apply {
+                verticalSizing(Sizing.fixed(12))
+            }
         }
         init {
+            if (stage.children.isNotEmpty()) {
+                child(button)
+            }
             child(Components.label(stage.displayName).apply {
                 tooltip(stage.description)
                 verticalSizing(Sizing.fixed(12))
                 verticalTextAlignment(VerticalAlignment.CENTER)
-                surface(Surface.VANILLA_TRANSLUCENT)
+                mouseDown().subscribe { _, _, b ->
+                    if (b == 0) {
+                        debugger.focused = stage
+                        true
+                    } else false
+                }
             })
-            if (stage.children.isNotEmpty()) {
-                child(button)
-            }
         }
 
         val childrenNodes = lazy {
@@ -57,6 +64,12 @@ class StageTreeComponent(
                 childrenNodes.value.forEach { it.appendChildren() }
             }
             padding(Insets.left(6 * indent))
+            if (debugger.focused == stage) {
+                println("Hit!")
+                surface(Surface.flat(0x80_00_00_FF.toInt()))
+            } else {
+                surface(Surface.VANILLA_TRANSLUCENT)
+            }
         }
     }
     val root = Node(0, debugger.stageTree.activeStages.first())

@@ -1,11 +1,17 @@
 package com.github.zly2006.reden.mixin.debugger;
 
 import com.github.zly2006.reden.Reden;
+import com.github.zly2006.reden.access.WorldData;
+import com.github.zly2006.reden.carpet.RedenCarpetSettings;
+import com.github.zly2006.reden.debugger.stages.block.BlockUpdateStage;
+import com.github.zly2006.reden.debugger.stages.block.StageBlockComparatorUpdate;
 import com.github.zly2006.reden.debugger.stages.world.BlockEntitiesRootStage;
 import com.github.zly2006.reden.debugger.stages.world.BlockEntityStage;
 import com.github.zly2006.reden.debugger.tree.TickStageTree;
 import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.block.Block;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.chunk.BlockEntityTickInvoker;
@@ -23,7 +29,7 @@ import java.util.List;
 import static com.github.zly2006.reden.access.ServerData.getData;
 
 @Mixin(value = World.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
-public abstract class MixinWorld implements WorldAccess, AutoCloseable {
+public abstract class MixinWorld implements WorldAccess, AutoCloseable, WorldData.WorldDataAccess {
     @Shadow
     @Final
     private List<BlockEntityTickInvoker> pendingBlockEntityTickers;
@@ -64,5 +70,35 @@ public abstract class MixinWorld implements WorldAccess, AutoCloseable {
     private void afterBlockEntityTick(CallbackInfo ci) {
         if (isClient) return;
         getData(getServer()).getTickStageTree().pop(BlockEntityStage.class);
+    }
+
+    @Inject(
+            method = "updateComparators",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
+                    shift = At.Shift.BEFORE
+            )
+    )
+    private void beforeComparatorUpdate(BlockPos pos, Block block, CallbackInfo ci, @Local(ordinal = 1) BlockPos targetPos) {
+        if (isClient) return;
+        if (RedenCarpetSettings.Debugger.debuggerBlockUpdates()) {
+            getRedenWorldData().getRedenNeighborUpdater().preCU(pos, block, targetPos);
+        }
+    }
+
+    @Inject(
+            method = "updateComparators",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void afterComparatorUpdate(BlockPos pos, Block block, CallbackInfo ci, @Local(ordinal = 1) BlockPos targetPos) {
+        if (isClient) return;
+        if (RedenCarpetSettings.Debugger.debuggerBlockUpdates()) {
+            getRedenWorldData().getRedenNeighborUpdater().postCU();
+        }
     }
 }

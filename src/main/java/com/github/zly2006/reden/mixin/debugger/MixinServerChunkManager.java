@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
-import static com.github.zly2006.reden.access.WorldData.data;
+import static com.github.zly2006.reden.access.WorldData.getData;
 
 @Mixin(value = ServerChunkManager.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public abstract class MixinServerChunkManager {
@@ -48,6 +48,6 @@ public abstract class MixinServerChunkManager {
     }
 
     @Unique WorldRootStage getWorldRootStage() {
-        return data(world).tickStage;
+        return getData(world).tickStage;
     }
 }

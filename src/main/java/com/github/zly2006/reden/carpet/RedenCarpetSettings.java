@@ -146,7 +146,7 @@ public class RedenCarpetSettings {
     public static class Debugger {
         @Contract(pure = true)
         public static boolean debuggerBlockUpdates() {
-            return Options.redenDebuggerEnabled && Options.redenDebuggerBlockUpdates;
+            return Options.redenDebuggerEnabled && Options.redenDebuggerUpdater;
         }
 
         @Contract(pure = true)

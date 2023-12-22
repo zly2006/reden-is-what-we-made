@@ -2,10 +2,7 @@ package com.github.zly2006.reden.mixinhelper
 
 import com.github.zly2006.reden.access.ServerData
 import com.github.zly2006.reden.debugger.TickStage
-import com.github.zly2006.reden.debugger.stages.block.BlockUpdateStage
-import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdate
-import com.github.zly2006.reden.debugger.stages.block.StageBlockNCUpdateWithSource
-import com.github.zly2006.reden.debugger.stages.block.StageBlockPPUpdate
+import com.github.zly2006.reden.debugger.stages.block.*
 import com.github.zly2006.reden.debugger.tree.TickStageTree
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
@@ -55,6 +52,24 @@ class RedenNeighborUpdater(
         }
         tree.action(tree.activeStage!!)
         if (!rootInitialized) {
+            rootStage = null
+            tree.pop()
+        }
+    }
+
+    fun preCU(sourcePos: BlockPos, block: Block, targetPos: BlockPos) {
+        val tree = serverData.tickStageTree
+        if (rootStage == null) {
+            rootStage = BlockUpdateStage(tree.activeStage)
+            tree.push(rootStage!!)
+        }
+        tree.push(StageBlockComparatorUpdate(tree.activeStage!!, Updater119.SimpleEntry(sourcePos, block, targetPos)))
+    }
+
+    fun postCU() {
+        val tree = serverData.tickStageTree
+        tree.pop()
+        if (tree.activeStage == rootStage) {
             rootStage = null
             tree.pop()
         }

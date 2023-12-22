@@ -34,7 +34,7 @@ class WorldStatus(status: Long, data: NbtCompound?)
                 if (isClient) {
                     ClientPlayNetworking.registerGlobalReceiver(pType) { packet, cp, _ ->
                         // todo: client side world data
-                        cp.world.data()?.status = packet.status
+                        cp.world.data?.status = packet.status
                     }
                 }
             }

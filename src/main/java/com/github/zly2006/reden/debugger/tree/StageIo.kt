@@ -41,6 +41,7 @@ object StageIo {
 
         constructors["block_update"] = Constructor { BlockUpdateStage(it!!) }
         constructors["nc_update"] = Constructor { StageBlockNCUpdate(it!!, null) }
+        constructors["cu_update"] = Constructor { StageBlockComparatorUpdate(it!!, null) }
         constructors["nc_update_1"] = Constructor { StageBlockNCUpdateSixWay.StageBlockNCUpdateOneWay(it!!, direction = null) }
         constructors["nc_update_6"] = Constructor { StageBlockNCUpdateSixWay(it!!, null) }
         constructors["nc_update_with_source"] = Constructor { StageBlockNCUpdateWithSource(it!!, null) }
@@ -72,6 +73,10 @@ object StageIo {
 
     fun writeTickStageTree(buf: PacketByteBuf, tickStageTree: TickStageTree, writeAllChildren: Boolean) {
         buf.writeBoolean(writeAllChildren)
+        buf.writeVarInt(tickStageTree.activeStages.size)
+        if (tickStageTree.activeStage == null) {
+            return
+        }
         if (writeAllChildren) {
             var lastStage = tickStageTree.activeStages.first()
             val indexes = IntArrayList(tickStageTree.activeStages.size - 1)
@@ -110,6 +115,8 @@ object StageIo {
 
     fun readTickStageTree(buf: PacketByteBuf): TickStageTree {
         val writeAllChildren = buf.readBoolean()
+        val activeSize = buf.readVarInt()
+
         var lastRead: TickStage? = null
         fun readSingleTickStage(buf: PacketByteBuf): TickStage {
             val parentId = buf.readNullable(PacketByteBuf::readVarInt)
@@ -133,7 +140,9 @@ object StageIo {
         }
 
         val list: ArrayList<TickStage>
-        if (writeAllChildren) {
+        if (activeSize == 0) {
+            list = ArrayList()
+        } else if (writeAllChildren) {
             fun readStage(): TickStage {
                 val thisStage = readSingleTickStage(buf)
                 for (index in 0 until thisStage.children.size) {
