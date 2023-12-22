@@ -3,6 +3,7 @@ package com.github.zly2006.reden.debugger.tree
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.debugger.stages.TickStageWorldProvider
 import com.github.zly2006.reden.debugger.tickPackets
 import com.github.zly2006.reden.network.GlobalStatus
 import com.github.zly2006.reden.transformers.sendToAll
@@ -45,7 +46,8 @@ class TickStageTree(
         //stacktraces.add(Thread.getAllStackTraces()[Thread.currentThread()])
         Reden.LOGGER.debug("TickStageTree: [{}] push {}", activeStages.size, stage)
 
-        if (steppingInto) {
+        // Note: some network packets should not trigger step into
+        if (steppingInto && stage !is TickStageWorldProvider) {
             steppingInto = false
             stepIntoCallback?.invoke()
             stepIntoCallback = null
