@@ -72,7 +72,9 @@ class StageTreeComponent(
     }
 
     fun refresh() {
+        val offset = scrollOffset
         child.clearChildren()
         root.appendChildren()
+        scrollOffset = offset
     }
 }

@@ -2,7 +2,7 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
-import com.github.zly2006.reden.debugger.gui.DebuggerComponent
+import com.github.zly2006.reden.debugger.gui.DebuggerScreen
 import com.github.zly2006.reden.debugger.tree.StageIo
 import com.github.zly2006.reden.debugger.tree.TickStageTree
 import com.github.zly2006.reden.utils.isClient
@@ -48,7 +48,7 @@ data class BreakPointInterrupt(
                     }
                     val mc = MinecraftClient.getInstance()
                     if (packet.interrupted) {
-                        mc.setScreen(DebuggerComponent(data.tickStageTree).asScreen())
+                        mc.setScreen(DebuggerScreen(data.tickStageTree))
                         mc.messageHandler.onGameMessage(Text.literal("Game was frozen, any updates will be blocked").red(), true)
                         mc.inGameHud.overlayRemaining = 100000
                     }

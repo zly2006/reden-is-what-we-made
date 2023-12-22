@@ -1,26 +1,15 @@
 package com.github.zly2006.reden.debugger.gui
 
-import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.tree.TickStageTree
-import com.github.zly2006.reden.network.Continue
 import com.github.zly2006.reden.network.GlobalStatus.Companion.FROZEN
-import com.github.zly2006.reden.network.StepInto
-import com.github.zly2006.reden.network.StepOver
-import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
-import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.GridLayout
-import io.wispforest.owo.ui.core.OwoUIAdapter
 import io.wispforest.owo.ui.core.OwoUIDrawContext
 import io.wispforest.owo.ui.core.Positioning
 import io.wispforest.owo.ui.core.Sizing
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gui.screen.ButtonTextures
-import net.minecraft.client.gui.screen.GameMenuScreen
-import net.minecraft.client.gui.widget.TexturedButtonWidget
 import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 
@@ -36,20 +25,22 @@ import org.lwjgl.glfw.GLFW
  *
  * The HUD form will be shown when game was [FROZEN].
  */
-class DebuggerComponent(
+open class DebuggerComponent(
     var stageTree: TickStageTree
 ): FlowLayout(Sizing.content(), Sizing.fill(70), Algorithm.VERTICAL) {
-    var focused: TickStage? = null
+    val treeComponent by lazy {
+        StageTreeComponent(this, Sizing.fill(), Sizing. fill())
+    }
+    open var focused: TickStage? = null
         set(value) {
             field?.unfocused(MinecraftClient.getInstance())
             field = value
             value?.focused(MinecraftClient.getInstance())
-            (children()[0] as StageTreeComponent).refresh()
+            treeComponent.refresh()
         }
 
     init {
-        child(StageTreeComponent(this, Sizing.fill(), Sizing.fill()).apply {
-        })
+        child(treeComponent)
         // 30% height for infobox
     }
 
@@ -78,7 +69,7 @@ class DebuggerComponent(
         init {
             child(Components.label(stage.displayName).apply {
                 this.tooltip(stage.description)
-                this.mouseDown().subscribe { x, y, b ->
+                this.mouseDown().subscribe { _, _, b ->
                     if (b == 0) {
                         rootComponent.focused = stage
                         true
@@ -130,7 +121,7 @@ class DebuggerComponent(
                     }
                     root.stageTree = TickStageTree(subList)
                     root.focused = null
-                    (root.children()[0] as StageTreeComponent).refresh()
+                    root.treeComponent.refresh()
                 }
                 child(Components.button(Text.literal("<")) {
                     fillChildren(-1)
@@ -147,80 +138,5 @@ class DebuggerComponent(
 
     fun asHud() = apply {
         positioning(Positioning.absolute(0, 0))
-    }
-
-    fun asScreen(): BaseOwoScreen<FlowLayout> = DebuggerScreen(this)
-}
-
-private class DebuggerScreen(private val component: DebuggerComponent): BaseOwoScreen<FlowLayout>() {
-    val actionList by lazy {
-        client!!.options.run {
-            listOf(forwardKey, leftKey, backKey, rightKey, jumpKey, sneakKey)
-        }
-    }
-
-    override fun createAdapter(): OwoUIAdapter<FlowLayout> {
-        return OwoUIAdapter.create(this, Containers::verticalFlow)
-    }
-
-    override fun build(rootComponent: FlowLayout) {
-        rootComponent.child(component)
-        rootComponent.child(Containers.horizontalFlow(Sizing.fill(100), Sizing.content()).apply {
-            child(Components.button(Text.literal("Continue")) {
-                ClientPlayNetworking.send(Continue())
-            })
-            child(Components.wrapVanillaWidget(TexturedButtonWidget(
-                16, 16, ButtonTextures(Reden.identifier("reden-icon.png"), Reden.identifier("reden-icon.png")), {
-
-                }, Text.literal("C")
-            )))
-            child(Components.texture(
-                Reden.identifier("reden-icon.png"),0,0,16,16,
-                160, 160
-            ).blend(true))
-            child(Components.button(Text.literal("Step Into")) {
-                ClientPlayNetworking.send(StepInto())
-            })
-            child(Components.button(Text.literal("Step Over")) {
-                ClientPlayNetworking.send(StepOver(false /* This value does not matter */))
-            })
-        })
-        rootComponent.child(Components.button(Text.literal("Open Game Menu")) {
-            val mc = MinecraftClient.getInstance()
-            mc.setScreen(GameMenuScreen(true))
-        })
-        component.focused = component.stageTree.activeStage
-    }
-
-    override fun shouldPause(): Boolean {
-        return false
-    }
-
-    ///
-    /// Allowing player to move while debugging
-    ///
-    override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        actionList.forEach {
-            if (it.matchesKey(keyCode, scanCode)) {
-                it.isPressed = true
-            }
-        }
-        if (component.onKeyPress(keyCode, scanCode, modifiers))
-            return true
-        return super.keyPressed(keyCode, scanCode, modifiers)
-    }
-
-    override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        actionList.forEach {
-            if (it.matchesKey(keyCode, scanCode)) {
-                it.isPressed = false
-            }
-        }
-        return super.keyReleased(keyCode, scanCode, modifiers)
-    }
-
-    override fun removed() {
-        super.removed()
-        component.focused = null
     }
 }
