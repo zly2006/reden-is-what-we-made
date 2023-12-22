@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.tree.TickStageTree
+import com.github.zly2006.reden.gui.componments.TextureComponent
 import com.github.zly2006.reden.network.Continue
 import com.github.zly2006.reden.network.StepInto
 import com.github.zly2006.reden.network.StepOver
@@ -16,6 +17,8 @@ import io.wispforest.owo.ui.core.Sizing
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.GameMenuScreen
+import net.minecraft.client.sound.PositionedSoundInstance
+import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
 
 class DebuggerScreen(private val tree: TickStageTree, private val breakpoint: BreakPoint?): BaseOwoScreen<FlowLayout>() {
@@ -44,20 +47,60 @@ class DebuggerScreen(private val tree: TickStageTree, private val breakpoint: Br
     override fun build(rootComponent: FlowLayout) {
         rootComponent.child(component)
         rootComponent.child(Containers.horizontalFlow(Sizing.fill(100), Sizing.content()).apply {
-            child(Components.button(Text.literal("Continue")) {
-                ClientPlayNetworking.send(Continue())
-            })
             child(
-                Components.texture(
+                TextureComponent(
                     Reden.identifier("reden-icon.png"), 0, 0, 16, 16,
                     160, 160
-                ).blend(true))
-            child(Components.button(Text.literal("Step Into")) {
-                ClientPlayNetworking.send(StepInto())
-            })
-            child(Components.button(Text.literal("Step Over")) {
-                ClientPlayNetworking.send(StepOver(component.focused!!.id))
-            })
+                ).apply {
+                    blend(true)
+                    tooltip(Text.literal("Continue"))
+                    mouseEnter().subscribe {
+                        this.uv(0, 16)
+                    }
+                    mouseLeave().subscribe {
+                        this.uv(0, 0)
+                    }
+                    mouseDown().subscribe { _, _, b ->
+                        if (b == 0) {
+                            client!!.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+                            ClientPlayNetworking.send(Continue())
+                            true
+                        } else false
+                    }
+                }
+            )
+            child(
+                TextureComponent(
+                    Reden.identifier("reden-icon.png"), 48, 0, 16, 16,
+                    160, 160
+                ).apply {
+                    blend(true)
+                    tooltip(Text.literal("Step Into"))
+                    mouseDown().subscribe { _, _, b ->
+                        if (b == 0) {
+                            client!!.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+                            ClientPlayNetworking.send(StepInto())
+                            true
+                        } else false
+                    }
+                }
+            )
+            child(
+                TextureComponent(
+                    Reden.identifier("reden-icon.png"), 64, 0, 16, 16,
+                    160, 160
+                ).apply {
+                    blend(true)
+                    tooltip(Text.literal("Step Over"))
+                    mouseDown().subscribe { _, _, b ->
+                        if (b == 0) {
+                            client!!.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+                            ClientPlayNetworking.send(StepOver(component.focused!!.id))
+                            true
+                        } else false
+                    }
+                }
+            )
         })
         rootComponent.child(stepOverButton)
         component.focused = component.stageTree.activeStage

@@ -5,10 +5,7 @@ import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.stages.TickStageWorldProvider
 import com.github.zly2006.reden.debugger.tickPackets
-import com.github.zly2006.reden.network.GlobalStatus
-import com.github.zly2006.reden.transformers.sendToAll
 import com.github.zly2006.reden.utils.server
-import net.minecraft.nbt.NbtCompound
 
 class TickStageTree(
     val activeStages: MutableList<TickStage> = mutableListOf()
@@ -27,6 +24,9 @@ class TickStageTree(
         Reden.LOGGER.debug("TickStageTree: clear()")
         activeStages.clear()
         history.clear()
+        if (steppingInto || stepOverUntil != null) {
+            server.data.frozen = false
+        }
         steppingInto = false
         stepOverUntil = null
         stepOverCallback = null
@@ -52,11 +52,7 @@ class TickStageTree(
             stepIntoCallback?.invoke()
             stepIntoCallback = null
             Reden.LOGGER.debug("TickStageTree: step into")
-            server.data.frozen = true
-            GlobalStatus(server.data.status, NbtCompound().apply {
-                putString("reason", "step-into")
-            }).let(server::sendToAll)
-
+            server.data.freeze("step-into")
             while (server.data.frozen && server.isRunning) {
                 tickPackets(server)
             }
@@ -87,12 +83,7 @@ class TickStageTree(
             stepOverUntil = null
             stepOverCallback?.invoke()
             stepOverCallback = null
-            server.data.addStatus(GlobalStatus.FROZEN)
-                .let {
-                    GlobalStatus(it, NbtCompound().apply {
-                        putString("reason", "step-over")
-                    })
-                }.let(server::sendToAll)
+            server.data.freeze("step-over")
             while (server.data.frozen && server.isRunning) {
                 tickPackets(server)
             }

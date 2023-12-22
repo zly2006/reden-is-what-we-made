@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(TaskScheduler.class)
+@Mixin(value = TaskScheduler.class, remap = false)
 // client-side only
 public class MixinTaskScheduler {
     @Inject(

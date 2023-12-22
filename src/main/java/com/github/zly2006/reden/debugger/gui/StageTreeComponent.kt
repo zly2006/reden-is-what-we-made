@@ -35,12 +35,12 @@ class StageTreeComponent(
             set(value) {
                 if (stage.displayLevel == TickStage.DisplayLevel.ALWAYS_FOLD) return // skip
 
-                button.message = Text.literal(if (value) "[-]" else "[+]")
+                button.message = Text.literal(if (value) "-" else "+")
                 button.tooltip(Text.literal(if (value) "Fold" else "Expand"))
                 field = value
             }
         private val button by lazy {
-            Components.button(Text.literal(if (expanded) "[-]" else "[+]")) {
+            Components.button(Text.literal(if (expanded) "-" else "+")) {
                 expanded = !expanded
                 refresh()
             }.apply {

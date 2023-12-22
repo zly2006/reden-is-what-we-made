@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.mixin.otherMods;
+package com.github.zly2006.reden.mixin.otherMods.owo;
 
 import io.wispforest.owo.ui.container.ScrollContainer;
 import org.spongepowered.asm.mixin.Mixin;
