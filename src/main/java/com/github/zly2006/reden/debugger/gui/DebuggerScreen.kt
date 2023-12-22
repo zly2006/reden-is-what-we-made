@@ -114,22 +114,28 @@ class DebuggerScreen(private val tree: TickStageTree, private val breakpoint: Br
     /// Allowing player to move while debugging
     ///
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+        var flag = false
         actionList.forEach {
             if (it.matchesKey(keyCode, scanCode)) {
                 it.isPressed = true
+                flag = true
             }
         }
+        if (flag) return true
         if (component.onKeyPress(keyCode, scanCode, modifiers))
             return true
         return super.keyPressed(keyCode, scanCode, modifiers)
     }
 
     override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+        var flag = false
         actionList.forEach {
             if (it.matchesKey(keyCode, scanCode)) {
                 it.isPressed = false
+                flag = true
             }
         }
+        if (flag) return true
         return super.keyReleased(keyCode, scanCode, modifiers)
     }
 
