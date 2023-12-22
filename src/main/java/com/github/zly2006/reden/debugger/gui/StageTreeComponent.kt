@@ -27,6 +27,8 @@ class StageTreeComponent(
     ): FlowLayout(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL) {
         var expanded: Boolean = false
             set(value) {
+                if (stage.displayLevel == TickStage.DisplayLevel.ALWAYS_FOLD) return // skip
+
                 button.message = Text.literal(if (value) "[-]" else "[+]")
                 button.tooltip(Text.literal(if (value) "Fold" else "Expand"))
                 field = value
@@ -39,8 +41,14 @@ class StageTreeComponent(
                 verticalSizing(Sizing.fixed(12))
             }
         }
+        val shouldShow get() = when (stage.displayLevel) {
+            TickStage.DisplayLevel.ALWAYS_HIDE -> false
+            TickStage.DisplayLevel.HIDE -> stage.children.isNotEmpty()
+            TickStage.DisplayLevel.ALWAYS_FOLD -> true
+            TickStage.DisplayLevel.FULL -> true
+        }
         init {
-            if (stage.children.isNotEmpty()) {
+            if (stage.children.isNotEmpty() && stage.displayLevel != TickStage.DisplayLevel.ALWAYS_FOLD) {
                 child(button)
             }
             child(Components.label(stage.displayName).apply {
@@ -60,6 +68,8 @@ class StageTreeComponent(
             stage.children.map { Node(indent + 1, it) }
         }
         fun appendChildren() {
+            if (!shouldShow) return // skip
+
             child.child(this)
             if (expanded) {
                 childrenNodes.value.forEach { it.appendChildren() }

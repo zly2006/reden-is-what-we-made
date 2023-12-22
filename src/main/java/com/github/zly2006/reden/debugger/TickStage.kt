@@ -20,15 +20,16 @@ abstract class TickStage(
         private var id = 0
     }
     var id = TickStage.id++
-    // val createdAt = Thread.getAllStackTraces()[Thread.currentThread()]
     private var debugExpectedChildrenSize = -1
-    init {
-        /*
-        val nameRegex = Regex("[\\w\\-]+")
-        require(nameRegex.matches(name)) { "Invalid tick stage name: $name" }
-         */
-    }
     val children = mutableListOf<TickStage>()
+    enum class DisplayLevel {
+        ALWAYS_HIDE, HIDE, ALWAYS_FOLD, FULL
+    }
+    var displayLevel: DisplayLevel = DisplayLevel.FULL
+    enum class StageStatus {
+        Initialized, Pending, Ticked, Finished
+    }
+    var status = StageStatus.Initialized // todo
 
     open fun writeByteBuf(buf: PacketByteBuf) {
     }

@@ -25,10 +25,13 @@ public class MixinNetworkThreadUtils {
         if (UtilsKt.server != null) {
             ServerData data = getData(UtilsKt.server);
             if (packetListener instanceof ServerPlayNetworkHandler spnh) {
-                TickStage stage = data.getTickStageTree().getActiveStage();
-                data.getTickStageTree().push$reden_is_what_we_made(
-                        new TickStageWorldProvider("network",stage, spnh.getPlayer().getServerWorld())
+                TickStageWorldProvider networkStage = new TickStageWorldProvider(
+                        "network",
+                        data.getTickStageTree().getActiveStage(),
+                        spnh.getPlayer().getServerWorld()
                 );
+                networkStage.setDisplayLevel(TickStage.DisplayLevel.HIDE);
+                data.getTickStageTree().push$reden_is_what_we_made(networkStage);
             }
         }
     }

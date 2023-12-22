@@ -108,6 +108,7 @@ object StageIo {
         buf.writeVarInt(tickStage.id)
         buf.writeVarInt(tickStage.children.size)
         buf.writeString(tickStage.name)
+        buf.writeEnumConstant(tickStage.displayLevel)
         buf.writeVarInt(100)
         tickStage.writeByteBuf(buf)
         buf.writeVarInt(101)
@@ -127,6 +128,7 @@ object StageIo {
 
             val stage = constructors[name]?.construct(lastRead)
                 ?: error("Unknown stage name: $name")
+            stage.displayLevel = buf.readEnumConstant(TickStage.DisplayLevel::class.java)
             buf.assertVarInt(100)
             stage.id = id
             stage.readByteBuf(buf)
