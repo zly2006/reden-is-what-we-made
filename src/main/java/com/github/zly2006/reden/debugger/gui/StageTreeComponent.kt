@@ -21,8 +21,14 @@ class StageTreeComponent(
     verticalSizing,
     Containers.verticalFlow(Sizing.content(), Sizing.content())
 ) {
+    val TickStage.shouldShow: Boolean get() = when (displayLevel) {
+        TickStage.DisplayLevel.ALWAYS_HIDE -> false
+        TickStage.DisplayLevel.HIDE -> children.any { it.shouldShow }
+        TickStage.DisplayLevel.ALWAYS_FOLD -> true
+        TickStage.DisplayLevel.FULL -> true
+    }
     inner class Node(
-        val indent: Int,
+        private val indent: Int,
         val stage: TickStage,
     ): FlowLayout(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL) {
         var expanded: Boolean = false
@@ -41,14 +47,13 @@ class StageTreeComponent(
                 verticalSizing(Sizing.fixed(12))
             }
         }
-        val TickStage.shouldShow get() = when (displayLevel) {
-            TickStage.DisplayLevel.ALWAYS_HIDE -> false
-            TickStage.DisplayLevel.HIDE -> stage.children.isNotEmpty()
-            TickStage.DisplayLevel.ALWAYS_FOLD -> true
-            TickStage.DisplayLevel.FULL -> true
-        }
+
+        val childrenNodes = stage.children
+            .filter { it.shouldShow }
+            .map { Node(indent + 1, it) }
+
         init {
-            if (stage.children.isNotEmpty() && stage.displayLevel != TickStage.DisplayLevel.ALWAYS_FOLD) {
+            if (childrenNodes.isNotEmpty() && stage.displayLevel != TickStage.DisplayLevel.ALWAYS_FOLD) {
                 child(button)
             }
             child(Components.label(stage.displayName).apply {
@@ -64,17 +69,12 @@ class StageTreeComponent(
             })
         }
 
-        val childrenNodes = lazy {
-            stage.children
-                .filter { it.shouldShow }
-                .map { Node(indent + 1, it) }
-        }
         fun appendChildren() {
             if (!stage.shouldShow) return // skip
 
             child.child(this)
             if (expanded) {
-                childrenNodes.value.forEach { it.appendChildren() }
+                childrenNodes.forEach { it.appendChildren() }
             }
             padding(Insets.left(6 * indent))
             if (debugger.focused == stage) {
@@ -93,7 +93,7 @@ class StageTreeComponent(
             var node = root
             root.expanded = true
             for (stage in debugger.stageTree.activeStages.drop(1)) {
-                node = node.childrenNodes.value.first { it.stage == stage }
+                node = node.childrenNodes.first { it.stage == stage }
                 node.expanded = true
             }
             root.appendChildren()

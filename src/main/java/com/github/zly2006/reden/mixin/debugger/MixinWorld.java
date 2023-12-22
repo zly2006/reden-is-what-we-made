@@ -30,14 +30,6 @@ import static com.github.zly2006.reden.access.ServerData.getData;
 
 @Mixin(value = World.class, priority = Reden.REDEN_HIGHEST_MIXIN_PRIORITY)
 public abstract class MixinWorld implements WorldAccess, AutoCloseable, WorldData.WorldDataAccess {
-    @Shadow
-    @Final
-    private List<BlockEntityTickInvoker> pendingBlockEntityTickers;
-
-    @Shadow
-    @Final
-    protected List<BlockEntityTickInvoker> blockEntityTickers;
-
     @Shadow @Nullable public abstract MinecraftServer getServer();
 
     @Shadow @Final public boolean isClient;

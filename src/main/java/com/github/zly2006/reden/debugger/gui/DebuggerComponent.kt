@@ -3,15 +3,14 @@ package com.github.zly2006.reden.debugger.gui
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.tree.TickStageTree
 import com.github.zly2006.reden.network.GlobalStatus.Companion.FROZEN
-import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.FlowLayout
-import io.wispforest.owo.ui.container.GridLayout
-import io.wispforest.owo.ui.core.OwoUIDrawContext
+import io.wispforest.owo.ui.core.Component
 import io.wispforest.owo.ui.core.Positioning
 import io.wispforest.owo.ui.core.Sizing
 import net.minecraft.client.MinecraftClient
-import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Our main debugger UI.
@@ -28,7 +27,7 @@ import org.lwjgl.glfw.GLFW
 open class DebuggerComponent(
     var stageTree: TickStageTree
 ): FlowLayout(Sizing.content(), Sizing.fill(70), Algorithm.VERTICAL) {
-    val treeComponent by lazy {
+    private val treeComponent by lazy {
         StageTreeComponent(this, Sizing.fill(), Sizing. fill())
     }
     open var focused: TickStage? = null
@@ -44,95 +43,38 @@ open class DebuggerComponent(
         // 30% height for infobox
     }
 
+    final override fun child(child: Component): FlowLayout {
+        return super.child(child)
+    }
+
     override fun onKeyPress(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         val index = stageTree.activeStages.indexOf(focused)
-        if (keyCode == GLFW.GLFW_KEY_UP) {
-            if (index > 0) {
-                focused = stageTree.activeStages[index - 1]
-            }
-            return true
-        } else if (keyCode == GLFW.GLFW_KEY_DOWN) {
-            if (index < stageTree.activeStages.size - 1) {
-                focused = stageTree.activeStages[index + 1]
-            }
-            return true
-        }
-        return super.onKeyPress(keyCode, scanCode, modifiers)
-    }
+        val nodes by lazy { treeComponent.child().children().filterIsInstance<StageTreeComponent.Node>() }
 
-    @Deprecated("", level = DeprecationLevel.WARNING)
-    class StageNodeComponent(
-        val stage: TickStage,
-        val rootComponent: DebuggerComponent,
-        verticalSizing: Sizing = Sizing.fixed(9),
-    ) : FlowLayout(Sizing.content(), verticalSizing, Algorithm.HORIZONTAL) {
-        init {
-            child(Components.label(stage.displayName).apply {
-                this.tooltip(stage.description)
-                this.mouseDown().subscribe { _, _, b ->
-                    if (b == 0) {
-                        rootComponent.focused = stage
-                        true
-                    } else false
+        return when (keyCode) {
+            GLFW.GLFW_KEY_LEFT -> {
+                if (index == -1) {
+                    focused = focused?.parent
+                } else if (index > 0) {
+                    focused = stageTree.activeStages[index - 1]
                 }
-            })
-        }
-
-        override fun draw(context: OwoUIDrawContext, mouseX: Int, mouseY: Int, partialTicks: Float, delta: Float) {
-            val color = if (stage == rootComponent.focused) {
-                0x80_00_00_FF.toInt()
-            } else if (hovered) {
-                0x80_00_00_80.toInt()
-            } else {
-                0x80_00_00_00.toInt()
+                true
             }
-            context.fill(
-                x,
-                y,
-                x + determineHorizontalContentSize(Sizing.content()),
-                y + 9,
-                color
-            )
-            super.draw(context, mouseX, mouseY, partialTicks, delta)
-        }
-    }
-
-    @Deprecated("", level = DeprecationLevel.HIDDEN)
-    class StageTreeLayout(
-        val root: DebuggerComponent
-    ): GridLayout(
-        Sizing.content(),
-        Sizing.content(),
-        root.stageTree.activeStages.size + 1,
-        3
-    ) {
-        init {
-            child(Components.label(Text.literal("Stage Tree")), 0, 1)
-            root.stageTree.activeStages.mapIndexed { index, stage ->
-                fun fillChildren(offset: Int) {
-                    val subList = root.stageTree.activeStages.subList(0, index + 1).toMutableList()
-                    var lastOrNull: TickStage?
-                    lastOrNull = subList.removeLast().let {
-                        subList.last().children.getOrNull(subList.last().children.indexOf(it) + offset)
-                    }
-                    while (lastOrNull != null) {
-                        subList.add(lastOrNull)
-                        lastOrNull = lastOrNull.children.firstOrNull()
-                    }
-                    root.stageTree = TickStageTree(subList)
-                    root.focused = null
-                    root.treeComponent.refresh()
+            GLFW.GLFW_KEY_RIGHT -> {
+                if (index in 0 until  stageTree.activeStages.lastIndex) {
+                    focused = stageTree.activeStages[index + 1]
                 }
-                child(Components.button(Text.literal("<")) {
-                    fillChildren(-1)
-                }.verticalSizing(Sizing.fixed(9)), index + 1, 0)
-
-                child(StageNodeComponent(stage, root), index + 1, 1)
-
-                child(Components.button(Text.literal(">")) {
-                    fillChildren(1)
-                }.verticalSizing(Sizing.fixed(9)), index + 1, 2)
+                true
             }
+            GLFW.GLFW_KEY_UP -> {
+                focused = nodes[max(nodes.indexOfFirst { it.stage == focused } - 1, 0)].stage
+                true
+            }
+            GLFW.GLFW_KEY_DOWN -> {
+                focused = nodes[min(nodes.indexOfFirst { it.stage == focused } + 1, nodes.size - 1)].stage
+                true
+            }
+            else -> super.onKeyPress(keyCode, scanCode, modifiers)
         }
     }
 
