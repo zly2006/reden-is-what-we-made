@@ -41,7 +41,7 @@ class StageTreeComponent(
                 verticalSizing(Sizing.fixed(12))
             }
         }
-        val shouldShow get() = when (stage.displayLevel) {
+        val TickStage.shouldShow get() = when (displayLevel) {
             TickStage.DisplayLevel.ALWAYS_HIDE -> false
             TickStage.DisplayLevel.HIDE -> stage.children.isNotEmpty()
             TickStage.DisplayLevel.ALWAYS_FOLD -> true
@@ -65,10 +65,12 @@ class StageTreeComponent(
         }
 
         val childrenNodes = lazy {
-            stage.children.map { Node(indent + 1, it) }
+            stage.children
+                .filter { it.shouldShow }
+                .map { Node(indent + 1, it) }
         }
         fun appendChildren() {
-            if (!shouldShow) return // skip
+            if (!stage.shouldShow) return // skip
 
             child.child(this)
             if (expanded) {

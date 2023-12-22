@@ -12,7 +12,6 @@ var disableWatchDog = false
 
 fun tickPackets(server: MinecraftServer) {
     server.data.frozen = true
-    // todo: tick command introduced in 1.20.2
     server.tickStartTimeNanos += 50 // for watchdog
     if (server is MinecraftDedicatedServer) {
         server.executeQueuedCommands()

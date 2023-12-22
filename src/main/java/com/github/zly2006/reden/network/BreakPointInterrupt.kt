@@ -48,7 +48,7 @@ data class BreakPointInterrupt(
                     }
                     val mc = MinecraftClient.getInstance()
                     if (packet.interrupted) {
-                        mc.setScreen(DebuggerScreen(data.tickStageTree))
+                        mc.setScreen(DebuggerScreen(data.tickStageTree, breakpoint))
                         mc.messageHandler.onGameMessage(Text.literal("Game was frozen, any updates will be blocked").red(), true)
                         mc.inGameHud.overlayRemaining = 100000
                     }

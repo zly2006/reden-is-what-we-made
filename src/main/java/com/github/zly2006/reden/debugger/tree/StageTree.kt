@@ -20,7 +20,7 @@ import org.jetbrains.annotations.TestOnly
  *
  * You cannot remove a stage from a StageTree, because it is not necessary.
  */
-@Deprecated("", replaceWith = ReplaceWith("TickStageTree", imports = ["com.github.zly2006.reden.debugger.tree.TickStageTree"]))
+@Deprecated("", level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("TickStageTree", imports = ["com.github.zly2006.reden.debugger.tree.TickStageTree"]))
 class StageTree: Iterator<TickStage> {
     /**
      * A node in the tree.

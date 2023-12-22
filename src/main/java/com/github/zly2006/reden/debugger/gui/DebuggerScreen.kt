@@ -2,6 +2,7 @@ package com.github.zly2006.reden.debugger.gui
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.tree.TickStageTree
 import com.github.zly2006.reden.network.Continue
 import com.github.zly2006.reden.network.StepInto
@@ -17,7 +18,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.GameMenuScreen
 import net.minecraft.text.Text
 
-class DebuggerScreen(private val tree: TickStageTree): BaseOwoScreen<FlowLayout>() {
+class DebuggerScreen(private val tree: TickStageTree, private val breakpoint: BreakPoint?): BaseOwoScreen<FlowLayout>() {
     val actionList by lazy {
         client!!.options.run {
             listOf(forwardKey, leftKey, backKey, rightKey, jumpKey, sneakKey)

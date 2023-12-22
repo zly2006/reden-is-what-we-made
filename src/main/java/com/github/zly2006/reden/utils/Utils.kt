@@ -33,6 +33,9 @@ import net.minecraft.world.World
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
+import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 lateinit var server: MinecraftServer
 
@@ -174,4 +177,49 @@ fun checkMalilib() {
             Please install Malilib from https://www.curseforge.com/minecraft/mc-mods/malilib
         """.trimIndent())
     }
+}
+
+/**
+ * @author Zai_yu_you
+ */
+fun generateRandomColor(alpha: Int, baseGray: Int, offsetWeight: Float): Int {
+    require(offsetWeight > 0 && offsetWeight <= 1) { "The input offsetWeight must be between 0(inclusive) and 1 " }
+    require(baseGray in 1..256) { "The input baseGray must be between 0(inclusive) and 256 " }
+    val random = Random()
+
+    var r = (baseGray * (1 - offsetWeight) + random.nextInt((baseGray * offsetWeight).toInt())) as Int
+    var g = (baseGray * (1 - offsetWeight) + random.nextInt((baseGray * offsetWeight).toInt())) as Int
+    var b = (baseGray * (1 - offsetWeight) + random.nextInt((baseGray * offsetWeight).toInt())) as Int
+
+    //归一化
+    var scaleFactor = 256f / (r + g + b)
+    r = (r * scaleFactor).toInt()
+    g = (g * scaleFactor).toInt()
+    b = (b * scaleFactor).toInt()
+
+    // 调整RGB值，使其灰度接近于目标灰度
+    val currentGray = (0.2126f * r + 0.587f * g + 0.114f * b).toInt()
+    scaleFactor = baseGray.toFloat() / currentGray
+    r = (r * scaleFactor).toInt()
+    g = (g * scaleFactor).toInt()
+    b = (b * scaleFactor).toInt()
+
+    // 确保RGB值在0-255范围内
+    r = max(14, min(r, 207))
+    g = max(13, min(g, 210))
+    b = max(23, min(b, 234))
+
+    // 保留Alpha通道的值
+    val a = alpha and 0xFF
+
+    // 确保RGB值在0-255范围内
+    r = r and 0xFF
+    g = g and 0xFF
+    b = b and 0xFF
+
+    // 合并RGB值到ARGB值中
+    val rgb = (r shl 16) or (g shl 8) or b
+
+    // 返回合并后的ARGB值
+    return (a shl 24) or rgb
 }
