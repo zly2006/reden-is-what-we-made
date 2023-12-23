@@ -32,7 +32,7 @@ class BreakpointInfoScreen(
 ): BaseOwoScreen<ScrollContainer<FlowLayout>>(), BreakpointUpdatable {
     private val nameInput = UpdatableTextBox(Sizing.fixed(100), 16, breakpoint.name) { _, new ->
         breakpoint.name = new
-        client!!.data().breakpoints.sync(breakpoint)
+        client!!.data.breakpoints.sync(breakpoint)
         true
     }
     private val infoMetric = object : GridLayout(Sizing.content(), Sizing.content(), 3, 2) {
@@ -64,7 +64,7 @@ class BreakpointInfoScreen(
         indexes.sortBy { -it } // make sure we remove from the end
         indexes.forEach(breakpoint.handler::removeAt)
         indexes.clear()
-        client!!.data().breakpoints.sync(breakpoint)
+        client!!.data.breakpoints.sync(breakpoint)
         refreshBehaviorList()
     }.active(false)
     private val enableButton = Components.button(Text.empty()) {
@@ -121,10 +121,10 @@ class BreakpointInfoScreen(
                         dropdown.mouseEnter().subscribe { dropdown.closeWhenNotHovered(true) }
 
                         dropdown.text(Text.literal("Select behavior"))
-                        for (behavior in client!!.data().breakpoints.behaviorRegistry.values) {
+                        for (behavior in client!!.data.breakpoints.behaviorRegistry.values) {
                             dropdown.button(Text.literal(behavior.id.toString())) {
                                 breakpoint.handler.add(BreakPoint.Handler(behavior, name = "New Handler"))
-                                client!!.data().breakpoints.sync(breakpoint)
+                                client!!.data.breakpoints.sync(breakpoint)
                                 refreshBehaviorList()
                             }
                         }
@@ -162,13 +162,13 @@ class BreakpointInfoScreen(
                 child(Components.label(Text.literal(handler.type.id.toString())), row, 1)
                 child(UpdatableTextBox(Sizing.fixed(100), 12, handler.name) { _, new ->
                     handler.name = new
-                    client!!.data().breakpoints.sync(breakpoint)
+                    client!!.data.breakpoints.sync(breakpoint)
                     true
                 }, row, 2)
                 child(UpdatableTextBox(Sizing.fixed(100), 12, handler.priority.toString()) { _, new ->
                     new.toIntOrNull()?.let {
                         handler.priority = it
-                        client!!.data().breakpoints.sync(breakpoint)
+                        client!!.data.breakpoints.sync(breakpoint)
                         refreshBehaviorList()
                         true
                     } ?: false
@@ -196,7 +196,7 @@ class BreakpointInfoScreen(
         }
         else if (packet.sender != client!!.player!!.uuid) {
             // Others updated breakpoint
-            client!!.setScreen(BreakpointInfoScreen(client!!.data().breakpoints.breakpointMap[packet.bpId]))
+            client!!.setScreen(BreakpointInfoScreen(client!!.data.breakpoints.breakpointMap[packet.bpId]))
         }
     }
 }

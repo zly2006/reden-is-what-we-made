@@ -43,7 +43,9 @@ data class UpdateBreakpointPacket(
                 UPDATE -> manager.breakpointMap[bpId] = bp!!
                 REMOVE -> manager.breakpointMap.remove(bpId)
             }
-            manager.breakpointMap[bpId].flags = flag
+            if (flag and REMOVE == 0) {
+                manager.breakpointMap[bpId].flags = flag
+            }
             if (manager.isClient) {
                 val screen = MinecraftClient.getInstance().currentScreen
                 if (screen is BreakpointUpdatable) {
@@ -63,11 +65,11 @@ data class UpdateBreakpointPacket(
             }
             if (isClient) {
                 ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->
-                    val data = MinecraftClient.getInstance().data()
+                    val data = MinecraftClient.getInstance().data
                     updateBreakpoint(packet, data.breakpoints)
                 }
                 ClientPlayConnectionEvents.DISCONNECT.register { _, client ->
-                    client.data().breakpoints.clear()
+                    client.data.breakpoints.clear()
                 }
             }
         }

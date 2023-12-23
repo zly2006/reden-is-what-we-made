@@ -129,7 +129,7 @@ class BreakpointsManager(val isClient: Boolean) {
 
     companion object {
         fun getBreakpointManager() = if (isClient) {
-            MinecraftClient.getInstance().data().breakpoints
+            MinecraftClient.getInstance().data.breakpoints
         } else {
             server.data.breakpoints
         }

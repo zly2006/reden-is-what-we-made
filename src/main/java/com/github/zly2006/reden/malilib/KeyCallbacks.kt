@@ -2,9 +2,11 @@ package com.github.zly2006.reden.malilib
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.Sounds
+import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
 import com.github.zly2006.reden.debugger.gui.BreakpointInfoScreen
+import com.github.zly2006.reden.debugger.gui.BreakpointListComponent
 import com.github.zly2006.reden.gui.CreditScreen
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
 import com.github.zly2006.reden.network.*
@@ -204,7 +206,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         true
     }
     EDIT_BREAKPOINTS.keybind.setCallback { _, _ ->
-        val breakpoint = mc.serverData?.breakpoints?.breakpointMap?.values?.firstOrNull {
+        val breakpoint = mc.data.breakpoints.breakpointMap.values.firstOrNull {
             it.world == mc.world?.registryKey?.value && it.pos == mc.crosshairTarget?.pos?.toBlockPos()
         } ?: run {
             mc.player?.sendMessage("Not found")
@@ -229,6 +231,10 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         val id = mc.serverData?.tickStageTree?.activeStage?.id
         if (id == null) return@setCallback false
         else ClientPlayNetworking.send(StepOver(id))
+        true
+    }
+    VIEW_ALL_BREAKPOINTS.keybind.setCallback { _, _ ->
+        mc.setScreen(BreakpointListComponent.Screen(mc.data.breakpoints.breakpointMap.values))
         true
     }
 }

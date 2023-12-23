@@ -19,7 +19,7 @@ class ClientData(
 
     companion object {
         @JvmStatic
-        fun MinecraftClient.data(): ClientData {
+        val MinecraftClient.data: ClientData get() {
             return (this as ClientDataAccess).clientData()
         }
     }
