@@ -2,7 +2,6 @@ package com.github.zly2006.reden.debugger.breakpoint
 
 import com.github.zly2006.reden.debugger.breakpoint.behavior.BreakPointBehavior
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
-import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.UPDATE
 import com.github.zly2006.reden.utils.server
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.RegistryKey
@@ -33,6 +32,7 @@ abstract class BreakPoint(
      * We will neither **check pos** nor **serialize it** in this class, check it in subclasses [call] method
      */
     abstract val pos: BlockPos?
+    open fun setPosition(pos: BlockPos): Unit = throw UnsupportedOperationException()
     var world: Identifier? = null
     val serverWorld: ServerWorld?
         get() = world?.let { server.getWorld(RegistryKey.of(RegistryKeys.WORLD, it)) }

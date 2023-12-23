@@ -9,6 +9,7 @@ import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
 import com.github.zly2006.reden.network.SyncBreakpointsPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
+import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.UPDATE
 import com.github.zly2006.reden.transformers.sendToAll
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
@@ -115,13 +116,13 @@ class BreakpointsManager(val isClient: Boolean) {
         if (isClient) {
             ClientPlayNetworking.send(UpdateBreakpointPacket(
                 breakpoint,
-                flag = UpdateBreakpointPacket.UPDATE or breakpoint.flags,
+                flag = UPDATE or breakpoint.flags,
                 bpId = breakpoint.id
             ))
         } else {
             server.sendToAll(UpdateBreakpointPacket(
                 breakpoint,
-                flag = UpdateBreakpointPacket.UPDATE or breakpoint.flags,
+                flag = UPDATE or breakpoint.flags,
                 bpId = breakpoint.id
             ))
         }

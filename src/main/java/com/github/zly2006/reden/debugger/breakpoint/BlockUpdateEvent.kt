@@ -39,6 +39,10 @@ abstract class BlockUpdateEvent(
         }
     }
 
+    override fun setPosition(pos: BlockPos) {
+        this.pos = pos
+    }
+
     override fun toString() = buildString {
         append("BlockUpdateEvent(")
         if (options and PP > 0) {
