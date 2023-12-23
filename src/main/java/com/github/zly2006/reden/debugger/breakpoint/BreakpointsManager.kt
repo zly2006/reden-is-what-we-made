@@ -78,7 +78,7 @@ class BreakpointsManager(val isClient: Boolean) {
         } ?: throw Exception("Unknown BreakPoint $id")
     }
 
-    fun write(bp: BreakPoint, buf: PacketByteBuf) {
+    fun write(buf: PacketByteBuf, bp: BreakPoint) {
         buf.writeIdentifier(bp.type.id)
         buf.writeVarInt(bp.id)
         buf.writeString(bp.name)
@@ -115,13 +115,13 @@ class BreakpointsManager(val isClient: Boolean) {
         if (isClient) {
             ClientPlayNetworking.send(UpdateBreakpointPacket(
                 breakpoint,
-                UpdateBreakpointPacket.ADD,
+                UpdateBreakpointPacket.UPDATE or breakpoint.flags,
                 breakpoint.id
             ))
         } else {
             server.sendToAll(UpdateBreakpointPacket(
                 breakpoint,
-                UpdateBreakpointPacket.ADD,
+                UpdateBreakpointPacket.UPDATE or breakpoint.flags,
                 breakpoint.id
             ))
         }

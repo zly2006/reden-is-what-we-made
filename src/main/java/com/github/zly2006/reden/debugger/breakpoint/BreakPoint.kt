@@ -1,8 +1,8 @@
 package com.github.zly2006.reden.debugger.breakpoint
 
 import com.github.zly2006.reden.debugger.breakpoint.behavior.BreakPointBehavior
-import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ADD
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
+import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.UPDATE
 import com.github.zly2006.reden.utils.server
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.RegistryKey
@@ -40,7 +40,7 @@ abstract class BreakPoint(
     /**
      * @see com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion
      */
-    var flags = ADD or ENABLED
+    var flags = UPDATE or ENABLED
     open var handler: MutableList<Handler> = mutableListOf(); protected set
     open fun call(event: Any) {
         handler.sortBy { it.priority }

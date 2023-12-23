@@ -1,14 +1,10 @@
 package com.github.zly2006.reden.gui.componments
 
 import com.github.zly2006.reden.Reden
-import com.github.zly2006.reden.debugger.gui.fuckMojangMargins
 import com.github.zly2006.reden.utils.plus
 import io.wispforest.owo.ui.component.TextBoxComponent
 import io.wispforest.owo.ui.container.FlowLayout
-import io.wispforest.owo.ui.core.Size
-import io.wispforest.owo.ui.core.Sizing
-import io.wispforest.owo.ui.core.Surface
-import io.wispforest.owo.ui.core.VerticalAlignment
+import io.wispforest.owo.ui.core.*
 import net.minecraft.client.gui.DrawContext
 
 class UpdatableTextBox(
@@ -60,3 +56,9 @@ class UpdatableTextBox(
         }
     }
 }
+
+/**
+ * To keep our text in the center of the textbox.
+ * Don't ask me why top is greater than bottom for 1px, ask Mojang.
+ */
+private val fuckMojangMargins = Insets.of(2, 1, 2, 2)

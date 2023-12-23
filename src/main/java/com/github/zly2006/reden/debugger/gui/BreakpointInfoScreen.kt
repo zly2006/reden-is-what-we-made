@@ -3,6 +3,10 @@ package com.github.zly2006.reden.debugger.gui
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.gui.componments.UpdatableTextBox
+import com.github.zly2006.reden.network.UpdateBreakpointPacket
+import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
+import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.REMOVE
+import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.UPDATE
 import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
@@ -11,6 +15,7 @@ import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.GridLayout
 import io.wispforest.owo.ui.container.ScrollContainer
 import io.wispforest.owo.ui.core.*
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.text.Text
 
 /**
@@ -25,7 +30,7 @@ import net.minecraft.text.Text
  */
 class BreakpointInfoScreen(
     val breakpoint: BreakPoint
-): BaseOwoScreen<ScrollContainer<FlowLayout>>() {
+): BaseOwoScreen<ScrollContainer<FlowLayout>>(), BreakpointUpdatable {
     private val nameInput = UpdatableTextBox(Sizing.fixed(100), 16, breakpoint.name) { _, new ->
         breakpoint.name = new
         client!!.data().breakpoints.sync(breakpoint)
@@ -63,12 +68,36 @@ class BreakpointInfoScreen(
         client!!.data().breakpoints.sync(breakpoint)
         refreshBehaviorList()
     }.active(false)
+    private val enableButton = Components.button(Text.empty()) {
+        if (breakpoint.flags and ENABLED != 0) {
+            breakpoint.flags = breakpoint.flags and ENABLED.inv()
+        } else {
+            breakpoint.flags = breakpoint.flags or ENABLED
+        }
+        ClientPlayNetworking.send(UpdateBreakpointPacket(
+            null,
+            breakpoint.id,
+            breakpoint.flags or UPDATE
+        ))
+    }
+    private fun updateFlags(flags: Int) {
+        if (flags and ENABLED == 0) {
+            enableButton
+        }
+        breakpoint.flags = flags
+    }
+    private val deleteButton = Components.button(Text.literal("Delete breakpoint").red()) {
+        ClientPlayNetworking.send(UpdateBreakpointPacket(null, UpdateBreakpointPacket.REMOVE, breakpoint.id))
+        close()
+    }
     private lateinit var root: FlowLayout
     override fun createAdapter() = OwoUIAdapter.create(this) { horizontal, vertical ->
         Containers.verticalScroll(horizontal, vertical, Containers.verticalFlow(horizontal, vertical))
     }!!
 
     override fun build(p0: ScrollContainer<FlowLayout>) {
+        updateFlags(breakpoint.flags) // init our flag-based components
+
         root = p0.child()
         root.gap(5)
         root.child(Containers.horizontalFlow(Sizing.fill(100), Sizing.fixed(20)).apply {
@@ -77,6 +106,10 @@ class BreakpointInfoScreen(
             child(nameInput)
         })
         root.child(infoMetric)
+        root.child(Containers.horizontalFlow(Sizing.fill(100), Sizing.fixed(20)).apply {
+            child(enableButton)
+            child(deleteButton)
+        })
         root.child(Components.label(Text.literal("Behaviors")).apply {
             mouseEnter().subscribe {
             }
@@ -152,6 +185,22 @@ class BreakpointInfoScreen(
         behaviorListComponent = BreakpointBehaviorListComponent(breakpoint.handler)
         root.child(behaviorListComponent)
     }
+
+    override fun updateBreakpoint(packet: UpdateBreakpointPacket) {
+        if (packet.bpId != breakpoint.id) return
+
+        if (packet.breakPoint == null) {
+            if (packet.flag and REMOVE != 0) {
+                close() // breakpoint removed
+            } else {
+                updateFlags(packet.flag)
+            }
+        }
+        else if (packet.sender != client!!.player!!.uuid) {
+            // Others updated breakpoint
+            client!!.setScreen(BreakpointInfoScreen(client!!.data().breakpoints.breakpointMap[packet.bpId]))
+        }
+    }
 }
 
 private fun Component.wrap(): FlowLayout {
@@ -159,9 +208,3 @@ private fun Component.wrap(): FlowLayout {
     flow.child(this)
     return flow
 }
-
-/**
- * To keep our text in the center of the textbox.
- * Don't ask me why top is greater than bottom for 1px, ask Mojang.
- */
-val fuckMojangMargins = Insets.of(2, 1, 2, 2)

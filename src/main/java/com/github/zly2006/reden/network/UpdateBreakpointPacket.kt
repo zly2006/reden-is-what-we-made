@@ -5,6 +5,7 @@ import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
+import com.github.zly2006.reden.debugger.gui.BreakpointUpdatable
 import com.github.zly2006.reden.transformers.sendToAll
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.sendMessage
@@ -14,12 +15,13 @@ import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
+import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
 import java.util.*
 
 private val id = Reden.identifier("update_breakpoint")
 private val pType = PacketType.create(id) {
-    val bp = BreakpointsManager.getBreakpointManager().read(it)
+    val bp = it.readNullable(BreakpointsManager.getBreakpointManager()::read)
     val flag = it.readVarInt()
     val bpId = it.readVarInt()
     val uuid = it.readNullable(PacketByteBuf::readUuid)
@@ -27,7 +29,7 @@ private val pType = PacketType.create(id) {
 }
 
 data class UpdateBreakpointPacket(
-    val breakPoint: BreakPoint,
+    val breakPoint: BreakPoint?,
     val flag: Int = 0,
     val bpId: Int = 0,
     val sender: UUID? = null
@@ -38,10 +40,16 @@ data class UpdateBreakpointPacket(
             val flag = packet.flag
             val bpId = packet.bpId
             when (flag) {
-                ADD -> manager.breakpointMap[bpId] = bp
+                UPDATE -> manager.breakpointMap[bpId] = bp
                 REMOVE -> manager.breakpointMap.remove(bpId)
             }
-            bp.flags = flag
+            manager.breakpointMap[bpId].flags = flag
+            if (manager.isClient) {
+                val screen = MinecraftClient.getInstance().currentScreen
+                if (screen is BreakpointUpdatable) {
+                    screen.updateBreakpoint(packet)
+                }
+            }
         }
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, _ ->
@@ -55,7 +63,7 @@ data class UpdateBreakpointPacket(
             }
             if (isClient) {
                 ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->
-                    val data = net.minecraft.client.MinecraftClient.getInstance().data()
+                    val data = MinecraftClient.getInstance().data()
                     updateBreakpoint(packet, data.breakpoints)
                 }
                 ClientPlayConnectionEvents.DISCONNECT.register { _, client ->
@@ -65,7 +73,7 @@ data class UpdateBreakpointPacket(
         }
 
         // operations
-        const val ADD = 1
+        const val UPDATE = 1
         const val REMOVE = 2
 
         // properties
@@ -73,7 +81,7 @@ data class UpdateBreakpointPacket(
     }
 
     override fun write(buf: PacketByteBuf) {
-        BreakpointsManager.getBreakpointManager().write(breakPoint, buf)
+        buf.writeNullable(breakPoint, BreakpointsManager.getBreakpointManager()::write)
         buf.writeVarInt(flag)
         buf.writeVarInt(bpId)
         buf.writeNullable(sender, PacketByteBuf::writeUuid)

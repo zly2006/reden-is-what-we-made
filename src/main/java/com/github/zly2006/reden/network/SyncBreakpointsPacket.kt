@@ -40,7 +40,7 @@ class SyncBreakpointsPacket(
     override fun write(buf: PacketByteBuf) {
         buf.writeVarInt(data.size)
         val manager = BreakpointsManager.getBreakpointManager()
-        data.forEach { manager.write(it, buf) }
+        data.forEach { manager.write(buf, it) }
     }
 
     override fun getType() = pType
