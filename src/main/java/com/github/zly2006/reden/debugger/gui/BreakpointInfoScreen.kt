@@ -4,7 +4,6 @@ import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.gui.componments.UpdatableTextBox
 import com.github.zly2006.reden.utils.red
-import com.github.zly2006.reden.utils.sendMessage
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
@@ -32,7 +31,7 @@ class BreakpointInfoScreen(
         client!!.data().breakpoints.sync(breakpoint)
         true
     }
-    private val infoMetric = object: GridLayout(Sizing.content(), Sizing.content(), 3, 2){
+    private val infoMetric = object : GridLayout(Sizing.content(), Sizing.content(), 3, 2) {
         init {
             child(Components.label(Text.literal("Type: ")), 0, 0)
             child(Components.label(breakpoint.type.description), 0, 1)
@@ -55,12 +54,21 @@ class BreakpointInfoScreen(
             super.draw(context, mouseX, mouseY, partialTicks, delta)
         }
     }
+    private var behaviorListComponent = BreakpointBehaviorListComponent(breakpoint.handler)
+    private val removeBehaviorButton = Components.button(Text.literal("Remove").red()) {
+        val indexes = behaviorListComponent.selectedIndexes
+        indexes.sortBy { -it } // make sure we remove from the end
+        indexes.forEach(breakpoint.handler::removeAt)
+        indexes.clear()
+        refreshBehaviorList()
+    }.active(false)
+    private lateinit var root: FlowLayout
     override fun createAdapter() = OwoUIAdapter.create(this) { horizontal, vertical ->
         Containers.verticalScroll(horizontal, vertical, Containers.verticalFlow(horizontal, vertical))
     }!!
 
     override fun build(p0: ScrollContainer<FlowLayout>) {
-        val root = p0.child()
+        root = p0.child()
         root.gap(5)
         root.child(Containers.horizontalFlow(Sizing.fill(100), Sizing.fixed(20)).apply {
             verticalAlignment(VerticalAlignment.CENTER)
@@ -83,25 +91,24 @@ class BreakpointInfoScreen(
                         dropdown.text(Text.literal("Select behavior"))
                         for (behavior in client!!.data().breakpoints.behaviorRegistry.values) {
                             dropdown.button(Text.literal(behavior.id.toString())) {
-                                client!!.player!!.sendMessage(behavior.id.toString())
+                                breakpoint.handler.add(BreakPoint.Handler(behavior, name = "New Handler"))
+                                client!!.data().breakpoints.sync(breakpoint)
+                                refreshBehaviorList()
                             }
                         }
                     })
                     true
                 }
             })
-            child(Components.button(Text.literal("Remove").red()) {
-
-            }.active(false))
+            child(removeBehaviorButton)
         })
-        root.child(Containers.verticalScroll(Sizing.fill(), Sizing.fill(40), BreakpointBehaviorListComponent(breakpoint.handler)).apply {
-
-        })
+        root.child(behaviorListComponent)
     }
 
-    inner class BreakpointBehaviorListComponent(
-        val behaviors: List<BreakPoint.Handler>
-    ): GridLayout(Sizing.content(), Sizing.content(), behaviors.size + 1, 5) {
+    inner class BreakpointBehaviorListComponent(behaviors: List<BreakPoint.Handler>) : GridLayout(
+        Sizing.content(), Sizing.content(), behaviors.size + 1, 5
+    ) {
+        val selectedIndexes = mutableListOf<Int>()
         init {
             verticalAlignment(VerticalAlignment.CENTER)
 
@@ -113,6 +120,13 @@ class BreakpointInfoScreen(
             behaviors.forEachIndexed { index, handler ->
                 val row = index + 1
                 // todo: handler name i18n
+                child(Components.smallCheckbox(Text.empty()).apply {
+                    onChanged().subscribe {
+                        if (it) selectedIndexes.add(index)
+                        else selectedIndexes.remove(index)
+                        removeBehaviorButton.active(selectedIndexes.isNotEmpty())
+                    }
+                }, row, 0)
                 child(Components.label(Text.literal(handler.type.id.toString())), row, 1)
                 child(UpdatableTextBox(Sizing.fixed(100), 12, handler.name) { _, new ->
                     handler.name = new
@@ -123,11 +137,19 @@ class BreakpointInfoScreen(
                     new.toIntOrNull()?.let {
                         handler.priority = it
                         client!!.data().breakpoints.sync(breakpoint)
+                        refreshBehaviorList()
                         true
                     } ?: false
                 }, row, 3)
             }
         }
+    }
+
+    private fun refreshBehaviorList() {
+        root.removeChild(behaviorListComponent)
+        breakpoint.handler.sortBy { it.priority }
+        behaviorListComponent = BreakpointBehaviorListComponent(breakpoint.handler)
+        root.child(behaviorListComponent)
     }
 }
 
