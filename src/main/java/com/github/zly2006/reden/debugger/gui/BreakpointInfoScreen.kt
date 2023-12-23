@@ -74,20 +74,21 @@ class BreakpointInfoScreen(
         } else {
             breakpoint.flags = breakpoint.flags or ENABLED
         }
-        ClientPlayNetworking.send(UpdateBreakpointPacket(
-            null,
-            breakpoint.id,
-            breakpoint.flags or UPDATE
-        ))
+        ClientPlayNetworking.send(UpdateBreakpointPacket(null, breakpoint.flags or UPDATE, bpId = breakpoint.id))
+        updateFlags(breakpoint.flags)
     }
     private fun updateFlags(flags: Int) {
         if (flags and ENABLED == 0) {
-            enableButton
+            enableButton.message = Text.literal("Disabled")
+            enableButton.tooltip(Text.literal("Click to enable this breakpoint"))
+        } else {
+            enableButton.message = Text.literal("Enabled")
+            enableButton.tooltip(Text.literal("Click to disable this breakpoint"))
         }
         breakpoint.flags = flags
     }
     private val deleteButton = Components.button(Text.literal("Delete breakpoint").red()) {
-        ClientPlayNetworking.send(UpdateBreakpointPacket(null, UpdateBreakpointPacket.REMOVE, breakpoint.id))
+        ClientPlayNetworking.send(UpdateBreakpointPacket(null, REMOVE, bpId = breakpoint.id))
         close()
     }
     private lateinit var root: FlowLayout
@@ -107,13 +108,11 @@ class BreakpointInfoScreen(
         })
         root.child(infoMetric)
         root.child(Containers.horizontalFlow(Sizing.fill(100), Sizing.fixed(20)).apply {
+            gap(5)
             child(enableButton)
             child(deleteButton)
         })
-        root.child(Components.label(Text.literal("Behaviors")).apply {
-            mouseEnter().subscribe {
-            }
-        })
+        root.child(Components.label(Text.literal("Behaviors")))
         root.child(Containers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
             gap(5)
             child(Components.button(Text.literal("Add")) { }.apply {

@@ -115,14 +115,14 @@ class BreakpointsManager(val isClient: Boolean) {
         if (isClient) {
             ClientPlayNetworking.send(UpdateBreakpointPacket(
                 breakpoint,
-                UpdateBreakpointPacket.UPDATE or breakpoint.flags,
-                breakpoint.id
+                flag = UpdateBreakpointPacket.UPDATE or breakpoint.flags,
+                bpId = breakpoint.id
             ))
         } else {
             server.sendToAll(UpdateBreakpointPacket(
                 breakpoint,
-                UpdateBreakpointPacket.UPDATE or breakpoint.flags,
-                breakpoint.id
+                flag = UpdateBreakpointPacket.UPDATE or breakpoint.flags,
+                bpId = breakpoint.id
             ))
         }
     }
