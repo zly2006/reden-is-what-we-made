@@ -7,6 +7,7 @@ import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
 import com.github.zly2006.reden.transformers.sendToAll
 import com.github.zly2006.reden.utils.isClient
+import com.github.zly2006.reden.utils.sendMessage
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
@@ -45,6 +46,7 @@ data class UpdateBreakpointPacket(
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, _ ->
                 updateBreakpoint(packet, player.server.data.breakpoints)
+                player.sendMessage("Breakpoint updated.")
                 // sync
                 player.server.sendToAll(packet.copy(sender = player.uuid))
             }

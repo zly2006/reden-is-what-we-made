@@ -9,6 +9,7 @@ import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
 import com.github.zly2006.reden.network.SyncBreakpointsPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
+import com.github.zly2006.reden.transformers.sendToAll
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
@@ -118,6 +119,11 @@ class BreakpointsManager(val isClient: Boolean) {
                 breakpoint.id
             ))
         } else {
+            server.sendToAll(UpdateBreakpointPacket(
+                breakpoint,
+                UpdateBreakpointPacket.ADD,
+                breakpoint.id
+            ))
         }
     }
 

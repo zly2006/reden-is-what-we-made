@@ -22,10 +22,14 @@ class TextureButtonComponent(
 
     public override fun renderWidget(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         super.renderWidget(context, mouseX, mouseY, delta)
-        val i = this.x + this.getWidth() / 2 - this.textureWidth / 2
-        val j = this.y + this.getHeight() / 2 - this.textureHeight / 2
-        context.drawTexture(texture, i, j, 0f, 0f, textureWidth, textureHeight, textureWidth, textureHeight)
-        if (hovered) {
+        val i = this.x + this.getWidth() / 2.0
+        val j = this.y + this.getHeight() / 2.0
+        context.push()
+        context.translate(i, j, 0.0)
+        context.scale((width - 2.0f) / textureWidth, (height - 2.0f) / textureHeight, 0.0F)
+        context.drawTexture(texture,-this.textureWidth / 2, -this.textureHeight / 2, 0f, 0f, textureWidth, textureHeight, textureWidth, textureHeight)
+        context.pop()
+        if (hovered && tooltip != null) {
             val mc = MinecraftClient.getInstance()
             context.drawTooltip(mc.textRenderer, tooltip, mouseX, mouseY)
         }
