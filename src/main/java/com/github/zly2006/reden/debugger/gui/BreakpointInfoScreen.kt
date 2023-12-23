@@ -60,6 +60,7 @@ class BreakpointInfoScreen(
         indexes.sortBy { -it } // make sure we remove from the end
         indexes.forEach(breakpoint.handler::removeAt)
         indexes.clear()
+        client!!.data().breakpoints.sync(breakpoint)
         refreshBehaviorList()
     }.active(false)
     private lateinit var root: FlowLayout
