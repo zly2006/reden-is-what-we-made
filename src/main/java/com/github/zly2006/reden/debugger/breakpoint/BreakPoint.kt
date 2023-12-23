@@ -24,7 +24,8 @@ abstract class BreakPoint(
 ) {
     class Handler(
         val type: BreakPointBehavior,
-        val priority: Int = type.defaultPriority
+        var priority: Int = type.defaultPriority,
+        var name: String
     )
     var name: String = ""
     /**

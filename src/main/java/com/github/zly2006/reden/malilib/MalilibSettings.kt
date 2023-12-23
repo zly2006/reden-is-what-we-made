@@ -61,18 +61,22 @@ private fun <T : IConfigBase?> ConfigBase<T>.hidden() = this.apply(HIDDEN_TAB::a
 @JvmField val ENABLE_CLIENT_GLOW = RedenConfigBooleanHotkeyed("enableClientGlow", true, "LEFT_CONTROL,G").hotkey().generic()
 @JvmField val SOLID_FACE_SHAPE_PREDICATE = RedenConfigOptionList("solidFaceShapePredicate", ShapePredicateOptionEntry.FULL).generic()
 @JvmField val EASTER_EGG_RATE = RedenConfigInteger("easterEggRate", 3, 0, 100).generic()
-// RVC
+// Micro Tick
 @JvmField val TOGGLE_NC_BREAKPOINT = RedenConfigHotkey("toggleNcBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,Z").mt().hotkey()
 @JvmField val TOGGLE_PP_BREAKPOINT = RedenConfigHotkey("togglePpBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,X").mt().hotkey()
 @JvmField val TOGGLE_CU_BREAKPOINT = RedenConfigHotkey("toggleCuBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,C").mt().hotkey()
 @JvmField val EDIT_BREAKPOINTS = RedenConfigHotkey("editBreakpoints", "LEFT_CONTROL,B").mt().hotkey()
+@JvmField val PAUSE_KEY = RedenConfigHotkey("pauseKey", "LEFT_CONTROL,LEFT_SHIFT,P").mt().hotkey()
+@JvmField val CONTINUE_KEY = RedenConfigHotkey("continueKey", "").mt().hotkey()
+@JvmField val STEP_INTO_KEY = RedenConfigHotkey("stepIntoKey", "").mt().hotkey()
+@JvmField val STEP_OVER_KEY = RedenConfigHotkey("stepOverKey", "").mt().hotkey()
 @JvmField val TOGGLE_FORCE_ENTITY_POS_SYNC = RedenConfigBooleanHotkeyed("toggleForceEntityPosSync", false, "LEFT_CONTROL,LEFT_SHIFT,V").hotkey().mt()
-// Super Right
+// RVC
 @JvmField val OPEN_RVC_SCREEN = RedenConfigHotkey("openRvcScreen", "R", KeybindSettings.RELEASE).rvc().hotkey()
 @JvmField val OPEN_SELECTION_LIST = RedenConfigHotkey("openSelectionList", "R,L").rvc().hotkey()
 @JvmField val RVC_RECORD_MULTIPLAYER = RedenConfigBoolean("rvcRecordMultiplayer", true).rvc()
 @JvmField val RVC_FORCE_LOCALLY = RedenConfigBoolean("rvcForceLocally", false).rvc()
-// Micro Tick
+// Super Right
 @JvmField val CHAT_RIGHT_CLICK_MENU = RedenConfigBoolean("chatRightClickMenu", true).sr()
 @JvmField val STRUCTURE_BLOCK_LOAD = RedenConfigHotkey("structureBlockLoad", "LEFT_CONTROL,L").sr().hotkey()
 @JvmField val STRUCTURE_BLOCK_SAVE = RedenConfigHotkey("structureBlockSave", "LEFT_CONTROL,S").sr().hotkey()

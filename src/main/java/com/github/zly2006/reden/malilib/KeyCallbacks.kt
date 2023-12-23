@@ -7,9 +7,7 @@ import com.github.zly2006.reden.access.ServerData.Companion.serverData
 import com.github.zly2006.reden.debugger.gui.BreakpointInfoScreen
 import com.github.zly2006.reden.gui.CreditScreen
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
-import com.github.zly2006.reden.network.RvcDataS2CPacket
-import com.github.zly2006.reden.network.RvcTrackpointsC2SRequest
-import com.github.zly2006.reden.network.Undo
+import com.github.zly2006.reden.network.*
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.gui.SelectionListScreen
@@ -213,6 +211,24 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             return@setCallback false
         }
         mc.setScreen(BreakpointInfoScreen(breakpoint))
+        true
+    }
+    PAUSE_KEY.keybind.setCallback { _, _ ->
+        ClientPlayNetworking.send(Pause(true))
+        true
+    }
+    CONTINUE_KEY.keybind.setCallback { _, _ ->
+        ClientPlayNetworking.send(Continue())
+        true
+    }
+    STEP_INTO_KEY.keybind.setCallback { _, _ ->
+        ClientPlayNetworking.send(StepInto())
+        true
+    }
+    STEP_OVER_KEY.keybind.setCallback { _, _ ->
+        val id = mc.serverData?.tickStageTree?.activeStage?.id
+        if (id == null) return@setCallback false
+        else ClientPlayNetworking.send(StepOver(id))
         true
     }
 }

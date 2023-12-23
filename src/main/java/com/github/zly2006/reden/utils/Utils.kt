@@ -3,6 +3,7 @@ package com.github.zly2006.reden.utils
 import com.github.zly2006.reden.ModNames
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.malilib.SELECTION_TOOL
+import io.wispforest.owo.ui.core.Surface
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
@@ -223,3 +224,5 @@ fun generateRandomColor(alpha: Int, baseGray: Int, offsetWeight: Float): Int {
     // 返回合并后的ARGB值
     return (a shl 24) or rgb
 }
+
+operator fun Surface.plus(other: Surface) = and(other)

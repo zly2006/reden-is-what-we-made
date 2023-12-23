@@ -4,6 +4,7 @@ import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.breakpoint.behavior.BreakPointBehavior
 import com.github.zly2006.reden.debugger.breakpoint.behavior.FreezeGame
+import com.github.zly2006.reden.debugger.breakpoint.behavior.StatisticsBehavior
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
 import com.github.zly2006.reden.network.SyncBreakpointsPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket
@@ -22,7 +23,7 @@ import net.minecraft.world.block.ChainRestrictedNeighborUpdater.Entry as Updater
 
 class BreakpointsManager(val isClient: Boolean) {
     val registry = mutableMapOf<Identifier, BreakPointType>()
-    private val behaviorRegistry = mutableMapOf<Identifier, BreakPointBehavior>()
+    val behaviorRegistry = mutableMapOf<Identifier, BreakPointBehavior>()
     private var currentBpId = 0
     val breakpointMap = Int2ObjectOpenHashMap<BreakPoint>()
 
@@ -41,6 +42,7 @@ class BreakpointsManager(val isClient: Boolean) {
         register(RedstoneMeterBreakpoint)
 
         register(FreezeGame())
+        register(StatisticsBehavior())
 
         // todo: debug only
         if (!isClient) {
@@ -49,7 +51,7 @@ class BreakpointsManager(val isClient: Boolean) {
                 options = BlockUpdateEvent.NC
                 world = World.OVERWORLD.value
                 name = "Test"
-                handler.add(BreakPoint.Handler(FreezeGame()))
+                handler.add(BreakPoint.Handler(FreezeGame(), name = "Test Handler"))
             }
             currentBpId++
         }
@@ -66,7 +68,8 @@ class BreakpointsManager(val isClient: Boolean) {
                 handler.add(
                     BreakPoint.Handler(
                         behaviorRegistry[buf.readIdentifier()] ?: error("Unknown behavior type: $id"),
-                        buf.readVarInt()
+                        buf.readVarInt(),
+                        buf.readString()
                     )
                 )
             }
@@ -83,6 +86,7 @@ class BreakpointsManager(val isClient: Boolean) {
         bp.handler.forEach {
             buf.writeIdentifier(it.type.id)
             buf.writeVarInt(it.priority)
+            buf.writeString(it.name)
         }
         bp.write(buf)
     }
