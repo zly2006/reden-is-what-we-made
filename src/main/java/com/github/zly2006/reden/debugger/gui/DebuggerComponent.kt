@@ -3,6 +3,7 @@ package com.github.zly2006.reden.debugger.gui
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.tree.TickStageTree
 import com.github.zly2006.reden.network.GlobalStatus.Companion.FROZEN
+import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.core.Component
 import io.wispforest.owo.ui.core.Positioning
@@ -39,7 +40,7 @@ open class DebuggerComponent(
         }
 
     init {
-        child(treeComponent)
+        child(Containers.draggable(Sizing.fill(), Sizing.fill(), treeComponent))
         // 30% height for infobox
     }
 
@@ -61,6 +62,7 @@ open class DebuggerComponent(
                 true
             }
             GLFW.GLFW_KEY_RIGHT -> {
+                nodes.find { it.stage == focused }?.let { it.expanded = it.childrenNodes.isNotEmpty() }
                 if (index in 0 until  stageTree.activeStages.lastIndex) {
                     focused = stageTree.activeStages[index + 1]
                 }
@@ -72,6 +74,27 @@ open class DebuggerComponent(
             }
             GLFW.GLFW_KEY_DOWN -> {
                 focused = nodes[min(nodes.indexOfFirst { it.stage == focused } + 1, nodes.size - 1)].stage
+                true
+            }
+            GLFW.GLFW_KEY_COMMA -> {
+                nodes.find { it.stage == focused }?.let {
+                    if (it.childrenNodes.isNotEmpty()) {
+                        it.expanded = true
+                        treeComponent.refresh()
+                    }
+                }
+                true
+            }
+            GLFW.GLFW_KEY_PERIOD -> {
+                nodes.find { it.stage == focused }?.let {
+                    if (it.childrenNodes.isNotEmpty()) {
+                        it.expanded = false
+                        treeComponent.refresh()
+                    }
+                    else {
+                        focused = focused?.parent
+                    }
+                }
                 true
             }
             else -> super.onKeyPress(keyCode, scanCode, modifiers)
