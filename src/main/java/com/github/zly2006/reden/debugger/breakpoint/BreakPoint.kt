@@ -40,7 +40,7 @@ abstract class BreakPoint(
     /**
      * @see com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion
      */
-    var flags = UPDATE or ENABLED
+    var flags = ENABLED
     open var handler: MutableList<Handler> = mutableListOf(); protected set
     open fun call(event: Any) {
         handler.sortBy { it.priority }

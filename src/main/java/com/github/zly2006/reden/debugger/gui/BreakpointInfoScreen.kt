@@ -6,7 +6,6 @@ import com.github.zly2006.reden.gui.componments.UpdatableTextBox
 import com.github.zly2006.reden.network.UpdateBreakpointPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.REMOVE
-import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.UPDATE
 import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
@@ -74,7 +73,7 @@ class BreakpointInfoScreen(
         } else {
             breakpoint.flags = breakpoint.flags or ENABLED
         }
-        ClientPlayNetworking.send(UpdateBreakpointPacket(null, breakpoint.flags or UPDATE, bpId = breakpoint.id))
+        ClientPlayNetworking.send(UpdateBreakpointPacket(null, flag = breakpoint.flags, bpId = breakpoint.id))
         updateFlags(breakpoint.flags)
     }
     private fun updateFlags(flags: Int) {

@@ -40,7 +40,7 @@ data class UpdateBreakpointPacket(
             val flag = packet.flag
             val bpId = packet.bpId
             when (flag) {
-                UPDATE -> manager.breakpointMap[bpId] = bp
+                UPDATE -> manager.breakpointMap[bpId] = bp!!
                 REMOVE -> manager.breakpointMap.remove(bpId)
             }
             manager.breakpointMap[bpId].flags = flag
