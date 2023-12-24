@@ -2,7 +2,7 @@ package com.github.zly2006.reden.sponsor
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.utils.isClient
-import com.github.zly2006.reden.utils.redenApiAddr
+import com.github.zly2006.reden.utils.redenApiBaseUrl
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
@@ -33,7 +33,7 @@ val x by lazy {
 fun updateSponsors() {
     Logger.getLogger(OkHttpClient::class.java.getName()).setLevel(Level.FINE)
     OkHttpClient.Builder().build().newCall(Request.Builder().apply {
-        url("$redenApiAddr/api/sponsors")
+        url("$redenApiBaseUrl/sponsors")
     }.build()).enqueue(object : Callback {
         fun updateClient() {
             if (isClient) {

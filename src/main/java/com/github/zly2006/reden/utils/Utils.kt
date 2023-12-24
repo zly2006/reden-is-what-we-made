@@ -4,7 +4,7 @@ import com.github.zly2006.reden.ModNames
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.malilib.SELECTION_TOOL
 import com.github.zly2006.reden.malilib.DEVELOPER_MODE
-import com.github.zly2006.reden.malilib.LOCAL_API_ADDR
+import com.github.zly2006.reden.malilib.LOCAL_API_BASEURL
 import io.wispforest.owo.ui.core.Surface
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
@@ -229,5 +229,5 @@ fun generateRandomColor(alpha: Int, baseGray: Int, offsetWeight: Float): Int {
 
 operator fun Surface.plus(other: Surface) = and(other)
 
-val redenApiAddr: String
-    get() = if (DEVELOPER_MODE.booleanValue) LOCAL_API_ADDR.stringValue else "https://www.redenmc.com"
+val redenApiBaseUrl: String
+    get() = if (DEVELOPER_MODE.booleanValue) LOCAL_API_BASEURL.stringValue else "https://www.redenmc.com/api"

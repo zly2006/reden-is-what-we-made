@@ -2,7 +2,7 @@ package com.github.zly2006.reden.indexing
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.utils.openStreamRetrying
-import com.github.zly2006.reden.utils.redenApiAddr
+import com.github.zly2006.reden.utils.redenApiBaseUrl
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -19,7 +19,7 @@ private val Field.static: Boolean
 
 typealias BlockProperty = net.minecraft.state.property.Property<*>
 
-class BlockPropertyId(definition: URI = URI("$redenApiAddr/api/data/property_ids.json")) {
+class BlockPropertyId(definition: URI = URI("$redenApiBaseUrl/data/property_ids.json")) {
     @Serializable
     data class Property(
         val values: List<String>,
