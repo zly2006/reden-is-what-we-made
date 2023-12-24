@@ -206,13 +206,16 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         true
     }
     EDIT_BREAKPOINTS.keybind.setCallback { _, _ ->
-        val breakpoint = mc.data.breakpoints.breakpointMap.values.firstOrNull {
+        val breakpoints = mc.data.breakpoints.breakpointMap.values.filter {
             it.world == mc.world?.registryKey?.value && it.pos == mc.crosshairTarget?.pos?.toBlockPos()
-        } ?: run {
+        }.ifEmpty {
             mc.player?.sendMessage("Not found")
             return@setCallback false
         }
-        mc.setScreen(BreakpointInfoScreen(breakpoint))
+        if (breakpoints.size == 1)
+            mc.setScreen(BreakpointInfoScreen(breakpoints.first()))
+        else
+            mc.setScreen(BreakpointListComponent.Screen(breakpoints))
         true
     }
     PAUSE_KEY.keybind.setCallback { _, _ ->
