@@ -7,6 +7,7 @@ import com.github.zly2006.reden.malilib.data_BASIC
 import com.github.zly2006.reden.malilib.data_IDENTIFICATION
 import com.github.zly2006.reden.malilib.data_USAGE
 import com.github.zly2006.reden.utils.isClient
+import com.github.zly2006.reden.utils.redenApiAddr
 import com.github.zly2006.reden.utils.server
 import com.mojang.authlib.minecraft.UserApiService
 import kotlinx.serialization.Serializable
@@ -52,7 +53,7 @@ class FeatureUsageData(
 fun doHeartHeat() {
     if (!data_USAGE.booleanValue || !data_BASIC.booleanValue) return
     httpClient.newCall(Request.Builder().apply {
-        url("https://www.redenmc.com/api/mc/heartbeat")
+        url("$redenApiAddr/api/mc/heartbeat")
         @Serializable
         class Player(
             val name: String,
@@ -264,7 +265,7 @@ fun reportOnlineMC(client: MinecraftClient) {
             )
 
             val res = jsonIgnoreUnknown.decodeFromString(Res.serializer(), httpClient.newCall(Request.Builder().apply {
-                url("https://www.redenmc.com/api/mc/online")
+                url("$redenApiAddr/api/mc/online")
                 json(req)
                 ua()
             }.build()).execute().body!!.string())
@@ -291,7 +292,7 @@ fun reportOnlineMC(client: MinecraftClient) {
                 val key: String
             )
             httpClient.newCall(Request.Builder().apply {
-                url("https://www.redenmc.com/api/mc/offline")
+                url("$redenApiAddr/api/mc/offline")
                 json(Req(key))
                 ua()
             }.build()).execute().use {
