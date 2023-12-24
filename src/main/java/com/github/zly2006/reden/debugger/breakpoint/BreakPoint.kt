@@ -3,6 +3,7 @@ package com.github.zly2006.reden.debugger.breakpoint
 import com.github.zly2006.reden.debugger.breakpoint.behavior.BreakPointBehavior
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
 import com.github.zly2006.reden.utils.server
+import io.wispforest.owo.ui.container.FlowLayout
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
@@ -15,6 +16,9 @@ interface BreakPointType {
     val id: Identifier
     val description: Text
     fun create(id: Int): BreakPoint
+    fun appendCustomFieldsUI(parent: FlowLayout, breakpoint: BreakPoint) {
+
+    }
 }
 
 abstract class BreakPoint(

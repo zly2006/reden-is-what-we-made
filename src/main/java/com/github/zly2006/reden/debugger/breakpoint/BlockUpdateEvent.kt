@@ -1,9 +1,14 @@
 package com.github.zly2006.reden.debugger.breakpoint
 
+import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
 import com.github.zly2006.reden.debugger.stages.block.NeighborChanged
 import com.github.zly2006.reden.debugger.stages.block.StageBlockPPUpdate
+import io.wispforest.owo.ui.component.Components
+import io.wispforest.owo.ui.container.FlowLayout
+import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
+import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 
 abstract class BlockUpdateEvent(
@@ -13,6 +18,47 @@ abstract class BlockUpdateEvent(
     override var pos: BlockPos? = null,
 ): BreakPoint(id, type) {
     companion object {
+        fun appendCustomFieldsUI(parent: FlowLayout, breakpoint: BreakPoint) {
+            breakpoint as BlockUpdateEvent
+            val mc = MinecraftClient.getInstance()
+            parent.child(
+                Components.checkbox(Text.literal("NeighborChanged")).apply {
+                    onChanged {
+                        breakpoint.options = if (it) {
+                            breakpoint.options or NC
+                        } else {
+                            breakpoint.options and NC.inv()
+                        }
+                        mc.data.breakpoints.sync(breakpoint)
+                    }
+                }
+            )
+            parent.child(
+                Components.checkbox(Text.literal("PostPlacement")).apply {
+                    onChanged {
+                        breakpoint.options = if (it) {
+                            breakpoint.options or PP
+                        } else {
+                            breakpoint.options and PP.inv()
+                        }
+                        mc.data.breakpoints.sync(breakpoint)
+                    }
+                }
+            )
+            parent.child(
+                Components.checkbox(Text.literal("ComparatorUpdate")).apply {
+                    onChanged {
+                        breakpoint.options = if (it) {
+                            breakpoint.options or CU
+                        } else {
+                            breakpoint.options and CU.inv()
+                        }
+                        mc.data.breakpoints.sync(breakpoint)
+                    }
+                }
+            )
+        }
+
         const val PP = 1
         const val NC = 2
         // todo

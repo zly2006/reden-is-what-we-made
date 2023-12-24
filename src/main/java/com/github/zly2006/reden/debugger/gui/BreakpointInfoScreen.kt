@@ -73,6 +73,7 @@ class BreakpointInfoScreen(
         } else {
             breakpoint.flags = breakpoint.flags or ENABLED
         }
+        breakpoint.flags = breakpoint.flags and UpdateBreakpointPacket.UPDATE.inv()
         ClientPlayNetworking.send(UpdateBreakpointPacket(null, flag = breakpoint.flags, bpId = breakpoint.id))
         updateFlags(breakpoint.flags)
     }
@@ -111,6 +112,9 @@ class BreakpointInfoScreen(
             child(enableButton)
             child(deleteButton)
         })
+
+        breakpoint.type.appendCustomFieldsUI(root, breakpoint)
+
         root.child(Components.label(Text.literal("Behaviors")))
         root.child(Containers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
             gap(5)

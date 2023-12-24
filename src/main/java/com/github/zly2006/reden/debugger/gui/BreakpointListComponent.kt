@@ -3,6 +3,7 @@ package com.github.zly2006.reden.debugger.gui
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
+import com.github.zly2006.reden.debugger.breakpoint.behavior.FreezeGame
 import com.github.zly2006.reden.network.UpdateBreakpointPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.REMOVE
 import com.github.zly2006.reden.utils.red
@@ -47,6 +48,7 @@ class BreakpointListComponent(
                             manager.breakpointMap[id] = type.create(id).apply {
                                 world = mc.world!!.registryKey.value
                                 setPosition(mc.player!!.blockPos)
+                                handler.add(BreakPoint.Handler(FreezeGame(), name = "Behavior 1"))
                             }
                             mc.data.breakpoints.sync(manager.breakpointMap[id])
                         }
