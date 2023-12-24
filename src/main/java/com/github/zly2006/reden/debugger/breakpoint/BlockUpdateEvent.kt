@@ -23,6 +23,7 @@ abstract class BlockUpdateEvent(
             val mc = MinecraftClient.getInstance()
             parent.child(
                 Components.checkbox(Text.literal("NeighborChanged")).apply {
+                    checked(breakpoint.options and NC > 0)
                     onChanged {
                         breakpoint.options = if (it) {
                             breakpoint.options or NC
@@ -35,6 +36,7 @@ abstract class BlockUpdateEvent(
             )
             parent.child(
                 Components.checkbox(Text.literal("PostPlacement")).apply {
+                    checked(breakpoint.options and PP > 0)
                     onChanged {
                         breakpoint.options = if (it) {
                             breakpoint.options or PP
@@ -47,6 +49,7 @@ abstract class BlockUpdateEvent(
             )
             parent.child(
                 Components.checkbox(Text.literal("ComparatorUpdate")).apply {
+                    checked(breakpoint.options and CU > 0)
                     onChanged {
                         breakpoint.options = if (it) {
                             breakpoint.options or CU
