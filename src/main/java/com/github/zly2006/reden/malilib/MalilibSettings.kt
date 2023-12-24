@@ -101,6 +101,7 @@ private fun <T : IConfigBase?> ConfigBase<T>.hidden() = this.apply(HIDDEN_TAB::a
 @JvmField val CREDIT_SCREEN_KEY = RedenConfigHotkey("creditScreenKey", "").debug().hotkey()
 @JvmField val DEBUG_VIEW_ALL_CONFIGS = RedenConfigHotkey("debugViewAllConfigs", "").debug().hotkey()
 @JvmField val DEVELOPER_MODE = RedenConfigBoolean("developerMode", false).debug()
+@JvmField val LOCAL_API_ADDR = RedenConfigString("localApiAddr", "http://localhost:10005").debug()
 // Hidden
 @JvmField val iEVER_USED_UNDO = RedenConfigBoolean("iEverUsedUndo", false).hidden()
 @JvmField val iNOTIFICATIONS_ENABLED = RedenConfigBoolean("iNotificationsEnabled", true).hidden()
