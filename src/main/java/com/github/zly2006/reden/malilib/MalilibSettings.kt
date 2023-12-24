@@ -62,9 +62,8 @@ private fun <T : IConfigBase?> ConfigBase<T>.hidden() = this.apply(HIDDEN_TAB::a
 @JvmField val SOLID_FACE_SHAPE_PREDICATE = RedenConfigOptionList("solidFaceShapePredicate", ShapePredicateOptionEntry.FULL).generic()
 @JvmField val EASTER_EGG_RATE = RedenConfigInteger("easterEggRate", 3, 0, 100).generic()
 // Micro Tick
-@JvmField val TOGGLE_NC_BREAKPOINT = RedenConfigHotkey("toggleNcBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,Z").mt().hotkey()
-@JvmField val TOGGLE_PP_BREAKPOINT = RedenConfigHotkey("togglePpBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,X").mt().hotkey()
-@JvmField val TOGGLE_CU_BREAKPOINT = RedenConfigHotkey("toggleCuBreakpoint", "LEFT_CONTROL,LEFT_SHIFT,C").mt().hotkey()
+@JvmField val ADD_BREAKPOINT = RedenConfigHotkey("addBreakpoint", "LEFT_SHIFT,B").mt().hotkey()
+@JvmField val CYCLE_BREAKPOINT_TYPE = RedenConfigHotkey("cycleBreakpointType", "LEFT_SHIFT,T").mt().hotkey()
 @JvmField val EDIT_BREAKPOINTS = RedenConfigHotkey("editBreakpoints", "LEFT_CONTROL,B").mt().hotkey()
 @JvmField val VIEW_ALL_BREAKPOINTS = RedenConfigHotkey("viewAllBreakpoints", "RIGHT_SHIFT,SPACE").mt().hotkey()
 @JvmField val PAUSE_KEY = RedenConfigHotkey("pauseKey", "LEFT_CONTROL,LEFT_SHIFT,P").mt().hotkey()

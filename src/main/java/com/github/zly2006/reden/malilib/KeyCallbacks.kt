@@ -5,6 +5,7 @@ import com.github.zly2006.reden.Sounds
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
+import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
 import com.github.zly2006.reden.debugger.gui.BreakpointInfoScreen
 import com.github.zly2006.reden.debugger.gui.BreakpointListComponent
 import com.github.zly2006.reden.gui.CreditScreen
@@ -203,6 +204,27 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             "reden.widget.config.title") {
             override fun getConfigs() = ConfigOptionWrapper.createFor(getAllOptions())
         })
+        true
+    }
+    val pointTypes = BreakpointsManager.getBreakpointManager().registry.values.toList()
+    var index = 0
+    ADD_BREAKPOINT.keybind.setCallback { _, _ ->
+        val pos = mc.crosshairTarget?.pos?.toBlockPos() ?: return@setCallback false
+        val type = pointTypes[index]
+        val manager = mc.data.breakpoints
+        val id = (manager.breakpointMap.keys.maxOrNull() ?: 0) + 1
+        manager.breakpointMap[id] = type.create(id).apply {
+            world = mc.world!!.registryKey.value
+            setPosition(pos)
+        }
+        mc.data.breakpoints.sync(manager.breakpointMap[id])
+        true
+    }
+    CYCLE_BREAKPOINT_TYPE.keybind.setCallback { _, _ ->
+        index++
+        if (index !in pointTypes.indices) index = 0
+        val type = pointTypes[index]
+        mc.player?.sendMessage(Text.literal("Type now is ").append(type.description))
         true
     }
     EDIT_BREAKPOINTS.keybind.setCallback { _, _ ->
