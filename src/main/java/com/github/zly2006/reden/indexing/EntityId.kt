@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.indexing
 
 import com.github.zly2006.reden.utils.openStreamRetrying
+import com.github.zly2006.reden.utils.redenApiBaseUrl
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -12,7 +13,7 @@ import java.io.File
 import java.net.URI
 
 @OptIn(ExperimentalSerializationApi::class)
-class EntityId(definition: URI = URI("https://www.redenmc.com/api/data/entity_ids.json")) {
+class EntityId(definition: URI = URI("$redenApiBaseUrl/data/entity_ids.json")) {
     val index = Json.decodeFromStream<Map<String, Int>>(definition.toURL().openStreamRetrying())
 
     fun of(identifier: Identifier): Int {
