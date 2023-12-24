@@ -103,7 +103,11 @@ class StageTreeComponent(
     fun refresh() {
         val offset = scrollOffset
         child.clearChildren()
-        root.appendChildren()
+        if (debugger.stageTree.activeStages.isEmpty()) {
+            child.child(Components.label(Text.literal("Fatal: No tick stages present.").red()))
+        } else {
+            root.appendChildren()
+        }
         scrollOffset = offset
     }
 }
