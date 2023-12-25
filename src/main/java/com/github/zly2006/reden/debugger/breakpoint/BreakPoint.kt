@@ -33,7 +33,7 @@ interface BreakPoint {
     val id: Int
     val type: BreakPointType
     @Serializable
-    class Handler(
+    data class Handler(
         val type: BreakPointBehavior,
         var priority: Int = type.defaultPriority,
         var name: String
