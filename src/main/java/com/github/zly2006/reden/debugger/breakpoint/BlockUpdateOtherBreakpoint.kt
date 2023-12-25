@@ -6,7 +6,8 @@ import io.wispforest.owo.ui.container.FlowLayout
 import kotlinx.serialization.KSerializer
 import net.minecraft.text.Text
 
-class BlockUpdateOtherBreakpoint(id: Int) : BlockUpdateEvent(id, Companion) {
+class BlockUpdateOtherBreakpoint(id: Int) : BlockUpdateEvent(id) {
+    override val type get() = Companion
     companion object: BreakPointType {
         override val id = Reden.identifier("block_update_other")
         override val description = Text.literal("BlockUpdateOther")

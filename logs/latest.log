@@ -1,0 +1,18 @@
+[22:14:20] [Test worker/INFO]: [STDOUT]: ["reden:block_updated", {
+        "type": "com.github.zly2006.reden.debugger.breakpoint.BlockUpdatedBreakpoint",
+        "id": 0,
+        "options": 0,
+        "pos": null,
+        "name": "",
+        "flags": 4,
+        "world": null,
+        "handler": [
+            {
+                "type": "reden:freeze_game_behavior",
+                "priority": 100,
+                "name": "Test Handler"
+            }
+        ],
+        "idaaa": 0
+    }
+]

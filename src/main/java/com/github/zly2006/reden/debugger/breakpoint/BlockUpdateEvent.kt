@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.debugger.breakpoint
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
 import com.github.zly2006.reden.debugger.stages.block.NeighborChanged
@@ -9,6 +10,7 @@ import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.core.Sizing
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
@@ -17,13 +19,13 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 
 @Serializable
-abstract class BlockUpdateEvent(
-    override val id: Int,
-    override val type: BreakPointType,
+sealed class BlockUpdateEvent(
+    override var id: Int,
     var options: Int = 0,
     @Serializable(with = BlockPosSerializer::class)
     override var pos: BlockPos? = null,
 ): BreakPoint {
+    abstract override val type: BreakPointType
     companion object {
         fun appendCustomFieldsUI(parent: FlowLayout, breakpoint: BreakPoint) {
             breakpoint as BlockUpdateEvent
@@ -75,6 +77,19 @@ abstract class BlockUpdateEvent(
         const val NC = 2
         // todo
         const val CU = 4
+    }
+    object BlockUpdatedBreakpoint: BreakPointType {
+        override val id = Reden.identifier("block_updated")
+        override val description: Text = Text.literal("BlockUpdated")
+        override fun create(id: Int) = BlockUpdatedBreakpoint(id)
+
+        override fun appendCustomFieldsUI(parent: FlowLayout, breakpoint: BreakPoint) {
+            BlockUpdateEvent.appendCustomFieldsUI(parent, breakpoint)
+        }
+
+        override fun kSerializer(): KSerializer<out BreakPoint> {
+            return BlockUpdateEvent.serializer()
+        }
     }
     override var name: String = ""
     override var flags: Int = ENABLED

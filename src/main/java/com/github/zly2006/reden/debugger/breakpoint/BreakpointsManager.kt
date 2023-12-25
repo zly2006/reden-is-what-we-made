@@ -26,11 +26,13 @@ import kotlinx.serialization.descriptors.buildSerialDescriptor
 import kotlinx.serialization.encoding.*
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketSender
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import org.jetbrains.annotations.TestOnly
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater.Entry as UpdaterEntry
 
 class BreakpointsManager(val isClient: Boolean) {
@@ -202,10 +204,16 @@ class BreakpointsManager(val isClient: Boolean) {
     }
 
     companion object {
-        fun getBreakpointManager() = if (isClient) {
-            MinecraftClient.getInstance().data.breakpoints
-        } else {
-            server.data.breakpoints
-        }
+        @TestOnly
+        var testBreakpointManager: BreakpointsManager? = null
+
+        fun getBreakpointManager() =
+            if (testBreakpointManager != null && FabricLoader.getInstance().isDevelopmentEnvironment) {
+                testBreakpointManager!!
+            } else if (isClient) {
+                MinecraftClient.getInstance().data.breakpoints
+            } else {
+                server.data.breakpoints
+            }
     }
 }
