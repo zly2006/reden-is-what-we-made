@@ -4,7 +4,6 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
 import io.wispforest.owo.ui.container.FlowLayout
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
 import net.minecraft.text.Text
 
 class BlockUpdatedBreakpoint(id: Int) : BlockUpdateEvent(id, Companion) {
