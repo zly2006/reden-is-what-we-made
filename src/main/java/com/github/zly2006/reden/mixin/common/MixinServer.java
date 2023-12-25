@@ -40,8 +40,8 @@ public abstract class MixinServer extends ReentrantThreadExecutor<ServerTask> im
         super("What?");
     }
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void loadData(Thread serverThread, LevelStorage.Session session, ResourcePackManager dataPackManager, SaveLoader saveLoader, Proxy proxy, DataFixer dataFixer, ApiServices apiServices, WorldGenerationProgressListenerFactory worldGenerationProgressListenerFactory, CallbackInfo ci){
+    @Inject(method = "loadWorld", at = @At("RETURN"))
+    private void loadData(CallbackInfo ci){
         var manager = this.serverData.getBreakpoints();
         manager.loadBreakpointState(session);
     }

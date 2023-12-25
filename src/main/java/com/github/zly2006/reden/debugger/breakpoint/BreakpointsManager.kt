@@ -80,15 +80,13 @@ class BreakpointsManager(val isClient: Boolean) {
         session: LevelStorage.Session
     ) {
         val saveStateFile = session.directory.path / "redenBreakpoints.json"
-        if (isClient) {
-            breakpointMap.clear()
-        }
         saveStateFile.run {
             if (notExists()) return
             if (fileSize() == 0L) {
                 deleteIfExists()
                 return
             }
+            breakpointMap.clear()
             json.decodeFromString(ListSerializer(breakpointSerializer()), this.readText())
         }.forEach {
             breakpointMap[it.id] = it
