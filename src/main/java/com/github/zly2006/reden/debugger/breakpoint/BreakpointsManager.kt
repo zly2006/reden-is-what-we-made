@@ -14,7 +14,10 @@ import com.github.zly2006.reden.transformers.sendToAll
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
-import kotlinx.serialization.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -135,77 +138,67 @@ class BreakpointsManager(val isClient: Boolean) {
         }
     }
 
-
-    @Serializable
-    data class BreakPointWrapper(
-        @Polymorphic val breakpoint: BreakPoint
-    )
-
     @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
-    fun breakpointSerializer(): KSerializer<BreakPoint> {
-        PolymorphicSerializer(BreakPoint::class).apply {
+    fun breakpointSerializer() = object : KSerializer<BreakPoint> {
+        override val descriptor: SerialDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
+            buildSerialDescriptor("redenmc.breakpoint", PolymorphicKind.OPEN) {
+                element("type", String.serializer().descriptor)
+                element(
+                    "value",
+                    buildSerialDescriptor("redenmc.breakpoint.serialization", SerialKind.CONTEXTUAL)
+                )
+            }
         }
-        return object : KSerializer<BreakPoint> {
-            override val descriptor: SerialDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
-                buildSerialDescriptor("redenmc.breakpoint", PolymorphicKind.OPEN) {
-                    element("type", String.serializer().descriptor)
-                    element(
-                        "value",
-                        buildSerialDescriptor("redenmc.breakpoint.serialization", SerialKind.CONTEXTUAL)
+
+        override fun serialize(encoder: Encoder, value: BreakPoint) {
+            @Suppress("UNCHECKED_CAST")
+            val actualSerializer = value.type.kSerializer() as KSerializer<BreakPoint>
+            encoder.encodeStructure(descriptor) {
+                encodeStringElement(descriptor, 0, value.type.id.toString())
+                encodeSerializableElement(descriptor, 1, actualSerializer, value)
+            }
+        }
+
+        override fun deserialize(decoder: Decoder): BreakPoint = decoder.decodeStructure(descriptor) {
+            var identifier: String? = null
+            var value: BreakPoint? = null
+            if (decodeSequentially()) {
+                return@decodeStructure decodeSequentially(this)
+            }
+
+            mainLoop@ while (true) {
+                when (val index = decodeElementIndex(descriptor)) {
+                    CompositeDecoder.DECODE_DONE -> {
+                        break@mainLoop
+                    }
+                    0 -> {
+                        identifier = decodeStringElement(descriptor, index)
+                    }
+                    1 -> {
+                        identifier = requireNotNull(identifier) { "Cannot read polymorphic value before its type token" }
+                        val serializer = findActualSerializer(identifier)
+                        value = decodeSerializableElement(descriptor, index, serializer)
+                    }
+                    else -> throw SerializationException(
+                        "Invalid index in polymorphic deserialization of " +
+                                (identifier ?: "unknown class") +
+                                "\n Expected 0, 1 or DECODE_DONE(-1), but found $index"
                     )
                 }
             }
-
-            override fun serialize(encoder: Encoder, value: BreakPoint) {
-                @Suppress("UNCHECKED_CAST")
-                val actualSerializer = value.type.kSerializer() as KSerializer<BreakPoint>
-                encoder.encodeStructure(descriptor) {
-                    encodeStringElement(descriptor, 0, value.type.id.toString())
-                    encodeSerializableElement(descriptor, 1, actualSerializer, value)
-                }
-            }
-
-            override fun deserialize(decoder: Decoder): BreakPoint = decoder.decodeStructure(descriptor) {
-                var identifier: String? = null
-                var value: BreakPoint? = null
-                if (decodeSequentially()) {
-                    return@decodeStructure decodeSequentially(this)
-                }
-
-                mainLoop@ while (true) {
-                    when (val index = decodeElementIndex(descriptor)) {
-                        CompositeDecoder.DECODE_DONE -> {
-                            break@mainLoop
-                        }
-                        0 -> {
-                            identifier = decodeStringElement(descriptor, index)
-                        }
-                        1 -> {
-                            identifier = requireNotNull(identifier) { "Cannot read polymorphic value before its type token" }
-                            val serializer = findActualSerializer(identifier)
-                            value = decodeSerializableElement(descriptor, index, serializer)
-                        }
-                        else -> throw SerializationException(
-                            "Invalid index in polymorphic deserialization of " +
-                                    (identifier ?: "unknown class") +
-                                    "\n Expected 0, 1 or DECODE_DONE(-1), but found $index"
-                        )
-                    }
-                }
-                requireNotNull(value) { "Polymorphic value has not been read for class $identifier" } as BreakPoint
-            }
-
-            private fun decodeSequentially(compositeDecoder: CompositeDecoder): BreakPoint {
-                val serializer = findActualSerializer(compositeDecoder.decodeStringElement(descriptor, 0))
-                return compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
-            }
-
-
-            fun findActualSerializer(
-                identifier: String?
-            ): KSerializer<out BreakPoint> =
-                registry[Identifier(identifier)]?.kSerializer() ?: error("")
+            requireNotNull(value) { "Polymorphic value has not been read for class $identifier" } as BreakPoint
         }
+
+        private fun decodeSequentially(compositeDecoder: CompositeDecoder): BreakPoint {
+            val serializer = findActualSerializer(compositeDecoder.decodeStringElement(descriptor, 0))
+            return compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
+        }
+
+
+        fun findActualSerializer(
+            identifier: String?
+        ): KSerializer<out BreakPoint> =
+            registry[Identifier(identifier)]?.kSerializer() ?: error("")
     }
 
     companion object {
