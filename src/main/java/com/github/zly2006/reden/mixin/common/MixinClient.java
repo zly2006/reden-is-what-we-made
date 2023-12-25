@@ -47,6 +47,7 @@ public abstract class MixinClient implements ClientData.ClientDataAccess, Server
     private void resetServerDataOnDisconnect(Screen screen, CallbackInfo ci) {
         if (player == null) {
             serverData = null;
+            clientData.getBreakpoints().clear();
         }
     }
 }

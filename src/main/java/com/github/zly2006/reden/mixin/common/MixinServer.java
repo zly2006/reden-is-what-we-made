@@ -10,8 +10,10 @@ import com.github.zly2006.reden.transformers.UtilsKt;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerTask;
 import net.minecraft.util.thread.ReentrantThreadExecutor;
+import net.minecraft.world.level.storage.LevelStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -22,7 +24,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MinecraftServer.class)
 public abstract class MixinServer extends ReentrantThreadExecutor<ServerTask> implements ServerData.ServerDataAccess {
+    @Unique private static final String REDEN_BREAKPOINTS_JSON = "reden_breakpoints.json";
     @Shadow @Nullable private String serverId;
+    @Shadow @Final protected LevelStorage.Session session;
     @Unique ServerData serverData = new ServerData(Reden.MOD_VERSION, (MinecraftServer) (Object) this);
 
     public MixinServer() {
@@ -71,12 +75,26 @@ public abstract class MixinServer extends ReentrantThreadExecutor<ServerTask> im
     }
 
     @Inject(
+            method = "runServer",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/MinecraftServer;setupServer()Z",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void started(CallbackInfo ci) {
+        serverData.addStatus(GlobalStatus.STARTED);
+        serverData.getBreakpoints().load(session.getDirectory().path().resolve(REDEN_BREAKPOINTS_JSON));
+    }
+
+    @Inject(
             method = "stop",
             at = @At("HEAD")
     )
     private void stopping(CallbackInfo ci) {
         serverData.removeStatus(GlobalStatus.FROZEN);
         serverData.removeStatus(GlobalStatus.STARTED);
+        serverData.getBreakpoints().save(session.getDirectory().path().resolve(REDEN_BREAKPOINTS_JSON));
     }
 
     @NotNull

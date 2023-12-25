@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.debugger.breakpoint
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.breakpoint.behavior.BreakPointBehavior
@@ -18,21 +19,25 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.buildSerialDescriptor
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.json.Json
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.Identifier
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
 import org.jetbrains.annotations.TestOnly
+import java.nio.file.Path
+import kotlin.io.path.exists
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater.Entry as UpdaterEntry
 
 class BreakpointsManager(val isClient: Boolean) {
@@ -57,18 +62,10 @@ class BreakpointsManager(val isClient: Boolean) {
 
         register(FreezeGame())
         register(StatisticsBehavior())
+    }
 
-        // todo: debug only
-        if (!isClient) {
-            breakpointMap[0] = BlockUpdateOtherBreakpoint.create(0).apply {
-                pos = BlockPos.ORIGIN
-                options = BlockUpdateEvent.NC
-                world = World.OVERWORLD.value
-                name = "Test"
-                handler.add(BreakPoint.Handler(FreezeGame(), name = "Test Handler"))
-            }
-            currentBpId++
-        }
+    private val json = Json {
+        encodeDefaults = true
     }
 
     fun read(buf: PacketByteBuf): BreakPoint {
@@ -137,6 +134,28 @@ class BreakpointsManager(val isClient: Boolean) {
                 flag = UPDATE or breakpoint.flags,
                 bpId = breakpoint.id
             ))
+        }
+    }
+
+    fun save(path: Path) {
+        require(!isClient) {
+            "Cannot save breakpoint on client side"
+        }
+        Reden.LOGGER.info("Saving breakpoints to $path")
+        val breakpoints = breakpointMap.values.toList()
+        path.writeText(json.encodeToString(ListSerializer(breakpointSerializer()), breakpoints))
+    }
+
+    fun load(path: Path) {
+        require(!isClient) {
+            "Cannot load breakpoint on client side"
+        }
+        if (!path.exists()) return
+        Reden.LOGGER.info("Loading breakpoints from $path")
+        val breakpoints = json.decodeFromString(ListSerializer(breakpointSerializer()), path.readText())
+        breakpointMap.clear()
+        breakpoints.forEach {
+            breakpointMap[it.id] = it
         }
     }
 

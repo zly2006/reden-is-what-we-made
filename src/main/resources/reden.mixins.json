@@ -48,8 +48,6 @@
     "realFakePlayer.MixinCarpetFakePlayer",
     "realFakePlayer.MixinServerNetworkIo",
     "sctuctureBlock.MixinStructureBlock",
-    "tick.MixinTick",
-    "tick.MixinWatchdog",
     "undo.MixinBlockEntity",
     "undo.MixinBlockEvent",
     "undo.MixinCommands",
