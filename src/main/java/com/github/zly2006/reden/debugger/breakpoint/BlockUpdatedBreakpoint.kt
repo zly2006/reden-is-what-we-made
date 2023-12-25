@@ -3,6 +3,8 @@ package com.github.zly2006.reden.debugger.breakpoint
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
 import io.wispforest.owo.ui.container.FlowLayout
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import net.minecraft.text.Text
 
 class BlockUpdatedBreakpoint(id: Int) : BlockUpdateEvent(id, Companion) {
@@ -13,6 +15,10 @@ class BlockUpdatedBreakpoint(id: Int) : BlockUpdateEvent(id, Companion) {
 
         override fun appendCustomFieldsUI(parent: FlowLayout, breakpoint: BreakPoint) {
             BlockUpdateEvent.appendCustomFieldsUI(parent, breakpoint)
+        }
+
+        override fun kSerializer(): KSerializer<out BreakPoint> {
+            return BlockUpdateEvent.serializer()
         }
     }
 

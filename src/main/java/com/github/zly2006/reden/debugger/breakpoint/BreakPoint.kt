@@ -1,9 +1,16 @@
 package com.github.zly2006.reden.debugger.breakpoint
 
 import com.github.zly2006.reden.debugger.breakpoint.behavior.BreakPointBehavior
-import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
 import com.github.zly2006.reden.utils.server
 import io.wispforest.owo.ui.container.FlowLayout
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.listSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
@@ -19,37 +26,57 @@ interface BreakPointType {
     fun appendCustomFieldsUI(parent: FlowLayout, breakpoint: BreakPoint) {
 
     }
+    fun kSerializer(): KSerializer<out BreakPoint>
 }
 
-abstract class BreakPoint(
-    val id: Int,
-    open val type: BreakPointType
-) {
+interface BreakPoint {
+    val id: Int
+    val type: BreakPointType
+    @Serializable
     class Handler(
         val type: BreakPointBehavior,
         var priority: Int = type.defaultPriority,
         var name: String
     )
-    var name: String = ""
+    var name: String
     /**
      * Note: in this abstract class we only store [world].
      * We will neither **check pos** nor **serialize it** in this class, check it in subclasses [call] method
      */
-    abstract val pos: BlockPos?
-    open fun setPosition(pos: BlockPos): Unit = throw UnsupportedOperationException()
-    var world: Identifier? = null
+    val pos: BlockPos?
+    fun setPosition(pos: BlockPos): Unit = throw UnsupportedOperationException()
+    @Serializable(with = IdentifierSerializer::class)
+    var world: Identifier?
     val serverWorld: ServerWorld?
         get() = world?.let { server.getWorld(RegistryKey.of(RegistryKeys.WORLD, it)) }
 
     /**
      * @see com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion
      */
-    var flags = ENABLED
-    open var handler: MutableList<Handler> = mutableListOf(); protected set
-    open fun call(event: Any) {
+    var flags: Int
+    val handler: MutableList<Handler>
+    fun call(event: Any) {
         handler.sortBy { it.priority }
         handler.forEach { it.type.onBreakPoint(this, event) }
     }
-    abstract fun write(buf: PacketByteBuf)
-    abstract fun read(buf: PacketByteBuf)
+    fun write(buf: PacketByteBuf)
+    fun read(buf: PacketByteBuf)
+}
+
+object IdentifierSerializer: KSerializer<Identifier> {
+    override val descriptor = String.serializer().descriptor
+    override fun deserialize(decoder: Decoder) = Identifier(decoder.decodeString())
+    override fun serialize(encoder: Encoder, value: Identifier) { encoder.encodeString(value.toString()) }
+}
+
+object BlockPosSerializer: KSerializer<BlockPos> {
+    @OptIn(ExperimentalSerializationApi::class)
+    override val descriptor = listSerialDescriptor<Int>()
+    override fun deserialize(decoder: Decoder): BlockPos {
+        val list = decoder.decodeSerializableValue(ListSerializer(Int.serializer()))
+        return BlockPos(list[0], list[1], list[2])
+    }
+    override fun serialize(encoder: Encoder, value: BlockPos) {
+        encoder.encodeSerializableValue(ListSerializer(Int.serializer()), listOf(value.x, value.y, value.z))
+    }
 }

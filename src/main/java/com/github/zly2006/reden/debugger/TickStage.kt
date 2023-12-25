@@ -20,7 +20,6 @@ abstract class TickStage(
         private var id = 0
     }
     var id = TickStage.id++
-    private var debugExpectedChildrenSize = -1
     val children = mutableListOf<TickStage>()
     enum class DisplayLevel {
         ALWAYS_HIDE, HIDE, ALWAYS_FOLD, FULL
