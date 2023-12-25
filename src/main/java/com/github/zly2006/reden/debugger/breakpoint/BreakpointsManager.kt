@@ -160,7 +160,7 @@ class BreakpointsManager(val isClient: Boolean) {
                 @Suppress("UNCHECKED_CAST")
                 val actualSerializer = value.type.kSerializer() as KSerializer<BreakPoint>
                 encoder.encodeStructure(descriptor) {
-                    encodeStringElement(descriptor, 0, actualSerializer.descriptor.serialName)
+                    encodeStringElement(descriptor, 0, value.type.id.toString())
                     encodeSerializableElement(descriptor, 1, actualSerializer, value)
                 }
             }
