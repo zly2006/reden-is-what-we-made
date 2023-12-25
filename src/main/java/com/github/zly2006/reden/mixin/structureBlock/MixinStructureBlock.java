@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.mixin.sctuctureBlock;
+package com.github.zly2006.reden.mixin.structureBlock;
 
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper;
 import net.minecraft.block.BlockState;

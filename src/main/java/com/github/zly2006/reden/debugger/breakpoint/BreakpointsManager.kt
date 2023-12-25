@@ -18,12 +18,14 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.buildSerialDescriptor
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.json.Json
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.loader.api.FabricLoader
@@ -32,7 +34,9 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import net.minecraft.world.level.storage.LevelStorage
 import org.jetbrains.annotations.TestOnly
+import kotlin.io.path.*
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater.Entry as UpdaterEntry
 
 class BreakpointsManager(val isClient: Boolean) {
@@ -40,14 +44,55 @@ class BreakpointsManager(val isClient: Boolean) {
     val behaviorRegistry = mutableMapOf<Identifier, BreakPointBehavior>()
     private var currentBpId = 0
     val breakpointMap = Int2ObjectOpenHashMap<BreakPoint>()
+    private val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
 
     fun register(type: BreakPointType) {
         if (registry.containsKey(type.id)) error("Duplicate BreakPointType ${type.id}")
         registry[type.id] = type
     }
+
     fun register(behavior: BreakPointBehavior) {
         if (behaviorRegistry.containsKey(behavior.id)) error("Duplicate BreakPointBehaviorType ${behavior.id}")
         behaviorRegistry[behavior.id] = behavior
+    }
+
+    fun saveBreakpointState(
+        session: LevelStorage.Session
+    ) {
+        val saveStateFile = session.directory.path / "redenBreakpoints.json"
+        saveStateFile.apply {
+            deleteIfExists()
+            createFile()
+            println("SAVE DATA")
+            if (breakpointMap.isEmpty()) {
+                println("im empty")
+            }
+            println(breakpointMap.values.toList())
+            writeText(json.encodeToString(ListSerializer(breakpointSerializer()), breakpointMap.values.toList()))
+        }
+    }
+
+    fun loadBreakpointState(
+        session: LevelStorage.Session
+    ) {
+        val saveStateFile = session.directory.path / "redenBreakpoints.json"
+        if (isClient) {
+            breakpointMap.clear()
+        }
+        saveStateFile.run {
+            if (notExists()) return
+            if (fileSize() == 0L) {
+                deleteIfExists()
+                return
+            }
+            json.decodeFromString(ListSerializer(breakpointSerializer()), this.readText())
+        }.forEach {
+            breakpointMap[it.id] = it
+        }
     }
 
     init {
@@ -126,17 +171,21 @@ class BreakpointsManager(val isClient: Boolean) {
 
     fun sync(breakpoint: BreakPoint) {
         if (isClient) {
-            ClientPlayNetworking.send(UpdateBreakpointPacket(
-                breakpoint,
-                flag = UPDATE or breakpoint.flags,
-                bpId = breakpoint.id
-            ))
+            ClientPlayNetworking.send(
+                UpdateBreakpointPacket(
+                    breakpoint,
+                    flag = UPDATE or breakpoint.flags,
+                    bpId = breakpoint.id
+                )
+            )
         } else {
-            server.sendToAll(UpdateBreakpointPacket(
-                breakpoint,
-                flag = UPDATE or breakpoint.flags,
-                bpId = breakpoint.id
-            ))
+            server.sendToAll(
+                UpdateBreakpointPacket(
+                    breakpoint,
+                    flag = UPDATE or breakpoint.flags,
+                    bpId = breakpoint.id
+                )
+            )
         }
     }
 
@@ -173,14 +222,18 @@ class BreakpointsManager(val isClient: Boolean) {
                     CompositeDecoder.DECODE_DONE -> {
                         break@mainLoop
                     }
+
                     0 -> {
                         identifier = decodeStringElement(descriptor, index)
                     }
+
                     1 -> {
-                        identifier = requireNotNull(identifier) { "Cannot read polymorphic value before its type token" }
+                        identifier =
+                            requireNotNull(identifier) { "Cannot read polymorphic value before its type token" }
                         val serializer = findActualSerializer(identifier)
                         value = decodeSerializableElement(descriptor, index, serializer)
                     }
+
                     else -> throw SerializationException(
                         "Invalid index in polymorphic deserialization of " +
                                 (identifier ?: "unknown class") +

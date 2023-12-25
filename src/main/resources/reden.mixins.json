@@ -47,7 +47,7 @@
     "pearl.MixinExplosion",
     "realFakePlayer.MixinCarpetFakePlayer",
     "realFakePlayer.MixinServerNetworkIo",
-    "sctuctureBlock.MixinStructureBlock",
+    "structureBlock.MixinStructureBlock",
     "tick.MixinTick",
     "tick.MixinWatchdog",
     "undo.MixinBlockEntity",
