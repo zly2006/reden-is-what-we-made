@@ -74,6 +74,7 @@ class BreakpointsManager(val isClient: Boolean) {
     fun loadBreakpointState(
         session: LevelStorage.Session
     ) {
+        if (this.isClient)throw UnsupportedOperationException("load breakpoints from client BreakpointsManager")
         val saveStateFile = session.directory.path / "redenBreakpoints.json"
         saveStateFile.run {
             if (notExists()) return
