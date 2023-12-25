@@ -67,11 +67,6 @@ class BreakpointsManager(val isClient: Boolean) {
         saveStateFile.apply {
             deleteIfExists()
             createFile()
-            println("SAVE DATA")
-            if (breakpointMap.isEmpty()) {
-                println("im empty")
-            }
-            println(breakpointMap.values.toList())
             writeText(json.encodeToString(ListSerializer(breakpointSerializer()), breakpointMap.values.toList()))
         }
     }
