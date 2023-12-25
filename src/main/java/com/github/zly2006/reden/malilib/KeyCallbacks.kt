@@ -220,6 +220,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             setPosition(pos)
             handler.add(BreakPoint.Handler(FreezeGame(), name = "Behavior 1"))
         }
+        BlockBorder[pos] = TagBlockPos.green
         mc.data.breakpoints.sync(manager.breakpointMap[id])
         true
     }

@@ -5,11 +5,14 @@ import com.github.zly2006.reden.access.WorldData;
 import com.github.zly2006.reden.debugger.stages.WorldRootStage;
 import com.github.zly2006.reden.debugger.stages.world.*;
 import com.github.zly2006.reden.debugger.tree.TickStageTree;
+import net.minecraft.block.Block;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
@@ -306,5 +309,39 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
     )
     private void afterBlockEntitiesTick(CallbackInfo ci) {
         getData(server).getTickStageTree().pop(BlockEntitiesRootStage.class);
+    }
+
+    @Inject(
+            method = "tickBlock",
+            at = @At("HEAD")
+    )
+    private void beforeBlockTick(BlockPos pos, Block block, CallbackInfo ci) {
+        var parent = (BlockScheduledTicksRootStage) getData(server).getTickStageTree().getActiveStage();
+        getData(server).getTickStageTree().push$reden_is_what_we_made(new BlockScheduledTickStage(parent, pos, block));
+    }
+
+    @Inject(
+            method = "tickBlock",
+            at = @At("RETURN")
+    )
+    private void afterBlockTick(CallbackInfo ci) {
+        getData(server).getTickStageTree().pop(BlockScheduledTickStage.class);
+    }
+
+    @Inject(
+            method = "tickFluid",
+            at = @At("HEAD")
+    )
+    private void beforeFluidTick(BlockPos pos, Fluid fluid, CallbackInfo ci) {
+        var parent = (FluidScheduledTicksRootStage) getData(server).getTickStageTree().getActiveStage();
+        getData(server).getTickStageTree().push$reden_is_what_we_made(new FluidScheduledTickStage(parent, pos, fluid));
+    }
+
+    @Inject(
+            method = "tickFluid",
+            at = @At("RETURN")
+    )
+    private void afterFluidTick(CallbackInfo ci) {
+        getData(server).getTickStageTree().pop(FluidScheduledTickStage.class);
     }
 }

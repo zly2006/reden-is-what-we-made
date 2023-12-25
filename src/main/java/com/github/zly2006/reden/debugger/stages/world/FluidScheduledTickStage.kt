@@ -6,13 +6,18 @@ import com.github.zly2006.reden.debugger.TickStageWithWorld
 import net.minecraft.fluid.Fluid
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
-import net.minecraft.world.tick.OrderedTick
-import net.minecraft.world.tick.TickPriority
+import net.minecraft.text.MutableText
+import net.minecraft.text.Text
+import net.minecraft.util.math.BlockPos
 
 class FluidScheduledTickStage(
     val _parent: FluidScheduledTicksRootStage,
-    var orderedTick: OrderedTick<Fluid>?,
+    var pos: BlockPos?,
+    var fluid: Fluid?
 ): TickStage("fluid_scheduled_tick", _parent), TickStageWithWorld {
+    override val displayName: MutableText
+        get() = Text.translatable("reden.debugger.tick_stage.fluid_scheduled_tick", pos?.toShortString())
+
     override val world get() = _parent.world
 
     override fun preTick() {
@@ -22,22 +27,13 @@ class FluidScheduledTickStage(
 
     override fun writeByteBuf(buf: PacketByteBuf) {
         super.writeByteBuf(buf)
-        buf.writeIdentifier(Registries.FLUID.getId(orderedTick!!.type))
-        buf.writeBlockPos(orderedTick!!.pos)
-        buf.writeLong(orderedTick!!.triggerTick)
-        buf.writeEnumConstant(orderedTick!!.priority)
-        buf.writeLong(orderedTick!!.subTickOrder)
+        buf.writeBlockPos(pos)
+        buf.writeIdentifier(Registries.FLUID.getId(fluid))
     }
 
     override fun readByteBuf(buf: PacketByteBuf) {
         super.readByteBuf(buf)
-        val type = Registries.FLUID.get(buf.readIdentifier())
-        orderedTick = OrderedTick(
-            type,
-            buf.readBlockPos(),
-            buf.readLong(),
-            buf.readEnumConstant(TickPriority::class.java),
-            buf.readLong(),
-        )
+        pos = buf.readBlockPos()
+        fluid = Registries.FLUID.get(buf.readIdentifier())
     }
 }

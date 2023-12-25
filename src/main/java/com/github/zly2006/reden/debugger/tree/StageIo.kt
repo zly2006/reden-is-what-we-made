@@ -54,9 +54,9 @@ object StageIo {
         constructors["block_events_root"] = Constructor { BlockEventsRootStage(null) }
         constructors["block_event"] = Constructor { BlockEventStage(it as BlockEventsRootStage, null) }
         constructors["block_scheduled_ticks_root"] = Constructor { BlockScheduledTicksRootStage(null) }
-        constructors["block_scheduled_tick"] = Constructor { BlockScheduledTickStage(it as BlockScheduledTicksRootStage, null) }
+        constructors["block_scheduled_tick"] = Constructor { BlockScheduledTickStage(it as BlockScheduledTicksRootStage, null, null) }
         constructors["fluid_scheduled_ticks_root"] = Constructor { FluidScheduledTicksRootStage(null) }
-        constructors["fluid_scheduled_tick"] = Constructor { FluidScheduledTickStage(it as FluidScheduledTicksRootStage, null) }
+        constructors["fluid_scheduled_tick"] = Constructor { FluidScheduledTickStage(it as FluidScheduledTicksRootStage, null, null) }
 
         constructors["raid"] = Constructor { EmptyTickStage("raid", it!!) }
         constructors["random_tick"] = Constructor { EmptyTickStage("random_tick", it!!) }

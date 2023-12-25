@@ -190,10 +190,11 @@ class BreakpointInfoScreen(
     }
 
     private fun refreshBehaviorList() {
-        root.removeChild(behaviorListComponent)
+        val parent = behaviorListComponent.parent() as FlowLayout
+        parent.removeChild(behaviorListComponent)
         breakpoint.handler.sortBy { it.priority }
         behaviorListComponent = BreakpointBehaviorListComponent(breakpoint.handler)
-        root.child(behaviorListComponent)
+        parent.child(behaviorListComponent)
     }
 
     override fun updateBreakpoint(packet: UpdateBreakpointPacket) {
@@ -222,7 +223,7 @@ class BreakpointInfoScreen(
     override fun removed() {
         super.removed()
         if (breakpoint.pos != null) {
-            BlockBorder.tags.remove(breakpoint.pos!!.asLong())
+            BlockBorder[breakpoint.pos!!] = null
         }
     }
 }

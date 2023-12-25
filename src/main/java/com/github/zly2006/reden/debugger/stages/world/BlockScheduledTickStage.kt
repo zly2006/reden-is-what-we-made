@@ -7,13 +7,17 @@ import com.github.zly2006.reden.utils.readBlock
 import com.github.zly2006.reden.utils.writeBlock
 import net.minecraft.block.Block
 import net.minecraft.network.PacketByteBuf
-import net.minecraft.world.tick.OrderedTick
-import net.minecraft.world.tick.TickPriority
+import net.minecraft.text.MutableText
+import net.minecraft.text.Text
+import net.minecraft.util.math.BlockPos
 
 class BlockScheduledTickStage(
     val _parent: BlockScheduledTicksRootStage,
-    var orderedTick: OrderedTick<Block>?,
+    var pos: BlockPos?,
+    var block: Block?
 ): TickStage("block_scheduled_tick", _parent), TickStageWithWorld {
+    override val displayName: MutableText get() =
+        Text.translatable("reden.debugger.tick_stage.block_scheduled_tick", pos?.toShortString())
     override val world get() = _parent.world
 
     override fun preTick() {
@@ -23,21 +27,13 @@ class BlockScheduledTickStage(
 
     override fun writeByteBuf(buf: PacketByteBuf) {
         super.writeByteBuf(buf)
-        buf.writeBlock(orderedTick!!.type)
-        buf.writeBlockPos(orderedTick!!.pos)
-        buf.writeLong(orderedTick!!.triggerTick)
-        buf.writeEnumConstant(orderedTick!!.priority)
-        buf.writeLong(orderedTick!!.subTickOrder)
+        buf.writeBlockPos(pos)
+        buf.writeBlock(block!!)
     }
 
     override fun readByteBuf(buf: PacketByteBuf) {
         super.readByteBuf(buf)
-        orderedTick = OrderedTick(
-            buf.readBlock(),
-            buf.readBlockPos(),
-            buf.readLong(),
-            buf.readEnumConstant(TickPriority::class.java),
-            buf.readLong(),
-        )
+        pos = buf.readBlockPos()
+        block = buf.readBlock()
     }
 }
