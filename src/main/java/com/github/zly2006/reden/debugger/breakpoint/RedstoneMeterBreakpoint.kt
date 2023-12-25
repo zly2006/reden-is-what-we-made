@@ -43,12 +43,4 @@ class RedstoneMeterBreakpoint(
             return serializer()
         }
     }
-
-    override fun write(buf: PacketByteBuf) {
-        buf.writeBlockPos(pos)
-    }
-
-    override fun read(buf: PacketByteBuf) {
-        pos = buf.readBlockPos()
-    }
 }

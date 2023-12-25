@@ -21,6 +21,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
@@ -43,7 +44,6 @@ import net.minecraft.world.block.ChainRestrictedNeighborUpdater.Entry as Updater
 class BreakpointsManager(val isClient: Boolean) {
     val registry = mutableMapOf<Identifier, BreakPointType>()
     val behaviorRegistry = mutableMapOf<Identifier, BreakPointBehavior>()
-    private var currentBpId = 0
     val breakpointMap = Int2ObjectOpenHashMap<BreakPoint>()
 
     fun register(type: BreakPointType) {
@@ -68,42 +68,18 @@ class BreakpointsManager(val isClient: Boolean) {
         encodeDefaults = true
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     fun read(buf: PacketByteBuf): BreakPoint {
-        val id = buf.readIdentifier()
-        val bpId = buf.readVarInt()
-        return registry[id]?.create(bpId)?.apply {
-            name = buf.readString()
-            world = buf.readIdentifier()
-            val handlerSize = buf.readVarInt()
-            repeat(handlerSize) {
-                handler.add(
-                    BreakPoint.Handler(
-                        behaviorRegistry[buf.readIdentifier()] ?: error("Unknown behavior type: $id"),
-                        buf.readVarInt(),
-                        buf.readString()
-                    )
-                )
-            }
-            read(buf)
-        } ?: throw Exception("Unknown BreakPoint $id")
+        return Cbor.decodeFromByteArray(breakpointSerializer(), buf.readByteArray())
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     fun write(buf: PacketByteBuf, bp: BreakPoint) {
-        buf.writeIdentifier(bp.type.id)
-        buf.writeVarInt(bp.id)
-        buf.writeString(bp.name)
-        buf.writeIdentifier(bp.world!!)
-        buf.writeVarInt(bp.handler.size)
-        bp.handler.forEach {
-            buf.writeIdentifier(it.type.id)
-            buf.writeVarInt(it.priority)
-            buf.writeString(it.name)
-        }
-        bp.write(buf)
+        buf.writeByteArray(Cbor.encodeToByteArray(breakpointSerializer(), bp))
     }
 
     fun sendAll(sender: PacketSender) {
-        sender.sendPacket(SyncBreakpointsPacket(breakpointMap.values))
+        sender.sendPacket(SyncBreakpointsPacket(breakpointMap.values.toList()))
     }
 
     fun clear() {
@@ -189,25 +165,24 @@ class BreakpointsManager(val isClient: Boolean) {
 
             mainLoop@ while (true) {
                 when (val index = decodeElementIndex(descriptor)) {
-                    CompositeDecoder.DECODE_DONE -> {
-                        break@mainLoop
-                    }
-                    0 -> {
-                        identifier = decodeStringElement(descriptor, index)
-                    }
+                    CompositeDecoder.DECODE_DONE -> break@mainLoop
+                    0 -> identifier = decodeStringElement(descriptor, index)
+
                     1 -> {
-                        identifier = requireNotNull(identifier) { "Cannot read polymorphic value before its type token" }
+                        identifier = requireNotNull(identifier) { "Cannot read breakpoint before its type token" }
                         val serializer = findActualSerializer(identifier)
                         value = decodeSerializableElement(descriptor, index, serializer)
                     }
                     else -> throw SerializationException(
-                        "Invalid index in polymorphic deserialization of " +
-                                (identifier ?: "unknown class") +
+                        "Invalid index in breakpoint deserialization of " +
+                                (identifier ?: "unknown id") +
                                 "\n Expected 0, 1 or DECODE_DONE(-1), but found $index"
                     )
                 }
             }
-            requireNotNull(value) { "Polymorphic value has not been read for class $identifier" } as BreakPoint
+            requireNotNull(value) {
+                "No breakpoint data read for type $identifier"
+            }
         }
 
         private fun decodeSequentially(compositeDecoder: CompositeDecoder): BreakPoint {
@@ -215,11 +190,10 @@ class BreakpointsManager(val isClient: Boolean) {
             return compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
         }
 
-
         fun findActualSerializer(
             identifier: String?
-        ): KSerializer<out BreakPoint> =
-            registry[Identifier(identifier)]?.kSerializer() ?: error("")
+        ) = registry[Identifier(identifier)]?.kSerializer()
+            ?: throw SerializationException("breakpoint type $identifier not found")
     }
 
     companion object {
@@ -232,6 +206,7 @@ class BreakpointsManager(val isClient: Boolean) {
          * You should **NEVER** get breakpoints from its return value.
          * This returned breakpoint manager has no warranty to be client/server side or synced.
          */
+        @Deprecated("Use fun breakpointSerializer()", level = DeprecationLevel.WARNING)
         fun getBreakpointManager() =
             if (testBreakpointManager != null && FabricLoader.getInstance().isDevelopmentEnvironment) {
                 testBreakpointManager!!
@@ -240,5 +215,9 @@ class BreakpointsManager(val isClient: Boolean) {
             } else {
                 server.data.breakpoints
             }
+
     }
 }
+
+@Suppress("DEPRECATION")
+fun breakpointSerializer() = BreakpointsManager.getBreakpointManager().breakpointSerializer()

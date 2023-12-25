@@ -11,7 +11,6 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.listSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.world.ServerWorld
@@ -59,8 +58,6 @@ interface BreakPoint {
         handler.sortBy { it.priority }
         handler.forEach { it.type.onBreakPoint(this, event) }
     }
-    fun write(buf: PacketByteBuf)
-    fun read(buf: PacketByteBuf)
 }
 
 object IdentifierSerializer: KSerializer<Identifier> {

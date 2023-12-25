@@ -10,11 +10,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import net.minecraft.util.Identifier
 
-/**
- * 挂起
- * log
- * 统计信息
- */
+// Same as IdentifierSerializer
 private class Serializer : KSerializer<BreakPointBehavior> {
     override val descriptor: SerialDescriptor = IdentifierSerializer.descriptor
     override fun deserialize(decoder: Decoder): BreakPointBehavior {
@@ -30,5 +26,6 @@ private class Serializer : KSerializer<BreakPointBehavior> {
 abstract class BreakPointBehavior {
     var defaultPriority = 50; protected set
     abstract val id: Identifier
+    
     abstract fun onBreakPoint(breakPoint: BreakPoint, event: Any)
 }

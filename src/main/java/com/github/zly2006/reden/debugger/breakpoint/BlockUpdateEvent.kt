@@ -13,7 +13,6 @@ import io.wispforest.owo.ui.core.Sizing
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import net.minecraft.client.MinecraftClient
-import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
@@ -96,15 +95,6 @@ sealed class BlockUpdateEvent(
     @Serializable(with = IdentifierSerializer::class)
     override var world: Identifier? = null
     override val handler: MutableList<BreakPoint.Handler> = mutableListOf()
-    override fun read(buf: PacketByteBuf) {
-        options = buf.readVarInt()
-        pos = buf.readNullable(PacketByteBuf::readBlockPos)
-    }
-    override fun write(buf: PacketByteBuf) {
-        buf.writeVarInt(options)
-        buf.writeNullable(pos, PacketByteBuf::writeBlockPos)
-    }
-
     override fun call(event: Any) {
         if (event !is AbstractBlockUpdateStage<*>) {
             throw RuntimeException("BlockUpdateEvent can only be called by AbstractBlockUpdateStage")

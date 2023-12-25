@@ -100,6 +100,8 @@ class BreakpointInfoScreen(
         updateFlags(breakpoint.flags) // init our flag-based components
 
         root = p0.child()
+        p0.horizontalAlignment(HorizontalAlignment.CENTER)
+        root.surface(Surface.VANILLA_TRANSLUCENT)
         root.gap(5)
         root.child(Containers.horizontalFlow(Sizing.fill(100), Sizing.fixed(20)).apply {
             verticalAlignment(VerticalAlignment.CENTER)
