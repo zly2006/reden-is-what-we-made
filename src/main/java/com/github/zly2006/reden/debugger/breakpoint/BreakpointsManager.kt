@@ -207,6 +207,12 @@ class BreakpointsManager(val isClient: Boolean) {
         @TestOnly
         var testBreakpointManager: BreakpointsManager? = null
 
+        /**
+         * Get a breakpoint manager for serialization.
+         *
+         * You should **NEVER** get breakpoints from its return value.
+         * This returned breakpoint manager has no warranty to be client/server side or synced.
+         */
         fun getBreakpointManager() =
             if (testBreakpointManager != null && FabricLoader.getInstance().isDevelopmentEnvironment) {
                 testBreakpointManager!!
