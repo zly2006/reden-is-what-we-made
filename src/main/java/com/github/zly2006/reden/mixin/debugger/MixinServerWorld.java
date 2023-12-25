@@ -14,7 +14,6 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import org.junit.jupiter.api.Assertions;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -48,7 +47,11 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
     )
     private void redenTickBefore(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         final TickStageTree tree = getData(server).getTickStageTree();
-        worldRootStage = new WorldRootStage((ServerWorld) (Object) this, getData(server).getTickStage(), getRegistryKey().getValue());
+        worldRootStage = new WorldRootStage(
+                (ServerWorld) (Object) this,
+                getData(server).getTickStage(),
+                getRegistryKey().getValue()
+        );
         tree.push$reden_is_what_we_made(worldRootStage);
     }
 
@@ -82,7 +85,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterWorldBorderTick(CallbackInfo ci) {
-        getData(getServer()).getTickStageTree().pop(WorldBorderStage.class);
+        getData(server).getTickStageTree().pop(WorldBorderStage.class);
     }
 
     @Inject(
@@ -106,7 +109,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterWeatherTick(CallbackInfo ci) {
-        getData(getServer()).getTickStageTree().pop(WeatherStage.class);
+        getData(server).getTickStageTree().pop(WeatherStage.class);
     }
 
     @Inject(
@@ -130,7 +133,7 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             )
     )
     private void afterTimeTick(CallbackInfo ci) {
-        getData(getServer()).getTickStageTree().pop(TimeStage.class);
+        getData(server).getTickStageTree().pop(TimeStage.class);
     }
 
     @Inject(
