@@ -51,7 +51,6 @@ public abstract class MixinServer extends ReentrantThreadExecutor<ServerTask> im
             }
             serverData.getTickStageTree().clear();
             serverData.setTickStage(new ServerRootStage(server));
-            UtilsKt.sendToAll(server, new BreakPointInterrupt(-1, null, false));
             serverData.getTickStageTree().push$reden_is_what_we_made(serverData.getTickStage());
         }
     }
@@ -115,7 +114,7 @@ public abstract class MixinServer extends ReentrantThreadExecutor<ServerTask> im
             at = @At("HEAD"),
             cancellable = true
     )
-    private void patchAsync(ServerTask serverTask, CallbackInfoReturnable<Boolean> cir) {
+    private void patchAsyncTasks(ServerTask serverTask, CallbackInfoReturnable<Boolean> cir) {
         // Note: idk why
         if (serverData.isFrozen()) cir.setReturnValue(true);
     }

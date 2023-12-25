@@ -3,9 +3,11 @@ package com.github.zly2006.reden.debugger.gui
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.gui.componments.UpdatableTextBox
+import com.github.zly2006.reden.network.TagBlockPos
 import com.github.zly2006.reden.network.UpdateBreakpointPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.REMOVE
+import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
@@ -65,6 +67,7 @@ class BreakpointInfoScreen(
         indexes.forEach(breakpoint.handler::removeAt)
         indexes.clear()
         client!!.data.breakpoints.sync(breakpoint)
+        it.active(false)
         refreshBehaviorList()
     }.active(false)
     private val enableButton = Components.button(Text.empty()) {
@@ -101,7 +104,6 @@ class BreakpointInfoScreen(
 
         root = p0.child()
         p0.horizontalAlignment(HorizontalAlignment.CENTER)
-        root.surface(Surface.VANILLA_TRANSLUCENT)
         root.gap(5)
         root.child(Containers.horizontalFlow(Sizing.fill(100), Sizing.fixed(20)).apply {
             verticalAlignment(VerticalAlignment.CENTER)
@@ -117,30 +119,34 @@ class BreakpointInfoScreen(
 
         breakpoint.type.appendCustomFieldsUI(root, breakpoint)
 
-        root.child(Components.label(Text.literal("Behaviors")))
-        root.child(Containers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
+        root.child(Containers.verticalFlow(Sizing.fill(), Sizing.content()).apply {
+            surface(Surface.flat(0x7f_000000))
             gap(5)
-            child(Components.button(Text.literal("Add")) { }.apply {
-                mouseDown().subscribe { _, _, _ ->
-                    root.child(Components.dropdown(Sizing.content()).also { dropdown ->
-                        dropdown.positioning(Positioning.absolute(x + width, y))
-                        dropdown.mouseEnter().subscribe { dropdown.closeWhenNotHovered(true) }
+            child(Components.label(Text.literal("Behaviors")))
+            child(Containers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
+                gap(5)
+                child(Components.button(Text.literal("Add")) { }.apply {
+                    mouseDown().subscribe { _, _, _ ->
+                        root.child(Components.dropdown(Sizing.content()).also { dropdown ->
+                            dropdown.positioning(Positioning.absolute(x + width, y))
+                            dropdown.mouseEnter().subscribe { dropdown.closeWhenNotHovered(true) }
 
-                        dropdown.text(Text.literal("Select behavior"))
-                        for (behavior in client!!.data.breakpoints.behaviorRegistry.values) {
-                            dropdown.button(Text.literal(behavior.id.toString())) {
-                                breakpoint.handler.add(BreakPoint.Handler(behavior, name = "New Handler"))
-                                client!!.data.breakpoints.sync(breakpoint)
-                                refreshBehaviorList()
+                            dropdown.text(Text.literal("Select behavior"))
+                            for (behavior in client!!.data.breakpoints.behaviorRegistry.values) {
+                                dropdown.button(Text.literal(behavior.id.toString())) {
+                                    breakpoint.handler.add(BreakPoint.Handler(behavior, name = "New Handler"))
+                                    client!!.data.breakpoints.sync(breakpoint)
+                                    refreshBehaviorList()
+                                }
                             }
-                        }
-                    })
-                    true
-                }
+                        })
+                        true
+                    }
+                })
+                child(removeBehaviorButton)
             })
-            child(removeBehaviorButton)
+            child(behaviorListComponent)
         })
-        root.child(behaviorListComponent)
     }
 
     inner class BreakpointBehaviorListComponent(behaviors: List<BreakPoint.Handler>) : GridLayout(
@@ -205,10 +211,18 @@ class BreakpointInfoScreen(
             client!!.setScreen(BreakpointInfoScreen(client!!.data.breakpoints.breakpointMap[packet.bpId]))
         }
     }
-}
 
-private fun Component.wrap(): FlowLayout {
-    val flow = Containers.horizontalFlow(Sizing.content(), Sizing.content())
-    flow.child(this)
-    return flow
+    override fun init() {
+        super.init()
+        if (breakpoint.pos != null) {
+            BlockBorder[breakpoint.pos!!] = TagBlockPos.green
+        }
+    }
+
+    override fun removed() {
+        super.removed()
+        if (breakpoint.pos != null) {
+            BlockBorder.tags.remove(breakpoint.pos!!.asLong())
+        }
+    }
 }
