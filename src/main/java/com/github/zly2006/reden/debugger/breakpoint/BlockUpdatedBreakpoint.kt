@@ -10,7 +10,7 @@ import net.minecraft.text.Text
 
 @Serializable
 class BlockUpdatedBreakpoint(
-    @SerialName("idaaa")
+    @SerialName("_unused_id")
     override var id: Int
 ) : BlockUpdateEvent(id) {
     override val type get() = Companion

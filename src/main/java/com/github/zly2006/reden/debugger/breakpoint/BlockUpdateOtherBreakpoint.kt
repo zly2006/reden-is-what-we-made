@@ -4,9 +4,15 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
 import io.wispforest.owo.ui.container.FlowLayout
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import net.minecraft.text.Text
 
-class BlockUpdateOtherBreakpoint(id: Int) : BlockUpdateEvent(id) {
+@Serializable
+class BlockUpdateOtherBreakpoint(
+    @SerialName("_unused_id")
+    override var id: Int
+) : BlockUpdateEvent(id) {
     override val type get() = Companion
     companion object: BreakPointType {
         override val id = Reden.identifier("block_update_other")
