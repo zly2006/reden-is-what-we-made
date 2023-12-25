@@ -116,9 +116,13 @@ class TickStageTree(
     }
 
     fun stepInto(callback: () -> Unit) {
-        stepOverUntil = null
-        steppingInto = true
-        stepIntoCallback = callback
-        server.data.frozen = false
+        synchronized(this) {
+            // Here we use synchronized to make it able to be called from other threads
+            // @see com.github.zly2006.reden.network.Pause
+            stepOverUntil = null
+            steppingInto = true
+            stepIntoCallback = callback
+            server.data.frozen = false
+        }
     }
 }
