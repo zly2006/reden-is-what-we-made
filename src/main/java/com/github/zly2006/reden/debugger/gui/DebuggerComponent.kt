@@ -9,6 +9,7 @@ import io.wispforest.owo.ui.core.Component
 import io.wispforest.owo.ui.core.Positioning
 import io.wispforest.owo.ui.core.Sizing
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.gui.screen.ChatScreen
 import org.lwjgl.glfw.GLFW
 import kotlin.math.max
 import kotlin.math.min
@@ -63,9 +64,10 @@ open class DebuggerComponent(
             }
             GLFW.GLFW_KEY_RIGHT -> {
                 nodes.find { it.stage == focused }?.let { it.expanded = it.childrenNodes.isNotEmpty() }
-                if (index in 0 until  stageTree.activeStages.lastIndex) {
+                if (index in 0 until stageTree.activeStages.lastIndex) {
                     focused = stageTree.activeStages[index + 1]
                 }
+                treeComponent.refresh()
                 true
             }
             GLFW.GLFW_KEY_UP -> {
@@ -77,7 +79,18 @@ open class DebuggerComponent(
                 true
             }
             GLFW.GLFW_KEY_COMMA -> {
-                nodes.find { it.stage == focused }?.let {
+                if (ChatScreen.hasShiftDown()) {
+                    focused = stageTree.activeStages.firstOrNull()
+                    fun recursiveExpand(node: StageTreeComponent.Node) {
+                        if (node.stage.displayLevel == TickStage.DisplayLevel.ALWAYS_FOLD)
+                            return
+                        node.expanded = true
+                        node.childrenNodes.forEach(::recursiveExpand)
+                    }
+                    nodes.forEach(::recursiveExpand)
+                    focused = stageTree.activeStage
+                    treeComponent.refresh()
+                } else nodes.find { it.stage == focused }?.let {
                     if (it.childrenNodes.isNotEmpty()) {
                         it.expanded = true
                         treeComponent.refresh()
@@ -86,12 +99,15 @@ open class DebuggerComponent(
                 true
             }
             GLFW.GLFW_KEY_PERIOD -> {
-                nodes.find { it.stage == focused }?.let {
+                if (ChatScreen.hasShiftDown()) {
+                    focused = stageTree.activeStages.firstOrNull()
+                    nodes.forEach { it.expanded = false }
+                    treeComponent.refresh()
+                } else nodes.find { it.stage == focused }?.let {
                     if (it.childrenNodes.isNotEmpty()) {
                         it.expanded = false
                         treeComponent.refresh()
-                    }
-                    else {
+                    } else {
                         focused = focused?.parent
                     }
                 }

@@ -44,7 +44,7 @@ class StageTreeComponent(
                 expanded = !expanded
                 refresh()
             }.apply {
-                verticalSizing(Sizing.fixed(12))
+                sizing(Sizing.fixed(13), Sizing.fixed(12))
             }
         }
 
@@ -53,12 +53,17 @@ class StageTreeComponent(
             .map { Node(indent + 1, it) }
 
         init {
-            if (childrenNodes.isNotEmpty() && stage.displayLevel != TickStage.DisplayLevel.ALWAYS_FOLD) {
+            val buttonShown = if (childrenNodes.isNotEmpty()) {
+                if (stage.displayLevel == TickStage.DisplayLevel.ALWAYS_FOLD) {
+                    button.active(false)
+                }
                 child(button)
-            }
+                true
+            } else false
             child(Components.label(stage.displayName).apply {
                 tooltip(stage.description)
                 verticalSizing(Sizing.fixed(12))
+                padding(Insets.left(6 * indent + if (buttonShown) 0 else 13))
                 verticalTextAlignment(VerticalAlignment.CENTER)
                 mouseDown().subscribe { _, _, b ->
                     if (b == 0) {
@@ -76,7 +81,6 @@ class StageTreeComponent(
             if (expanded) {
                 childrenNodes.forEach { it.appendChildren() }
             }
-            padding(Insets.left(6 * indent))
             if (debugger.focused == stage) {
                 surface(Surface.flat(0x80_00_00_FF.toInt()))
             } else {

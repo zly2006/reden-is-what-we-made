@@ -77,7 +77,7 @@ private fun labelComponent(text: Text): LabelComponent {
 }
 
 fun Screen.creditsScreenContent(): FlowLayout {
-    val content = Containers.verticalFlow(Sizing.fill(100), Sizing.content())
+    val content = Containers.verticalFlow(Sizing.fill(), Sizing.content())
     content.child(labelComponent(
         Text.literal("Reden is an open source project under LGPL-3.0 license.").styled {
             it.withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("Click to view Source and License.")))
@@ -183,17 +183,20 @@ fun Screen.creditsScreenContent(): FlowLayout {
     content.child(center(Components.label(Text.literal("Privacy Policy"))
         .margins(Insets.vertical(15))))
 
-    content.child((Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+    content.child((Containers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
+        gap(10)
         this.child(Components.button(Text.literal("Privacy Settings")) {
             client!!.setScreen(PrivacyScreen(this@creditsScreenContent))
         })
         this.child(Components.button(Text.literal("Privacy Policy")) {
             Util.getOperatingSystem().open(URI("https://www.redenmc.com/policy/PRIVACY.md"))
         })
+        this.child(Components.button(Text.literal("Download My Data")) {
+            Util.getOperatingSystem().open(URI("https://www.redenmc.com/api/privacy/data-download.json?key=$key"))
+        })
         this.child(Components.button(Text.literal("Delete My Data").red()) {
             Util.getOperatingSystem().open(URI("https://www.redenmc.com/privacy/delete?key=$key"))
         })
-        children().forEach { it.margins(Insets.of(5)) }
     }))
     return content
 }
