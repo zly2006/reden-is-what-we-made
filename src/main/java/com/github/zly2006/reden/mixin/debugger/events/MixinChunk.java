@@ -13,15 +13,27 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import static com.github.zly2006.reden.access.ServerData.getData;
+
 @Mixin(WorldChunk.class)
-public class MixinChunk {
+public abstract class MixinChunk {
     @Shadow @Final World world;
+
+    @Shadow public abstract World getWorld();
 
     @Inject(method = "setBlockState", at = @At("HEAD"))
     private void beforeSetBlockState(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
+        assert getWorld().getServer() != null;
         if (!world.isClient && RedenCarpetSettings.Options.redenDebuggerEnabled) {
-            var event = new BlockChangedEvent(pos, state, state);
-            event.fire();
+            getData(getWorld().getServer()).getTickStageTree().onBlockChanging(pos, state);
+        }
+    }
+
+    @Inject(method = "setBlockState", at = @At("RETURN"))
+    private void afterSetBlockState(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
+        assert getWorld().getServer() != null;
+        if (!world.isClient && RedenCarpetSettings.Options.redenDebuggerEnabled) {
+            getData(getWorld().getServer()).getTickStageTree().onBlockChanged(pos, state);
         }
     }
 }

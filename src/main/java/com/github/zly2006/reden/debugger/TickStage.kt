@@ -1,9 +1,11 @@
 package com.github.zly2006.reden.debugger
 
+import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
+import net.minecraft.util.math.BlockPos
 
 abstract class TickStage(
     val name: String,
@@ -29,6 +31,10 @@ abstract class TickStage(
         Initialized, Pending, Ticked, Finished
     }
     var status = StageStatus.Initialized // todo
+    data class BlockChange(val before: BlockState, val after: BlockState)
+    val changedBlocks = mutableMapOf<BlockPos, BlockChange>()
+    var hasScheduledTicks = false
+    var hasBlockEvents = false
 
     open fun writeByteBuf(buf: PacketByteBuf) {
     }

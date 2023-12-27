@@ -2,10 +2,16 @@ package com.github.zly2006.reden.debugger.tree
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ServerData.Companion.data
+import com.github.zly2006.reden.access.TickStageTreeOwnerAccess
 import com.github.zly2006.reden.debugger.TickStage
+import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.stages.TickStageWorldProvider
 import com.github.zly2006.reden.debugger.tickPackets
 import com.github.zly2006.reden.utils.server
+import net.minecraft.block.BlockState
+import net.minecraft.server.world.BlockEvent
+import net.minecraft.util.math.BlockPos
+import net.minecraft.world.tick.OrderedTick
 
 class TickStageTree(
     val activeStages: MutableList<TickStage> = mutableListOf()
@@ -124,5 +130,24 @@ class TickStageTree(
             stepIntoCallback = callback
             server.data.frozen = false
         }
+    }
+
+    fun onBlockChanging(pos: BlockPos, state: BlockState) {
+        val stage = activeStage as? TickStageWithWorld ?: return
+        val oldState = stage.world?.getBlockState(pos) ?: return
+        activeStage!!.changedBlocks.computeIfAbsent(pos) { TickStage.BlockChange(oldState, state) }
+    }
+
+    fun onBlockChanged(pos: BlockPos, state: BlockState) {
+
+    }
+
+    fun <T> onTickScheduled(orderedTick: OrderedTick<T>) {
+        (orderedTick as TickStageTreeOwnerAccess).tickStageTree = this
+        activeStage?.hasScheduledTicks = true
+    }
+
+    fun onBlockEventAdded(blockEvent: BlockEvent) {
+        activeStage?.hasBlockEvents = true
     }
 }

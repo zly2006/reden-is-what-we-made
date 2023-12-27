@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.mixin.debugger.updater;
+package com.github.zly2006.reden.mixin.debugger.schedule;
 
 import com.github.zly2006.reden.access.TickStageTreeOwnerAccess;
 import com.github.zly2006.reden.debugger.tree.TickStageTree;
