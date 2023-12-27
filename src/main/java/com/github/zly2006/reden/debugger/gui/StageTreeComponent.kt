@@ -6,10 +6,7 @@ import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer
-import io.wispforest.owo.ui.core.Insets
-import io.wispforest.owo.ui.core.Sizing
-import io.wispforest.owo.ui.core.Surface
-import io.wispforest.owo.ui.core.VerticalAlignment
+import io.wispforest.owo.ui.core.*
 import net.minecraft.text.Text
 
 class StageTreeComponent(
@@ -31,6 +28,7 @@ class StageTreeComponent(
         private val indent: Int,
         val stage: TickStage,
     ): FlowLayout(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL) {
+        var highlightX = -1
         var expanded: Boolean = false
             set(value) {
                 if (stage.displayLevel == TickStage.DisplayLevel.ALWAYS_FOLD) return // skip
@@ -45,6 +43,27 @@ class StageTreeComponent(
                 refresh()
             }.apply {
                 sizing(Sizing.fixed(13), Sizing.fixed(12))
+                mouseEnter().subscribe {
+                    fun recursive(node: Node) {
+                        node.highlightX = indent * 6
+                        if (node.expanded) {
+                            node.childrenNodes.forEach { recursive(it) }
+                        }
+                    }
+                    recursive(this@Node)
+                    highlightX = -1
+                }
+                mouseLeave().subscribe {
+                    fun recursive(node: Node) {
+                        if (node.highlightX == indent * 6) {
+                            node.highlightX = -1
+                        }
+                        if (node.expanded) {
+                            node.childrenNodes.forEach { recursive(it) }
+                        }
+                    }
+                    recursive(this@Node)
+                }
             }
         }
 
@@ -74,12 +93,26 @@ class StageTreeComponent(
             })
         }
 
+        override fun draw(context: OwoUIDrawContext?, mouseX: Int, mouseY: Int, partialTicks: Float, delta: Float) {
+            super.draw(context, mouseX, mouseY, partialTicks, delta)
+            if (highlightX != -1) {
+                context?.drawLine(
+                    highlightX, y,
+                    highlightX, y + height,
+                    0.5, Color.ofArgb(0x7fffffff)
+                )
+            }
+        }
+
         fun appendChildren() {
             if (!stage.shouldShow) return // skip
 
             child.child(this)
             if (expanded) {
-                childrenNodes.forEach { it.appendChildren() }
+                childrenNodes.forEach {
+                    it.highlightX = -1
+                    it.appendChildren()
+                }
             }
             if (debugger.focused == stage) {
                 surface(Surface.flat(0x80_00_00_FF.toInt()))

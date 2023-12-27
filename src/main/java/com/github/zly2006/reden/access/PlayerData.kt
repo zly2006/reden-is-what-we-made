@@ -124,7 +124,7 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
     ) : UndoRedoRecord(id, lastChangedTick, entities, data) {
         var notified = false
 
-        enum class Cause(message: Text) {
+        enum class Cause(val message: Text) {
             BREAK_BLOCK(Text.translatable("reden.feature.undo.cause.break_block")),
             USE_BLOCK(Text.translatable("reden.feature.undo.cause.use_block")),
             USE_ITEM(Text.translatable("reden.feature.undo.cause.use_item")),
