@@ -37,7 +37,8 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
             at = @At(
                     value = "INVOKE",
                     target = "Lit/unimi/dsi/fastutil/objects/ObjectLinkedOpenHashSet;add(Ljava/lang/Object;)Z"
-            )
+            ),
+            remap = false
     )
     private Object beforeAddSyncedBlockEvent(Object event) {
         getData(server).getTickStageTree().onBlockEventAdded((BlockEvent) event);

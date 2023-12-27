@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.rvc.tracking.RvcFileIO
+import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
@@ -30,8 +31,9 @@ class RvcTrackpointsC2SRequest(
                 trackpoints.add(
                     TrackedStructure.TrackPoint(
                         it.readBlockPos(),
-                        TrackedStructure.TrackPredicate.valueOf(it.readString()),
-                        TrackedStructure.TrackPoint.TrackMode.valueOf(it.readString()),
+                        TrackPredicate.valueOf(it.readString()),
+                        TrackPredicate.TrackMode.valueOf(it.readString()),
+                        null
                     )
                 )
             }

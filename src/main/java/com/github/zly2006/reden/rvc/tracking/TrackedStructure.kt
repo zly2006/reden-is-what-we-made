@@ -20,9 +20,9 @@ import net.minecraft.world.tick.ChunkTickScheduler
 import net.minecraft.world.tick.Tick
 import java.util.*
 
-class TrackedStructure (
+class TrackedStructure(
     name: String
-): ReadWriteStructure(name), IPlacement, PositionIterable {
+) : ReadWriteStructure(name), IPlacement, PositionIterable {
     override var xSize: Int = 0
     override var ySize: Int = 0
     override var zSize: Int = 0
@@ -73,6 +73,7 @@ class TrackedStructure (
             ) {
                 shrinkCuboid()
             }
+
             fun shrinkCuboid() {
                 if (points.isEmpty()) return
                 val minX = points.minOf { it.x }
@@ -84,6 +85,7 @@ class TrackedStructure (
                 cuboid = BlockBox(minX, minY, minZ, maxX, maxY, maxZ)
             }
         }
+
         val result: MutableList<SplitingContext>
 
         if (includeUntracked) {
@@ -151,18 +153,24 @@ class TrackedStructure (
 
     open class SpreadEntry(
         val pos: BlockPos,
-        val predicate: TrackPredicate
+        val predicate: TrackPredicate,
+        val mode: TrackPredicate.TrackMode,
+        var structure: TrackedStructure?
     ) {
-        fun spreadAround(world: World, successConsumer: (BlockPos) -> Unit, failConsumer: ((BlockPos) -> Unit)? = null) {
+        fun spreadAround(
+            world: World,
+            successConsumer: (BlockPos) -> Unit,
+            failConsumer: ((BlockPos) -> Unit)? = null
+        ) {
             val x = pos.x
             val y = pos.y
             val z = pos.z
-            val deltaRange = -predicate.distance .. predicate.distance
+            val deltaRange = -predicate.distance..predicate.distance
             for (dx in deltaRange) {
                 for (dy in deltaRange) {
                     for (dz in deltaRange) {
                         val pos = BlockPos(x + dx, y + dy, z + dz)
-                        if (predicate.match(world, this.pos, pos)) {
+                        if (predicate.match(world, this.pos, pos, mode, structure!!)) {
                             successConsumer(pos)
                         } else {
                             failConsumer?.invoke(pos)
@@ -176,17 +184,9 @@ class TrackedStructure (
     class TrackPoint(
         pos: BlockPos,
         predicate: TrackPredicate,
-        val mode: TrackMode,
-    ): SpreadEntry(pos, predicate) {
-        enum class TrackMode {
-            NOOP,
-            TRACK,
-            IGNORE;
-
-            fun isTrack(): Boolean {
-                return this == TRACK
-            }
-        }
+        mode: TrackPredicate.TrackMode,
+        structure: TrackedStructure?,
+    ) : SpreadEntry(pos, predicate, mode, structure) {
     }
 
     fun onBlockAdded(pos: BlockPos) {
@@ -194,7 +194,7 @@ class TrackedStructure (
         if (trackPoint != null) {
             val readPos = mutableSetOf<BlockPos>()
             val queue = LinkedList<SpreadEntry>()
-            queue.add(SpreadEntry(pos, trackPoint.predicate))
+            queue.add(SpreadEntry(pos, trackPoint.predicate, trackPoint.mode, this))
             var maxElements = 80000
             while (queue.isNotEmpty() && maxElements > 0) {
                 val entry = queue.removeFirst()
@@ -206,7 +206,7 @@ class TrackedStructure (
                             cachedPositions[newPos] = trackPoint
                         }
                         maxElements--
-                        queue.add(SpreadEntry(newPos, entry.predicate))
+                        queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, this))
                     }
                 })
             }
@@ -214,6 +214,10 @@ class TrackedStructure (
     }
 
     fun onBlockRemoved(pos: BlockPos) {
+        val trackPoint = trackPoints.find { it.pos == pos }
+        if (trackPoint != null) {
+            trackPoints.remove(trackPoint)
+        }
     }
 
     init {
@@ -229,7 +233,7 @@ class TrackedStructure (
         cachedPositions.clear()
         val readPos = hashSetOf<BlockPos>()
 
-        trackPoints.asSequence().filter { it.mode == TrackPoint.TrackMode.IGNORE }.forEach { trackPoint ->
+        trackPoints.asSequence().filter { it.mode == TrackPredicate.TrackMode.IGNORE }.forEach { trackPoint ->
             // first, add all blocks recursively
             val queue = LinkedList<SpreadEntry>()
             queue.add(trackPoint)
@@ -241,13 +245,13 @@ class TrackedStructure (
                 entry.spreadAround(world, { newPos ->
                     if (readPos.add(newPos)) {
                         maxElements--
-                        queue.add(SpreadEntry(newPos, entry.predicate))
+                        queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, this))
                     }
                 })
             }
         }
 
-        trackPoints.asSequence().filter { it.mode == TrackPoint.TrackMode.TRACK }.forEach { trackPoint ->
+        trackPoints.asSequence().filter { it.mode == TrackPredicate.TrackMode.TRACK }.forEach { trackPoint ->
             // first, add all blocks recursively
             val queue = LinkedList<SpreadEntry>()
             queue.add(trackPoint)
@@ -262,7 +266,7 @@ class TrackedStructure (
                             cachedPositions[newPos] = trackPoint
                         }
                         maxElements--
-                        queue.add(SpreadEntry(newPos, entry.predicate))
+                        queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, this))
                     }
                 })
             }
@@ -356,19 +360,6 @@ class TrackedStructure (
         trackPoints.removeIf { it.pos == trackPoint.pos }
         trackPoints.add(trackPoint)
         refreshPositions()
-    }
-
-    enum class TrackPredicate(val distance: Int, val same: Boolean) {
-        SAME(2, true),
-        NEAR(1, false),
-        QC(2, false),
-        FAR(3, false);
-
-        fun match(world: World, pos1: BlockPos, pos2: BlockPos): Boolean {
-            val distance = pos1.getManhattanDistance(pos2)
-            return distance <= this.distance &&
-                    (!this.same || world.getBlockState(pos1).block == world.getBlockState(pos2).block)
-        }
     }
 }
 

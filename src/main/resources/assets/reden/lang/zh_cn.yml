@@ -115,7 +115,7 @@ reden:
       .: 无超时
       comment: |-
 
-    rollbackKey:
+    undoKey:
       .: 撤销快捷键
       comment: |-
 

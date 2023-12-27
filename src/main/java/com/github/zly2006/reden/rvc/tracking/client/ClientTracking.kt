@@ -2,6 +2,7 @@ package com.github.zly2006.reden.rvc.tracking.client
 
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.rvc.gui.selectedStructure
+import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.holdingToolItem
 import fi.dy.masa.malilib.event.InputEventHandler
@@ -27,16 +28,18 @@ fun registerSelectionTool() {
                     selectedStructure?.addTrackPoint(
                         TrackedStructure.TrackPoint(
                             blockResult.blockPos,
-                            TrackedStructure.TrackPredicate.QC,
-                            TrackedStructure.TrackPoint.TrackMode.TRACK
+                            TrackPredicate.QC,
+                            TrackPredicate.TrackMode.TRACK,
+                            selectedStructure
                         )
                     )
                 } else {
                     selectedStructure?.addTrackPoint(
                         TrackedStructure.TrackPoint(
                             blockResult.blockPos,
-                            TrackedStructure.TrackPredicate.SAME,
-                            TrackedStructure.TrackPoint.TrackMode.IGNORE
+                            TrackPredicate.Same,
+                            TrackPredicate.TrackMode.IGNORE,
+                            selectedStructure
                         )
                     )
                 }

@@ -19,7 +19,8 @@ public abstract class MixinServerWorld {
             at = @At(
                     value = "INVOKE",
                     target = "Lit/unimi/dsi/fastutil/objects/ObjectLinkedOpenHashSet;add(Ljava/lang/Object;)Z"
-            )
+            ),
+            remap = false
     )
     private Object beforeAddSyncedBlockEvent(Object event) { // BlockEvent
         if (event instanceof UndoableAccess access) {

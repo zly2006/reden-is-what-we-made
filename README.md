@@ -12,8 +12,14 @@ Redstone EDEN
 Ctrl+Z immediately undo the previous operation, making it much more convenient to develop redstone machines!
 For more information, please check [our wiki page](https://wiki.redenmc.com/Undo-and-Redo).
 
+|  Hotkeys (malilib -> `General`) |    Default     |
+|---------------------------------|----------------|
+|                       `undoKey` |    `Ctrl+Z`    |
+|                       `redoKey` |    `Ctrl+Y`    |
+| (debug only) `debugPreviewUndo` | `Ctrl+Shift+Z` |
+
 ## Tick Back
-> Early Access Stage
+> Planning
 
 If your game was frozen using `/tick freeze`, you can use `/tick back` to go back to the previous tick. This feature is implemented by making backups.
 
@@ -23,6 +29,10 @@ If your game was frozen using `/tick freeze`, you can use `/tick back` to go bac
 RVC, Redstone Version Control, machine history and diff analysis
 
 RVCHub, a universal machine sharing platform, and automatic recognition of whether the machine has been correctly marked with copyright
+
+### RVC Selection
+
+Hold a blaze rod in your hand, then left click to select a group of blocks, and right click to ignore.
 
 ## RDebugger
 > WIP

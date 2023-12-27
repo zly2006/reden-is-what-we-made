@@ -2,6 +2,7 @@ package com.github.zly2006.reden.rvc.tracking.reader
 
 import com.github.zly2006.reden.rvc.tracking.IRvcFileReader
 import com.github.zly2006.reden.rvc.tracking.RvcDataReader
+import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtCompound
@@ -61,8 +62,9 @@ class RvcReaderV1(
             trackPoints.add(
                 TrackedStructure.TrackPoint(
                     blockPos,
-                    TrackedStructure.TrackPredicate.valueOf(predicate),
-                    TrackedStructure.TrackPoint.TrackMode.valueOf(mode)
+                    TrackPredicate.valueOf(predicate),
+                    TrackPredicate.TrackMode.valueOf(mode),
+                    null
                 )
             )
         }

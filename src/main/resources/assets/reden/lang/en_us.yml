@@ -136,8 +136,8 @@ reden:
       .: noTimeOut
       comment: |-
 
-    rollbackKey:
-      .: rollbackKey
+    undoKey:
+      .: undoKey
       comment: |-
 
     blockBorderAlpha:

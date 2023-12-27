@@ -189,6 +189,7 @@ object RvcFileIO: StructureIO {
         structure.trackPoints.clear()
         loadRvcFile(path, "trackPoints")?.let { rvcFile ->
             structure.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data))
+            structure.trackPoints.forEach { it.structure = structure }
         }
         structure.refreshPositions()
 
