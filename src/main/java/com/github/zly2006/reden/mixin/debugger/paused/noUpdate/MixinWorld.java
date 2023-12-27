@@ -28,8 +28,9 @@ public class MixinWorld {
     )
     private int cancelNC(int flag) {
         ServerData data = ServerData.getServerData();
-        if (data != null && isClient && data.isFrozen()) {
-            return Block.FORCE_STATE;
+        // Disable NC and PP update on both server and client if frozen.
+        if (data != null && data.isFrozen()) {
+            return (flag | Block.FORCE_STATE) & ~Block.NOTIFY_NEIGHBORS;
         }
         return flag;
     }
