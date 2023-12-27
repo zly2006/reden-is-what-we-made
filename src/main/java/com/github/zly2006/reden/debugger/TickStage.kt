@@ -1,5 +1,7 @@
 package com.github.zly2006.reden.debugger
 
+import com.github.zly2006.reden.utils.readBlockState
+import com.github.zly2006.reden.utils.writeBlockState
 import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
@@ -37,9 +39,23 @@ abstract class TickStage(
     var hasBlockEvents = false
 
     open fun writeByteBuf(buf: PacketByteBuf) {
+        buf.writeEnumConstant(displayLevel)
+        buf.writeMap(changedBlocks, PacketByteBuf::writeBlockPos) { _, it ->
+            buf.writeBlockState(it.before)
+            buf.writeBlockState(it.after)
+        }
+        buf.writeBoolean(hasScheduledTicks)
+        buf.writeBoolean(hasBlockEvents)
     }
 
     open fun readByteBuf(buf: PacketByteBuf) {
+        displayLevel = buf.readEnumConstant(DisplayLevel::class.java)
+        changedBlocks.clear()
+        buf.readMap({ changedBlocks }, PacketByteBuf::readBlockPos) {
+            BlockChange(buf.readBlockState(), buf.readBlockState())
+        }
+        hasScheduledTicks = buf.readBoolean()
+        hasBlockEvents = buf.readBoolean()
     }
 
     open fun reset(): Unit = throw UnsupportedOperationException("Reset not supported for tick stage $name")
