@@ -4,6 +4,7 @@ import com.github.zly2006.reden.access.BlockEntityInterface
 import com.github.zly2006.reden.access.ChunkSectionInterface
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
+import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER_IGNORE_UNDO_ID_0
 import com.github.zly2006.reden.malilib.iEVER_USED_UNDO
@@ -240,6 +241,7 @@ object UpdateMonitorHelper {
         player: ServerPlayerEntity,
         cause: PlayerData.UndoRecord.Cause
     ) {
+        if (server.data.frozen) return
         val playerView = player.data()
         if (!playerView.canRecord) return
         if (!playerView.isRecording) {
