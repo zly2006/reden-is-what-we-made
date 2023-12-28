@@ -44,3 +44,16 @@
 <!--- 重要：请填写所有必填内容。否则我们可能会暂时关闭此 PR -->
 <!--- Make sure to mark the PR as draft if you are still working on it, and mark it as "ready for review" when you are done -->
 <!--- 如果你仍未完成此 PR，请将其标记为草稿（GitHub PR 中的 draft 功能）。当你完成时，请点击 "ready for review" -->
+
+### CLA
+
+<!-- PLEASE DO CONSULT THE CLA IN THE ROOT DIRECTORY OF THE REPOSITORY BEFORE PROCEEDING -->
+<!-- 请在继续之前查看仓库根目录中的开发者协议（CLA） -->
+
+<!--- REQUIRED: If this PR is your first contribution to Reden mod, please download the CLA markdown file in the root directory of the repository, sign it, export it as PDF, and upload it to this PR -->
+<!--- 必填：如果此 PR 是你第一次为 Reden mod 贡献代码，请下载位于仓库根目录的 CLA markdown 文件，签名，导出为 PDF，然后上传至此 PR -->
+
+<!--- Check the following items by changing [ ] to [x] -->
+<!--- 将 [ ] 改为 [x] 来勾选下方的内容 -->
+
+- [ ] By submitting this pull request, I hereby agree to the terms of the Contributor License Agreement (CLA) of Reden mod. I also declare that I am authorized to make this contribution and have all necessary rights to make this contribution. / 通过提交此 pull request，我同意 Reden mod 的 Contributor License Agreement (CLA) 条款。我也声明我有权进行此贡献，并且拥有进行此贡献的所有必要权利。
