@@ -8,6 +8,7 @@ import com.github.zly2006.reden.gui.componments.TextureComponent
 import com.github.zly2006.reden.network.Continue
 import com.github.zly2006.reden.network.StepInto
 import com.github.zly2006.reden.network.StepOver
+import com.github.zly2006.reden.report.onFunctionUsed
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
@@ -28,6 +29,7 @@ class DebuggerScreen(private val tree: TickStageTree, private val breakpoint: Br
         }
     }
     val stepOverButton = Components.button(Text.literal("Open Game Menu")) {
+        onFunctionUsed("buttonOpenGameMenu_debuggerScreen")
         val mc = MinecraftClient.getInstance()
         mc.setScreen(GameMenuScreen(true))
     }!!
@@ -45,6 +47,7 @@ class DebuggerScreen(private val tree: TickStageTree, private val breakpoint: Br
     }
 
     override fun build(rootComponent: FlowLayout) {
+        onFunctionUsed("init_debuggerScreen")
         rootComponent.child(component)
         rootComponent.child(Containers.horizontalFlow(Sizing.fill(100), Sizing.content()).apply {
             child(

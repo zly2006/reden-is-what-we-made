@@ -2,6 +2,7 @@ package com.github.zly2006.reden.gui
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.report.key
+import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.sponsor.SponsorScreen
 import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
@@ -115,6 +116,7 @@ fun Screen.creditsScreenContent(): FlowLayout {
         .margins(Insets.vertical(15))))
 
     content.child(center(Components.button(Text.literal("Click to see sponsors")) {
+        onFunctionUsed("buttonViewSponsors_creditScreen")
         client!!.setScreen(SponsorScreen(this))
     }))
 

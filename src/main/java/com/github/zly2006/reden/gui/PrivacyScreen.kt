@@ -5,6 +5,7 @@ import com.github.zly2006.reden.malilib.data_BASIC
 import com.github.zly2006.reden.malilib.data_IDENTIFICATION
 import com.github.zly2006.reden.malilib.data_USAGE
 import com.github.zly2006.reden.malilib.iPRIVACY_SETTING_SHOWN
+import com.github.zly2006.reden.report.onFunctionUsed
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
@@ -21,6 +22,7 @@ class PrivacyScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
     override fun build(rootComponent: FlowLayout) {
         iPRIVACY_SETTING_SHOWN.booleanValue = true
         RedenClient.saveMalilibOptions()
+        onFunctionUsed("init_privacyScreen")
         rootComponent.horizontalAlignment(HorizontalAlignment.CENTER)
         rootComponent.verticalAlignment(VerticalAlignment.CENTER)
         rootComponent.child(Components.label(Text.literal("Reden Privacy Settings"))
@@ -37,6 +39,7 @@ class PrivacyScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
             .horizontalSizing(Sizing.fill(100)))
 
         content.child(Components.button(Text.literal("Continue")) {
+            onFunctionUsed("continue_privacyScreen")
             RedenClient.saveMalilibOptions()
             this.close()
         })

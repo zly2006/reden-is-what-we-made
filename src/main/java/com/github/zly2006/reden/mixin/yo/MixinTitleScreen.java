@@ -3,6 +3,7 @@ package com.github.zly2006.reden.mixin.yo;
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.gui.CreditScreen;
 import com.github.zly2006.reden.gui.componments.TextureButtonComponent;
+import com.github.zly2006.reden.report.ReportKt;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.text.Text;
@@ -29,7 +30,10 @@ public abstract class MixinTitleScreen extends Screen {
         assert client != null;
         icon = new TextureButtonComponent(
                 Reden.identifier("reden_16.png"),
-                button -> client.setScreen(new CreditScreen(this)),
+                button -> {
+                    ReportKt.onFunctionUsed("openCredits_mcTitleScreen");
+                    client.setScreen(new CreditScreen(this));
+                },
                 20,
                 20,
                 16,

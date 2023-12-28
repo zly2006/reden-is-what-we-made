@@ -7,6 +7,7 @@ import com.github.zly2006.reden.network.TagBlockPos
 import com.github.zly2006.reden.network.UpdateBreakpointPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.REMOVE
 import com.github.zly2006.reden.render.BlockBorder
+import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.CheckboxComponent
@@ -29,6 +30,7 @@ class BreakpointListComponent(
 ) : FlowLayout(Sizing.content(), Sizing.fill(), Algorithm.VERTICAL) {
     private val addButton = Components.button(Text.literal("Add breakpoint")) {
         val mc = MinecraftClient.getInstance()
+        onFunctionUsed("buttonAddBreakpoint_listScreen")
         // Note: add child to the root component, so it won't affect the layout of the grid
         this@BreakpointListComponent.child(Components.dropdown(Sizing.content()).apply {
             mouseEnter().subscribe { closeWhenNotHovered(true) }
@@ -50,6 +52,7 @@ class BreakpointListComponent(
         })
     }
     private val toggleEnableButton = Components.button(Text.literal("Enable/Disable")) {
+        onFunctionUsed("buttonToggleEnableSelectedBreakpoints_listScreen")
         selectedIndexed.map { breakpoints[it] }.forEach {
             it.flags = it.flags xor UpdateBreakpointPacket.ENABLED
             ClientPlayNetworking.send(UpdateBreakpointPacket(null, it.flags, it.id))
@@ -57,6 +60,7 @@ class BreakpointListComponent(
         }
     }
     private val deleteButton = Components.button(Text.literal("Delete").red()) {
+        onFunctionUsed("buttonDeleteSelectedBreakpoints_listScreen")
         selectedIndexed.map { breakpoints[it] }.forEach {
             ClientPlayNetworking.send(UpdateBreakpointPacket(null, REMOVE, it.id))
         }
@@ -117,10 +121,12 @@ class BreakpointListComponent(
                     }, row, 2
             )
             child(Components.button(Text.literal("Configure")) {
+                onFunctionUsed("buttonConfigureBreakpoint_listScreen")
                 val mc = MinecraftClient.getInstance()
                 mc.setScreen(BreakpointInfoScreen(breakpoint))
             }, row, 3)
             child(Components.button(Text.literal("Delete").red()) {
+                onFunctionUsed("buttonDeleteBreakpoint_listScreen")
                 ClientPlayNetworking.send(UpdateBreakpointPacket(null, REMOVE, bpId = breakpoint.id))
             }, row, 4)
         }

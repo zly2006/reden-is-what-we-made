@@ -8,6 +8,7 @@ import com.github.zly2006.reden.network.UpdateBreakpointPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.REMOVE
 import com.github.zly2006.reden.render.BlockBorder
+import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
@@ -62,6 +63,7 @@ class BreakpointInfoScreen(
     }
     private var behaviorListComponent = BreakpointBehaviorListComponent(breakpoint.handler)
     private val removeBehaviorButton = Components.button(Text.literal("Remove").red()) {
+        onFunctionUsed("buttonRemoveBreakpointBehavior_fromInfoScreen")
         val indexes = behaviorListComponent.selectedIndexes
         indexes.sortBy { -it } // make sure we remove from the end
         indexes.forEach(breakpoint.handler::removeAt)
@@ -71,6 +73,7 @@ class BreakpointInfoScreen(
         refreshBehaviorList()
     }.active(false)
     private val enableButton = Components.button(Text.empty()) {
+        onFunctionUsed("buttonToggleBreakpointEnabled")
         if (breakpoint.flags and ENABLED != 0) {
             breakpoint.flags = breakpoint.flags and ENABLED.inv()
         } else {
@@ -91,6 +94,7 @@ class BreakpointInfoScreen(
         breakpoint.flags = flags
     }
     private val deleteButton = Components.button(Text.literal("Delete breakpoint").red()) {
+        onFunctionUsed("buttonDeleteBreakpoint")
         ClientPlayNetworking.send(UpdateBreakpointPacket(null, REMOVE, bpId = breakpoint.id))
         close()
     }
@@ -127,6 +131,7 @@ class BreakpointInfoScreen(
                 gap(5)
                 child(Components.button(Text.literal("Add")) { }.apply {
                     mouseDown().subscribe { _, _, _ ->
+                        onFunctionUsed("buttonAddBreakpointBehavior")
                         root.child(Components.dropdown(Sizing.content()).also { dropdown ->
                             dropdown.positioning(Positioning.absolute(x + width, y))
                             dropdown.mouseEnter().subscribe { dropdown.closeWhenNotHovered(true) }

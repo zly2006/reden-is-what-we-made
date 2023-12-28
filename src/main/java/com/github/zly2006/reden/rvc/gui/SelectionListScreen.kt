@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.gui
 
+import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.io.LitematicaIO
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.litematicaInstalled
@@ -58,11 +59,6 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             .horizontalAlignment(HorizontalAlignment.LEFT)
             .verticalAlignment(VerticalAlignment.TOP)
 
-        rootComponent.child(
-            Components.button(
-                Text.literal("A Button")
-            ) { println("click") }
-        )
         fun selectionGrid(): Component {
             val grid = Containers.grid(
                 Sizing.content(), Sizing.content(),
@@ -101,6 +97,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
                         Components.button(
                             Text.translatable("reden.widget.rvc.structure.export.litematica")
                         ) {
+                            onFunctionUsed("exportToLitematica_rvcListScreen")
                             data.collectFromWorld()
                             LitematicaIO.save(Path.of("schematics"), data)
                         },

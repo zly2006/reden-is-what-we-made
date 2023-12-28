@@ -65,7 +65,6 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         }
         if (mc.interactionManager?.currentGameMode != GameMode.CREATIVE)
             return@callback false
-        onFunctionUsed("undo")
         iEVER_USED_UNDO.booleanValue = true
         val playSound = Random.nextInt(100) < EASTER_EGG_RATE.integerValue
         if (playSound) {
@@ -87,7 +86,6 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         true
     }
     REDO_KEY.callback {
-        onFunctionUsed("redo")
         if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
             ClientPlayNetworking.send(Undo(1))
             true
@@ -312,7 +310,10 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
 private fun ConfigHotkey.callback(action: () -> Boolean) {
     keybind.setCallback { _, _ ->
         try {
-            action()
+            if (action()) {
+                onFunctionUsed(name)
+                true
+            } else false
         } catch (e: Exception) {
             Reden.LOGGER.error("Error when executing hotkey $name", e)
             MinecraftClient.getInstance().player?.sendMessage(Text.literal("Error when executing hotkey $name").red())

@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.sponsor
 
+import com.github.zly2006.reden.report.onFunctionUsed
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.component.LabelComponent
@@ -18,6 +19,7 @@ class SponsorScreen(val parent: Screen? = null, private val loadIfNull: Boolean 
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
     override fun build(rootComponent: FlowLayout) {
+        onFunctionUsed("init_viewSponsors")
         rootComponent.horizontalAlignment(HorizontalAlignment.CENTER)
         rootComponent.child(Components.label(Text.literal("Reden's Sponsors")).shadow(true).margins(Insets.top(10)))
         rootComponent.child(Components.label(Text.literal("We are very grateful to the following people for their support.").formatted(Formatting.GRAY)).margins(Insets.bottom(10)))

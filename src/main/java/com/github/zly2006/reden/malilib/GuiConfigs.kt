@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.malilib
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.sponsor.SponsorScreen
 import fi.dy.masa.malilib.gui.GuiConfigsBase
 import fi.dy.masa.malilib.gui.button.ButtonGeneric
@@ -30,6 +31,7 @@ class GuiConfigs(parent: Screen? = null): GuiConfigsBase(
         }
         val sponsorsButton = ButtonGeneric(finalX, 26, -1, 20, StringUtils.translate("reden.widget.config.sponsor"))
         addButton(sponsorsButton) { _, _ ->
+            onFunctionUsed("buttonSponsor_malilibConfigScreen")
             client!!.setScreen(SponsorScreen(this))
         }
     }
