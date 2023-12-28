@@ -45,7 +45,6 @@ class BreakpointSerializerTest {
             assert(breakpoint.type == deserialized.type)
             assert(breakpoint.flags == deserialized.flags)
             assert(breakpoint.world == breakpoint.world)
-            assert(breakpoint.options == breakpoint.options)
             assert(breakpoint.handler == breakpoint.handler)
         }
     }
