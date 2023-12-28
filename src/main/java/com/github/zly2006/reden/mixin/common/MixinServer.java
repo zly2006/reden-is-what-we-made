@@ -3,10 +3,8 @@ package com.github.zly2006.reden.mixin.common;
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.debugger.stages.ServerRootStage;
-import com.github.zly2006.reden.network.BreakPointInterrupt;
 import com.github.zly2006.reden.network.GlobalStatus;
 import com.github.zly2006.reden.transformers.RedenMixinExtension;
-import com.github.zly2006.reden.transformers.UtilsKt;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerTask;
 import net.minecraft.util.thread.ReentrantThreadExecutor;
@@ -50,7 +48,7 @@ public abstract class MixinServer extends ReentrantThreadExecutor<ServerTask> im
                 Reden.LOGGER.error("tree is not empty: {}", serverData.getTickStageTree().getActiveStages());
             }
             serverData.getTickStageTree().clear();
-            serverData.setTickStage(new ServerRootStage(server));
+            serverData.setTickStage(new ServerRootStage(server, serverData.realTicks));
             serverData.getTickStageTree().push$reden_is_what_we_made(serverData.getTickStage());
         }
     }

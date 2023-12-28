@@ -3,6 +3,7 @@ package com.github.zly2006.reden.debugger.stages
 import com.github.zly2006.reden.debugger.TickStage
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.MinecraftServer
+import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 
 class ServerRootStage(
@@ -13,6 +14,9 @@ class ServerRootStage(
     Text.literal("Server Tick"),
     Text.literal("The root of a server tick")
 ) {
+    override val displayName: MutableText
+        get() = super.displayName.copy().append(" #$ticks")
+
     override fun readByteBuf(buf: PacketByteBuf) {
         super.readByteBuf(buf)
         ticks = buf.readVarInt()

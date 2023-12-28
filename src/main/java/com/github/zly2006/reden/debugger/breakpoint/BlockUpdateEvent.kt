@@ -94,21 +94,20 @@ sealed class BlockUpdateEvent(
         if (event !is AbstractBlockUpdateStage<*>) {
             throw RuntimeException("BlockUpdateEvent can only be called by AbstractBlockUpdateStage")
         }
-        val shouldCall = when (event.status) {
-            TickStage.StageStatus.Pending -> flags and PRE != 0
-            TickStage.StageStatus.Ticked -> flags and POST != 0
-            else -> false
-        }
-        if (!shouldCall) return
-        if (flags and PP > 0 && event is StageBlockPPUpdate) {
-            super.call(event)
-        }
-        if (flags and NC > 0 && event is NeighborChanged) {
-            super.call(event)
-        }
-        if (flags and CU > 0 && event is StageBlockComparatorUpdate) {
-            super.call(event)
-        }
+        if (!when (event.status) {
+                TickStage.StageStatus.Pending -> flags and PRE != 0
+                TickStage.StageStatus.Ticked -> flags and POST != 0
+                else -> false
+            }
+        ) return
+        if (!when (event) {
+                is StageBlockPPUpdate -> flags and PP != 0
+                is NeighborChanged -> flags and NC != 0
+                is StageBlockComparatorUpdate -> flags and CU != 0
+                else -> false
+            }
+        ) return
+        super.call(event)
     }
 
     override fun setPosition(pos: BlockPos) {

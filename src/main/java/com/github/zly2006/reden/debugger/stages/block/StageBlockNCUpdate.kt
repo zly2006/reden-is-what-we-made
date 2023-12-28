@@ -1,4 +1,5 @@
 package com.github.zly2006.reden.debugger.stages.block
+
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.utils.readBlock
 import com.github.zly2006.reden.utils.writeBlock
@@ -18,19 +19,14 @@ import net.minecraft.world.block.ChainRestrictedNeighborUpdater
  * 	```
  * @see [ChainRestrictedNeighborUpdater.updateNeighbor]
  * @see [ChainRestrictedNeighborUpdater.SimpleEntry]
- *
- *
  */
-open class StageBlockNCUpdate(
+class StageBlockNCUpdate(
     parent: TickStage,
-    entry: ChainRestrictedNeighborUpdater.SimpleEntry?,
-    name: String
-): AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SimpleEntry>(name, parent),
-NeighborChanged {
-    constructor(parent: TickStage, entry: ChainRestrictedNeighborUpdater.SimpleEntry?)
-            : this(parent, entry, "nc_update")
+    entry: ChainRestrictedNeighborUpdater.SimpleEntry?
+) : AbstractBlockUpdateStage<ChainRestrictedNeighborUpdater.SimpleEntry>("nc_update", parent),
+    NeighborChanged {
+    override lateinit var entry: ChainRestrictedNeighborUpdater.SimpleEntry
 
-    final override lateinit var entry: ChainRestrictedNeighborUpdater.SimpleEntry
     init {
         if (entry != null) {
             this.entry = entry
