@@ -3,8 +3,6 @@ package com.github.zly2006.reden
 import com.github.zly2006.reden.debugger.breakpoint.*
 import com.github.zly2006.reden.debugger.breakpoint.behavior.FreezeGame
 import kotlinx.serialization.json.Json
-import net.minecraft.Bootstrap
-import net.minecraft.SharedConstants
 import net.minecraft.world.World
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -19,8 +17,7 @@ class BreakpointSerializerTest {
         @BeforeAll
         @JvmStatic
         fun beforeAll() {
-            SharedConstants.createGameVersion()
-            Bootstrap.initialize()
+            setupMinecraftRegistries()
         }
     }
 

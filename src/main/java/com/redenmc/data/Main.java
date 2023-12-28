@@ -1,13 +1,7 @@
 package com.redenmc.data;
 
-import com.google.common.base.Stopwatch;
-import com.google.common.base.Ticker;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.blaze3d.systems.RenderSystem;
-import joptsimple.ArgumentAcceptingOptionSpec;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
 import net.minecraft.Bootstrap;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
@@ -24,15 +18,11 @@ import net.minecraft.util.WinNativeModuleUtil;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.logging.UncaughtExceptionLogger;
-import net.minecraft.util.profiling.jfr.FlightProfiler;
-import net.minecraft.util.profiling.jfr.InstanceType;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.Proxy;
-import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
@@ -43,30 +33,15 @@ public class Main {
     public static boolean join = false;
 
     public static void main(String[] args) {
-        Stopwatch stopwatch = Stopwatch.createStarted(Ticker.systemTicker());
-        Stopwatch stopwatch2 = Stopwatch.createStarted(Ticker.systemTicker());
         SharedConstants.createGameVersion();
         SharedConstants.enableDataFixerOptimization();
-        OptionParser optionParser = new OptionParser();
-        optionParser.allowsUnrecognizedOptions();
-        OptionSpec<Void> optionSpec = optionParser.accepts("jfrProfile");
-        OptionSpec<String> optionSpec17 = optionParser.accepts("accessToken").withRequiredArg().required();
-        OptionSpec<String> optionSpec18 = optionParser.accepts("version").withRequiredArg().required();
-
-        OptionSet optionSet = optionParser.parse();
-
-        Proxy proxy = Proxy.NO_PROXY;
         boolean bl2 = false;
         boolean bl3 = false;
         boolean bl4 = false;
-        String string4 = getOption(optionSet, optionSpec18);
+        String string4 = "Reden Unit Test | MC " + SharedConstants.getGameVersion().getName();
         String string5 = "release";
         File file = new File(".");
         UUID uuid = Uuids.getOfflinePlayerUuid("Dev");
-        if (optionSet.has(optionSpec)) {
-            FlightProfiler.INSTANCE.start(InstanceType.CLIENT);
-        }
-
         CrashReport.initCrashReport();
         Bootstrap.initialize();
         GameLoadTimeEvent.INSTANCE.setBootstrapTime(Bootstrap.LOAD_TIME.get());
@@ -76,16 +51,12 @@ public class Main {
 
         Session session = new Session(
                 "Dev",
-                uuid, optionSpec17.value(optionSet), Optional.empty(), Optional.empty(), accountType);
+                uuid, "RedenMC", Optional.empty(), Optional.empty(), accountType);
         File file3 = new File(file, "resourcepacks/");
         File file2 = new File(file, "assets/");
         RunArgs runArgs = new RunArgs(
-                new RunArgs.Network(
-                        session,
-                        new PropertyMap(),
-                        new PropertyMap(),
-                        proxy
-                ), new WindowSettings(854, 480, OptionalInt.empty(), OptionalInt.empty(), false),
+                new RunArgs.Network(session, new PropertyMap(), new PropertyMap(), Proxy.NO_PROXY),
+                new WindowSettings(854, 480, OptionalInt.empty(), OptionalInt.empty(), false),
                 new RunArgs.Directories(file, file3, file2, null),
                 new RunArgs.Game(bl2, string4, string5, bl3, bl4),
                 new RunArgs.QuickPlay(null, null, null, null)
@@ -164,22 +135,6 @@ public class Main {
             } finally {
                 minecraftClient.stop();
             }
-        }
-    }
-
-    @Nullable
-    private static <T> T getOption(OptionSet optionSet, OptionSpec<T> optionSpec) {
-        try {
-            return optionSet.valueOf(optionSpec);
-        } catch (Throwable var5) {
-            if (optionSpec instanceof ArgumentAcceptingOptionSpec<T> argumentAcceptingOptionSpec) {
-                List<T> list = argumentAcceptingOptionSpec.defaultValues();
-                if (!list.isEmpty()) {
-                    return list.get(0);
-                }
-            }
-
-            throw var5;
         }
     }
 }

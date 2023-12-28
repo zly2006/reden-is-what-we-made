@@ -82,7 +82,6 @@
     "forceSyncEntityPos.MixinTracker",
     "forceSyncEntityPos.MixinWorldRenderer",
     "fuckMojang.MixinFuckMojang",
-    "fuckMojang.NoCrash",
     "hopperDelaySync.MixinHopperScreen",
     "log.MixinClientCoon",
     "noTimeOut.MixinDisconnectedScreen",

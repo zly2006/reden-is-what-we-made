@@ -54,7 +54,7 @@ abstract class TickStage(
          */
         Finished
     }
-    var status = StageStatus.Initialized // todo
+    var status = StageStatus.Initialized
     data class BlockChange(val before: BlockState, val after: BlockState)
     val changedBlocks = mutableMapOf<BlockPos, BlockChange>()
     var hasScheduledTicks = false
@@ -88,7 +88,6 @@ abstract class TickStage(
     }
 
     open fun preTick() {
-
     }
 
     open fun focused(mc: MinecraftClient) {

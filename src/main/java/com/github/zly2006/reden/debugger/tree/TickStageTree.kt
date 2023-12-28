@@ -64,6 +64,7 @@ class TickStageTree(
             }
         }
         Reden.LOGGER.debug("TickStageTree: preTick {}", stage)
+        stage.status = TickStage.StageStatus.Pending
         stage.preTick()
     }
 
@@ -83,7 +84,9 @@ class TickStageTree(
         val stage = activeStages.removeLast().also(history::add)
         stacktraces.removeLastOrNull()
         Reden.LOGGER.debug("TickStageTree: [{}] pop {}", activeStages.size, stage)
+        stage.status = TickStage.StageStatus.Ticked
         stage.postTick()
+        stage.status = TickStage.StageStatus.Finished
         if (stage == stepOverUntil) {
             Reden.LOGGER.debug("stage == stepOverUntil")
             stepOverUntil = null

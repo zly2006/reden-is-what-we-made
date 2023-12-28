@@ -26,6 +26,11 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
         world!!.server.data.breakpoints.checkBreakpointsForUpdating(this)
     }
 
+    override fun postTick() {
+        super.postTick()
+        world!!.server.data.breakpoints.checkBreakpointsForUpdating(this)
+    }
+
     override fun reset() {
         if (world == null) {
             error("World is null, are you ticking this stage at a client?")
