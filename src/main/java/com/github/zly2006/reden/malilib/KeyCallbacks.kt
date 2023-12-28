@@ -23,39 +23,48 @@ import com.github.zly2006.reden.utils.red
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.toBlockPos
 import com.github.zly2006.reden.utils.translateMessage
+import fi.dy.masa.malilib.config.options.ConfigHotkey
 import fi.dy.masa.malilib.event.InputEventHandler
 import fi.dy.masa.malilib.gui.GuiConfigsBase
 import fi.dy.masa.malilib.hotkeys.IMouseInputHandler
+import io.wispforest.owo.ui.component.Components
+import io.wispforest.owo.ui.container.Containers
+import io.wispforest.owo.ui.core.Insets
+import io.wispforest.owo.ui.core.Positioning
+import io.wispforest.owo.ui.core.Sizing
+import io.wispforest.owo.ui.core.Surface
+import io.wispforest.owo.ui.hud.Hud
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents
 import net.minecraft.block.entity.StructureBlockBlockEntity
 import net.minecraft.block.enums.StructureBlockMode
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.packet.c2s.play.UpdateStructureBlockC2SPacket
 import net.minecraft.sound.SoundCategory
 import net.minecraft.text.Text
+import net.minecraft.util.Formatting
 import net.minecraft.world.GameMode
 import java.util.zip.ZipInputStream
-import kotlin.math.abs
 import kotlin.math.sign
 import kotlin.random.Random
 
 fun configureKeyCallbacks(mc: MinecraftClient) {
-    REDEN_CONFIG_KEY.keybind.setCallback { _, _ ->
+    REDEN_CONFIG_KEY.callback {
         mc.setScreen(GuiConfigs())
         true
     }
     var undoEasterEggLock = false
-    UNDO_KEY.keybind.setCallback { _, _ ->
+    UNDO_KEY.callback {
         if (undoEasterEggLock) {
             mc.player?.sendMessage(translateMessage("undo", "busy"))
-            return@setCallback false
+            return@callback false
         }
         if (mc.serverData?.featureSet?.contains("undo") != true) {
             mc.player?.sendMessage(Text.literal("Sorry, this server doesn't support undo.").red(), true)
-            return@setCallback false
+            return@callback false
         }
         if (mc.interactionManager?.currentGameMode != GameMode.CREATIVE)
-            return@setCallback false
+            return@callback false
         onFunctionUsed("undo")
         iEVER_USED_UNDO.booleanValue = true
         val playSound = Random.nextInt(100) < EASTER_EGG_RATE.integerValue
@@ -77,14 +86,14 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             ClientPlayNetworking.send(Undo(0))
         true
     }
-    REDO_KEY.keybind.setCallback { _, _ ->
+    REDO_KEY.callback {
         onFunctionUsed("redo")
         if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
             ClientPlayNetworking.send(Undo(1))
             true
         } else false
     }
-    DEBUG_TAG_BLOCK_POS.keybind.setCallback { _, _ ->
+    DEBUG_TAG_BLOCK_POS.callback {
         val pos = mc.crosshairTarget?.pos?.toBlockPos()
         if (pos != null) {
             val new = BlockBorder.tags.compute(pos.asLong()) { _, old ->
@@ -98,23 +107,23 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             true
         } else false
     }
-    DEBUG_PREVIEW_UNDO.keybind.setCallback { _, _ ->
+    DEBUG_PREVIEW_UNDO.callback {
         if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
             BlockBorder.tags.clear()
             val view = mc.server!!.playerManager.playerList[0].data()
             view.undo.lastOrNull()?.data?.keys?.forEach {
                 BlockBorder.tags[it] = 1
             }
-            return@setCallback true
+            return@callback true
         }
-        return@setCallback false
+        return@callback false
     }
-    OPEN_GITHUB_AUTH_SCREEN.keybind.setCallback { _, _ ->
+    OPEN_GITHUB_AUTH_SCREEN.callback {
         onFunctionUsed("rvc.github")
         mc.setScreen(GithubAuthScreen())
         true
     }
-    STRUCTURE_BLOCK_LOAD.keybind.setCallback { _, _ ->
+    STRUCTURE_BLOCK_LOAD.callback {
         onFunctionUsed("structure_block.load")
         if (StructureBlockHelper.isValid) {
             val structureBlock = mc.world!!.getBlockEntity(StructureBlockHelper.lastUsed!!) as StructureBlockBlockEntity
@@ -140,7 +149,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         }
         true
     }
-    STRUCTURE_BLOCK_SAVE.keybind.setCallback { _, _ ->
+    STRUCTURE_BLOCK_SAVE.callback {
         onFunctionUsed("structure_block.save")
         if (StructureBlockHelper.isValid) {
             val structureBlock = mc.world!!.getBlockEntity(StructureBlockHelper.lastUsed!!) as StructureBlockBlockEntity
@@ -166,11 +175,11 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         }
         true
     }
-    OPEN_SELECTION_LIST.keybind.setCallback { _, _ ->
+    OPEN_SELECTION_LIST.callback {
         mc.setScreen(SelectionListScreen())
         true
     }
-    DEBUG_RVC_REQUEST_SYNC_DATA.keybind.setCallback { _, _ ->
+    DEBUG_RVC_REQUEST_SYNC_DATA.callback {
         ClientPlayNetworking.send(RvcTrackpointsC2SRequest(
             selectedStructure?.trackPoints ?: listOf(),
             1,
@@ -193,15 +202,15 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         mc.messageHandler.onGameMessage(Text.literal("DEBUG_RVC_REQUEST_SYNC_DATA"), false)
         true
     }
-    SPONSOR_SCREEN_KEY.keybind.setCallback { _, _ ->
+    SPONSOR_SCREEN_KEY.callback {
         mc.setScreen(SponsorScreen())
         true
     }
-    CREDIT_SCREEN_KEY.keybind.setCallback { _, _ ->
+    CREDIT_SCREEN_KEY.callback {
         mc.setScreen(CreditScreen())
         true
     }
-    DEBUG_VIEW_ALL_CONFIGS.keybind.setCallback { _, _ ->
+    DEBUG_VIEW_ALL_CONFIGS.callback {
         mc.setScreen(object : GuiConfigsBase(
             10,
             20,
@@ -212,32 +221,32 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         })
         true
     }
-    PAUSE_KEY.keybind.setCallback { _, _ ->
+    PAUSE_KEY.callback {
         ClientPlayNetworking.send(Pause(true))
         true
     }
-    CONTINUE_KEY.keybind.setCallback { _, _ ->
+    CONTINUE_KEY.callback {
         ClientPlayNetworking.send(Continue())
         true
     }
-    STEP_INTO_KEY.keybind.setCallback { _, _ ->
+    STEP_INTO_KEY.callback {
         ClientPlayNetworking.send(StepInto())
         true
     }
-    STEP_OVER_KEY.keybind.setCallback { _, _ ->
+    STEP_OVER_KEY.callback {
         val id = mc.serverData?.tickStageTree?.activeStage?.id
-        if (id == null) return@setCallback false
+        if (id == null) return@callback false
         else ClientPlayNetworking.send(StepOver(id))
         true
     }
-    VIEW_ALL_BREAKPOINTS.keybind.setCallback { _, _ ->
+    VIEW_ALL_BREAKPOINTS.callback {
         mc.setScreen(BreakpointListComponent.Screen(mc.data.breakpoints.breakpointMap.values))
         true
     }
     val pointTypes = BreakpointsManager.getBreakpointManager().registry.values.toList()
     var index = 0
-    ADD_BREAKPOINT.keybind.setCallback { _, _ ->
-        val pos = mc.crosshairTarget?.pos?.toBlockPos() ?: return@setCallback false
+    ADD_BREAKPOINT.callback {
+        val pos = mc.crosshairTarget?.pos?.toBlockPos() ?: return@callback false
         val type = pointTypes[index]
         val manager = mc.data.breakpoints
         val id = (manager.breakpointMap.keys.maxOrNull() ?: 0) + 1
@@ -250,12 +259,12 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         mc.data.breakpoints.sync(manager.breakpointMap[id])
         true
     }
-    EDIT_BREAKPOINTS.keybind.setCallback { _, _ ->
+    EDIT_BREAKPOINTS.callback {
         val breakpoints = mc.data.breakpoints.breakpointMap.values.filter {
             it.world == mc.world?.registryKey?.value && it.pos == mc.crosshairTarget?.pos?.toBlockPos()
         }.ifEmpty {
             mc.player?.sendMessage("Not found")
-            return@setCallback false
+            return@callback true
         }
         if (breakpoints.size == 1)
             mc.setScreen(BreakpointInfoScreen(breakpoints.first()))
@@ -263,10 +272,33 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             mc.setScreen(BreakpointListComponent.Screen(breakpoints))
         true
     }
+    ScreenEvents.BEFORE_INIT.register { _, _, _, _ ->
+        BREAKPOINT_RENDERER.booleanValue = false
+    }
+    BREAKPOINT_RENDERER.setValueChangeCallback {
+        if (it.booleanValue) {
+            Hud.add(Reden.identifier("breakpoint-tutorial")) {
+                Containers.verticalFlow(Sizing.content(), Sizing.content()).apply {
+                    surface(Surface.TOOLTIP)
+                    padding(Insets.of(6))
+                    gap(3)
+                    positioning(Positioning.across(50, 60))
+                    fun format(text: String) = Text.empty().append(Text.literal(text.replace(",", " + "))
+                        .formatted(Formatting.GOLD))
+                    child(Components.label(format(EDIT_BREAKPOINTS.stringValue).append(" to edit breakpoints")))
+                    child(Components.label(format(BREAKPOINT_RENDERER.stringValue +" + Scroll").append(" to change breakpoint type")))
+                    child(Components.label(format(ADD_BREAKPOINT.stringValue).append(" to add breakpoints")))
+                    child(Components.label(format(VIEW_ALL_BREAKPOINTS.stringValue).append(" to view all breakpoints")))
+                }
+            }
+        } else Hud.remove(Reden.identifier("breakpoint-tutorial"))
+    }
     InputEventHandler.getInputManager().registerMouseInputHandler(object : IMouseInputHandler {
+        var scrollStartTime = 0L
         override fun onMouseScroll(mouseX: Int, mouseY: Int, amount: Double): Boolean {
-            println(amount)
-            if (BREAKPOINT_RENDERER.booleanValue && abs(amount) > SCROLL_AMOUNT.doubleValue) {
+            if (BREAKPOINT_RENDERER.booleanValue) {
+                if (System.currentTimeMillis() - scrollStartTime < 250) return false
+                scrollStartTime = System.currentTimeMillis()
                 index += amount.sign.toInt()
                 index = index.mod(pointTypes.size)
                 val type = pointTypes[index]
@@ -275,4 +307,16 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             } else return false
         }
     })
+}
+
+private fun ConfigHotkey.callback(action: () -> Boolean) {
+    keybind.setCallback { _, _ ->
+        try {
+            action()
+        } catch (e: Exception) {
+            Reden.LOGGER.error("Error when executing hotkey $name", e)
+            MinecraftClient.getInstance().player?.sendMessage(Text.literal("Error when executing hotkey $name").red())
+            false
+        }
+    }
 }

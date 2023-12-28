@@ -5,7 +5,6 @@ import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import net.minecraft.block.BlockState
-import net.minecraft.network.PacketByteBuf
 import net.minecraft.state.property.Properties
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
