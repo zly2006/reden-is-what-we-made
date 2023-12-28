@@ -30,7 +30,29 @@ abstract class TickStage(
     }
     var displayLevel: DisplayLevel = DisplayLevel.FULL
     enum class StageStatus {
-        Initialized, Pending, Ticked, Finished
+        /**
+         * Initialized, but not started
+         */
+        Initialized,
+
+        /**
+         * Pre-tick stages, waiting for the tick to start
+         *
+         * Can be sent to clients
+         */
+        Pending,
+
+        /**
+         * Ticked stages, all its data including children should not change anymore
+         *
+         * Can be sent to clients
+         */
+        Ticked,
+
+        /**
+         * Dying stages
+         */
+        Finished
     }
     var status = StageStatus.Initialized // todo
     data class BlockChange(val before: BlockState, val after: BlockState)
@@ -40,6 +62,7 @@ abstract class TickStage(
 
     open fun writeByteBuf(buf: PacketByteBuf) {
         buf.writeEnumConstant(displayLevel)
+        buf.writeEnumConstant(status)
         buf.writeMap(changedBlocks, PacketByteBuf::writeBlockPos) { _, it ->
             buf.writeBlockState(it.before)
             buf.writeBlockState(it.after)
@@ -50,6 +73,7 @@ abstract class TickStage(
 
     open fun readByteBuf(buf: PacketByteBuf) {
         displayLevel = buf.readEnumConstant(DisplayLevel::class.java)
+        status = buf.readEnumConstant(StageStatus::class.java)
         changedBlocks.clear()
         buf.readMap({ changedBlocks }, PacketByteBuf::readBlockPos) {
             BlockChange(buf.readBlockState(), buf.readBlockState())

@@ -50,6 +50,8 @@ interface BreakPoint {
         get() = world?.let { server.getWorld(RegistryKey.of(RegistryKeys.WORLD, it)) }
 
     /**
+     * We only use the lower 16 bits, feel free to use other in the subclasses
+     *
      * @see com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion
      */
     var flags: Int

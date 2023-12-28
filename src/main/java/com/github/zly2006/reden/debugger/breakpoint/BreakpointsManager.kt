@@ -113,6 +113,22 @@ class BreakpointsManager(val isClient: Boolean) {
         }
     }
 
+    fun syncFlags(breakpoint: BreakPoint) {
+        if (isClient) {
+            ClientPlayNetworking.send(UpdateBreakpointPacket(
+                null,
+                flag = breakpoint.flags,
+                bpId = breakpoint.id
+            ))
+        } else {
+            server.sendToAll(UpdateBreakpointPacket(
+                null,
+                flag = breakpoint.flags,
+                bpId = breakpoint.id
+            ))
+        }
+    }
+
     fun save(path: Path) {
         require(!isClient) {
             "Cannot save breakpoint on client side"

@@ -148,6 +148,7 @@ class TickStageTree(
     }
 
     fun onBlockEventAdded(blockEvent: BlockEvent) {
+        (blockEvent as TickStageTreeOwnerAccess).tickStageTree = this
         activeStage?.hasBlockEvents = true
     }
 }

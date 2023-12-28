@@ -66,6 +66,10 @@ class StageTreeComponent(
                 }
             }
         }
+        private val notification = Components.label(Text.literal(" ")).apply {
+            surface(Surface.PANEL)
+            sizing(Sizing.fixed(10))
+        }
 
         val childrenNodes = stage.children
             .filter { it.shouldShow }
@@ -91,6 +95,20 @@ class StageTreeComponent(
                     } else false
                 }
             })
+            if (stage.hasBlockEvents || stage.hasScheduledTicks || stage.changedBlocks.isNotEmpty()) {
+                child(notification)
+                val tooltipText = mutableListOf<Text>()
+                if (stage.hasBlockEvents) {
+                    tooltipText.add(Text.literal("Block events").red())
+                }
+                if (stage.hasScheduledTicks) {
+                    tooltipText.add(Text.literal("Scheduled ticks").red())
+                }
+                if (stage.changedBlocks.isNotEmpty()) {
+                    tooltipText.add(Text.literal("Changed blocks").red())
+                }
+                notification.tooltip(tooltipText.joinToText(Text.literal("\n")))
+            }
         }
 
         override fun draw(context: OwoUIDrawContext?, mouseX: Int, mouseY: Int, partialTicks: Float, delta: Float) {
@@ -147,4 +165,15 @@ class StageTreeComponent(
         }
         scrollOffset = offset
     }
+}
+
+private fun Iterable<Text>.joinToText(literal: Text): Text {
+    val builder = Text.empty()
+    var first = true
+    for (text in this) {
+        if (first) first = false
+        else builder.append(literal)
+        builder.append(text)
+    }
+    return builder
 }
