@@ -23,7 +23,9 @@ import com.github.zly2006.reden.utils.red
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.toBlockPos
 import com.github.zly2006.reden.utils.translateMessage
+import fi.dy.masa.malilib.event.InputEventHandler
 import fi.dy.masa.malilib.gui.GuiConfigsBase
+import fi.dy.masa.malilib.hotkeys.IMouseInputHandler
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.block.entity.StructureBlockBlockEntity
 import net.minecraft.block.enums.StructureBlockMode
@@ -33,6 +35,8 @@ import net.minecraft.sound.SoundCategory
 import net.minecraft.text.Text
 import net.minecraft.world.GameMode
 import java.util.zip.ZipInputStream
+import kotlin.math.abs
+import kotlin.math.sign
 import kotlin.random.Random
 
 fun configureKeyCallbacks(mc: MinecraftClient) {
@@ -208,42 +212,6 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         })
         true
     }
-    val pointTypes = BreakpointsManager.getBreakpointManager().registry.values.toList()
-    var index = 0
-    ADD_BREAKPOINT.keybind.setCallback { _, _ ->
-        val pos = mc.crosshairTarget?.pos?.toBlockPos() ?: return@setCallback false
-        val type = pointTypes[index]
-        val manager = mc.data.breakpoints
-        val id = (manager.breakpointMap.keys.maxOrNull() ?: 0) + 1
-        manager.breakpointMap[id] = type.create(id).apply {
-            world = mc.world!!.registryKey.value
-            setPosition(pos)
-            handler.add(BreakPoint.Handler(FreezeGame(), name = "Behavior 1"))
-        }
-        BlockBorder[pos] = TagBlockPos.green
-        mc.data.breakpoints.sync(manager.breakpointMap[id])
-        true
-    }
-    CYCLE_BREAKPOINT_TYPE.keybind.setCallback { _, _ ->
-        index++
-        if (index !in pointTypes.indices) index = 0
-        val type = pointTypes[index]
-        mc.player?.sendMessage(Text.literal("Type now is ").append(type.description))
-        true
-    }
-    EDIT_BREAKPOINTS.keybind.setCallback { _, _ ->
-        val breakpoints = mc.data.breakpoints.breakpointMap.values.filter {
-            it.world == mc.world?.registryKey?.value && it.pos == mc.crosshairTarget?.pos?.toBlockPos()
-        }.ifEmpty {
-            mc.player?.sendMessage("Not found")
-            return@setCallback false
-        }
-        if (breakpoints.size == 1)
-            mc.setScreen(BreakpointInfoScreen(breakpoints.first()))
-        else
-            mc.setScreen(BreakpointListComponent.Screen(breakpoints))
-        true
-    }
     PAUSE_KEY.keybind.setCallback { _, _ ->
         ClientPlayNetworking.send(Pause(true))
         true
@@ -266,4 +234,45 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         mc.setScreen(BreakpointListComponent.Screen(mc.data.breakpoints.breakpointMap.values))
         true
     }
+    val pointTypes = BreakpointsManager.getBreakpointManager().registry.values.toList()
+    var index = 0
+    ADD_BREAKPOINT.keybind.setCallback { _, _ ->
+        val pos = mc.crosshairTarget?.pos?.toBlockPos() ?: return@setCallback false
+        val type = pointTypes[index]
+        val manager = mc.data.breakpoints
+        val id = (manager.breakpointMap.keys.maxOrNull() ?: 0) + 1
+        manager.breakpointMap[id] = type.create(id).apply {
+            world = mc.world!!.registryKey.value
+            setPosition(pos)
+            handler.add(BreakPoint.Handler(FreezeGame(), name = "Behavior 1"))
+        }
+        BlockBorder[pos] = TagBlockPos.green
+        mc.data.breakpoints.sync(manager.breakpointMap[id])
+        true
+    }
+    EDIT_BREAKPOINTS.keybind.setCallback { _, _ ->
+        val breakpoints = mc.data.breakpoints.breakpointMap.values.filter {
+            it.world == mc.world?.registryKey?.value && it.pos == mc.crosshairTarget?.pos?.toBlockPos()
+        }.ifEmpty {
+            mc.player?.sendMessage("Not found")
+            return@setCallback false
+        }
+        if (breakpoints.size == 1)
+            mc.setScreen(BreakpointInfoScreen(breakpoints.first()))
+        else
+            mc.setScreen(BreakpointListComponent.Screen(breakpoints))
+        true
+    }
+    InputEventHandler.getInputManager().registerMouseInputHandler(object : IMouseInputHandler {
+        override fun onMouseScroll(mouseX: Int, mouseY: Int, amount: Double): Boolean {
+            println(amount)
+            if (BREAKPOINT_RENDERER.booleanValue && abs(amount) > SCROLL_AMOUNT.doubleValue) {
+                index += amount.sign.toInt()
+                index = index.mod(pointTypes.size)
+                val type = pointTypes[index]
+                mc.player?.sendMessage(Text.literal("Type now is ").append(type.description))
+                return true
+            } else return false
+        }
+    })
 }

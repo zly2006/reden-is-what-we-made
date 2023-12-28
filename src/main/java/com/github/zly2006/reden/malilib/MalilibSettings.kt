@@ -1,10 +1,10 @@
 @file:Suppress("HasPlatformType")
+@file:Environment(EnvType.CLIENT)
 
 package com.github.zly2006.reden.malilib
 
 import com.github.zly2006.reden.malilib.options.*
 import com.github.zly2006.reden.render.SolidFaceRenderer.ShapePredicateOptionEntry
-import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.startDebugAppender
 import com.github.zly2006.reden.utils.stopDebugAppender
 import fi.dy.masa.malilib.config.HudAlignment
@@ -12,18 +12,10 @@ import fi.dy.masa.malilib.config.IConfigBase
 import fi.dy.masa.malilib.config.options.ConfigBase
 import fi.dy.masa.malilib.config.options.ConfigOptionList
 import fi.dy.masa.malilib.hotkeys.IHotkey
+import fi.dy.masa.malilib.hotkeys.KeyAction
 import fi.dy.masa.malilib.hotkeys.KeybindSettings
-
-private val loadingGuard = run {
-    if (!isClient) {
-        try {
-            throw IllegalStateException("MalilibSettings must be loaded on client side.")
-        } catch (e: IllegalStateException) {
-            e.stackTraceToString()
-            throw e
-        }
-    }
-}
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
 
 @JvmField val HOTKEYS = mutableListOf<IHotkey>()
 @JvmField val GENERIC_TAB = mutableListOf<ConfigBase<*>>()
@@ -61,10 +53,13 @@ private fun <T : IConfigBase?> ConfigBase<T>.hidden() = this.apply(HIDDEN_TAB::a
 @JvmField val ENABLE_CLIENT_GLOW = RedenConfigBooleanHotkeyed("enableClientGlow", true, "LEFT_CONTROL,G").hotkey().generic()
 @JvmField val SOLID_FACE_SHAPE_PREDICATE = RedenConfigOptionList("solidFaceShapePredicate", ShapePredicateOptionEntry.FULL).generic()
 @JvmField val EASTER_EGG_RATE = RedenConfigInteger("easterEggRate", 3, 0, 100).generic()
+@JvmField val SCROLL_AMOUNT = RedenConfigFloat("scrollAmount", 1.5f, 0f, 5f).generic()
 // Micro Tick
-@JvmField val ADD_BREAKPOINT = RedenConfigHotkey("addBreakpoint", "LEFT_SHIFT,B").mt().hotkey()
-@JvmField val CYCLE_BREAKPOINT_TYPE = RedenConfigHotkey("cycleBreakpointType", "LEFT_SHIFT,T").mt().hotkey()
-@JvmField val EDIT_BREAKPOINTS = RedenConfigHotkey("editBreakpoints", "LEFT_CONTROL,B").mt().hotkey()
+@JvmField val BREAKPOINT_RENDERER = RedenConfigBooleanHotkeyed("breakpointRenderer", false, "B",
+    KeybindSettings.create(KeybindSettings.Context.INGAME, KeyAction.BOTH, true, true, false, false)
+).hotkey().mt()
+@JvmField val EDIT_BREAKPOINTS = RedenConfigHotkey("editBreakpoints", "B,BUTTON_1").mt().hotkey()
+@JvmField val ADD_BREAKPOINT = RedenConfigHotkey("addBreakpoint", "B,BUTTON_2").mt().hotkey()
 @JvmField val VIEW_ALL_BREAKPOINTS = RedenConfigHotkey("viewAllBreakpoints", "RIGHT_SHIFT,SPACE").mt().hotkey()
 @JvmField val PAUSE_KEY = RedenConfigHotkey("pauseKey", "LEFT_CONTROL,LEFT_SHIFT,P").mt().hotkey()
 @JvmField val CONTINUE_KEY = RedenConfigHotkey("continueKey", "").mt().hotkey()
