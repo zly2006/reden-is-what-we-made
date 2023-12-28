@@ -43,6 +43,8 @@ import net.minecraft.network.packet.c2s.play.UpdateStructureBlockC2SPacket
 import net.minecraft.sound.SoundCategory
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
+import net.minecraft.util.hit.BlockHitResult
+import net.minecraft.util.hit.HitResult
 import net.minecraft.world.GameMode
 import java.util.zip.ZipInputStream
 import kotlin.math.sign
@@ -122,7 +124,6 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         true
     }
     STRUCTURE_BLOCK_LOAD.callback {
-        onFunctionUsed("structure_block.load")
         if (StructureBlockHelper.isValid) {
             val structureBlock = mc.world!!.getBlockEntity(StructureBlockHelper.lastUsed!!) as StructureBlockBlockEntity
             structureBlock.mode = StructureBlockMode.LOAD
@@ -148,7 +149,6 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         true
     }
     STRUCTURE_BLOCK_SAVE.callback {
-        onFunctionUsed("structure_block.save")
         if (StructureBlockHelper.isValid) {
             val structureBlock = mc.world!!.getBlockEntity(StructureBlockHelper.lastUsed!!) as StructureBlockBlockEntity
             structureBlock.mode = StructureBlockMode.SAVE
@@ -244,7 +244,8 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
     val pointTypes = BreakpointsManager.getBreakpointManager().registry.values.toList()
     var index = 0
     ADD_BREAKPOINT.callback {
-        val pos = mc.crosshairTarget?.pos?.toBlockPos() ?: return@callback false
+        if (mc.crosshairTarget?.type != HitResult.Type.BLOCK) return@callback false
+        val pos = (mc.crosshairTarget as? BlockHitResult?)?.blockPos ?: return@callback false
         val type = pointTypes[index]
         val manager = mc.data.breakpoints
         val id = (manager.breakpointMap.keys.maxOrNull() ?: 0) + 1
