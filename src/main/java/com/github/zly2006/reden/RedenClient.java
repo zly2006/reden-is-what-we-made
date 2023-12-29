@@ -1,6 +1,7 @@
 package com.github.zly2006.reden;
 
 import com.github.zly2006.reden.clientGlow.ClientGlowKt;
+import com.github.zly2006.reden.issueTracker.GithubIssue;
 import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.malilib.data.CommandHotkey;
@@ -126,6 +127,13 @@ public class RedenClient implements ClientModInitializer {
                 AutoUpdateKt.relaunch(null);
                 return 1;
             })));
+        });
+        ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
+            try {
+                GithubIssue issue = new GithubIssue("zly2006", "reden-is-what-we-made", 38);
+            } catch (Exception e) {
+                Reden.LOGGER.error("", e);
+            }
         });
     }
 
