@@ -22,7 +22,6 @@ sealed class BlockUpdateEvent: BreakPoint {
     override var id: Int = 0
     @Serializable(with = BlockPosSerializer::class)
     override var pos: BlockPos? = null
-    abstract override val type: BreakPointType
     companion object {
         fun appendCustomFieldsUI(parent: FlowLayout, breakpoint: BreakPoint) {
             breakpoint as BlockUpdateEvent

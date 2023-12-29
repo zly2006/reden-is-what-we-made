@@ -8,7 +8,6 @@ import com.github.zly2006.reden.render.SolidFaceRenderer.ShapePredicateOptionEnt
 import com.github.zly2006.reden.utils.startDebugAppender
 import com.github.zly2006.reden.utils.stopDebugAppender
 import fi.dy.masa.malilib.config.HudAlignment
-import fi.dy.masa.malilib.config.IConfigBase
 import fi.dy.masa.malilib.config.options.ConfigBase
 import fi.dy.masa.malilib.config.options.ConfigOptionList
 import fi.dy.masa.malilib.hotkeys.IHotkey
@@ -25,18 +24,12 @@ import net.fabricmc.api.Environment
 @JvmField val DEBUG_TAB = mutableListOf<ConfigBase<*>>()
 @JvmField val HIDDEN_TAB = mutableListOf<ConfigBase<*>>()
 private fun <T : IHotkey> T.hotkey() = this.apply(HOTKEYS::add)
-@Suppress("UNCHECKED_CAST")
-private fun <T : IConfigBase?> ConfigBase<T>.generic() = this.apply(GENERIC_TAB::add) as T
-@Suppress("UNCHECKED_CAST")
-private fun <T : IConfigBase?> ConfigBase<T>.rvc() = this.apply(RVC_TAB::add) as T
-@Suppress("UNCHECKED_CAST")
-private fun <T : IConfigBase?> ConfigBase<T>.mt() = this.apply(MICRO_TICK_TAB::add) as T
-@Suppress("UNCHECKED_CAST")
-private fun <T : IConfigBase?> ConfigBase<T>.sr() = this.apply(SUPER_RIGHT_TAB::add) as T
-@Suppress("UNCHECKED_CAST")
-private fun <T : IConfigBase?> ConfigBase<T>.debug() = this.apply(DEBUG_TAB::add) as T
-@Suppress("UNCHECKED_CAST")
-private fun <T : IConfigBase?> ConfigBase<T>.hidden() = this.apply(HIDDEN_TAB::add) as T
+private fun <T : ConfigBase<*>> T.generic() = apply { (GENERIC_TAB.add(this)) }
+private fun <T : ConfigBase<*>> T.rvc() = apply { (RVC_TAB.add(this)) }
+private fun <T : ConfigBase<*>> T.mt() = apply { (MICRO_TICK_TAB.add(this)) }
+private fun <T : ConfigBase<*>> T.sr() = apply { (SUPER_RIGHT_TAB.add(this)) }
+private fun <T : ConfigBase<*>> T.debug() = apply { (DEBUG_TAB.add(this)) }
+private fun <T : ConfigBase<*>> T.hidden() = apply { (HIDDEN_TAB.add(this)) }
 
 // Generic
 @JvmField val REDEN_CONFIG_KEY = RedenConfigHotkey("redenConfigKey", "R,C").generic().hotkey()

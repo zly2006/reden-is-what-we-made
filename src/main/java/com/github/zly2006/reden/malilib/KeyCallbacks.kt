@@ -285,7 +285,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
                     fun format(text: String) = Text.empty().append(Text.literal(text.replace(",", " + "))
                         .formatted(Formatting.GOLD))
                     child(Components.label(format(EDIT_BREAKPOINTS.stringValue).append(" to edit breakpoints")))
-                    child(Components.label(format(BREAKPOINT_RENDERER.stringValue +" + Scroll").append(" to change breakpoint type")))
+                    child(Components.label(format(BREAKPOINT_RENDERER.keybind.stringValue + " + Scroll").append(" to change breakpoint type")))
                     child(Components.label(format(ADD_BREAKPOINT.stringValue).append(" to add breakpoints")))
                     child(Components.label(format(VIEW_ALL_BREAKPOINTS.stringValue).append(" to view all breakpoints")))
                 }

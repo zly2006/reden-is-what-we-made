@@ -97,8 +97,8 @@ public abstract class MixinServer extends ReentrantThreadExecutor<ServerTask> im
             method = "save",
             at = @At("HEAD")
     )
-    private void saving(CallbackInfoReturnable<Boolean> cir) {
-        serverData.getBreakpoints().save(session.getDirectory().path().resolve(REDEN_BREAKPOINTS_JSON));
+    private void saving(boolean suppressLogs, boolean flush, boolean force, CallbackInfoReturnable<Boolean> cir) {
+        serverData.getBreakpoints().save(session.getDirectory().path().resolve(REDEN_BREAKPOINTS_JSON), suppressLogs);
     }
 
     @NotNull

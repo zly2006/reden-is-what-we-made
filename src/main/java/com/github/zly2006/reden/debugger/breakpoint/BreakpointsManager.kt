@@ -130,11 +130,13 @@ class BreakpointsManager(val isClient: Boolean) {
         }
     }
 
-    fun save(path: Path) {
+    fun save(path: Path, suppressLogs: Boolean) {
         require(!isClient) {
             "Cannot save breakpoint on client side"
         }
-        Reden.LOGGER.info("Saving breakpoints to $path")
+        if (!suppressLogs) {
+            Reden.LOGGER.info("Saving breakpoints to $path")
+        }
         val breakpoints = breakpointMap.values.toList()
         path.writeText(json.encodeToString(ListSerializer(breakpointSerializer()), breakpoints))
     }
@@ -152,68 +154,63 @@ class BreakpointsManager(val isClient: Boolean) {
         }
     }
 
-    @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
-    fun breakpointSerializer() = object : KSerializer<BreakPoint> {
-        override val descriptor: SerialDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
-            buildSerialDescriptor("redenmc.breakpoint", PolymorphicKind.OPEN) {
+    companion object {
+        @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
+        object Serializer: KSerializer<BreakPoint> {
+            override val descriptor: SerialDescriptor = buildSerialDescriptor("redenmc.breakpoint", PolymorphicKind.OPEN) {
                 element("type", String.serializer().descriptor)
-                element(
-                    "value",
-                    buildSerialDescriptor("redenmc.breakpoint.serialization", SerialKind.CONTEXTUAL)
-                )
-            }
-        }
-
-        override fun serialize(encoder: Encoder, value: BreakPoint) {
-            @Suppress("UNCHECKED_CAST")
-            val actualSerializer = value.type.kSerializer() as KSerializer<BreakPoint>
-            encoder.encodeStructure(descriptor) {
-                encodeStringElement(descriptor, 0, value.type.id.toString())
-                encodeSerializableElement(descriptor, 1, actualSerializer, value)
-            }
-        }
-
-        override fun deserialize(decoder: Decoder): BreakPoint = decoder.decodeStructure(descriptor) {
-            var identifier: String? = null
-            var value: BreakPoint? = null
-            if (decodeSequentially()) {
-                return@decodeStructure decodeSequentially(this)
+                element("value", buildSerialDescriptor("redenmc.breakpoint.serialization", SerialKind.CONTEXTUAL))
             }
 
-            mainLoop@ while (true) {
-                when (val index = decodeElementIndex(descriptor)) {
-                    CompositeDecoder.DECODE_DONE -> break@mainLoop
-                    0 -> identifier = decodeStringElement(descriptor, index)
-
-                    1 -> {
-                        identifier = requireNotNull(identifier) { "Cannot read breakpoint before its type token" }
-                        val serializer = findActualSerializer(identifier)
-                        value = decodeSerializableElement(descriptor, index, serializer)
-                    }
-                    else -> throw SerializationException(
-                        "Invalid index in breakpoint deserialization of " +
-                                (identifier ?: "unknown id") +
-                                "\n Expected 0, 1 or DECODE_DONE(-1), but found $index"
-                    )
+            override fun serialize(encoder: Encoder, value: BreakPoint) {
+                @Suppress("UNCHECKED_CAST")
+                val actualSerializer = value.type.kSerializer() as KSerializer<BreakPoint>
+                encoder.encodeStructure(descriptor) {
+                    encodeStringElement(descriptor, 0, value.type.id.toString())
+                    encodeSerializableElement(descriptor, 1, actualSerializer, value)
                 }
             }
-            requireNotNull(value) {
-                "No breakpoint data read for type $identifier"
+
+            override fun deserialize(decoder: Decoder): BreakPoint = decoder.decodeStructure(descriptor) {
+                var identifier: String? = null
+                var value: BreakPoint? = null
+                if (decodeSequentially()) {
+                    return@decodeStructure decodeSequentially(this)
+                }
+
+                mainLoop@ while (true) {
+                    when (val index = decodeElementIndex(descriptor)) {
+                        CompositeDecoder.DECODE_DONE -> break@mainLoop
+                        0 -> identifier = decodeStringElement(descriptor, index)
+
+                        1 -> {
+                            identifier = requireNotNull(identifier) { "Cannot read breakpoint before its type token" }
+                            val serializer = findActualSerializer(identifier)
+                            value = decodeSerializableElement(descriptor, index, serializer)
+                        }
+                        else -> throw SerializationException(
+                            "Invalid index in breakpoint deserialization of " +
+                                    (identifier ?: "unknown id") +
+                                    "\n Expected 0, 1 or DECODE_DONE(-1), but found $index"
+                        )
+                    }
+                }
+                requireNotNull(value) {
+                    "No breakpoint data read for type $identifier"
+                }
             }
+
+            private fun decodeSequentially(compositeDecoder: CompositeDecoder): BreakPoint {
+                val serializer = findActualSerializer(compositeDecoder.decodeStringElement(descriptor, 0))
+                return compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
+            }
+
+            private fun findActualSerializer(
+                identifier: String?
+            ) = getBreakpointManager().registry[Identifier(identifier)]?.kSerializer()
+                ?: throw SerializationException("breakpoint type $identifier not found")
         }
 
-        private fun decodeSequentially(compositeDecoder: CompositeDecoder): BreakPoint {
-            val serializer = findActualSerializer(compositeDecoder.decodeStringElement(descriptor, 0))
-            return compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
-        }
-
-        fun findActualSerializer(
-            identifier: String?
-        ) = registry[Identifier(identifier)]?.kSerializer()
-            ?: throw SerializationException("breakpoint type $identifier not found")
-    }
-
-    companion object {
         @TestOnly
         var testBreakpointManager: BreakpointsManager? = null
 
@@ -236,5 +233,4 @@ class BreakpointsManager(val isClient: Boolean) {
     }
 }
 
-@Suppress("DEPRECATION")
-fun breakpointSerializer() = BreakpointsManager.getBreakpointManager().breakpointSerializer()
+fun breakpointSerializer() = BreakpointsManager.Companion.Serializer

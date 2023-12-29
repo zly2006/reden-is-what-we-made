@@ -33,9 +33,9 @@ class BreakpointSerializerTest {
             }
             manager.breakpointMap[10] = breakpoint
 
-            val jsonString = json.encodeToString(manager.breakpointSerializer(), breakpoint)
+            val jsonString = json.encodeToString(BreakpointsManager.Companion.Serializer, breakpoint)
             println(jsonString)
-            val deserialized = json.decodeFromString(manager.breakpointSerializer(), jsonString)
+            val deserialized = json.decodeFromString(BreakpointsManager.Companion.Serializer, jsonString)
 
             breakpoint as BlockUpdateEvent
             assert(breakpoint.name == deserialized.name)
