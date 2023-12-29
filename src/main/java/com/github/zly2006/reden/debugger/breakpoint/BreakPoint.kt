@@ -6,6 +6,7 @@ import io.wispforest.owo.ui.container.FlowLayout
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.listSerialDescriptor
@@ -30,6 +31,7 @@ interface BreakPointType {
 
 interface BreakPoint {
     val id: Int
+    @Transient // Note
     val type: BreakPointType
     @Serializable
     data class Handler(
