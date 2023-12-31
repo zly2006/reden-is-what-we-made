@@ -135,8 +135,15 @@ allprojects {
     }
 }
 
-build {
-    dependsOn(project(':testmod').tasks.withType(Test))
+configurations {
+    dev {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+}
+
+artifacts {
+    dev jar
 }
 
 base {
