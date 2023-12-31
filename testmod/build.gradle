@@ -13,6 +13,10 @@ dependencies {
     implementation project(path: ':', configuration: "dev")
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
 test {
     useJUnitPlatform()
 
