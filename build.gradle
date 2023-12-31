@@ -1,7 +1,4 @@
 buildscript {
-    repositories {
-        jcenter()
-    }
     dependencies {
         //Check for the latest version here: http://plugins.gradle.org/plugin/com.jfrog.artifactory
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:5.1.10"
@@ -105,39 +102,41 @@ allprojects {
             )
         }
     }
+
+    apply {
+        plugin 'fabric-loom'
+    }
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${project.minecraft_version}"
+        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+        modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+        // Fabric API
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+        // Kotlin support
+        modApi("net.fabricmc:fabric-language-kotlin:1.9.2+kotlin.1.8.10")
+        // MaLiLib, required on client
+        modApi "fi.dy.masa.malilib:malilib-fabric-1.20.4:0.18.0"
+        // carpet, required on client & server
+        modApi "carpet:fabric-carpet:1.20.3-1.4.128+v231205"
+        // Game test
+        testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+        //include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
+        //include(implementation("org.bouncycastle:bcpg-jdk18on:1.76"))
+        include(implementation("com.squareup.okhttp3:okhttp:4.11.0"))
+        include(implementation("org.eclipse.jgit:org.eclipse.jgit:6.6.0.202305301015-r"))
+        include(implementation("com.squareup.okio:okio-jvm:3.2.0"))
+        modImplementation "curse.maven:litematica-308892:4946471"
+        modImplementation "curse.maven:tweakeroo-297344:4946344"
+        modApi "maven.modrinth:modmenu:9.0.0-pre.1"
+        modImplementation "maven.modrinth:ferrite-core:6.0.3-fabric"
+        modApi "io.wispforest:owo-lib:${project.owo_version}"
+    }
 }
 
-dependencies {
-    // implementation 'org.bouncycastle:'
-    // To change the versions see the gradle.properties file
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-    // Fabric API
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    // Kotlin support
-    modApi("net.fabricmc:fabric-language-kotlin:1.9.2+kotlin.1.8.10")
-    // MaLiLib, required on client
-    modApi "fi.dy.masa.malilib:malilib-fabric-1.20.4:0.18.0"
-    // carpet, required on client & server
-    modApi "carpet:fabric-carpet:1.20.3-1.4.128+v231205"
-    // Game test
-    modApi "net.fabricmc:fabric-loader-junit:${project.loader_version}"
-    //include(implementation("org.bouncycastle:bcprov-jdk18on:1.76"))
-    //include(implementation("org.bouncycastle:bcpg-jdk18on:1.76"))
-    include(implementation("com.squareup.okhttp3:okhttp:4.11.0"))
-    include(implementation("org.eclipse.jgit:org.eclipse.jgit:6.6.0.202305301015-r"))
-    include(implementation("com.squareup.okio:okio-jvm:3.2.0"))
-    modImplementation "curse.maven:litematica-308892:4946471"
-    modImplementation "curse.maven:tweakeroo-297344:4946344"
-    modApi "maven.modrinth:modmenu:9.0.0-pre.1"
-    modImplementation "maven.modrinth:ferrite-core:6.0.3-fabric"
-    modApi "io.wispforest:owo-lib:${project.owo_version}"
-}
-
-test {
-    useJUnitPlatform()
+build {
+    dependsOn(project(':testmod').tasks.withType(Test))
 }
 
 base {
