@@ -135,10 +135,6 @@ allprojects {
     }
 }
 
-build {
-    dependsOn(project(':testmod').tasks.withType(Test))
-}
-
 base {
     archivesName = project.archives_base_name
 }

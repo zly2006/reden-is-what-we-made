@@ -9,4 +9,6 @@ pluginManagement {
     }
 }
 
-include("testmod")
+if (Boolean.parseBoolean(System.getProperty("reden.testmod"))) {
+    include("testmod")
+}
