@@ -135,6 +135,17 @@ allprojects {
     }
 }
 
+configurations {
+    dev {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+}
+
+artifacts {
+    dev jar
+}
+
 base {
     archivesName = project.archives_base_name
 }
