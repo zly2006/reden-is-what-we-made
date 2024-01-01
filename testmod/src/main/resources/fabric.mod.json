@@ -2,5 +2,10 @@
   "schemaVersion": 1,
   "version": "reden",
   "id": "reden-test",
-  "name": "Reden Test Mod"
+  "name": "Reden Test Mod",
+  "entrypoints": {
+    "main": [
+      "com.github.zly2006.reden.test.TestMod"
+    ]
+  }
 }
