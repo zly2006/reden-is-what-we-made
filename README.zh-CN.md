@@ -1,4 +1,4 @@
-# Reden -- 在MC中的撤销(Ctrl +Z) 与重做(Ctrl+Y) 模组
+# Reden
 
 [![Modrinth 下载](https://img.shields.io/modrinth/dt/reden?style=flat-square&label=Modrinth)](https://modrinth.com/mod/reden)
 [![Discord](https://img.shields.io/discord/1140304794976792707?logo=discord&label=discord)](https://discord.gg/fCxmEyFgAd)
