@@ -9,13 +9,17 @@
 
 ## 撤销&重做
 
-Ctrl+Z  撤销 ，妈妈再也不怕我炸珍珠炮啦！Ctrl+Y 重做（取消撤销），爸爸再也不怕我把世界撤销到初始状态啦！
-更多信息请参阅[wiki页面](https://wiki.redenmc.com/Undo-and-Redo)
+Ctrl+Z 撤销 ，妈妈再也不怕我炸珍珠炮啦！Ctrl+Y 重做（取消撤销），爸爸再也不怕我把世界撤销到初始状态啦！
+更多信息请参阅 [wiki页面](https://wiki.redenmc.com/Undo-and-Redo)
 
-快捷键 (malilib -> General)	默认
-撤销	Ctrl+Z
-重做	Ctrl+Y
-(调试模式) 预览调试撤回	Ctrl+Shift+Z
+
+|  快捷键 (malilib -> `General`) |    默认     |
+|---------------------------------|----------------|
+|                          `撤销` |    `Ctrl+Z`    |
+|                          `重做` |    `Ctrl+Y`    |
+|         (调试模式) `预览调试撤回` | `Ctrl+Shift+Z` |
+
+
 
 
 ## 撤销刻 （tick）
@@ -26,7 +30,7 @@ Ctrl+Z  撤销 ，妈妈再也不怕我炸珍珠炮啦！Ctrl+Y 重做（取消�
 ## 红石版本控制（RVC）
 > 开发中
 
-红石版本控制 RVC( Redstone Version Control)，管理机器的修改历史、分析历史记录。
+红石版本控制 RVC (Redstone Version Control)，管理机器的修改历史、分析历史记录。
 
 RVCHub是一个通用的机器分享平台，其可以自动识别机器是否正确标记了版权
 
