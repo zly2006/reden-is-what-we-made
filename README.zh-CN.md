@@ -9,8 +9,8 @@
 
 ## 撤销&重做
 
-Ctrl+Z 可以立即撤销之前的操作，使得开发红石机器更加方便！Ctrl+Y可以重做。
-更多信息请参阅[wiki页面](https://wiki.redenmc.com/Undo-and-Redo)
+Ctrl+Z 可以立即撤销之前的操作，使得开发红石机器更加方便！Ctrl+Y 可以重做。
+更多信息请参阅 [wiki页面](https://wiki.redenmc.com/Undo-and-Redo)
 
 
 |  快捷键 (malilib -> `General`) |    默认     |
@@ -55,7 +55,7 @@ RVCHub是一个通用的机器分享平台，其可以自动识别机器是否�
 + 强制同步实体位置：`Micro Ticking -> toggleForceEntityPosSync` 强制同步实体位置到客户端，当你冻结游戏时可能会有用
 + 禁用超时：`General -> noTimeout` 在客户端禁用超时，如果你在调试服务器，可能需要这个
 + 物品分身探测器：carpet `redenDebuggerItemShadow` 检测是否有分身物品在库存中，开发中，**未来它将支持禁用可能破坏链接的操作**
-+ 快速结构方块操作：`Ctrl+L`可以执行加载操作，`Ctrl+S`可以执行保存操作。操作对象是最后一次交互的结构方块
++ 快速结构方块操作：`Ctrl+L` 可以执行加载操作，`Ctrl+S` 可以执行保存操作。操作对象是最后一次交互的结构方块
 
 ## Bug 修复
 
@@ -69,7 +69,7 @@ RVCHub是一个通用的机器分享平台，其可以自动识别机器是否�
 
 调试属性：
 
-| 属性名                               | 描述                                       |
-|-----------------------------------|------------------------------------------|
+| 属性名                             | 描述                                                     |
+|-----------------------------------|---------------------------------------------------------|
 | `reden.transformer.printBytecode` | 打印最终字节码到标准输出。这个过程在 mixin postApply 阶段运行。 |
-| `reden.transformer.export.pre`    | 导出转换后的类。这个过程在 mixin preApply 阶段运行。       |
+| `reden.transformer.export.pre`    | 导出转换后的类。这个过程在 mixin preApply 阶段运行。          |
