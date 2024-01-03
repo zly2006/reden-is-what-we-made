@@ -17,7 +17,12 @@ class TickStageTree(
     val activeStages: MutableList<TickStage> = mutableListOf()
 ) {
     val activeStage get() = activeStages.lastOrNull()
+
+    /**
+     * Stages that have been ticked.
+     */
     private val history = mutableListOf<TickStage>()
+    // only used for debugging, DO NOT use it in production!! it is very very slow
     private val stacktraces: MutableList<Array<StackTraceElement>?> = mutableListOf()
 
     private var stepOverUntil: TickStage? = null

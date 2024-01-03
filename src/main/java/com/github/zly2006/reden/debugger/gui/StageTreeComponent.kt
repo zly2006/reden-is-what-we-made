@@ -9,6 +9,9 @@ import io.wispforest.owo.ui.container.ScrollContainer
 import io.wispforest.owo.ui.core.*
 import net.minecraft.text.Text
 
+/**
+ * The component that displays the tick stage tree.
+ */
 class StageTreeComponent(
     val debugger: DebuggerComponent,
     horizontalSizing: Sizing, verticalSizing: Sizing
@@ -24,10 +27,19 @@ class StageTreeComponent(
         TickStage.DisplayLevel.ALWAYS_FOLD -> true
         TickStage.DisplayLevel.FULL -> true
     }
+
+    /**
+     * A node in the tree.
+     */
     inner class Node(
         private val indent: Int,
         val stage: TickStage,
     ): FlowLayout(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL) {
+        /**
+         * The x coordinate of the line that highlights this node.
+         *
+         * This highlight can help users to easily know what stages are at the same level (have same parent).
+         */
         var highlightX = -1
         var expanded: Boolean = false
             set(value) {
@@ -37,6 +49,10 @@ class StageTreeComponent(
                 button.tooltip(Text.literal(if (value) "Fold" else "Expand"))
                 field = value
             }
+
+        /**
+         * The button to expand or fold the node.
+         */
         private val button by lazy {
             Components.button(Text.literal(if (expanded) "-" else "+")) {
                 expanded = !expanded
@@ -66,6 +82,12 @@ class StageTreeComponent(
                 }
             }
         }
+
+        /**
+         * If this stage has [TickStage.hasScheduledTicks], [TickStage.hasBlockEvents] or [TickStage.changedBlocks] is not empty,
+         *
+         * Tell the user that this stage has made some changes to the game.
+         */
         private val notification = Components.label(Text.literal(" ")).apply {
             surface(Surface.PANEL)
             sizing(Sizing.fixed(10))
@@ -167,6 +189,9 @@ class StageTreeComponent(
     }
 }
 
+/**
+ * Something just like [joinToString] but for [Text].
+ */
 private fun Iterable<Text>.joinToText(literal: Text): Text {
     val builder = Text.empty()
     var first = true

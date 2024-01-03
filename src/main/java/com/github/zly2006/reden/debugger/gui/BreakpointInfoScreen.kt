@@ -1,8 +1,10 @@
 package com.github.zly2006.reden.debugger.gui
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.gui.componments.UpdatableTextBox
+import com.github.zly2006.reden.gui.message.ClientMessageQueue
 import com.github.zly2006.reden.network.TagBlockPos
 import com.github.zly2006.reden.network.UpdateBreakpointPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
@@ -215,6 +217,12 @@ class BreakpointInfoScreen(
         else if (packet.sender != client!!.player!!.uuid) {
             // Others updated breakpoint
             client!!.setScreen(BreakpointInfoScreen(client!!.data.breakpoints.breakpointMap[packet.bpId]))
+            ClientMessageQueue.add(
+                Reden.identifier("reden-icon.png"),
+                Text.literal("Breakpoint updated"),
+                Text.literal("Another player updated the breakpoint you are now editing."),
+                listOf()
+            )
         }
     }
 

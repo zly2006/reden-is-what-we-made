@@ -65,6 +65,7 @@ class DebuggerScreen(private val tree: TickStageTree, private val breakpoint: Br
                     }
                     mouseDown().subscribe { _, _, b ->
                         if (b == 0) {
+                            onFunctionUsed("buttonContinue_debuggerScreen")
                             client!!.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
                             ClientPlayNetworking.send(Continue())
                             true
@@ -81,6 +82,7 @@ class DebuggerScreen(private val tree: TickStageTree, private val breakpoint: Br
                     tooltip(Text.literal("Step Into"))
                     mouseDown().subscribe { _, _, b ->
                         if (b == 0) {
+                            onFunctionUsed("buttonStepInto_debuggerScreen")
                             client!!.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
                             ClientPlayNetworking.send(StepInto())
                             true
@@ -97,6 +99,7 @@ class DebuggerScreen(private val tree: TickStageTree, private val breakpoint: Br
                     tooltip(Text.literal("Step Over"))
                     mouseDown().subscribe { _, _, b ->
                         if (b == 0) {
+                            onFunctionUsed("buttonStepOver_debuggerScreen")
                             client!!.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
                             ClientPlayNetworking.send(StepOver(component.focused!!.id))
                             true

@@ -9,6 +9,13 @@ import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 
+/**
+ * See [wiki page](https://wiki.redenmc.com/R-Debugger/Tick_Stage)
+ *
+ * Represents a set of vanilla, e.g. tick worlds, tick entities.
+ * It may have children stages, which means these stages are callee
+ * and the parent stage is caller in jvm stack.
+ */
 abstract class TickStage(
     val name: String,
     val parent: TickStage?,

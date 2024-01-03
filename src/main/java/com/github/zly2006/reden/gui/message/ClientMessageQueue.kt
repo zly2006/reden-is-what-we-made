@@ -16,7 +16,8 @@ object ClientMessageQueue {
     )
     val messages: MutableList<Message> = mutableListOf()
     fun add(icon: Identifier, title: Text, body: Text, buttons: List<Button>): Int {
-        TODO()
+        // todo
+        return -1
     }
     fun remove(id: Int) {
         messages.removeAt(id)

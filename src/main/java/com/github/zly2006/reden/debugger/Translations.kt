@@ -1,3 +1,9 @@
+/**
+ * Translations.kt
+ *
+ * Translations for some vanilla minecraft concepts.
+ */
+
 package com.github.zly2006.reden.debugger
 
 import net.minecraft.block.entity.BlockEntityType
