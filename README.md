@@ -53,7 +53,7 @@ Provide a one-stop working environment for redstone machine developers and becom
 
 ## Bug fixes
 
-+ carpet `fixInvisibleShadowingItems`: fix invisible shadowing item entity, for more information, check [Igna's VVideo](https://www.youtube.com/watch?v=HSOSWHIg7Mk)
++ carpet `fixInvisibleShadowingItems`: fix invisible shadowing item entity, for more information, check [Igna's video](https://www.youtube.com/watch?v=HSOSWHIg7Mk)
 
 ## Build
 
