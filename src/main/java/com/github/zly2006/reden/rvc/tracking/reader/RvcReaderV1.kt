@@ -14,7 +14,7 @@ import net.minecraft.util.math.BlockPos
 import java.util.*
 
 class RvcReaderV1(
-    header: IRvcFileReader.RvcHeader
+    val header: IRvcFileReader.RvcHeader
 ): IRvcFileReader {
     override fun readBlocksData(data: List<String>): Map<BlockPos, BlockState> {
         val blocks = mutableMapOf<BlockPos, BlockState>()

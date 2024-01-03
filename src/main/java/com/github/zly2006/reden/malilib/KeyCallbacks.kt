@@ -5,9 +5,7 @@ import com.github.zly2006.reden.Sounds
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
-import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
-import com.github.zly2006.reden.debugger.breakpoint.behavior.FreezeGame
 import com.github.zly2006.reden.debugger.gui.BreakpointInfoScreen
 import com.github.zly2006.reden.debugger.gui.BreakpointListComponent
 import com.github.zly2006.reden.gui.CreditScreen
@@ -246,16 +244,13 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
     ADD_BREAKPOINT.callback {
         if (mc.crosshairTarget?.type != HitResult.Type.BLOCK) return@callback false
         val pos = (mc.crosshairTarget as? BlockHitResult?)?.blockPos ?: return@callback false
-        val type = pointTypes[index]
         val manager = mc.data.breakpoints
-        val id = (manager.breakpointMap.keys.maxOrNull() ?: 0) + 1
-        manager.breakpointMap[id] = type.create(id).apply {
-            world = mc.world!!.registryKey.value
-            setPosition(pos)
-            handler.add(BreakPoint.Handler(FreezeGame(), name = "Behavior 1"))
-        }
+        manager.createBreakpointDefault(
+            pointTypes[index],
+            mc.world!!,
+            pos
+        )
         BlockBorder[pos] = TagBlockPos.green
-        mc.data.breakpoints.sync(manager.breakpointMap[id])
         true
     }
     EDIT_BREAKPOINTS.callback {

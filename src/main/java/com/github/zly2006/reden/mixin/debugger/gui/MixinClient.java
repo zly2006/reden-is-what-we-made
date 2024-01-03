@@ -3,8 +3,12 @@ package com.github.zly2006.reden.mixin.debugger.gui;
 import com.github.zly2006.reden.access.ClientData;
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.debugger.gui.DebuggerScreen;
+import com.github.zly2006.reden.report.ReportKt;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.ServerInfo;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.server.integrated.IntegratedServer;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,6 +21,10 @@ public abstract class MixinClient implements ServerData.ClientSideServerDataAcce
     @Shadow @Nullable public Screen currentScreen;
 
     @Shadow public abstract void setScreen(@Nullable Screen screen);
+
+    @Shadow private @Nullable IntegratedServer server;
+
+    @Shadow @Nullable public abstract ServerInfo getCurrentServerEntry();
 
     @Inject(
             method = "openGameMenu",
@@ -32,6 +40,21 @@ public abstract class MixinClient implements ServerData.ClientSideServerDataAcce
         if (currentScreen == null && data.isFrozen()) {
             setScreen(new DebuggerScreen(data.getTickStageTree(), getClientData$reden().getLastTriggeredBreakpoint()));
             ci.cancel();
+        }
+    }
+
+    @Inject(
+            method = "setWorld",
+            at = @At("HEAD")
+    )
+    private void onDisconnect(ClientWorld world, CallbackInfo ci) {
+        if (world == null) {
+            ReportKt.onFunctionUsed("disconnect");
+            new Thread(ReportKt::doHeartHeat).start();
+        } else if (server != null) {
+            ReportKt.onFunctionUsed("joinServer_local");
+        } else {
+            ReportKt.onFunctionUsed("joinServer_remote");
         }
     }
 }

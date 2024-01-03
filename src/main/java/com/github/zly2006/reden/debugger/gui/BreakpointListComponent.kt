@@ -2,7 +2,6 @@ package com.github.zly2006.reden.debugger.gui
 
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
-import com.github.zly2006.reden.debugger.breakpoint.behavior.FreezeGame
 import com.github.zly2006.reden.network.TagBlockPos
 import com.github.zly2006.reden.network.UpdateBreakpointPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.REMOVE
@@ -19,6 +18,7 @@ import io.wispforest.owo.ui.core.*
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
+import net.minecraft.util.hit.BlockHitResult
 
 /**
  * Show players a list of breakpoints.
@@ -40,13 +40,11 @@ class BreakpointListComponent(
             text(Text.literal("Select breakpoint type:"))
             manager.registry.values.forEach { type ->
                 button(type.description) {
-                    val id = (manager.breakpointMap.keys.maxOrNull() ?: 0) + 1
-                    manager.breakpointMap[id] = type.create(id).apply {
-                        world = mc.world!!.registryKey.value
-                        setPosition(mc.player!!.blockPos)
-                        handler.add(BreakPoint.Handler(FreezeGame(), name = "Behavior 1"))
-                    }
-                    manager.sync(manager.breakpointMap[id])
+                    manager.createBreakpointDefault(
+                        type,
+                        mc.world!!,
+                        (mc.crosshairTarget as? BlockHitResult)?.blockPos ?: mc.player!!.blockPos
+                    )
                 }
             }
         })

@@ -44,7 +44,7 @@ data class UpdateBreakpointPacket(
                 (flag and REMOVE != 0) -> manager.breakpointMap.remove(bpId)
             }
             if (flag and REMOVE == 0) {
-                manager.breakpointMap[bpId].flags = flag
+                manager.breakpointMap[bpId].flags = flag and UPDATE.inv() and REMOVE.inv()
             }
             if (manager.isClient) {
                 val screen = MinecraftClient.getInstance().currentScreen

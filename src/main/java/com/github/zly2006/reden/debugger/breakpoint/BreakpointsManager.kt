@@ -34,6 +34,8 @@ import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.Identifier
+import net.minecraft.util.math.BlockPos
+import net.minecraft.world.World
 import org.jetbrains.annotations.TestOnly
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -152,6 +154,28 @@ class BreakpointsManager(val isClient: Boolean) {
         breakpoints.forEach {
             breakpointMap[it.id] = it
         }
+    }
+
+    fun createBreakpointDefault(type: BreakPointType, world: World, position: BlockPos) {
+        val id = (breakpointMap.keys.maxOrNull() ?: 0) + 1
+        val breakpoint = type.create(id).apply {
+            this.world = world.registryKey.value
+            setPosition(position)
+            val name = world.getBlockState(position).block.name.string
+            if (!breakpointMap.values.any { it.name == name }) {
+                this.name = name
+            } else {
+                for (i in 2..Int.MAX_VALUE) {
+                    if (!breakpointMap.values.any { it.name == "$name ($i)" }) {
+                        this.name = "$name ($i)"
+                        break
+                    }
+                }
+            }
+            handler.add(BreakPoint.Handler(FreezeGame(), name = "Behavior 1"))
+        }
+        breakpointMap[id] = breakpoint
+        sync(breakpoint)
     }
 
     companion object {
