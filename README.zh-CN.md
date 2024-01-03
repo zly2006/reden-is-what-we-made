@@ -1,37 +1,51 @@
-# Reden 是我们创造的
+# Reden
 
 [![Modrinth 下载](https://img.shields.io/modrinth/dt/reden?style=flat-square&label=Modrinth)](https://modrinth.com/mod/reden)
 [![Discord](https://img.shields.io/discord/1140304794976792707?logo=discord&label=discord)](https://discord.gg/fCxmEyFgAd)
 
-红石伊甸园
+红 石 天 堂
 
-[English](./README.md) | **简体中文**]
+[English](./README.md) | **简体中文**
 
-## 撤销与重做
+## 撤销&重做
 
-Ctrl+Z 可以立即撤销之前的操作，使得开发红石机器更加方便！Ctrl+Y可以重做。
-更多信息请参阅[wiki页面](https://wiki.redenmc.com/Undo-and-Redo)
+Ctrl+Z 可以立即撤销之前的操作，使得开发红石机器更加方便！Ctrl+Y 可以重做。
+更多信息请参阅 [wiki页面](https://wiki.redenmc.com/Undo-and-Redo)
 
-## 倒退刻
-> 早期访问阶段
 
-如果你的游戏因为使用 `/tick freeze` 而冻结，你可以使用 `/tick back` 来回到上一个刻。这个功能是通过备份实现的。
+|  快捷键 (malilib -> `General`) |    默认     |
+|---------------------------------|----------------|
+|                          `撤销` |    `Ctrl+Z`    |
+|                          `重做` |    `Ctrl+Y`    |
+|         (调试模式) `预览调试撤回` | `Ctrl+Shift+Z` |
 
-## RVC
+
+
+
+## 撤销刻 （tick）
+> 规划中
+
+若您使用 `/tick freeze` 冻结您的游戏刻（tick），你可以使用 `/tick back` 来回到上一个刻。
+
+## 红石版本控制（RVC）
 > 开发中
 
-RVC，红石版本控制，机器历史和差异分析
+红石版本控制 RVC (Redstone Version Control)，管理机器的修改历史、分析历史记录。
 
-RVCHub，一个通用的机器分享平台，以及自动识别机器是否正确标记了版权
+RVCHub是一个通用的机器分享平台，其可以自动识别机器是否正确标记了版权
 
-## RDebugger
+### RVC 选择
+
+手持烈焰棒, 左键以选中某些方块，右键以忽略。
+
+## 红石调试 (RDebugger)
 > 开发中
 
-微时间分析和模拟：方块更新断点 (NC, PP, CU, BE)，BED 调试器，逐步更新，逐步刻，更新重置
+红石调试 RDebugger ，微时间分析和模拟：方块更新断点 (NC, PP, CU, BE)，BED 调试器，逐步更新，逐步刻，更新重置
 
 让你的 MC 变成红石机器的 IDE！
 
-## 初衷
+## 初心
 
 为红石机器开发者提供一站式工作环境，成为最佳的红石调试和教学工具。
 
@@ -39,9 +53,9 @@ RVCHub，一个通用的机器分享平台，以及自动识别机器是否正�
 
 + 命令快捷键：`Super Right -> runCommand` 使用 masa 风格的快捷键运行命令
 + 强制同步实体位置：`Micro Ticking -> toggleForceEntityPosSync` 强制同步实体位置到客户端，当你冻结游戏时可能会有用
-+ 无超时：`General -> noTimeout` 在客户端禁用超时，如果你在调试服务器，可能需要这个
++ 禁用超时：`General -> noTimeout` 在客户端禁用超时，如果你在调试服务器，可能需要这个
 + 物品分身探测器：carpet `redenDebuggerItemShadow` 检测是否有分身物品在库存中，开发中，**未来它将支持禁用可能破坏链接的操作**
-+ 快速结构方块操作：`Ctrl+L`可以执行加载操作，`Ctrl+S`可以执行保存操作。操作对象是最后一次交互的结构方块
++ 快速结构方块操作：`Ctrl+L` 可以执行加载操作，`Ctrl+S` 可以执行保存操作。操作对象是最后一次交互的结构方块
 
 ## Bug 修复
 
@@ -55,7 +69,7 @@ RVCHub，一个通用的机器分享平台，以及自动识别机器是否正�
 
 调试属性：
 
-| 属性名                               | 描述                                       |
-|-----------------------------------|------------------------------------------|
+| 属性名                             | 描述                                                     |
+|-----------------------------------|---------------------------------------------------------|
 | `reden.transformer.printBytecode` | 打印最终字节码到标准输出。这个过程在 mixin postApply 阶段运行。 |
-| `reden.transformer.export.pre`    | 导出转换后的类。这个过程在 mixin preApply 阶段运行。       |
+| `reden.transformer.export.pre`    | 导出转换后的类。这个过程在 mixin preApply 阶段运行。          |
