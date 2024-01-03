@@ -9,6 +9,12 @@ import io.wispforest.owo.ui.core.OwoUIAdapter
 import io.wispforest.owo.ui.core.Surface
 import io.wispforest.owo.ui.core.VerticalAlignment
 
+/**
+ * Edit trackpoints
+ * Edit name
+ * Edit description
+ * Auto-backup (commit)
+ */
 class SelectionInfoScreen(
     val structure: TrackedStructure
 ): BaseOwoScreen<FlowLayout>() {
