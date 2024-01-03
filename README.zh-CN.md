@@ -9,8 +9,8 @@
 
 ## 撤销&重做
 
-Ctrl+Z 撤销 ，妈妈再也不怕我炸珍珠炮啦！Ctrl+Y 重做（取消撤销），爸爸再也不怕我把世界撤销到初始状态啦！
-更多信息请参阅 [wiki页面](https://wiki.redenmc.com/Undo-and-Redo)
+Ctrl+Z 可以立即撤销之前的操作，使得开发红石机器更加方便！Ctrl+Y可以重做。
+更多信息请参阅[wiki页面](https://wiki.redenmc.com/Undo-and-Redo)
 
 
 |  快捷键 (malilib -> `General`) |    默认     |
