@@ -20,7 +20,7 @@ class RvcReaderV1(
         val blocks = mutableMapOf<BlockPos, BlockState>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
-            val blockPos = BlockPos(rvcData.readNext().toInt(), rvcData.readNext().toInt(), rvcData.readNext().toInt())
+            val blockPos = BlockPos(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
             val blockState = NbtHelper.toBlockState(
                 Registries.BLOCK.readOnlyWrapper,
                 NbtHelper.fromNbtProviderString(rvcData.readGreedy())
@@ -34,7 +34,7 @@ class RvcReaderV1(
         val blockEntities = mutableMapOf<BlockPos, NbtCompound>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
-            val blockPos = BlockPos(rvcData.readNext().toInt(), rvcData.readNext().toInt(), rvcData.readNext().toInt())
+            val blockPos = BlockPos(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
             val nbt = NbtHelper.fromNbtProviderString(rvcData.readGreedy())
             blockEntities[blockPos] = nbt
         }
@@ -45,7 +45,7 @@ class RvcReaderV1(
         val entities = mutableMapOf<UUID, NbtCompound>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
-            val uuid = UUID.fromString(rvcData.readNext())
+            val uuid = UUID.fromString(rvcData.next())
             val nbt = NbtHelper.fromNbtProviderString(rvcData.readGreedy())
             entities[uuid] = nbt
         }
@@ -56,9 +56,9 @@ class RvcReaderV1(
         val trackPoints = mutableListOf<TrackedStructure.TrackPoint>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
-            val blockPos = BlockPos(rvcData.readNext().toInt(), rvcData.readNext().toInt(), rvcData.readNext().toInt())
-            val predicate = rvcData.readNext()
-            val mode = rvcData.readNext()
+            val blockPos = BlockPos(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
+            val predicate = rvcData.next()
+            val mode = rvcData.next()
             trackPoints.add(
                 TrackedStructure.TrackPoint(
                     blockPos,
@@ -75,9 +75,9 @@ class RvcReaderV1(
         val blockEvents = mutableListOf<BlockEvent>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
-            val blockPos = BlockPos(rvcData.readNext().toInt(), rvcData.readNext().toInt(), rvcData.readNext().toInt())
-            val type = rvcData.readNext().toInt()
-            val data = rvcData.readNext().toInt()
+            val blockPos = BlockPos(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
+            val type = rvcData.next().toInt()
+            val data = rvcData.next().toInt()
             val block = Registries.BLOCK.get(Identifier(rvcData.readGreedy()))
             blockEvents.add(BlockEvent(blockPos, block, type, data))
         }

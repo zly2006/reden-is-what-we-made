@@ -3,7 +3,7 @@ package com.github.zly2006.reden.rvc.tracking
 /**
  * Separate and get delimiter separated data read from a RVC file using [RvcFileIO].
  */
-class RvcDataReader (val data: String, val delimiters: String) {
+class RvcDataReader(val data: String, val delimiters: String): Iterator<String> {
     private var index = 0
 
     /**
@@ -18,9 +18,15 @@ class RvcDataReader (val data: String, val delimiters: String) {
     /**
      * @return The string between the current index and the next delimiter.
      */
-    fun readNext(): String {
-        val next = data.substring(index, data.indexOf(delimiters, index))
+    override fun next(): String {
+        val endIndex = data.indexOf(delimiters, index)
+            .takeIf { it >= 0 } ?: data.length
+        val next = data.substring(index, endIndex)
         index += next.length + delimiters.length
         return next
+    }
+
+    override fun hasNext(): Boolean {
+        return index < data.length
     }
 }
