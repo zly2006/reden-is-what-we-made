@@ -10,6 +10,7 @@ import com.github.zly2006.reden.debugger.tickPackets
 import com.github.zly2006.reden.utils.server
 import net.minecraft.block.BlockState
 import net.minecraft.server.world.BlockEvent
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.tick.OrderedTick
 
@@ -140,7 +141,12 @@ class TickStageTree(
         }
     }
 
-    fun onBlockChanging(pos: BlockPos, state: BlockState) {
+    fun onBlockChanging(pos: BlockPos, state: BlockState, world: ServerWorld) {
+        if ((activeStage as? TickStageWorldProvider)?.world == null) {
+            // Note: no available world, we should add a stage to track this block change
+            // This is usually caused by other mods.
+            activeStages.add(TickStageWorldProvider("set_block", activeStage!!, world))
+        }
         val stage = activeStage as? TickStageWithWorld ?: return
         val oldState = stage.world?.getBlockState(pos) ?: return
         activeStage!!.changedBlocks.computeIfAbsent(pos) { TickStage.BlockChange(oldState, state) }
