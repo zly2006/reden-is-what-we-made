@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
+import com.github.zly2006.reden.utils.ResourceLoader
 import net.minecraft.entity.player.PlayerEntity
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.api.Git
@@ -43,7 +44,7 @@ class RvcRepository(
 
     fun head(): TrackedStructure {
         if (headCache != null) return headCache!!
-        return checkout(RVC_BRANCH)
+        return checkoutBranch(RVC_BRANCH)
     }
 
     fun checkout(tag: String) = TrackedStructure(name).apply {
@@ -51,15 +52,28 @@ class RvcRepository(
         RvcFileIO.load(git.repository.workTree.toPath(), this)
     }
 
+    fun checkoutBranch(branch: String) = checkout("refs/heads/$branch")
+
     companion object {
         val path = Path("rvc")
         const val RVC_BRANCH = "rvc"
-        fun create(name: String) = RvcRepository(
-            Git.init()
+        fun create(name: String, description: String? = null): RvcRepository {
+            val git = Git.init()
                 .setDirectory(path / name)
                 .setInitialBranch(RVC_BRANCH)
                 .call()
-        )
+            git.repository.workTree.resolve("README.md").writeText(
+                ResourceLoader.loadString("assets/rvc/README.md")
+                    .replace("\${name}", name)
+                    .replace("\${description}", description ?: "")
+            )
+            git.add().addFilepattern("README.md").call()
+            git.commit()
+                .setMessage("Initial commit")
+                .setAuthor("Reden-RVC", "info@redenmc.com")
+                .call()
+            return RvcRepository(git)
+        }
 
         fun clone(url: String): RvcRepository {
             var name = url.split("/").last().removeSuffix(".git")
