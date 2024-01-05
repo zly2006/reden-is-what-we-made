@@ -141,11 +141,13 @@ class TickStageTree(
         }
     }
 
+    private var setBlockStageFix = false
     fun onBlockChanging(pos: BlockPos, state: BlockState, world: ServerWorld) {
         if ((activeStage as? TickStageWorldProvider)?.world == null) {
             // Note: no available world, we should add a stage to track this block change
             // This is usually caused by other mods.
             activeStages.add(TickStageWorldProvider("set_block", activeStage!!, world))
+            setBlockStageFix = true
         }
         val stage = activeStage as? TickStageWithWorld ?: return
         val oldState = stage.world?.getBlockState(pos) ?: return
@@ -153,7 +155,10 @@ class TickStageTree(
     }
 
     fun onBlockChanged(pos: BlockPos, state: BlockState) {
-
+        if (setBlockStageFix) {
+            setBlockStageFix = false
+            pop(TickStageWorldProvider::class.java)
+        }
     }
 
     fun <T> onTickScheduled(orderedTick: OrderedTick<T>) {
