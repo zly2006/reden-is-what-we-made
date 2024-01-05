@@ -12,7 +12,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 class GithubRemoteRepository(
     val token: String,
     val name: String,
-    val userId: String,
+    val owner: String,
 ): IRemoteRepository {
     @Suppress("unused", "PropertyName")
     @Serializable
@@ -41,9 +41,11 @@ class GithubRemoteRepository(
         if (!response.isSuccessful) throw Exception("Failed to create repo: ${response.code} ${response.message}")
     }
 
-    override fun delete() {
-        client.newCall(Request.Builder().url("https://api.github.com/repos/$userId/$name").githubToken().delete().build()).execute()
+    override fun deleteRepo() {
+        client.newCall(Request.Builder().url("https://api.github.com/repos/$owner/$name").githubToken().delete().build()).execute()
     }
+
+    override val gitUrl = "https://github.com//$owner/$name.git"
 }
 
 private fun Request.Builder.githubToken() = header("Authorization", GITHUB_TOKEN.stringValue)

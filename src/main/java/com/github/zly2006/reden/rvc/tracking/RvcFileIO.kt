@@ -14,7 +14,6 @@ import kotlin.io.path.notExists
  * Save and load [TrackedStructure]s into and from RVC files.
  */
 object RvcFileIO: StructureIO {
-    private fun rvcFile(name: String): String = "$name.rvc"
     const val CURRENT_VERSION = "1.0.0"
     private val RVC_HEADER = IRvcFileReader.RvcHeader(
         mutableMapOf(
@@ -38,7 +37,7 @@ object RvcFileIO: StructureIO {
      * @param data The data to write to the RVC file
      */
     private fun writeRvcFile(path: Path, name: String, header: IRvcFileReader.RvcHeader, data: String) {
-        path.resolve(rvcFile(name)).toFile().writeText("$header\n$data")
+        path.resolve("$name.rvc").toFile().writeText("$header\n$data")
     }
 
     /**
@@ -61,8 +60,9 @@ object RvcFileIO: StructureIO {
      * for its data version and the data to read
      */
     private fun loadRvcFile(path: Path, name: String): IRvcFileReader.RvcFile? {
-        if (path.resolve(rvcFile(name)).toFile().exists()) {
-            val lines = path.resolve(rvcFile(name)).toFile().readLines()
+        val filename = "$name.rvc"
+        if (path.resolve(filename).toFile().exists()) {
+            val lines = path.resolve(filename).toFile().readLines()
             val rvcReader = getRvcFileReader(lines[0])
             val data = lines.subList(1, lines.size)
             return IRvcFileReader.RvcFile(rvcReader, data)
