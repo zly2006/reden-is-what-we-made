@@ -14,7 +14,11 @@ class RvcRepository(
     private val git: Git,
     val name: String = git.repository.workTree.name
 ) {
+    var headCache: TrackedStructure? = null
+        private set
+
     fun commit(structure: TrackedStructure, message: String, committer: PlayerEntity?) {
+        headCache = structure
         RvcFileIO.save(git.repository.workTree.toPath(), structure)
         git.add().addFilepattern("*.rvc").call()
         val cmd = git.commit()
@@ -28,14 +32,19 @@ class RvcRepository(
     fun push(remote: IRemoteRepository) {
         git.push()
             .setRemote(remote.gitUrl)
+            .setForce(false)
             .call()
     }
 
     fun fetch() {
+        headCache = null
         TODO() // Note: currently we have no gui for this
     }
 
-    fun head() = checkout(RVC_BRANCH)
+    fun head(): TrackedStructure {
+        if (headCache != null) return headCache!!
+        return checkout(RVC_BRANCH)
+    }
 
     fun checkout(tag: String) = TrackedStructure(name).apply {
         git.checkout().setName(tag).setForced(true).call()

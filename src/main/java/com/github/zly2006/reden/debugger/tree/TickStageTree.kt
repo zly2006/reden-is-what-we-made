@@ -79,8 +79,9 @@ class TickStageTree(
     }
 
     fun pop(clazz: Class<out TickStage>) {
-        assert(clazz.isInstance(pop())) {
-            "popped stage expected to be $clazz"
+        val stage = pop()
+        require(clazz.isInstance(stage)) {
+            "popped stage expected to be $clazz, but got ${stage.javaClass}"
         }
     }
 
@@ -118,7 +119,7 @@ class TickStageTree(
                 Reden.LOGGER.error("  $tickStage")
             }
         } finally {
-            pop()
+            pop(stage.javaClass)
         }
     }
 
@@ -141,13 +142,11 @@ class TickStageTree(
         }
     }
 
-    private var setBlockStageFix = false
     fun onBlockChanging(pos: BlockPos, state: BlockState, world: ServerWorld) {
         if ((activeStage as? TickStageWorldProvider)?.world == null) {
             // Note: no available world, we should add a stage to track this block change
             // This is usually caused by other mods.
-            activeStages.add(TickStageWorldProvider("set_block", activeStage!!, world))
-            setBlockStageFix = true
+            push(TickStageWorldProvider("set_block", activeStage!!, world))
         }
         val stage = activeStage as? TickStageWithWorld ?: return
         val oldState = stage.world?.getBlockState(pos) ?: return
@@ -155,8 +154,8 @@ class TickStageTree(
     }
 
     fun onBlockChanged(pos: BlockPos, state: BlockState) {
-        if (setBlockStageFix) {
-            setBlockStageFix = false
+        val stage = activeStage
+        if (stage is TickStageWorldProvider && stage.name == "set_name") {
             pop(TickStageWorldProvider::class.java)
         }
     }

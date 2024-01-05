@@ -30,13 +30,19 @@ public abstract class MixinServerWorldChunk extends Chunk {
         super(pos, upgradeData, heightLimitView, biomeRegistry, inhabitedTime, sectionArray, blendingData);
     }
 
-    @Inject(method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Z)Lnet/minecraft/block/BlockState;", at = @At("HEAD"))
+    @Inject(
+            method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Z)Lnet/minecraft/block/BlockState;",
+            at = @At("HEAD")
+    )
     private void monitorSetBlock(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
         if (world.isClient) return;
         UpdateMonitorHelper.monitorSetBlock((ServerWorld) world, pos, state);
     }
 
-    @Inject(method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Z)Lnet/minecraft/block/BlockState;", at = @At("TAIL"))
+    @Inject(
+            method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Z)Lnet/minecraft/block/BlockState;",
+            at = @At("TAIL")
+    )
     private void afterSetBlock(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
         if (world.isClient) return;
         UpdateMonitorHelper.postSetBlock((ServerWorld) world, pos, state, false);

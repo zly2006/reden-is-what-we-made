@@ -32,14 +32,6 @@ val trackedStructureList = mutableListOf<TrackedStructure>(
 
 var selectedStructure: TrackedStructure? = null; internal set
 
-fun onSyncSelection() {
-
-}
-
-fun syncSelectionLocal() {
-
-}
-
 class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
     var changeListener: ((TrackedStructure?) -> Unit)? = null
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
@@ -58,6 +50,11 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             .surface(Surface.VANILLA_TRANSLUCENT)
             .horizontalAlignment(HorizontalAlignment.LEFT)
             .verticalAlignment(VerticalAlignment.TOP)
+
+        rootComponent.child(Components.button(Text.literal("New")) {
+            onFunctionUsed("new_rvcListScreen")
+            client!!.setScreen(SelectionCreateScreen())
+        })
 
         fun selectionGrid(): Component {
             val grid = Containers.grid(
