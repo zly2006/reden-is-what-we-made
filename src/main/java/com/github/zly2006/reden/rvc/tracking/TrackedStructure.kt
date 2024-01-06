@@ -32,8 +32,8 @@ class TrackedStructure(
     override lateinit var world: World
     override val origin: BlockPos.Mutable = BlockPos.ORIGIN.mutableCopy()
     override fun createPlacement(world: World, origin: BlockPos) = this
-    var cachedPositions = mutableMapOf<BlockPos, TrackPoint>()
-    var cachedIgnoredPositions = mutableMapOf<BlockPos, TrackPoint>()
+    var cachedPositions = HashMap<BlockPos, TrackPoint>()
+    var cachedIgnoredPositions = HashMap<BlockPos, TrackPoint>()
     val trackPoints = mutableListOf<TrackPoint>()
     val blockEvents = mutableListOf<BlockEvent>() // order sensitive
     val blockScheduledTicks = mutableListOf<NbtCompound>() // order sensitive

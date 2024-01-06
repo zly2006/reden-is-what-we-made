@@ -61,7 +61,7 @@ class RvcReaderV1(
             val mode = rvcData.next()
             trackPoints.add(
                 TrackedStructure.TrackPoint(
-                    blockPos,
+                    blockPos.toImmutable(),
                     TrackPredicate.valueOf(predicate),
                     TrackPredicate.TrackMode.valueOf(mode),
                     null

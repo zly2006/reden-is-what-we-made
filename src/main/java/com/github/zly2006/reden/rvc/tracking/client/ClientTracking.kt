@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.rvc.tracking.client
 
-import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
@@ -27,7 +26,7 @@ fun registerSelectionTool() {
                 if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
                     selectedStructure?.addTrackPoint(
                         TrackedStructure.TrackPoint(
-                            blockResult.blockPos,
+                            blockResult.blockPos.toImmutable(),
                             TrackPredicate.QC,
                             TrackPredicate.TrackMode.TRACK,
                             selectedStructure
@@ -36,7 +35,7 @@ fun registerSelectionTool() {
                 } else {
                     selectedStructure?.addTrackPoint(
                         TrackedStructure.TrackPoint(
-                            blockResult.blockPos,
+                            blockResult.blockPos.toImmutable(),
                             TrackPredicate.Same,
                             TrackPredicate.TrackMode.IGNORE,
                             selectedStructure
@@ -44,7 +43,6 @@ fun registerSelectionTool() {
                     )
                 }
                 selectedStructure?.refreshPositions()
-                BlockBorder.tags.clear()
             }
             return true
         }

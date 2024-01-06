@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 import net.minecraft.client.MinecraftClient
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.Identifier
+import net.minecraft.world.World
 import kotlin.io.path.name
 
 @Serializable
@@ -60,5 +61,20 @@ data class WorldInfo(
         fun MinecraftClient.getWorldInfo() =
             if (server == null) ofRemote(this)
             else ofLocal(server!!.getWorld(world!!.registryKey)!!)
+    }
+
+    fun isSame(world: World) {
+        if (!world.isClient) {
+            val serverWorld = world as ServerWorld
+            val info = ofLocal(serverWorld)
+            if (info != this) {
+                throw IllegalStateException("WorldInfo is not same: $info != $this")
+            }
+        } else {
+            val info = ofRemote(MinecraftClient.getInstance())
+            if (info != this) {
+                throw IllegalStateException("WorldInfo is not same: $info != $this")
+            }
+        }
     }
 }
