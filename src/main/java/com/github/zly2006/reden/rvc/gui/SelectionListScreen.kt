@@ -21,7 +21,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
 
     inner class RepositoryLine(
         private val repository: RvcRepository
-    ): FlowLayout(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL) {
+    ): FlowLayout(Sizing.fill(), Sizing.content(), Algorithm.HORIZONTAL) {
         val select: CheckboxComponent = Components.checkbox(Text.empty()).apply {
             checked(selectedRepository == repository)
             onChanged {
@@ -44,6 +44,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             left.gap(5).alignment(HorizontalAlignment.LEFT, VerticalAlignment.CENTER)
             right.gap(5).alignment(HorizontalAlignment.RIGHT, VerticalAlignment.CENTER)
             child(left)
+            horizontalAlignment(HorizontalAlignment.CENTER)
             child(right)
 
             left.child(select)

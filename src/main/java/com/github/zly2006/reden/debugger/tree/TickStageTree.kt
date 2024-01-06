@@ -24,6 +24,7 @@ class TickStageTree(
      */
     private val history = mutableListOf<TickStage>()
     // only used for debugging, DO NOT use it in production!! it is very very slow
+    private val stacktrace = false
     private val stacktraces: MutableList<Array<StackTraceElement>?> = mutableListOf()
 
     private var stepOverUntil: TickStage? = null
@@ -55,7 +56,9 @@ class TickStageTree(
         }
         activeStage?.children?.add(stage)
         activeStages.add(stage)
-        //stacktraces.add(Thread.getAllStackTraces()[Thread.currentThread()])
+        if (stacktrace) {
+            stacktraces.add(Thread.getAllStackTraces()[Thread.currentThread()])
+        }
         Reden.LOGGER.debug("TickStageTree: [{}] push {}", activeStages.size, stage)
 
         // Note: some network packets should not trigger step into
@@ -79,10 +82,12 @@ class TickStageTree(
     }
 
     fun pop(clazz: Class<out TickStage>) {
+        stacktraces.add(arrayOf())
         val stage = pop()
         require(clazz.isInstance(stage)) {
             "popped stage expected to be $clazz, but got ${stage.javaClass}"
         }
+        stacktraces.removeLastOrNull()
     }
 
     internal fun pop(): TickStage {
@@ -155,7 +160,7 @@ class TickStageTree(
 
     fun onBlockChanged(pos: BlockPos, state: BlockState) {
         val stage = activeStage
-        if (stage is TickStageWorldProvider && stage.name == "set_name") {
+        if (stage is TickStageWorldProvider && stage.name == "set_block") {
             pop(TickStageWorldProvider::class.java)
         }
     }

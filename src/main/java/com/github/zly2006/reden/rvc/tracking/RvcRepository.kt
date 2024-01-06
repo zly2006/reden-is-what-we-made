@@ -2,6 +2,7 @@ package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
 import com.github.zly2006.reden.utils.ResourceLoader
+import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.player.PlayerEntity
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.api.Git
@@ -43,8 +44,11 @@ class RvcRepository(
     }
 
     fun head(): TrackedStructure {
-        if (headCache != null) return headCache!!
-        return checkoutBranch(RVC_BRANCH)
+        if (headCache == null)
+            headCache = checkoutBranch(RVC_BRANCH)
+        // todo: this line is debug only
+        headCache!!.world = MinecraftClient.getInstance().world!!
+        return headCache!!
     }
 
     fun checkout(tag: String) = TrackedStructure(name).apply {

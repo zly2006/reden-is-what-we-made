@@ -32,8 +32,8 @@ class TrackedStructure(
     override lateinit var world: World
     override val origin: BlockPos.Mutable = BlockPos.ORIGIN.mutableCopy()
     override fun createPlacement(world: World, origin: BlockPos) = this
-    internal var cachedPositions = mutableMapOf<BlockPos, TrackPoint>()
-    internal var cachedIgnoredPositions = mutableMapOf<BlockPos, TrackPoint>()
+    var cachedPositions = mutableMapOf<BlockPos, TrackPoint>()
+    var cachedIgnoredPositions = mutableMapOf<BlockPos, TrackPoint>()
     val trackPoints = mutableListOf<TrackPoint>()
     val blockEvents = mutableListOf<BlockEvent>() // order sensitive
     val blockScheduledTicks = mutableListOf<NbtCompound>() // order sensitive
@@ -46,9 +46,9 @@ class TrackedStructure(
             if (!world.isAir(it.key))
                 StructureOutline.set[it.key] = world.getBlockState(it.key)
         }
-        cachedIgnoredPositions.forEach {
-            if (!world.isAir(it.key))
-                BlockBorder[it.key] = 2
+        trackPoints.forEach {
+            if (!world.isAir(it.pos))
+                BlockBorder[it.pos] = if (it.mode.isTrack()) 1 else 2
         }
     }
 
@@ -193,7 +193,7 @@ class TrackedStructure(
     }
 
     fun onBlockAdded(pos: BlockPos) {
-        val trackPoint = Direction.stream().map(pos::offset).map { cachedIgnoredPositions[it] }.findFirst().getOrNull()
+        val trackPoint = Direction.values().map(pos::offset).map { cachedIgnoredPositions[it] }.firstOrNull()
         if (trackPoint != null) {
             val readPos = mutableSetOf<BlockPos>()
             val queue = LinkedList<SpreadEntry>()
@@ -274,6 +274,7 @@ class TrackedStructure(
                 })
             }
         }
+        debugRender()
     }
 
     override val blockIterator: Iterator<BlockPos> get() = cachedPositions.keys.iterator()

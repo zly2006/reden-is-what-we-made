@@ -13,7 +13,7 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.MinecraftServer
 import java.util.*
 
-class ServerData(version: Version, mcServer: MinecraftServer?) : StatusAccess {
+class ServerData(val version: Version, mcServer: MinecraftServer?) : StatusAccess {
     init {
         if (mcServer != null) {
             server = mcServer

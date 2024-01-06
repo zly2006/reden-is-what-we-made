@@ -45,7 +45,6 @@ fun registerSelectionTool() {
                 }
                 selectedStructure?.refreshPositions()
                 BlockBorder.tags.clear()
-                selectedStructure?.debugRender()
             }
             return true
         }

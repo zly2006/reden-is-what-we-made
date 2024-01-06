@@ -11,6 +11,7 @@ class WorldData(
 ): StatusAccess {
     override var status: Long = 0
     lateinit var tickStage: WorldRootStage
+    val worldId = serverWorld.registryKey.value.toString()
     val redenNeighborUpdater by lazy {
         RedenNeighborUpdater(serverWorld, serverWorld.server.data)
     }

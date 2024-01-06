@@ -16,6 +16,7 @@ import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.gui.SelectionListScreen
 import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.remote.github.GithubAuthScreen
+import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.sponsor.SponsorScreen
 import com.github.zly2006.reden.utils.red
 import com.github.zly2006.reden.utils.sendMessage
@@ -32,6 +33,8 @@ import io.wispforest.owo.ui.core.Positioning
 import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.Surface
 import io.wispforest.owo.ui.hud.Hud
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents
 import net.minecraft.block.entity.StructureBlockBlockEntity
@@ -301,6 +304,11 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             } else return false
         }
     })
+    DEBUG_DISPLAY_RVC_WORLD_INFO.callback {
+        val info = mc.getWorldInfo()
+        MinecraftClient.getInstance().player?.sendMessage(Text.literal(Json.encodeToString(info)))
+        true
+    }
 }
 
 private fun ConfigHotkey.callback(action: () -> Boolean) {

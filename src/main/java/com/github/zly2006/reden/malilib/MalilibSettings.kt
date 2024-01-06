@@ -91,6 +91,7 @@ private fun <T : ConfigBase<*>> T.hidden() = apply { (HIDDEN_TAB.add(this)) }
 @JvmField val DEVELOPER_MODE = RedenConfigBoolean("developerMode", false).debug()
 @JvmField val LOCAL_API_BASEURL = RedenConfigString("localApiAddr", "http://localhost:10005/api").debug()
 @JvmField val ENTITY_OUTLINE_RENDER_RAW = RedenConfigBoolean("entityOutlinrRenderRaw", false).debug()
+@JvmField val DEBUG_DISPLAY_RVC_WORLD_INFO = RedenConfigHotkey("debugDisplayRvcWorldInfo", "").debug().hotkey()
 // Hidden
 @JvmField val iEVER_USED_UNDO = RedenConfigBoolean("iEverUsedUndo", false).hidden()
 @JvmField val iNOTIFICATIONS_ENABLED = RedenConfigBoolean("iNotificationsEnabled", true).hidden()
