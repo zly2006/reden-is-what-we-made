@@ -66,6 +66,9 @@ public class Reden implements ModInitializer, CarpetExtension {
         return ResourceLoader.loadLang(lang);
     }
 
+    public boolean isRedenDev() {
+        return Boolean.parseBoolean(System.getProperty("reden.debug", String.valueOf(FabricLoader.getInstance().isDevelopmentEnvironment())));
+    }
 
     @Override
     public void onInitialize() {
@@ -73,9 +76,8 @@ public class Reden implements ModInitializer, CarpetExtension {
         ChannelsKt.register();
         CarpetServer.manageExtension(this);
         CommandRegistrationCallback.EVENT.register((dispatcher, access, environment) -> {
-            boolean isDev = true;
             // Debug command
-            if (FabricLoader.getInstance().isDevelopmentEnvironment() || isDev) {
+            if (isRedenDev()) {
                 dispatcher.register(CommandManager.literal("reden-debug")
                                 .then(CommandManager.literal("top-undo").executes(context -> {
                                     PlayerData.Companion.data(context.getSource().getPlayer()).topUndo();

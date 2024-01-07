@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.render.BlockBorder
-import com.github.zly2006.reden.render.StructureOutline
+import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.rvc.IPlacement
 import com.github.zly2006.reden.rvc.PositionIterable
 import com.github.zly2006.reden.rvc.ReadWriteStructure
@@ -40,11 +40,11 @@ class TrackedStructure(
     val fluidScheduledTicks = mutableListOf<NbtCompound>() // order sensitive
 
     fun debugRender() {
-        StructureOutline.set.clear()
+        BlockOutline.blocks.clear()
         BlockBorder.tags.clear()
         cachedPositions.forEach {
             if (!world.isAir(it.key))
-                StructureOutline.set[it.key] = world.getBlockState(it.key)
+                BlockOutline.blocks[it.key] = world.getBlockState(it.key)
         }
         trackPoints.forEach {
             if (!world.isAir(it.pos))

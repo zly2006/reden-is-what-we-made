@@ -3,7 +3,7 @@ package com.github.zly2006.reden.mixin.render;
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.render.SolidFaceRenderer;
-import com.github.zly2006.reden.render.StructureOutline;
+import com.github.zly2006.reden.render.BlockOutline;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -69,7 +69,7 @@ public abstract class MixinWorldRenderer {
             ordinal = 3
     )
     private boolean forceOutline(boolean x) {
-        return x || !StructureOutline.INSTANCE.getSet().isEmpty();
+        return x || !BlockOutline.INSTANCE.getBlocks().isEmpty();
     }
 
     @Inject(
@@ -82,13 +82,13 @@ public abstract class MixinWorldRenderer {
             )
     )
     private void onRenderOutline(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f projectionMatrix, CallbackInfo ci) {
-        if (StructureOutline.INSTANCE.getSet().isEmpty()) return;
+        if (BlockOutline.INSTANCE.getBlocks().isEmpty()) return;
         OutlineVertexConsumerProvider vertexConsumers = this.bufferBuilders.getOutlineVertexConsumers();
         vertexConsumers.setColor(255, 0, 255, 255);
         // only render to outline frame buffer
         VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getOutline(Reden.identifier("icon.png")));
         RenderSystem.disableCull();
-        StructureOutline.INSTANCE.render(buffer, matrices, camera);
+        BlockOutline.INSTANCE.render(buffer, matrices, camera);
         RenderSystem.enableCull();
     }
 }
