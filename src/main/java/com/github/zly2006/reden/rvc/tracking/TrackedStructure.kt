@@ -21,6 +21,9 @@ import net.minecraft.world.tick.ChunkTickScheduler
 import net.minecraft.world.tick.Tick
 import java.util.*
 
+/**
+ * todo: see #81
+ */
 class TrackedStructure(
     name: String
 ) : ReadWriteStructure(name), IPlacement, PositionIterable {

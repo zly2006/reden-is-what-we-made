@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.tracking
 
+import com.github.zly2006.reden.rvc.gui.selectedRepository
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
 import com.github.zly2006.reden.utils.ResourceLoader
 import net.minecraft.client.MinecraftClient
@@ -44,8 +45,17 @@ class RvcRepository(
     }
 
     fun head(): TrackedStructure {
-        if (headCache == null)
-            headCache = checkoutBranch(RVC_BRANCH)
+        if (headCache == null) {
+            val refs = git.branchList().call()
+            headCache = if (refs.isEmpty()) {
+                TrackedStructure(name)
+            } else if (refs.any { it.name == RVC_BRANCH_REF }) {
+                checkoutBranch(RVC_BRANCH)
+            } else {
+                selectedRepository.commit(selec)
+                checkout(refs.first().name)
+            }
+        }
         // todo: this line is debug only
         headCache!!.world = MinecraftClient.getInstance().world!!
         return headCache!!
@@ -58,23 +68,21 @@ class RvcRepository(
 
     fun checkoutBranch(branch: String) = checkout("refs/heads/$branch")
 
+    fun createReadmeIfNotExists() {
+        git.repository.workTree.resolve("README.md").writeText(
+            ResourceLoader.loadString("assets/rvc/README.md")
+                .replace("\${name}", name)
+        )
+    }
+
     companion object {
         val path = Path("rvc")
         const val RVC_BRANCH = "rvc"
-        fun create(name: String, description: String? = null): RvcRepository {
+        const val RVC_BRANCH_REF = "refs/heads/$RVC_BRANCH"
+        fun create(name: String): RvcRepository {
             val git = Git.init()
                 .setDirectory(path / name)
                 .setInitialBranch(RVC_BRANCH)
-                .call()
-            git.repository.workTree.resolve("README.md").writeText(
-                ResourceLoader.loadString("assets/rvc/README.md")
-                    .replace("\${name}", name)
-                    .replace("\${description}", description ?: "")
-            )
-            git.add().addFilepattern("README.md").call()
-            git.commit()
-                .setMessage("Initial commit")
-                .setAuthor("Reden-RVC", "info@redenmc.com")
                 .call()
             return RvcRepository(git)
         }
