@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.rvc.tracking
 
-import com.github.zly2006.reden.rvc.gui.selectedRepository
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
 import com.github.zly2006.reden.utils.ResourceLoader
 import net.minecraft.client.MinecraftClient
@@ -8,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.InitCommand
+import org.jetbrains.annotations.Contract
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
@@ -22,8 +22,10 @@ class RvcRepository(
 
     fun commit(structure: TrackedStructure, message: String, committer: PlayerEntity?) {
         headCache = structure
-        RvcFileIO.save(git.repository.workTree.toPath(), structure)
-        git.add().addFilepattern("*.rvc").call()
+        this.createReadmeIfNotExists()
+        val path = git.repository.workTree.toPath()
+        RvcFileIO.save(path, structure)
+        git.add().addFilepattern(".").call()
         val cmd = git.commit()
         if (committer != null) {
             cmd.setAuthor(committer.nameForScoreboard, committer.uuid.toString() + "@mc-player.redenmc.com")
@@ -44,6 +46,15 @@ class RvcRepository(
         TODO() // Note: currently we have no gui for this
     }
 
+    @Contract(pure = true)
+    fun hasChanged(): Boolean {
+        RvcFileIO.save(
+            git.repository.workTree.toPath(),
+            headCache ?: return false
+        )
+        return !git.status().call().isClean
+    }
+
     fun head(): TrackedStructure {
         if (headCache == null) {
             val refs = git.branchList().call()
@@ -52,7 +63,6 @@ class RvcRepository(
             } else if (refs.any { it.name == RVC_BRANCH_REF }) {
                 checkoutBranch(RVC_BRANCH)
             } else {
-                selectedRepository.commit(selec)
                 checkout(refs.first().name)
             }
         }
@@ -73,6 +83,7 @@ class RvcRepository(
             ResourceLoader.loadString("assets/rvc/README.md")
                 .replace("\${name}", name)
         )
+        git.add().addFilepattern("README.md").call()
     }
 
     companion object {

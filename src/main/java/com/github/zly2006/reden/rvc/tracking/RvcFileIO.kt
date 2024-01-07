@@ -4,6 +4,7 @@ import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.IWritableStructure
 import com.github.zly2006.reden.rvc.io.StructureIO
 import com.github.zly2006.reden.rvc.tracking.reader.RvcReaderV1
+import net.minecraft.client.MinecraftClient
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.registry.Registries
@@ -191,7 +192,6 @@ object RvcFileIO: StructureIO {
             structure.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data))
             structure.trackPoints.forEach { it.structure = structure }
         }
-        structure.refreshPositions()
 
         // ===================================== Load Block Events =====================================
         // public final val blockEvents: MutableList<BlockEvent>
@@ -216,5 +216,9 @@ object RvcFileIO: StructureIO {
         loadRvcFile(path, "fluidScheduledTicks")?.let { rvcFile ->
             structure.fluidScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data))
         }
+
+        // todo: load placement data
+        structure.world = MinecraftClient.getInstance().world!!
+        structure.refreshPositions()
     }
 }

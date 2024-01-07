@@ -4,6 +4,7 @@ import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
 import io.wispforest.owo.ui.base.BaseOwoScreen
+import io.wispforest.owo.ui.component.ButtonComponent
 import io.wispforest.owo.ui.component.CheckboxComponent
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
@@ -36,6 +37,14 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             }
             checked(selectedRepository == repository)
         }
+        private val saveButton: ButtonComponent = Components.button(Text.literal("Save")) {
+            onFunctionUsed("commit_rvcStructure")
+            // todo: commit message
+            repository.commit(repository.head(), "RedenMC RVC Commit", MinecraftClient.getInstance().player)
+            it.active(false)
+        }.apply {
+            active(repository.hasChanged())
+        }
         val left = Containers.horizontalFlow(Sizing.content(), Sizing.content())
         val right = Containers.horizontalFlow(Sizing.content(), Sizing.content())
 
@@ -57,6 +66,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             }.apply {
                 active(false)
             })
+            right.child(saveButton)
         }
     }
 
