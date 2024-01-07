@@ -24,7 +24,7 @@ object BlockOutline {
                 renderManager.modelRenderer.render(
                     matrices.peek(),
                     buffer,
-                    null,
+                    state,
                     renderManager.getModel(state),
                     1.0f,
                     1.0f,
