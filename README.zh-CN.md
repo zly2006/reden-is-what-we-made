@@ -69,7 +69,20 @@ RVCHub是一个通用的机器分享平台，其可以自动识别机器是否�
 
 调试属性：
 
-| 属性名                             | 描述                                                     |
-|-----------------------------------|---------------------------------------------------------|
+| 属性名                               | 描述                                       |
+|-----------------------------------|------------------------------------------|
 | `reden.transformer.printBytecode` | 打印最终字节码到标准输出。这个过程在 mixin postApply 阶段运行。 |
-| `reden.transformer.export.pre`    | 导出转换后的类。这个过程在 mixin preApply 阶段运行。          |
+| `reden.transformer.export.pre`    | 导出转换后的类。这个过程在 mixin preApply 阶段运行。       |
+
+## 🎊 鸣谢
+
+> <span style="font-size: 0.96em">**IntelliJ IDEA**</span><br/>功能强大，符合人体工程学的 JVM IDE
+
+特别感谢 [JetBrains](https://www.jetbrains.com/) 为我们提供免费的，[IntelliJ IDEA](https://www.jetbrains.com/idea/) 等 IDE 的开源开发许可证
+
+[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" height="96"/>](https://www.jetbrains.com/)
+[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/IntelliJ_IDEA.png" height="96"/>](https://www.jetbrains.com/idea/)
+
+<sup>Copyright © 2000-2024 JetBrains s.r.o. JetBrains and the JetBrains logo are registered trademarks of JetBrains s.r.o.</sup>
+<br/>
+<sup>Copyright © 2024 JetBrains s.r.o. IntelliJ IDEA and the IntelliJ IDEA logo are registered trademarks of JetBrains s.r.o.</sup>

@@ -67,3 +67,16 @@ Debug Properties:
 |-----------------------------------|-----------------------------------------------------------------------------|
 | `reden.transformer.printBytecode` | Print final bytecode to stdout. This process runs at mixin postApply stage. |
 | `reden.transformer.export.pre`    | Export transformed class. This process runs at mixin preApply stage.        |
+
+## 🎊 Thanks
+
+> <span style="font-size: 0.96em">**IntelliJ IDEA**</span><br/>Capable and Ergonomic IDE for JVM
+
+Special Thanks to [JetBrains](https://www.jetbrains.com/) for providing us free Licenses for Open Source Development for IDEs such as [IntelliJ IDEA](https://www.jetbrains.com/idea/)
+
+[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" height="96"/>](https://www.jetbrains.com/)
+[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/IntelliJ_IDEA.png" height="96"/>](https://www.jetbrains.com/idea/)
+
+<sup>Copyright © 2000-2024 JetBrains s.r.o. JetBrains and the JetBrains logo are registered trademarks of JetBrains s.r.o.</sup>
+<br/>
+<sup>Copyright © 2024 JetBrains s.r.o. IntelliJ IDEA and the IntelliJ IDEA logo are registered trademarks of JetBrains s.r.o.</sup>
