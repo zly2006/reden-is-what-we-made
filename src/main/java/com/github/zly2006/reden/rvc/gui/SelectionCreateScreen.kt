@@ -2,6 +2,7 @@ package com.github.zly2006.reden.rvc.gui
 
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
+import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
@@ -16,7 +17,7 @@ private val DEFAULT_STATUS_TIP = Text.literal("Create a new RVC repository")
 class SelectionCreateScreen: BaseOwoScreen<FlowLayout>() {
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
     private val confirmNameButton: ButtonComponent = Components.button(Text.literal("OK")) {
-        val repository = RvcRepository.create(nameField.text)
+        val repository = RvcRepository.create(nameField.text, client!!.getWorldInfo())
         client!!.data.rvcStructures[nameField.text] = repository
         selectedRepository = repository
         client!!.data.mc.setScreen(null)

@@ -15,9 +15,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.InitCommand
 import org.jetbrains.annotations.Contract
 import java.nio.file.Path
-import kotlin.io.path.Path
-import kotlin.io.path.div
-import kotlin.io.path.exists
+import kotlin.io.path.*
 
 @OptIn(ExperimentalSerializationApi::class)
 class RvcRepository(
@@ -86,6 +84,9 @@ class RvcRepository(
         placementInfo?.worldInfo?.getWorld()?.let {
             headCache!!.world = it
         }
+        placementInfo?.let {
+            headCache!!.placementInfo = it
+        }
         return headCache!!
     }
 
@@ -113,16 +114,28 @@ class RvcRepository(
         git.repository.directory.resolve("placement.json").writeText(Json.encodeToString(info))
     }
 
+    @OptIn(ExperimentalPathApi::class)
+    fun delete() {
+        val path = git.repository.workTree.toPath()
+        git.close()
+        if (path.exists()) {
+            path.deleteRecursively()
+        }
+    }
+
     companion object {
         val path = Path("rvc")
         const val RVC_BRANCH = "rvc"
         const val RVC_BRANCH_REF = "refs/heads/$RVC_BRANCH"
-        fun create(name: String): RvcRepository {
+        fun create(name: String, worldInfo: WorldInfo): RvcRepository {
             val git = Git.init()
                 .setDirectory(path / name)
                 .setInitialBranch(RVC_BRANCH)
                 .call()
-            return RvcRepository(git)
+            return RvcRepository(git).apply {
+                placementInfo = PlacementInfo(worldInfo, BlockPos.ORIGIN)
+                createReadmeIfNotExists()
+            }
         }
 
         fun clone(url: String): RvcRepository {

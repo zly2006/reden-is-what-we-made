@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.tracking
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.rvc.*
@@ -255,6 +256,7 @@ class TrackedStructure(
     }
 
     fun refreshPositions() {
+        val timeStart = System.currentTimeMillis()
         cachedIgnoredPositions.clear()
         cachedPositions.clear()
         val readPos = hashSetOf<BlockPos>()
@@ -277,6 +279,12 @@ class TrackedStructure(
             }
         }
 
+        val airCache = hashSetOf<BlockPos>()
+        fun World.air(pos: BlockPos): Boolean {
+            val chunkPos = ChunkPos(pos)
+            return airCache.contains(pos) ||
+                    this.getChunkAsView(chunkPos.x, chunkPos.z)?.getBlockState(pos)?.isAir != false
+        }
         trackPoints.asSequence().filter { it.mode == TrackPredicate.TrackMode.TRACK }.forEach { trackPoint ->
             // first, add all blocks recursively
             val queue = LinkedList<SpreadEntry>()
@@ -284,11 +292,19 @@ class TrackedStructure(
             var maxElements = 80000
             while (queue.isNotEmpty() && maxElements > 0) {
                 val entry = queue.removeFirst()
-                if (entry.pos in cachedIgnoredPositions || world.isAir(entry.pos)) continue
+                if (entry.pos in cachedIgnoredPositions) continue
+                if (world.air(entry.pos)) {
+                    airCache.add(entry.pos)
+                    continue
+                }
+                if (!trackPoint.pos.isWithinDistance(entry.pos, 200.0)) {
+                    Reden.LOGGER.error("Track point ${trackPoint.pos} is too far away from ${entry.pos}")
+                    continue
+                }
                 entry.spreadAround(world, { newPos ->
                     if (readPos.add(newPos)) {
                         if (newPos in cachedPositions) return@spreadAround
-                        if (!world.isAir(newPos)) {
+                        if (!world.air(newPos)) {
                             cachedPositions[newPos] = trackPoint
                         }
                         maxElements--
@@ -297,6 +313,9 @@ class TrackedStructure(
                 })
             }
         }
+        val timeEnd = System.currentTimeMillis()
+        // todo:debug
+        println("refreshPositions: ${timeEnd - timeStart}ms")
         debugRender()
     }
 
