@@ -5,6 +5,7 @@ import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.rvc.IPlacement
 import com.github.zly2006.reden.rvc.PositionIterable
 import com.github.zly2006.reden.rvc.ReadWriteStructure
+import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.utils.setBlockNoPP
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks
@@ -13,12 +14,13 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.fluid.Fluid
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.registry.Registries
+import net.minecraft.registry.Registry
 import net.minecraft.server.world.BlockEvent
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.*
 import net.minecraft.world.World
 import net.minecraft.world.tick.ChunkTickScheduler
-import net.minecraft.world.tick.Tick
+import net.minecraft.world.tick.TickPriority
 import java.util.*
 
 /**
@@ -33,14 +35,26 @@ class TrackedStructure(
     override var enabled: Boolean = true
     override val structure = this
     override lateinit var world: World
-    override val origin: BlockPos.Mutable = BlockPos.ORIGIN.mutableCopy()
+    lateinit var placementInfo: PlacementInfo
+    override val origin: BlockPos get() = placementInfo.origin
     override fun createPlacement(world: World, origin: BlockPos) = this
     var cachedPositions = HashMap<BlockPos, TrackPoint>()
     var cachedIgnoredPositions = HashMap<BlockPos, TrackPoint>()
     val trackPoints = mutableListOf<TrackPoint>()
     val blockEvents = mutableListOf<BlockEvent>() // order sensitive
-    val blockScheduledTicks = mutableListOf<NbtCompound>() // order sensitive
-    val fluidScheduledTicks = mutableListOf<NbtCompound>() // order sensitive
+    val blockScheduledTicks = mutableListOf<TickInfo<Block>>() // order sensitive
+    val fluidScheduledTicks = mutableListOf<TickInfo<Fluid>>() // order sensitive
+    data class TickInfo<T>(
+        val pos: RelativeCoordinate,
+        val type: T,
+        val delay: Long,
+        val priority: TickPriority,
+        val registry: Registry<T>
+    ) {
+        fun toRvcDataString(): String {
+            return "${pos.x},${pos.y},${pos.z},${registry.getId(type)},$delay,${priority.ordinal}"
+        }
+    }
 
     fun debugRender() {
         BlockOutline.blocks.clear()
@@ -320,15 +334,31 @@ class TrackedStructure(
             val time = world.levelProperties.time
             val blockTickSchedulers = chunks.asSequence().map { it.blockTickScheduler as ChunkTickScheduler }
             val fluidTickSchedulers = chunks.asSequence().map { it.fluidTickScheduler as ChunkTickScheduler }
-            blockTickSchedulers
+            blockScheduledTicks.addAll(blockTickSchedulers
                 .flatMap { it.queuedTicks.filter { isInArea(it.pos) } }
-                .map { Tick.orderedTickToNbt(it, { Registries.BLOCK.getId(it as Block).toString() }, time) }
-                .let { blockScheduledTicks.addAll(it) }
-            fluidTickSchedulers
+                .map { TickInfo(
+                    pos = getRelativeCoordinate(it.pos),
+                    type = it.type as Block,
+                    delay = it.triggerTick - world.time,
+                    priority = it.priority,
+                    registry = Registries.BLOCK
+                ) }
+            )
+            fluidScheduledTicks.addAll(fluidTickSchedulers
                 .flatMap { it.queuedTicks.filter { isInArea(it.pos) } }
-                .map { Tick.orderedTickToNbt(it, { Registries.FLUID.getId(it as Fluid).toString() }, time) }
-                .let { fluidScheduledTicks.addAll(it) }
+                .map { TickInfo(
+                    pos = getRelativeCoordinate(it.pos),
+                    type = it.type as Fluid,
+                    delay = it.triggerTick - world.time,
+                    priority = it.priority,
+                    registry = Registries.FLUID
+                ) }
+            )
         }
+    }
+
+    fun getRelativeCoordinate(pos: BlockPos): RelativeCoordinate {
+        return RelativeCoordinate(pos.x - origin.x, pos.y - origin.y, pos.z - origin.z)
     }
 
     fun collectFromWorld() {
@@ -354,7 +384,6 @@ class TrackedStructure(
         xSize = maxPos.x - minPos.x + 1
         ySize = maxPos.y - minPos.y + 1
         zSize = maxPos.z - minPos.z + 1
-        origin.set(minPos)
         world.getNonSpectatingEntities(Entity::class.java, Box.enclosing(minPos, maxPos)).asSequence()
             .filter {
                 it !is PlayerEntity
@@ -363,11 +392,13 @@ class TrackedStructure(
             }
     }
 
+    fun detectOrigin(): BlockPos? {
+        return null
+    }
+
     fun addTrackPoint(trackPoint: TrackPoint) {
         trackPoints.removeIf { it.pos == trackPoint.pos }
         trackPoints.add(trackPoint)
         refreshPositions()
     }
 }
-
-private fun <T> Optional<T>.getOrNull() = if (isPresent) get() else null

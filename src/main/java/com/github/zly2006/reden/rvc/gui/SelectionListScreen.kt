@@ -3,6 +3,7 @@ package com.github.zly2006.reden.rvc.gui
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
+import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
 import io.wispforest.owo.ui.component.CheckboxComponent
@@ -23,6 +24,11 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
     inner class RepositoryLine(
         private val repository: RvcRepository
     ): FlowLayout(Sizing.fill(), Sizing.content(), Algorithm.HORIZONTAL) {
+        var sameWorld = false
+            set(value) {
+                field = value
+                checkActive()
+            }
         val select: CheckboxComponent = Components.checkbox(Text.empty()).apply {
             onChanged {
                 if (it) {
@@ -41,14 +47,31 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             onFunctionUsed("commit_rvcStructure")
             // todo: commit message
             repository.commit(repository.head(), "RedenMC RVC Commit", MinecraftClient.getInstance().player)
-            it.active(false)
+        }
+        private val enableForWorldButton: ButtonComponent = Components.button(Text.literal("Change World")) {
+            onFunctionUsed("enable_rvcStructure")
+            repository.setWorld()
         }.apply {
-            active(repository.hasChanged())
+            tooltip(Text.literal("""
+                Note: This will set the current world as the world for this structure.
+                This operation will disable the structure for other worlds.
+                Usually you should do this after server ip change.
+            """.trimIndent()))
         }
         val left = Containers.horizontalFlow(Sizing.content(), Sizing.content())
         val right = Containers.horizontalFlow(Sizing.content(), Sizing.content())
+        private fun checkActive() {
+            saveButton.active(repository.hasChanged() && sameWorld)
+            enableForWorldButton.active(!sameWorld)
+            select.active = sameWorld
+            if (!sameWorld) {
+                select.checked(false)
+                this.tooltip(Text.literal("Not in the same world").red())
+            }
+        }
 
         init {
+            checkActive()
             gap(5)
             left.gap(5).alignment(HorizontalAlignment.LEFT, VerticalAlignment.CENTER)
             right.gap(5).alignment(HorizontalAlignment.RIGHT, VerticalAlignment.CENTER)
@@ -67,6 +90,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
                 active(false)
             })
             right.child(saveButton)
+            right.child(enableForWorldButton)
         }
     }
 

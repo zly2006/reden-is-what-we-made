@@ -1,9 +1,14 @@
 package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
+import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.utils.ResourceLoader
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.util.math.BlockPos
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.InitCommand
@@ -13,12 +18,22 @@ import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.exists
 
+@OptIn(ExperimentalSerializationApi::class)
 class RvcRepository(
     private val git: Git,
     val name: String = git.repository.workTree.name
 ) {
     var headCache: TrackedStructure? = null
         private set
+    var placementInfo: PlacementInfo? = null
+        private set
+
+    init {
+        val placementJson = git.repository.directory.resolve("placement.json")
+        if (placementJson.exists()) {
+            placementInfo = Json.decodeFromStream(placementJson.inputStream())
+        }
+    }
 
     fun commit(structure: TrackedStructure, message: String, committer: PlayerEntity?) {
         headCache = structure
@@ -67,7 +82,9 @@ class RvcRepository(
             }
         }
         // todo: this line is debug only
-        headCache!!.world = MinecraftClient.getInstance().world!!
+        placementInfo?.worldInfo?.getWorld()?.let {
+            headCache!!.world = it
+        }
         return headCache!!
     }
 
@@ -84,6 +101,13 @@ class RvcRepository(
                 .replace("\${name}", name)
         )
         git.add().addFilepattern("README.md").call()
+    }
+
+    fun setWorld() {
+        headCache = null
+        val mc = MinecraftClient.getInstance()
+        placementInfo =
+            PlacementInfo(mc.getWorldInfo(), placementInfo?.origin ?: headCache?.detectOrigin() ?: BlockPos.ORIGIN)
     }
 
     companion object {

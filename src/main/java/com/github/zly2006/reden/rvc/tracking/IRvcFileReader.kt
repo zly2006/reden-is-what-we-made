@@ -1,10 +1,12 @@
 package com.github.zly2006.reden.rvc.tracking
 
-import net.minecraft.util.math.BlockPos
+import net.minecraft.block.Block
 import net.minecraft.block.BlockState
+import net.minecraft.fluid.Fluid
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.world.BlockEvent
-import java.util.UUID
+import net.minecraft.util.math.BlockPos
+import java.util.*
 
 /**
  * Interface that defines the data reading methods for
@@ -53,7 +55,12 @@ interface IRvcFileReader {
      * @param data Lines contains data read form RVC files
      * @return [List]<[NbtCompound]> data that can be saved to a [TrackedStructure]
      */
+    @Deprecated("Scheduled ticks data is not supported yet.")
     fun readScheduledTicksData(data: List<String>): List<NbtCompound>
+
+    fun readBlockTicksData(data: List<String>): List<TrackedStructure.TickInfo<Block>>
+
+    fun readFluidTicksData(data: List<String>): List<TrackedStructure.TickInfo<Fluid>>
 
     /**
      * RVC File with a [IRvcFileReader] (for the corresponding data version)

@@ -4,7 +4,9 @@ import com.github.zly2006.reden.rvc.tracking.IRvcFileReader
 import com.github.zly2006.reden.rvc.tracking.RvcDataReader
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import net.minecraft.block.Block
 import net.minecraft.block.BlockState
+import net.minecraft.fluid.Fluid
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.registry.Registries
@@ -84,11 +86,16 @@ class RvcReaderV1(
         return blockEvents
     }
 
+    @Deprecated("Scheduled ticks data is not supported yet.")
     override fun readScheduledTicksData(data: List<String>): List<NbtCompound> {
-        val scheduledTicks = mutableListOf<NbtCompound>()
-        data.forEach {
-            scheduledTicks.add(NbtHelper.fromNbtProviderString(it))
-        }
-        return scheduledTicks
+        throw UnsupportedOperationException()
+    }
+
+    override fun readBlockTicksData(data: List<String>): List<TrackedStructure.TickInfo<Block>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun readFluidTicksData(data: List<String>): List<TrackedStructure.TickInfo<Fluid>> {
+        TODO("Not yet implemented")
     }
 }

@@ -2,33 +2,37 @@ package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
 import com.github.zly2006.reden.access.WorldData.Companion.data
+import com.github.zly2006.reden.debugger.breakpoint.BlockPosSerializer
 import com.github.zly2006.reden.debugger.breakpoint.IdentifierSerializer
+import com.github.zly2006.reden.utils.isClient
+import com.github.zly2006.reden.utils.server
 import kotlinx.serialization.Serializable
 import net.minecraft.client.MinecraftClient
+import net.minecraft.registry.RegistryKey
+import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.Identifier
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import kotlin.io.path.name
 
 @Serializable
 data class WorldInfo(
     val isRemoteServer: Boolean = false,
+    // remote server
     val remoteServerHost: String? = null,
     val remoteServerPort: Int? = null,
     val remoteServerRedenVersion: String? = null,
     val remoteServerRedenVersionCode: Int? = null,
     val remoteServerRedenBrand: String? = null,
-    val remoteServerWorldId: String? = null,
-    @Serializable(with = IdentifierSerializer::class)
-    val remoteServerWorldKey: Identifier? = null,
-    @Serializable(with = IdentifierSerializer::class)
-    val remoteServerWorldDimension: Identifier? = null,
+    // local server
     val localSaveName: String? = null,
-    val localWorldId: String? = null,
+    // shared
+    val worldId: String? = null,
     @Serializable(with = IdentifierSerializer::class)
-    val localWorldKey: Identifier? = null,
+    val worldKey: Identifier? = null,
     @Serializable(with = IdentifierSerializer::class)
-    val localWorldDimension: Identifier? = null,
+    val worldDimension: Identifier? = null,
 ) {
     companion object {
         private fun ofRemote(mc: MinecraftClient): WorldInfo {
@@ -42,9 +46,9 @@ data class WorldInfo(
                 remoteServerRedenVersion = mc.serverData?.version?.friendlyString,
                 remoteServerRedenVersionCode = -1,
                 remoteServerRedenBrand = "TODO", // todo
-                remoteServerWorldId = mc.world!!.data?.worldId,
-                remoteServerWorldDimension = mc.world!!.dimensionKey.value,
-                remoteServerWorldKey = mc.world!!.registryKey.value,
+                worldId = mc.world!!.data?.worldId,
+                worldDimension = mc.world!!.dimensionKey.value,
+                worldKey = mc.world!!.registryKey.value,
             )
         }
 
@@ -52,9 +56,9 @@ data class WorldInfo(
             return WorldInfo(
                 isRemoteServer = false,
                 localSaveName = world.server.session.directory.path.name,
-                localWorldId = world.data.worldId,
-                localWorldDimension = world.dimensionKey.value,
-                localWorldKey = world.registryKey.value,
+                worldId = world.data.worldId,
+                worldDimension = world.dimensionKey.value,
+                worldKey = world.registryKey.value,
             )
         }
 
@@ -63,18 +67,49 @@ data class WorldInfo(
             else ofLocal(server!!.getWorld(world!!.registryKey)!!)
     }
 
-    fun isSame(world: World) {
-        if (!world.isClient) {
-            val serverWorld = world as ServerWorld
-            val info = ofLocal(serverWorld)
-            if (info != this) {
-                throw IllegalStateException("WorldInfo is not same: $info != $this")
-            }
+    override fun equals(other: Any?): Boolean {
+        if (other !is WorldInfo) return false
+        if (other.worldId eqNotNull worldId) return true
+        return if (isRemoteServer) {
+            other.localSaveName eqNotNull localSaveName
+                    && other.worldKey eqNotNull worldKey
         } else {
-            val info = ofRemote(MinecraftClient.getInstance())
-            if (info != this) {
-                throw IllegalStateException("WorldInfo is not same: $info != $this")
+            other.remoteServerHost eqNotNull remoteServerHost
+                    && other.remoteServerPort eqNotNull remoteServerPort
+                    && other.worldKey eqNotNull worldKey
+        }
+    }
+
+    override fun hashCode(): Int {
+        if (worldId != null) return worldId.hashCode()
+        return if (isRemoteServer) {
+            (remoteServerHost.hashCode() * 31 + remoteServerPort.hashCode()) * 31 + worldKey.hashCode()
+        } else {
+            (localSaveName.hashCode() * 31 + worldKey.hashCode())
+        }
+    }
+
+    fun getWorld(): World? {
+        val registryKey = RegistryKey.of(RegistryKeys.WORLD, worldKey)
+        if (isClient) {
+            val server = MinecraftClient.getInstance().server
+            if (server != null) {
+                return server.getWorld(registryKey)
             }
+            return MinecraftClient.getInstance().world
+        } else {
+            return server.getWorld(registryKey)
         }
     }
 }
+
+private infix fun <T> T?.eqNotNull(other: T?): Boolean {
+    return this != null && other != null && this == other
+}
+
+@Serializable
+data class PlacementInfo(
+    val worldInfo: WorldInfo,
+    @Serializable(with = BlockPosSerializer::class)
+    val origin: BlockPos = BlockPos.ORIGIN
+)

@@ -82,10 +82,10 @@ object RvcFileIO: StructureIO {
         if (structure !is TrackedStructure) {
             throw IllegalArgumentException("Structure is not a TrackedStructure")
         }
-
         if (path.notExists()) {
             path.toFile().mkdirs()
         }
+        structure.refreshPositions()
 
         // ======================================== Save Blocks ========================================
         // public final val blocks: MutableMap<BlockPos, BlockState>
@@ -124,18 +124,12 @@ object RvcFileIO: StructureIO {
         }.let { data -> writeRvcFile(path, "blockEvents", RVC_HEADER, data) }
 
         // ================================ Save Block Scheduled Ticks =================================
-        // public final val blockScheduledTicks: MutableList<NbtCompound>
-        // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        structure.blockScheduledTicks.joinToString("\n") { nbt ->
-            toNbtString(nbt)
-        }.let { data -> writeRvcFile(path, "blockScheduledTicks", RVC_HEADER, data) }
+        structure.blockScheduledTicks.joinToString("\n", transform = TrackedStructure.TickInfo<*>::toRvcDataString)
+            .let { data -> writeRvcFile(path, "blockScheduledTicks", RVC_HEADER, data) }
 
         // ================================ Save Fluid Scheduled Ticks =================================
-        // public final val fluidScheduledTicks: MutableList<NbtCompound>
-        // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        structure.fluidScheduledTicks.joinToString("\n") { nbt ->
-            toNbtString(nbt)
-        }.let { data -> writeRvcFile(path, "fluidScheduledTicks", RVC_HEADER, data) }
+        structure.fluidScheduledTicks.joinToString("\n", transform = TrackedStructure.TickInfo<*>::toRvcDataString)
+            .let { data -> writeRvcFile(path, "fluidScheduledTicks", RVC_HEADER, data) }
     }
 
     private fun toNbtString(nbt: NbtCompound) =
@@ -206,7 +200,7 @@ object RvcFileIO: StructureIO {
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.blockScheduledTicks.clear()
         loadRvcFile(path, "blockScheduledTicks")?.let { rvcFile ->
-            structure.blockScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data))
+            structure.blockScheduledTicks.addAll(rvcFile.reader.readBlockTicksData(rvcFile.data))
         }
 
         // ================================ Load Fluid Scheduled Ticks =================================
@@ -214,7 +208,7 @@ object RvcFileIO: StructureIO {
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.fluidScheduledTicks.clear()
         loadRvcFile(path, "fluidScheduledTicks")?.let { rvcFile ->
-            structure.fluidScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data))
+            structure.fluidScheduledTicks.addAll(rvcFile.reader.readFluidTicksData(rvcFile.data))
         }
 
         // todo: load placement data
