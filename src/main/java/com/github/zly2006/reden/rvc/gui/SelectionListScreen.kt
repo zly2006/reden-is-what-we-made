@@ -3,6 +3,7 @@ package com.github.zly2006.reden.rvc.gui
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
+import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
@@ -19,12 +20,13 @@ var selectedRepository: RvcRepository? = null
 
 class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
     var selectedUIElement: RepositoryLine? = null
+    private val worldInfo = MinecraftClient.getInstance().getWorldInfo()
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
     inner class RepositoryLine(
         private val repository: RvcRepository
     ): FlowLayout(Sizing.fill(), Sizing.content(), Algorithm.HORIZONTAL) {
-        var sameWorld = false
+        var sameWorld = repository.placementInfo?.worldInfo == worldInfo
             set(value) {
                 field = value
                 checkActive()

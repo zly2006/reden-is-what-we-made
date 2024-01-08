@@ -4,6 +4,7 @@ import com.github.zly2006.reden.rvc.remote.IRemoteRepository
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.utils.ResourceLoader
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import net.minecraft.client.MinecraftClient
@@ -90,6 +91,7 @@ class RvcRepository(
 
     fun checkout(tag: String) = TrackedStructure(name).apply {
         git.checkout().setName(tag).setForced(true).call()
+        this@RvcRepository.placementInfo?.let { this.placementInfo = it }
         RvcFileIO.load(git.repository.workTree.toPath(), this)
     }
 
@@ -106,8 +108,9 @@ class RvcRepository(
     fun setWorld() {
         headCache = null
         val mc = MinecraftClient.getInstance()
-        placementInfo =
-            PlacementInfo(mc.getWorldInfo(), placementInfo?.origin ?: headCache?.detectOrigin() ?: BlockPos.ORIGIN)
+        val info = PlacementInfo(mc.getWorldInfo(), placementInfo?.origin ?: headCache?.detectOrigin() ?: BlockPos.ORIGIN)
+        placementInfo = info
+        git.repository.directory.resolve("placement.json").writeText(Json.encodeToString(info))
     }
 
     companion object {

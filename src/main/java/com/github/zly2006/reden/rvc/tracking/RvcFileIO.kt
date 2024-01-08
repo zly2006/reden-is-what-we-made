@@ -6,6 +6,7 @@ import com.github.zly2006.reden.rvc.io.StructureIO
 import com.github.zly2006.reden.rvc.tracking.reader.RvcReaderV1
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
+import net.minecraft.registry.Registries
 import java.nio.file.Path
 import kotlin.io.path.notExists
 
@@ -196,7 +197,7 @@ object RvcFileIO: StructureIO {
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.blockScheduledTicks.clear()
         loadRvcFile(path, "blockScheduledTicks")?.let { rvcFile ->
-            structure.blockScheduledTicks.addAll(rvcFile.reader.readBlockTicksData(rvcFile.data))
+            structure.blockScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data, Registries.BLOCK))
         }
 
         // ================================ Load Fluid Scheduled Ticks =================================
@@ -204,7 +205,7 @@ object RvcFileIO: StructureIO {
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.fluidScheduledTicks.clear()
         loadRvcFile(path, "fluidScheduledTicks")?.let { rvcFile ->
-            structure.fluidScheduledTicks.addAll(rvcFile.reader.readFluidTicksData(rvcFile.data))
+            structure.fluidScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data, Registries.FLUID))
         }
 
         structure.placementInfo.worldInfo.getWorld()?.let {

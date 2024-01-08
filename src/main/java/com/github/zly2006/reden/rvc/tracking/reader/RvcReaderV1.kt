@@ -5,14 +5,14 @@ import com.github.zly2006.reden.rvc.tracking.IRvcFileReader
 import com.github.zly2006.reden.rvc.tracking.RvcDataReader
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
-import net.minecraft.block.Block
 import net.minecraft.block.BlockState
-import net.minecraft.fluid.Fluid
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.registry.Registries
+import net.minecraft.registry.Registry
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
+import net.minecraft.world.tick.TickPriority
 import java.util.*
 
 class RvcReaderV1(
@@ -96,11 +96,19 @@ class RvcReaderV1(
         throw UnsupportedOperationException()
     }
 
-    override fun readBlockTicksData(data: List<String>): List<TrackedStructure.TickInfo<Block>> {
-        TODO("Not yet implemented")
-    }
-
-    override fun readFluidTicksData(data: List<String>): List<TrackedStructure.TickInfo<Fluid>> {
-        TODO("Not yet implemented")
+    override fun <T> readScheduledTicksData(data: List<String>, registry: Registry<T>): List<TrackedStructure.TickInfo<T>> {
+        val blockTicks = mutableListOf<TrackedStructure.TickInfo<T>>()
+        data.forEach {
+            val rvcData = RvcDataReader(it, ",")
+            val relativeCoordinate = RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
+            blockTicks.add(TrackedStructure.TickInfo(
+                pos = relativeCoordinate,
+                type = registry.get(Identifier(rvcData.next()))!! as T,
+                delay = rvcData.next().toLong(),
+                priority = TickPriority.byIndex(rvcData.next().toInt()),
+                registry = registry
+            ))
+        }
+        return blockTicks
     }
 }
