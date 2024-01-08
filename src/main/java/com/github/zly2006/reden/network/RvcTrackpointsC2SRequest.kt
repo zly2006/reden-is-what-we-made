@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.network
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.rvc.tracking.RvcFileIO
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
@@ -23,7 +24,8 @@ class RvcTrackpointsC2SRequest(
         const val REQUEST_DATA = 1
         const val SIGNED_COMMIT = 2
 
-        val pType = PacketType.create(RVC_TRACKPOINTS_C2S) {
+        val id = Reden.identifier("rvc_trackpoints_c2s")
+        val pType = PacketType.create(id) {
             val op = it.readVarInt()
             val size = it.readVarInt()
             val trackpoints = ArrayList<TrackedStructure.TrackPoint>(size)

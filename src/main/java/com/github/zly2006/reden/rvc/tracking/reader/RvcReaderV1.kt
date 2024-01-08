@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.tracking.reader
 
+import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.rvc.tracking.IRvcFileReader
 import com.github.zly2006.reden.rvc.tracking.RvcDataReader
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
@@ -10,7 +11,6 @@ import net.minecraft.fluid.Fluid
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.registry.Registries
-import net.minecraft.server.world.BlockEvent
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import java.util.*
@@ -54,34 +54,39 @@ class RvcReaderV1(
         return entities
     }
 
-    override fun readTrackPointData(data: List<String>): List<TrackedStructure.TrackPoint> {
+    override fun readTrackPointData(data: List<String>, structure: TrackedStructure): List<TrackedStructure.TrackPoint> {
         val trackPoints = mutableListOf<TrackedStructure.TrackPoint>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
-            val blockPos = BlockPos(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
+            val blockPos = RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
             val predicate = rvcData.next()
             val mode = rvcData.next()
             trackPoints.add(
                 TrackedStructure.TrackPoint(
-                    blockPos.toImmutable(),
-                    TrackPredicate.valueOf(predicate),
-                    TrackPredicate.TrackMode.valueOf(mode),
-                    null
+                    pos = blockPos,
+                    predicate = TrackPredicate.valueOf(predicate),
+                    mode = TrackPredicate.TrackMode.valueOf(mode),
+                    structure = structure
                 )
             )
         }
         return trackPoints
     }
 
-    override fun readBlockEventsData(data: List<String>): List<BlockEvent> {
-        val blockEvents = mutableListOf<BlockEvent>()
+    override fun readBlockEventsData(data: List<String>): List<TrackedStructure.BlockEventInfo> {
+        val blockEvents = mutableListOf<TrackedStructure.BlockEventInfo>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
-            val blockPos = BlockPos(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
+            val relativeCoordinate = RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
             val type = rvcData.next().toInt()
             val data = rvcData.next().toInt()
             val block = Registries.BLOCK.get(Identifier(rvcData.readGreedy()))
-            blockEvents.add(BlockEvent(blockPos, block, type, data))
+            blockEvents.add(TrackedStructure.BlockEventInfo(
+                pos = relativeCoordinate,
+                type = type,
+                data = data,
+                block = block
+            ))
         }
         return blockEvents
     }

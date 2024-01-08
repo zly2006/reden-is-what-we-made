@@ -4,10 +4,8 @@ import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.IWritableStructure
 import com.github.zly2006.reden.rvc.io.StructureIO
 import com.github.zly2006.reden.rvc.tracking.reader.RvcReaderV1
-import net.minecraft.client.MinecraftClient
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
-import net.minecraft.registry.Registries
 import java.nio.file.Path
 import kotlin.io.path.notExists
 
@@ -119,8 +117,7 @@ object RvcFileIO: StructureIO {
         // public final val blockEvents: MutableList<BlockEvent>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.blockEvents.joinToString("\n") { blockEvent ->
-            "${blockEvent.pos.x},${blockEvent.pos.y},${blockEvent.pos.z}," +
-                    "${blockEvent.type},${blockEvent.data},${Registries.BLOCK.getId(blockEvent.block)}"
+            blockEvent.toRvcDataString()
         }.let { data -> writeRvcFile(path, "blockEvents", RVC_HEADER, data) }
 
         // ================================ Save Block Scheduled Ticks =================================
@@ -183,8 +180,7 @@ object RvcFileIO: StructureIO {
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.trackPoints.clear()
         loadRvcFile(path, "trackPoints")?.let { rvcFile ->
-            structure.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data))
-            structure.trackPoints.forEach { it.structure = structure }
+            structure.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data, structure))
         }
 
         // ===================================== Load Block Events =====================================
@@ -211,8 +207,9 @@ object RvcFileIO: StructureIO {
             structure.fluidScheduledTicks.addAll(rvcFile.reader.readFluidTicksData(rvcFile.data))
         }
 
-        // todo: load placement data
-        structure.world = MinecraftClient.getInstance().world!!
+        structure.placementInfo.worldInfo.getWorld()?.let {
+            structure.world = it
+        }
         structure.refreshPositions()
     }
 }

@@ -2,10 +2,7 @@ package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.render.BlockOutline
-import com.github.zly2006.reden.rvc.IPlacement
-import com.github.zly2006.reden.rvc.PositionIterable
-import com.github.zly2006.reden.rvc.ReadWriteStructure
-import com.github.zly2006.reden.rvc.RelativeCoordinate
+import com.github.zly2006.reden.rvc.*
 import com.github.zly2006.reden.utils.setBlockNoPP
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks
@@ -15,7 +12,6 @@ import net.minecraft.fluid.Fluid
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
-import net.minecraft.server.world.BlockEvent
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.*
 import net.minecraft.world.World
@@ -41,7 +37,7 @@ class TrackedStructure(
     var cachedPositions = HashMap<BlockPos, TrackPoint>()
     var cachedIgnoredPositions = HashMap<BlockPos, TrackPoint>()
     val trackPoints = mutableListOf<TrackPoint>()
-    val blockEvents = mutableListOf<BlockEvent>() // order sensitive
+    val blockEvents = mutableListOf<BlockEventInfo>() // order sensitive
     val blockScheduledTicks = mutableListOf<TickInfo<Block>>() // order sensitive
     val fluidScheduledTicks = mutableListOf<TickInfo<Fluid>>() // order sensitive
     data class TickInfo<T>(
@@ -53,6 +49,16 @@ class TrackedStructure(
     ) {
         fun toRvcDataString(): String {
             return "${pos.x},${pos.y},${pos.z},${registry.getId(type)},$delay,${priority.ordinal}"
+        }
+    }
+    data class BlockEventInfo(
+        val pos: RelativeCoordinate,
+        val type: Int,
+        val data: Int,
+        val block: Block
+    ) {
+        fun toRvcDataString(): String {
+            return "${pos.x},${pos.y},${pos.z},$type,$data,${Registries.BLOCK.getId(block)}"
         }
     }
 
@@ -202,11 +208,11 @@ class TrackedStructure(
     }
 
     class TrackPoint(
-        pos: BlockPos,
+        pos: RelativeCoordinate,
         predicate: TrackPredicate,
         mode: TrackPredicate.TrackMode,
-        structure: TrackedStructure?,
-    ) : SpreadEntry(pos, predicate, mode, structure) {
+        structure: TrackedStructure,
+    ) : SpreadEntry(pos.blockPos(structure.origin), predicate, mode, structure) {
     }
 
     fun onBlockAdded(pos: BlockPos) {
@@ -326,7 +332,12 @@ class TrackedStructure(
         fluidScheduledTicks.clear()
 
         (world as? ServerWorld)?.run {
-            blockEvents.addAll(syncedBlockEventQueue.filter { isInArea(it.pos) })
+            blockEvents.addAll(syncedBlockEventQueue.filter { isInArea(it.pos) }.map { BlockEventInfo(
+                pos = getRelativeCoordinate(it.pos),
+                block = it.block,
+                type = it.type,
+                data = it.data
+            ) })
             val chunks = blockIterator.asSequence()
                 .map(ChunkPos::toLong)
                 .toList().distinct()
@@ -393,7 +404,16 @@ class TrackedStructure(
     }
 
     fun detectOrigin(): BlockPos? {
-        return null
+        var minX = Int.MAX_VALUE
+        var minY = Int.MAX_VALUE
+        var minZ = Int.MAX_VALUE
+        cachedPositions.keys.forEach {
+            if (it.x < minX) minX = it.x
+            if (it.y < minY) minY = it.y
+            if (it.z < minZ) minZ = it.z
+        }
+        if (minX == Int.MAX_VALUE || minY == Int.MAX_VALUE || minZ == Int.MAX_VALUE) return null
+        return BlockPos(minX, minY, minZ)
     }
 
     fun addTrackPoint(trackPoint: TrackPoint) {

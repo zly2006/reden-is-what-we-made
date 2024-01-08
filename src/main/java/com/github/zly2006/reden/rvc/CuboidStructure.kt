@@ -39,6 +39,6 @@ class CuboidStructure(
     }
 
     override fun createPlacement(world: World, origin: BlockPos): IPlacement {
-        TODO("Not yet implemented")
+        TODO()
     }
 }
