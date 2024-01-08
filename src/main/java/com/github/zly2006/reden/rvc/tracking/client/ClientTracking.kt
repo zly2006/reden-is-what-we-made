@@ -26,19 +26,19 @@ fun registerSelectionTool() {
                 if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
                     selectedStructure?.addTrackPoint(
                         TrackedStructure.TrackPoint(
-                            blockResult.blockPos.toImmutable(),
+                            selectedStructure!!.getRelativeCoordinate(blockResult.blockPos),
                             TrackPredicate.QC,
                             TrackPredicate.TrackMode.TRACK,
-                            selectedStructure
+                            selectedStructure!!
                         )
                     )
                 } else {
                     selectedStructure?.addTrackPoint(
                         TrackedStructure.TrackPoint(
-                            blockResult.blockPos.toImmutable(),
+                            selectedStructure!!.getRelativeCoordinate(blockResult.blockPos),
                             TrackPredicate.Same,
                             TrackPredicate.TrackMode.IGNORE,
-                            selectedStructure
+                            selectedStructure!!
                         )
                     )
                 }

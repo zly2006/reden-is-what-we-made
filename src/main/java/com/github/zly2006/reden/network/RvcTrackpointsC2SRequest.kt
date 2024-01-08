@@ -15,9 +15,8 @@ import kotlin.io.path.Path
 import kotlin.io.path.writeBytes
 
 class RvcTrackpointsC2SRequest(
-    val trackpoints: List<TrackedStructure.TrackPoint>,
     val operation: Int,
-    val name: String = "",
+    val structure: TrackedStructure
 ): FabricPacket {
     companion object {
         const val NOOP = 0
@@ -27,35 +26,34 @@ class RvcTrackpointsC2SRequest(
         val id = Reden.identifier("rvc_trackpoints_c2s")
         val pType = PacketType.create(id) {
             val op = it.readVarInt()
+            val structure = TrackedStructure(it.readString())
             val size = it.readVarInt()
             val trackpoints = ArrayList<TrackedStructure.TrackPoint>(size)
             for (i in 0 until size) {
                 trackpoints.add(
                     TrackedStructure.TrackPoint(
-                        it.readBlockPos(),
+                        structure.getRelativeCoordinate(it.readBlockPos()),
                         TrackPredicate.valueOf(it.readString()),
                         TrackPredicate.TrackMode.valueOf(it.readString()),
-                        null
+                        structure
                     )
                 )
             }
-            val name = it.readString()
-            RvcTrackpointsC2SRequest(trackpoints, op, name)
+            RvcTrackpointsC2SRequest(op, structure)
         }!!
 
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
                 fun sendStatus(status: Int) =
-                    sender.sendPacket(RvcTrackpointsC2SRequest(listOf(), status))
+                    sender.sendPacket(RvcTrackpointsC2SRequest(status, packet.structure))
                 when (packet.operation) {
                     0 -> sendStatus(0)
                     1 -> {
-                        val structure = TrackedStructure(packet.name)
-                        structure.world = player.world
-                        structure.trackPoints.addAll(packet.trackpoints)
-                        structure.collectFromWorld()
-                        val path = Path("rvc", "sync", player.nameForScoreboard, packet.name)
-                        RvcFileIO.save(path, structure)
+                        packet.structure.world = player.world
+                        packet.structure.trackPoints.addAll(packet.structure.trackPoints)
+                        packet.structure.collectFromWorld()
+                        val path = Path("rvc", "sync", player.nameForScoreboard, packet.structure.name)
+                        RvcFileIO.save(path, packet.structure)
                         val baStream = ByteArrayOutputStream()
                         val zipStream = ZipOutputStream(baStream)
                         zipStream.setComment("Reden Version Control")
@@ -66,7 +64,7 @@ class RvcTrackpointsC2SRequest(
                             }
                             zipStream.closeEntry()
                         }
-                        path.parent.resolve(packet.name + ".zip").writeBytes(baStream.toByteArray())
+                        path.parent.resolve("${packet.structure.name}.zip").writeBytes(baStream.toByteArray())
                         sender.sendPacket(RvcDataS2CPacket(baStream.toByteArray()))
                         sendStatus(1)
                     }
@@ -77,13 +75,13 @@ class RvcTrackpointsC2SRequest(
 
     override fun write(buf: PacketByteBuf) {
         buf.writeVarInt(operation)
-        buf.writeVarInt(trackpoints.size)
-        for (trackpoint in trackpoints) {
+        buf.writeString(structure.name)
+        buf.writeVarInt(structure.trackPoints.size)
+        for (trackpoint in structure.trackPoints) {
             buf.writeBlockPos(trackpoint.pos)
             buf.writeString(trackpoint.predicate.name)
             buf.writeString(trackpoint.mode.name)
         }
-        buf.writeString(name)
     }
 
     override fun getType(): PacketType<*> = pType

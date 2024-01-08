@@ -179,11 +179,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         true
     }
     DEBUG_RVC_REQUEST_SYNC_DATA.callback {
-        ClientPlayNetworking.send(RvcTrackpointsC2SRequest(
-            selectedStructure?.trackPoints ?: listOf(),
-            1,
-            "DEBUG_RVC_REQUEST_SYNC_DATA"
-        ))
+        ClientPlayNetworking.send(RvcTrackpointsC2SRequest(1, selectedStructure!!))
         RvcDataS2CPacket.consumer = {
             ZipInputStream(it.inputStream()).use { zip ->
                 var entry = zip.nextEntry
