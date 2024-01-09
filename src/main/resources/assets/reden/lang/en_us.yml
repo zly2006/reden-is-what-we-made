@@ -311,6 +311,8 @@ carpet:
       desc: TODO
     realFakePlayer:
       desc: Tick fake players in network phase, like real player but a pig.
+    modifyStructureBlockDetectRange:
+      desc: Modify structure corner detecting range, -1 to not modify. In vanilla, this value is 80 by default.
 
     redenDebug:
       desc: |-

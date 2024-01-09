@@ -46,6 +46,7 @@
     "realFakePlayer.MixinCarpetFakePlayer",
     "realFakePlayer.MixinServerNetworkIo",
     "sctuctureBlock.MixinStructureBlock",
+    "sctuctureBlock.MixinStructureBlockEntity",
     "undo.MixinBlockEntity",
     "undo.MixinBlockEvent",
     "undo.MixinCommands",

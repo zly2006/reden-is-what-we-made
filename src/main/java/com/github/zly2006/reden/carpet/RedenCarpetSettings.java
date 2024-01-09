@@ -140,6 +140,11 @@ public class RedenCarpetSettings {
                 categories = RuleCategory.CREATIVE
         )
         public static boolean realFakePlayer = false;
+
+        @Rule(
+                categories = RuleCategory.CREATIVE
+        )
+        public static int modifyStructureBlockDetectRange = -1;
     }
 
 
