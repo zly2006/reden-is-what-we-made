@@ -1,12 +1,12 @@
 package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
-import com.github.zly2006.reden.rvc.tracking.RvcFileIO
-import com.github.zly2006.reden.rvc.tracking.TrackPredicate
-import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.*
+import com.github.zly2006.reden.utils.server
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
+import net.minecraft.network.NetworkSide
 import net.minecraft.network.PacketByteBuf
 import java.io.ByteArrayOutputStream
 import java.util.zip.ZipEntry
@@ -26,9 +26,12 @@ class RvcTrackpointsC2SRequest(
         val id = Reden.identifier("rvc_trackpoints_c2s")
         val pType = PacketType.create(id) {
             val op = it.readVarInt()
-            val structure = TrackedStructure(it.readString())
+            val structure = TrackedStructure(it.readString(), NetworkSide.SERVERBOUND)
+            val origin = it.readBlockPos()
             val size = it.readVarInt()
             val trackpoints = ArrayList<TrackedStructure.TrackPoint>(size)
+            structure.world = server.overworld
+            structure.placementInfo = PlacementInfo(WorldInfo.ofLocal(server.overworld), origin)
             for (i in 0 until size) {
                 trackpoints.add(
                     TrackedStructure.TrackPoint(
@@ -76,6 +79,7 @@ class RvcTrackpointsC2SRequest(
     override fun write(buf: PacketByteBuf) {
         buf.writeVarInt(operation)
         buf.writeString(structure.name)
+        buf.writeBlockPos(structure.origin)
         buf.writeVarInt(structure.trackPoints.size)
         for (trackpoint in structure.trackPoints) {
             buf.writeBlockPos(trackpoint.pos)

@@ -36,8 +36,9 @@ object StageIo {
 
         constructors["world_root"] = Constructor { WorldRootStage(null, it!!, null) }
         constructors["network"] = Constructor { EmptyTickStage("network", it) }
-        constructors["update_block"] = Constructor { EmptyTickStage("update_block", it!!) }
-        constructors["commands_stage"] = Constructor { EmptyTickStage("commands_stage", it!!) }
+        constructors["update_block"] = Constructor { EmptyTickStage("update_block", it) }
+        constructors["commands_stage"] = Constructor { EmptyTickStage("commands_stage", it) }
+        constructors["set_block"] = Constructor { EmptyTickStage("set_block", it) }
 
         constructors["block_update"] = Constructor { BlockUpdateStage(it!!) }
         constructors["nc_update"] = Constructor { StageBlockNCUpdate(it!!, null) }

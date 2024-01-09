@@ -4,6 +4,7 @@ import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
 import net.minecraft.client.MinecraftClient
+import net.minecraft.network.NetworkSide
 import org.eclipse.jgit.api.Git
 import java.io.File
 
@@ -19,7 +20,7 @@ class ClientData(
         File("rvc").mkdirs()
         File("rvc").listFiles()!!.asSequence()
             .filter { it.isDirectory && it.resolve(".git").exists() }
-            .map { RvcRepository(Git.open(it)) }
+            .map { RvcRepository(Git.open(it), side = NetworkSide.CLIENTBOUND) }
             .forEach { rvcStructures[it.name] = it }
     }
 

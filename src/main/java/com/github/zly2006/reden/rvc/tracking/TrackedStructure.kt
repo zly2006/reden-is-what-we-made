@@ -11,6 +11,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.fluid.Fluid
 import net.minecraft.nbt.NbtCompound
+import net.minecraft.network.NetworkSide
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
 import net.minecraft.server.world.ServerWorld
@@ -24,7 +25,8 @@ import java.util.*
  * todo: see #81
  */
 class TrackedStructure(
-    name: String
+    name: String,
+    var side: NetworkSide
 ) : ReadWriteStructure(name), IPlacement, PositionIterable {
     override var xSize: Int = 0
     override var ySize: Int = 0
@@ -64,6 +66,7 @@ class TrackedStructure(
     }
 
     fun debugRender() {
+        if (side == NetworkSide.SERVERBOUND) return
         BlockOutline.blocks.clear()
         BlockBorder.tags.clear()
         cachedPositions.forEach {

@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.network.NetworkSide
 import net.minecraft.util.math.BlockPos
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.api.Git
@@ -20,7 +21,8 @@ import kotlin.io.path.*
 @OptIn(ExperimentalSerializationApi::class)
 class RvcRepository(
     private val git: Git,
-    val name: String = git.repository.workTree.name
+    val name: String = git.repository.workTree.name,
+    val side: NetworkSide
 ) {
     var headCache: TrackedStructure? = null
         private set
@@ -73,7 +75,7 @@ class RvcRepository(
         if (headCache == null) {
             val refs = git.branchList().call()
             headCache = if (refs.isEmpty()) {
-                TrackedStructure(name)
+                TrackedStructure(name, side)
             } else if (refs.any { it.name == RVC_BRANCH_REF }) {
                 checkoutBranch(RVC_BRANCH)
             } else {
@@ -90,7 +92,7 @@ class RvcRepository(
         return headCache!!
     }
 
-    fun checkout(tag: String) = TrackedStructure(name).apply {
+    fun checkout(tag: String) = TrackedStructure(name, side).apply {
         git.checkout().setName(tag).setForced(true).call()
         this@RvcRepository.placementInfo?.let { this.placementInfo = it }
         RvcFileIO.load(git.repository.workTree.toPath(), this)
@@ -127,18 +129,18 @@ class RvcRepository(
         val path = Path("rvc")
         const val RVC_BRANCH = "rvc"
         const val RVC_BRANCH_REF = "refs/heads/$RVC_BRANCH"
-        fun create(name: String, worldInfo: WorldInfo): RvcRepository {
+        fun create(name: String, worldInfo: WorldInfo, side: NetworkSide): RvcRepository {
             val git = Git.init()
                 .setDirectory(path / name)
                 .setInitialBranch(RVC_BRANCH)
                 .call()
-            return RvcRepository(git).apply {
+            return RvcRepository(git, side = side).apply {
                 placementInfo = PlacementInfo(worldInfo, BlockPos.ORIGIN)
                 createReadmeIfNotExists()
             }
         }
 
-        fun clone(url: String): RvcRepository {
+        fun clone(url: String, side: NetworkSide): RvcRepository {
             var name = url.split("/").last().removeSuffix(".git")
             var i = 1
             while ((path / name).exists()) {
@@ -146,10 +148,11 @@ class RvcRepository(
                 i++
             }
             return RvcRepository(
-                Git.cloneRepository()
+                git = Git.cloneRepository()
                     .setURI(url)
                     .setDirectory(path / name)
-                    .call()
+                    .call(),
+                side = side
             )
         }
     }

@@ -181,12 +181,17 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
     DEBUG_RVC_REQUEST_SYNC_DATA.callback {
         ClientPlayNetworking.send(RvcTrackpointsC2SRequest(1, selectedStructure!!))
         RvcDataS2CPacket.consumer = {
+            val rootFile = mc.runDirectory.resolve("DEBUG_RVC_REQUEST_SYNC_DATA").normalize()
             ZipInputStream(it.inputStream()).use { zip ->
                 var entry = zip.nextEntry
                 while (entry != null) {
                     val name = entry.name
                     print(name)
-                    val file = mc.runDirectory.resolve("DEBUG_RVC_REQUEST_SYNC_DATA").resolve(name)
+                    val file = rootFile.resolve(name).normalize()
+                    if (!file.startsWith(rootFile)) {
+                        Reden.LOGGER.error("Zip entry $name is outside of root directory")
+                        continue
+                    }
                     file.parentFile.mkdirs()
                     file.writeBytes(zip.readAllBytes())
                     entry = zip.nextEntry

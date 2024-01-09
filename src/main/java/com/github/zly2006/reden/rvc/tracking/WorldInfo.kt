@@ -7,6 +7,7 @@ import com.github.zly2006.reden.debugger.breakpoint.IdentifierSerializer
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import net.minecraft.client.MinecraftClient
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
@@ -52,7 +53,7 @@ data class WorldInfo(
             )
         }
 
-        private fun ofLocal(world: ServerWorld): WorldInfo {
+        fun ofLocal(world: ServerWorld): WorldInfo {
             return WorldInfo(
                 isRemoteServer = false,
                 localSaveName = world.server.session.directory.path.name,
@@ -89,17 +90,22 @@ data class WorldInfo(
         }
     }
 
+    @Transient
+    var world: World? = null
+
     fun getWorld(): World? {
+        if (world != null) return world
         val registryKey = RegistryKey.of(RegistryKeys.WORLD, worldKey)
-        if (isClient) {
+        world = if (isClient) {
             val server = MinecraftClient.getInstance().server
             if (server != null) {
-                return server.getWorld(registryKey)
-            }
-            return MinecraftClient.getInstance().world
+                server.getWorld(registryKey)
+            }else
+                MinecraftClient.getInstance().world
         } else {
-            return server.getWorld(registryKey)
+            server.getWorld(registryKey)
         }
+        return world
     }
 }
 
