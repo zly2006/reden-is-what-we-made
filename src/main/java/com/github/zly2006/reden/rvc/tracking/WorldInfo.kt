@@ -91,6 +91,8 @@ data class WorldInfo(
     }
 
     @Transient
+    @get:JvmName("world")
+    @set:JvmName("world")
     var world: World? = null
 
     fun getWorld(): World? {
