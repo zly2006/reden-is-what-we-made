@@ -14,6 +14,7 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.network.NetworkSide
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
+import net.minecraft.server.world.ServerChunkManager
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.*
 import net.minecraft.world.World
@@ -285,8 +286,13 @@ class TrackedStructure(
         val airCache = hashSetOf<BlockPos>()
         fun World.air(pos: BlockPos): Boolean {
             val chunkPos = ChunkPos(pos)
-            return airCache.contains(pos) ||
-                    this.getChunkAsView(chunkPos.x, chunkPos.z)?.getBlockState(pos)?.isAir != false
+            return airCache.contains(pos) || if (isClient) {
+                isAir(pos)
+            } else {
+                (chunkManager as ServerChunkManager).threadedAnvilChunkStorage.currentChunkHolders[chunkPos.toLong()]?.let {
+                    it.worldChunk?.getBlockState(pos)?.isAir ?: true
+                } ?: true
+            }
         }
         trackPoints.asSequence().filter { it.mode == TrackPredicate.TrackMode.TRACK }.forEach { trackPoint ->
             // first, add all blocks recursively
