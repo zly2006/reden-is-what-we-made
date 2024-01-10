@@ -5,13 +5,18 @@ import com.github.zly2006.reden.debugger.stages.WorldRootStage
 import com.github.zly2006.reden.mixinhelper.RedenNeighborUpdater
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.World
+import okhttp3.internal.toHexString
 
 class WorldData(
     val serverWorld: ServerWorld
 ): StatusAccess {
     override var status: Long = 0
     lateinit var tickStage: WorldRootStage
-    val worldId = serverWorld.registryKey.value.toString()
+    val worldId = buildString {
+        append(serverWorld.server.session.directory.path.hashCode().toHexString())
+        append('-')
+        append(serverWorld.registryKey.value.toString())
+    }
     val redenNeighborUpdater by lazy {
         RedenNeighborUpdater(serverWorld, serverWorld.server.data)
     }

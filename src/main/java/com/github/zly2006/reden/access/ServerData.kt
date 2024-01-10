@@ -11,6 +11,7 @@ import net.fabricmc.loader.api.Version
 import net.minecraft.client.MinecraftClient
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.MinecraftServer
+import okhttp3.internal.toHexString
 import java.util.*
 
 class ServerData(val version: Version, mcServer: MinecraftServer?) : StatusAccess {
@@ -22,6 +23,7 @@ class ServerData(val version: Version, mcServer: MinecraftServer?) : StatusAcces
     @JvmField var realTicks = 0
     override var status: Long = 0
     var uuid: UUID? = null
+    var serverId = mcServer?.session?.directory?.path?.hashCode()?.toHexString()
     var address: String = ""
     var tickStage: ServerRootStage? = null
     var tickStageTree = TickStageTree()

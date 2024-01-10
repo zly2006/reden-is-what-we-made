@@ -44,6 +44,7 @@ class TrackedStructure(
     val blockEvents = mutableListOf<BlockEventInfo>() // order sensitive
     val blockScheduledTicks = mutableListOf<TickInfo<Block>>() // order sensitive
     val fluidScheduledTicks = mutableListOf<TickInfo<Fluid>>() // order sensitive
+    var dirty = true
     data class TickInfo<T>(
         val pos: RelativeCoordinate,
         val type: T,
@@ -221,6 +222,7 @@ class TrackedStructure(
     }
 
     fun onBlockAdded(pos: BlockPos) {
+        dirty = true
         val trackPoint = Direction.values().map(pos::offset).map { cachedIgnoredPositions[it] }.firstOrNull()
         if (trackPoint != null) {
             val readPos = mutableSetOf<BlockPos>()
@@ -245,6 +247,7 @@ class TrackedStructure(
     }
 
     fun onBlockRemoved(pos: BlockPos) {
+        dirty = true
         val trackPoint = trackPoints.find { it.pos == pos }
         if (trackPoint != null) {
             trackPoints.remove(trackPoint)
@@ -260,28 +263,11 @@ class TrackedStructure(
     }
 
     fun refreshPositions() {
+        if (!dirty) return
         val timeStart = System.currentTimeMillis()
         cachedIgnoredPositions.clear()
         cachedPositions.clear()
         val readPos = hashSetOf<BlockPos>()
-
-        trackPoints.asSequence().filter { it.mode == TrackPredicate.TrackMode.IGNORE }.forEach { trackPoint ->
-            // first, add all blocks recursively
-            val queue = LinkedList<SpreadEntry>()
-            queue.add(trackPoint)
-            var maxElements = 100000
-            while (queue.isNotEmpty() && maxElements > 0) {
-                val entry = queue.removeFirst()
-                if (entry.pos in cachedIgnoredPositions || world.isAir(entry.pos)) continue
-                cachedIgnoredPositions[entry.pos] = trackPoint
-                entry.spreadAround(world, { newPos ->
-                    if (readPos.add(newPos)) {
-                        maxElements--
-                        queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, this))
-                    }
-                })
-            }
-        }
 
         val airCache = hashSetOf<BlockPos>()
         fun World.air(pos: BlockPos): Boolean {
@@ -294,6 +280,29 @@ class TrackedStructure(
                 } ?: true
             }
         }
+
+        trackPoints.asSequence().filter { it.mode == TrackPredicate.TrackMode.IGNORE }.forEach { trackPoint ->
+            // first, add all blocks recursively
+            val queue = LinkedList<SpreadEntry>()
+            queue.add(trackPoint)
+            var maxElements = 100000
+            while (queue.isNotEmpty() && maxElements > 0) {
+                val entry = queue.removeFirst()
+                if (entry.pos in cachedIgnoredPositions) continue
+                if (world.air(entry.pos)) {
+                    airCache.add(entry.pos)
+                    continue
+                }
+                cachedIgnoredPositions[entry.pos] = trackPoint
+                entry.spreadAround(world, { newPos ->
+                    if (readPos.add(newPos)) {
+                        maxElements--
+                        queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, this))
+                    }
+                })
+            }
+        }
+
         trackPoints.asSequence().filter { it.mode == TrackPredicate.TrackMode.TRACK }.forEach { trackPoint ->
             // first, add all blocks recursively
             val queue = LinkedList<SpreadEntry>()
@@ -326,6 +335,7 @@ class TrackedStructure(
         // todo:debug
         println("refreshPositions: ${timeEnd - timeStart}ms")
         debugRender()
+        dirty = false
     }
 
     override val blockIterator: Iterator<BlockPos> get() = cachedPositions.keys.iterator()
@@ -445,6 +455,7 @@ class TrackedStructure(
     }
 
     fun addTrackPoint(trackPoint: TrackPoint) {
+        dirty = true
         trackPoints.removeIf { it.pos == trackPoint.pos }
         trackPoints.add(trackPoint)
         refreshPositions()

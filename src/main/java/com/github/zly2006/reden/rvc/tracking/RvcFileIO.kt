@@ -151,6 +151,7 @@ object RvcFileIO: StructureIO {
         if (structure !is TrackedStructure) {
             throw IllegalArgumentException("Structure is not a TrackedStructure")
         }
+        structure.dirty = true // mark it as dirty caz we have no cache of positions
 
         // ======================================== Load Blocks ========================================
         // public final val blocks: MutableMap<BlockPos, BlockState>

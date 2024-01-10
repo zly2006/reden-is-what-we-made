@@ -45,6 +45,7 @@
     "pearl.MixinExplosion",
     "realFakePlayer.MixinCarpetFakePlayer",
     "realFakePlayer.MixinServerNetworkIo",
+    "rvc.MixinWorldChunk",
     "sctuctureBlock.MixinStructureBlock",
     "sctuctureBlock.MixinStructureBlockEntity",
     "undo.MixinBlockEntity",
