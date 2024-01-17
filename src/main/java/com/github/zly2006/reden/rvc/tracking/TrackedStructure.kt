@@ -202,6 +202,7 @@ class TrackedStructure(
                 for (dy in deltaRange) {
                     for (dz in deltaRange) {
                         val pos = BlockPos(x + dx, y + dy, z + dz)
+                        if (pos.getManhattanDistance(this.pos) > predicate.distance) continue
                         if (predicate.match(world, this.pos, pos, mode, structure!!)) {
                             successConsumer(pos)
                         } else {

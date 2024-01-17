@@ -37,6 +37,7 @@ enum class TrackPredicate(val distance: Int, val same: Boolean) {
         mode: TrackMode,
         structure: TrackedStructure
     ): Boolean {
+        // Note: we have checked this condition in [spreadAround]
         if (pos1.getManhattanDistance(pos2) > this.distance) {
             return false
         }
