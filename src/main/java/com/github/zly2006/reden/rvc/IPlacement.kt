@@ -17,7 +17,7 @@ interface IPlacement {
             for (y in 0 until structure.ySize) {
                 for (z in 0 until structure.zSize) {
                     mutablePos.set(origin.x + x, origin.y + y, origin.z + z)
-                    if (structure.isInArea(mutablePos)) {
+                    if (structure.isInArea(mutablePos.relative(origin))) {
                         world.removeBlock(mutablePos, false)
                     }
                 }
@@ -30,11 +30,15 @@ interface IPlacement {
             for (y in 0 until structure.ySize) {
                 for (z in 0 until structure.zSize) {
                     mutablePos.set(origin.x + x, origin.y + y, origin.z + z)
-                    if (structure.isInArea(mutablePos)) {
-                        world.setBlockNoPP(mutablePos, structure.getBlockState(mutablePos), Block.NOTIFY_LISTENERS)
+                    if (structure.isInArea(mutablePos.relative(origin))) {
+                        world.setBlockNoPP(mutablePos, structure.getBlockState(mutablePos.relative(origin)), Block.NOTIFY_LISTENERS)
                     }
                 }
             }
         }
     }
 }
+
+// This is a private function
+private fun BlockPos.relative(origin: BlockPos) =
+    RelativeCoordinate(x - origin.x, y - origin.y, z - origin.z)

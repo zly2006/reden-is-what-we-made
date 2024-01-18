@@ -35,7 +35,7 @@ class SchematicImpl(
     init {
         io = SchematicIO
     }
-    override fun isInArea(pos: BlockPos): Boolean {
+    override fun isInArea(pos: RelativeCoordinate): Boolean {
         return pos.x in 0 until xSize
                 && pos.y in 0 until ySize
                 && pos.z in 0 until zSize
@@ -74,9 +74,9 @@ class SchematicStructure: SchematicFormat() {
         template.readNbt(Registries.BLOCK.readOnlyWrapper, tagCompound)
         val ret = SchematicImpl("", template.size.x, template.size.y, template.size.z)
         template.blockInfoLists.flatMap { it.all }.forEach {
-            ret.setBlockState(it.pos, it.state)
+            ret.setBlockState(it.pos.relative(), it.state)
             if (it.nbt != null) {
-                ret.getOrCreateBlockEntityData(it.pos).copyFrom(it.nbt)
+                ret.getOrCreateBlockEntityData(it.pos.relative()).copyFrom(it.nbt)
             }
         }
         return ret
@@ -94,8 +94,8 @@ class SchematicStructure: SchematicFormat() {
                     list.add(
                         StructureTemplate.StructureBlockInfo(
                             pos,
-                            schematic.getBlockState(pos),
-                            schematic.getBlockEntityData(pos)
+                            schematic.getBlockState(pos.relative()),
+                            schematic.getBlockEntityData(pos.relative())
                         )
                     )
                 }
@@ -114,4 +114,11 @@ class SchematicStructure: SchematicFormat() {
         template.writeNbt(tagCompound)
         return true
     }
+}
+
+/**
+ * We only use this function in this file because only for structure blocks the [BlockPos] is relative.
+ */
+private fun BlockPos.relative(): RelativeCoordinate {
+    return RelativeCoordinate(x, y, z)
 }

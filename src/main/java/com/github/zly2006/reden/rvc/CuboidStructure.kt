@@ -9,7 +9,7 @@ class CuboidStructure(
     override var ySize: Int,
     override var zSize: Int
 ) : ReadWriteStructure(name), PositionIterable, SizeMutableStructure {
-    override val blockIterator: Iterator<BlockPos> = object : Iterator<BlockPos> {
+    override val blockIterator = object : Iterator<RelativeCoordinate> {
         private var x = 0
         private var y = 0
         private var z = 0
@@ -17,8 +17,8 @@ class CuboidStructure(
             return x < xSize && y < ySize && z < zSize
         }
 
-        override fun next(): BlockPos {
-            val pos = BlockPos(x, y, z)
+        override fun next(): RelativeCoordinate {
+            val pos = RelativeCoordinate(x, y, z)
             x++
             if (x >= xSize) {
                 x = 0
@@ -32,7 +32,7 @@ class CuboidStructure(
         }
     }
 
-    override fun isInArea(pos: BlockPos): Boolean {
+    override fun isInArea(pos: RelativeCoordinate): Boolean {
         return pos.x in 0 until xSize
                 && pos.y in 0 until ySize
                 && pos.z in 0 until zSize

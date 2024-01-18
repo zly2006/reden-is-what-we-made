@@ -11,18 +11,17 @@ import net.minecraft.nbt.NbtHelper
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
 import net.minecraft.util.Identifier
-import net.minecraft.util.math.BlockPos
 import net.minecraft.world.tick.TickPriority
 import java.util.*
 
 class RvcReaderV1(
     val header: IRvcFileReader.RvcHeader
 ): IRvcFileReader {
-    override fun readBlocksData(data: List<String>): Map<BlockPos, BlockState> {
-        val blocks = mutableMapOf<BlockPos, BlockState>()
+    override fun readBlocksData(data: List<String>): Map<RelativeCoordinate, BlockState> {
+        val blocks = mutableMapOf<RelativeCoordinate, BlockState>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
-            val blockPos = BlockPos(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
+            val blockPos = RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
             val blockState = NbtHelper.toBlockState(
                 Registries.BLOCK.readOnlyWrapper,
                 NbtHelper.fromNbtProviderString(rvcData.readGreedy())
@@ -32,11 +31,11 @@ class RvcReaderV1(
         return blocks
     }
 
-    override fun readBlockEntitiesData(data: List<String>): Map<BlockPos, NbtCompound> {
-        val blockEntities = mutableMapOf<BlockPos, NbtCompound>()
+    override fun readBlockEntitiesData(data: List<String>): Map<RelativeCoordinate, NbtCompound> {
+        val blockEntities = mutableMapOf<RelativeCoordinate, NbtCompound>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
-            val blockPos = BlockPos(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
+            val blockPos = RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
             val nbt = NbtHelper.fromNbtProviderString(rvcData.readGreedy())
             blockEntities[blockPos] = nbt
         }

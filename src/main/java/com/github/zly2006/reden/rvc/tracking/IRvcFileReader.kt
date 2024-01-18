@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.tracking
 
+import com.github.zly2006.reden.rvc.RelativeCoordinate
 import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.registry.Registry
@@ -18,14 +19,14 @@ interface IRvcFileReader {
      * @param data Lines contains data read form RVC files
      * @return [Map]<[BlockPos], [BlockState]> data that can be saved to a [TrackedStructure]
      */
-    fun readBlocksData(data: List<String>): Map<BlockPos, BlockState>
+    fun readBlocksData(data: List<String>): Map<RelativeCoordinate, BlockState>
 
     /**
      * Read blocks entities data from RVC files to maps for structure
      * @param data Lines contains data read form RVC files
      * @return [Map]<[BlockPos], [NbtCompound]> data that can be saved to a [TrackedStructure]
      */
-    fun readBlockEntitiesData(data: List<String>): Map<BlockPos, NbtCompound>
+    fun readBlockEntitiesData(data: List<String>): Map<RelativeCoordinate, NbtCompound>
 
     /**
      * Read entities data from RVC files to maps for structure

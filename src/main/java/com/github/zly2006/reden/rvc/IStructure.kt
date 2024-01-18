@@ -29,10 +29,10 @@ interface IStructure {
      * @see [StructureIO.load]
      */
     fun load(path: Path)
-    fun isInArea(pos: BlockPos): Boolean
+    fun isInArea(pos: RelativeCoordinate): Boolean
     fun createPlacement(world: World, origin: BlockPos): IPlacement
-    fun getBlockState(pos: BlockPos): BlockState
-    fun getBlockEntityData(pos: BlockPos): NbtCompound?
-    fun getOrCreateBlockEntityData(pos: BlockPos): NbtCompound
+    fun getBlockState(pos: RelativeCoordinate): BlockState
+    fun getBlockEntityData(pos: RelativeCoordinate): NbtCompound?
+    fun getOrCreateBlockEntityData(pos: RelativeCoordinate): NbtCompound
     val entities: Map<UUID, NbtCompound>
 }

@@ -20,6 +20,7 @@ import net.minecraft.util.math.*
 import net.minecraft.world.World
 import net.minecraft.world.tick.ChunkTickScheduler
 import net.minecraft.world.tick.TickPriority
+import org.jetbrains.annotations.Contract
 import java.util.*
 
 /**
@@ -259,8 +260,8 @@ class TrackedStructure(
         io = RvcFileIO
     }
 
-    override fun isInArea(pos: BlockPos): Boolean {
-        return cachedPositions.contains(pos)
+    override fun isInArea(pos: RelativeCoordinate): Boolean {
+        return cachedPositions.contains(pos.blockPos(origin))
     }
 
     fun refreshPositions() {
@@ -339,12 +340,13 @@ class TrackedStructure(
         dirty = false
     }
 
-    override val blockIterator: Iterator<BlockPos> get() = cachedPositions.keys.iterator()
+    override val blockIterator: Iterator<RelativeCoordinate> get() =
+        cachedPositions.keys.asSequence().map { getRelativeCoordinate(it) }.iterator()
 
     override fun clearArea() {
         clearSchedules()
         blockIterator.forEach { pos ->
-            world.setBlockNoPP(pos, Blocks.AIR.defaultState, 0)
+            world.setBlockNoPP(pos.blockPos(origin), Blocks.AIR.defaultState, 0)
         }
     }
 
@@ -354,7 +356,8 @@ class TrackedStructure(
     }
 
     fun clearSchedules() {
-        blockIterator.forEach { pos ->
+        blockIterator.forEach { relative ->
+            val pos = relative.blockPos(origin)
             (world as? ServerWorld)?.run {
                 syncedBlockEventQueue.removeIf { it.pos == pos }
                 val blockTickScheduler = getChunk(pos).blockTickScheduler as ChunkTickScheduler
@@ -371,21 +374,20 @@ class TrackedStructure(
         fluidScheduledTicks.clear()
 
         (world as? ServerWorld)?.run {
-            blockEvents.addAll(syncedBlockEventQueue.filter { isInArea(it.pos) }.map { BlockEventInfo(
+            blockEvents.addAll(syncedBlockEventQueue.filter { isInArea(getRelativeCoordinate(it.pos)) }.map { BlockEventInfo(
                 pos = getRelativeCoordinate(it.pos),
                 block = it.block,
                 type = it.type,
                 data = it.data
             ) })
-            val chunks = blockIterator.asSequence()
+            val chunks = cachedPositions.keys.asSequence()
                 .map(ChunkPos::toLong)
                 .toList().distinct()
                 .map { getChunk(ChunkPos.getPackedX(it), ChunkPos.getPackedZ(it)) }
-            val time = world.levelProperties.time
             val blockTickSchedulers = chunks.asSequence().map { it.blockTickScheduler as ChunkTickScheduler }
             val fluidTickSchedulers = chunks.asSequence().map { it.fluidTickScheduler as ChunkTickScheduler }
             blockScheduledTicks.addAll(blockTickSchedulers
-                .flatMap { it.queuedTicks.filter { isInArea(it.pos) } }
+                .flatMap { it.queuedTicks.filter { isInArea(getRelativeCoordinate(it.pos)) } }
                 .map { TickInfo(
                     pos = getRelativeCoordinate(it.pos),
                     type = it.type as Block,
@@ -395,7 +397,7 @@ class TrackedStructure(
                 ) }
             )
             fluidScheduledTicks.addAll(fluidTickSchedulers
-                .flatMap { it.queuedTicks.filter { isInArea(it.pos) } }
+                .flatMap { it.queuedTicks.filter { isInArea(getRelativeCoordinate(it.pos)) } }
                 .map { TickInfo(
                     pos = getRelativeCoordinate(it.pos),
                     type = it.type as Fluid,
@@ -407,6 +409,7 @@ class TrackedStructure(
         }
     }
 
+    @Contract(pure = true)
     fun getRelativeCoordinate(pos: BlockPos): RelativeCoordinate {
         return RelativeCoordinate(pos.x - origin.x, pos.y - origin.y, pos.z - origin.z)
     }
@@ -426,8 +429,8 @@ class TrackedStructure(
             if (pos.x > maxPos.x) maxPos.x = pos.x
             if (pos.y > maxPos.y) maxPos.y = pos.y
             if (pos.z > maxPos.z) maxPos.z = pos.z
-            val state = world.getBlockState(pos)
-            val beData = world.getBlockEntity(pos)?.createNbtWithId()
+            val state = world.getBlockState(pos.blockPos(origin))
+            val beData = world.getBlockEntity(pos.blockPos(origin))?.createNbtWithId()
             blocks[pos] = state
             if (beData != null) blockEntities[pos] = beData
         }

@@ -4,20 +4,19 @@ import com.github.zly2006.reden.rvc.io.StructureIO
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.nbt.NbtCompound
-import net.minecraft.util.math.BlockPos
 import java.nio.file.Path
 import java.util.*
 
 abstract class ReadWriteStructure(override var name: String) : IWritableStructure {
     protected var io: StructureIO? = null
-    val blocks = mutableMapOf<BlockPos, BlockState>()
-    val blockEntities = mutableMapOf<BlockPos, NbtCompound>()
+    val blocks = mutableMapOf<RelativeCoordinate, BlockState>()
+    val blockEntities = mutableMapOf<RelativeCoordinate, NbtCompound>()
     override val entities = mutableMapOf<UUID, NbtCompound>()
-    override fun setBlockState(pos: BlockPos, state: BlockState) { blocks[pos] = state }
-    override fun getBlockState(pos: BlockPos) = blocks[pos] ?: Blocks.AIR.defaultState!!
-    override fun getBlockEntityData(pos: BlockPos) = blockEntities[pos]
-    override fun getOrCreateBlockEntityData(pos: BlockPos) = blockEntities.getOrPut(pos) { NbtCompound() }
-    override fun setBlockEntityData(pos: BlockPos, nbt: NbtCompound) {
+    override fun setBlockState(pos: RelativeCoordinate, state: BlockState) { blocks[pos] = state }
+    override fun getBlockState(pos: RelativeCoordinate) = blocks[pos] ?: Blocks.AIR.defaultState!!
+    override fun getBlockEntityData(pos: RelativeCoordinate) = blockEntities[pos]
+    override fun getOrCreateBlockEntityData(pos: RelativeCoordinate) = blockEntities.getOrPut(pos) { NbtCompound() }
+    override fun setBlockEntityData(pos: RelativeCoordinate, nbt: NbtCompound) {
         blockEntities[pos] = nbt
     }
     override fun save(path: Path) { io?.save(path, this) }

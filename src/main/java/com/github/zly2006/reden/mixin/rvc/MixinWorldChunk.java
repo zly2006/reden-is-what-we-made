@@ -28,11 +28,12 @@ public abstract class MixinWorldChunk {
         if (world.isClient) {
             ClientData data = getData(MinecraftClient.getInstance());
             data.getRvcStructures().values().forEach(repo -> {
-                if (repo.head().isInArea(pos)) {
+                var structure = repo.head();
+                if (structure.isInArea(structure.getRelativeCoordinate(pos))) {
                     if (state.isAir()) {
-                        repo.head().onBlockRemoved(pos);
+                        structure.onBlockRemoved(pos);
                     } else {
-                        repo.head().onBlockAdded(pos);
+                        structure.onBlockAdded(pos);
                     }
                 }
             });
