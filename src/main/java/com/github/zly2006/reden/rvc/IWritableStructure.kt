@@ -7,6 +7,7 @@ import java.util.*
 
 interface IWritableStructure: IStructure {
     fun setBlockState(pos: BlockPos, state: BlockState)
+    fun setBlockEntityData(pos: BlockPos, nbt: NbtCompound)
 
     override val entities: MutableMap<UUID, NbtCompound>
 

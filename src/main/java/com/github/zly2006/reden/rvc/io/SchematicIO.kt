@@ -28,10 +28,10 @@ abstract class SchematicFormat {
 
 class SchematicImpl(
     name: String,
-    override val xSize: Int,
-    override val ySize: Int,
-    override val zSize: Int
-) : ReadWriteStructure(name) {
+    override var xSize: Int,
+    override var ySize: Int,
+    override var zSize: Int
+) : ReadWriteStructure(name), SizeMutableStructure {
     init {
         io = SchematicIO
     }

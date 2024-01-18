@@ -2,6 +2,7 @@ package com.github.zly2006.reden.rvc.io
 
 import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.IWritableStructure
+import com.github.zly2006.reden.rvc.SizeMutableStructure
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import fi.dy.masa.litematica.schematic.LitematicaSchematic
 import fi.dy.masa.litematica.selection.AreaSelection
@@ -12,8 +13,9 @@ import net.minecraft.util.math.Vec3d
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
+import kotlin.io.path.name
 
-object LitematicaIO: StructureIO {
+open class LitematicaIO: StructureIO {
     override fun save(path: Path, structure: IStructure) {
         val litematica: LitematicaSchematic
         if (!path.exists()) {
@@ -113,7 +115,38 @@ object LitematicaIO: StructureIO {
         )
     }
 
-    override fun load(path: Path, structure: IWritableStructure) = throw UnsupportedOperationException()
+    override fun load(path: Path, structure: IWritableStructure) {
+        val schematic = LitematicaSchematic.createFromFile(path.parent.toFile(), path.name)!!
+        if (structure is SizeMutableStructure) {
+            val size = schematic.metadata.enclosingSize
+            structure.xSize = size.x
+            structure.ySize = size.y
+            structure.zSize = size.z
+        }
+        schematic.areas.keys.forEach { regionName ->
+            val subRegionContainer = schematic.getSubRegionContainer(regionName)!!
+            val blockEntityMap = schematic.getBlockEntityMapForRegion(regionName)!!
+            val entityInfos = schematic.getEntityListForRegion(regionName)!!
+            for (x in 0 until subRegionContainer.size.x) {
+                for (y in 0 until subRegionContainer.size.y) {
+                    for (z in 0 until subRegionContainer.size.z) {
+                        val pos = BlockPos(x, y, z)
+                        structure.setBlockState(pos, subRegionContainer.get(x, y, z))
+                        val be = blockEntityMap[pos]
+                        if (be != null) {
+                            structure.setBlockEntityData(pos, be)
+                        }
+                    }
+                }
+            }
+            entityInfos.forEach {
+                structure.entities[it.nbt.getUuid("UUID")] = it.nbt
+            }
+        }
+    }
+
+    companion object Default: LitematicaIO() {
+    }
 }
 
 private val BlockBox.minPos: BlockPos

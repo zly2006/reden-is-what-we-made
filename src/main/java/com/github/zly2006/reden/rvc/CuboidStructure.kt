@@ -5,10 +5,10 @@ import net.minecraft.world.World
 
 class CuboidStructure(
     name: String,
-    override val xSize: Int,
-    override val ySize: Int,
-    override val zSize: Int
-) : ReadWriteStructure(name), PositionIterable {
+    override var xSize: Int,
+    override var ySize: Int,
+    override var zSize: Int
+) : ReadWriteStructure(name), PositionIterable, SizeMutableStructure {
     override val blockIterator: Iterator<BlockPos> = object : Iterator<BlockPos> {
         private var x = 0
         private var y = 0

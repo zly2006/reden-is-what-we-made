@@ -17,6 +17,9 @@ abstract class ReadWriteStructure(override var name: String) : IWritableStructur
     override fun getBlockState(pos: BlockPos) = blocks[pos] ?: Blocks.AIR.defaultState!!
     override fun getBlockEntityData(pos: BlockPos) = blockEntities[pos]
     override fun getOrCreateBlockEntityData(pos: BlockPos) = blockEntities.getOrPut(pos) { NbtCompound() }
+    override fun setBlockEntityData(pos: BlockPos, nbt: NbtCompound) {
+        blockEntities[pos] = nbt
+    }
     override fun save(path: Path) { io?.save(path, this) }
     override fun load(path: Path) { io?.load(path, this) }
     override fun assign(another: IStructure) {

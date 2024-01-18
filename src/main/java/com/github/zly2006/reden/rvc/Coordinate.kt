@@ -11,6 +11,9 @@ interface Coordinate {
         get() = this is AbsoluteCoordinate
 }
 
+/**
+ * Get the absolute coordinate of this coordinate, relative to the given origin.
+ */
 fun Coordinate.getAbsolute(origin: Coordinate): AbsoluteCoordinate {
     var coordinate = this
     while (!coordinate.isAbsolute) {
@@ -19,6 +22,9 @@ fun Coordinate.getAbsolute(origin: Coordinate): AbsoluteCoordinate {
     return coordinate as AbsoluteCoordinate
 }
 
+/**
+ * Get the [BlockPos] of this coordinate, relative to the given origin.
+ */
 fun Coordinate.blockPos(origin: BlockPos): BlockPos {
     var coordinate = this
     while (!coordinate.isAbsolute) {
