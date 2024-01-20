@@ -41,6 +41,8 @@ open class LitematicaIO: StructureIO {
                 val blockEntityMap = litematica.getBlockEntityMapForRegion(index.toString())!!
                 val blockTicks = litematica.getScheduledBlockTicksForRegion(index.toString())!!
                 val fluidTicks = litematica.getScheduledFluidTicksForRegion(index.toString())!!
+                structure.blockScheduledTicks.addAll(blockTicks.map { TrackedStructure.TickInfo.wrap(it.value, structure.world) })
+                structure.fluidScheduledTicks.addAll(fluidTicks.map { TrackedStructure.TickInfo.wrap(it.value, structure.world) })
                 val entityInfos = litematica.getEntityListForRegion(index.toString())!!
                 structure.blocks.filter { it.key.blockPos(BlockPos.ORIGIN) in box }.forEach {
                     subRegionContainer.set(

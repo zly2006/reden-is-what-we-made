@@ -19,6 +19,7 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.*
 import net.minecraft.world.World
 import net.minecraft.world.tick.ChunkTickScheduler
+import net.minecraft.world.tick.OrderedTick
 import net.minecraft.world.tick.TickPriority
 import org.jetbrains.annotations.Contract
 import java.util.*
@@ -55,6 +56,23 @@ class TrackedStructure(
     ) {
         fun toRvcDataString(): String {
             return "${pos.x},${pos.y},${pos.z},${registry.getId(type)},$delay,${priority.ordinal}"
+        }
+
+        companion object {
+            fun <T> wrap(orderedTick: OrderedTick<T>, world: World): TickInfo<T> {
+                @Suppress("UNCHECKED_CAST")
+                return TickInfo(
+                    pos = RelativeCoordinate(orderedTick.pos.x, orderedTick.pos.y, orderedTick.pos.z),
+                    type = orderedTick.type as T,
+                    delay = orderedTick.triggerTick - world.time,
+                    priority = orderedTick.priority,
+                    registry = when (orderedTick.type) {
+                        is Block -> Registries.BLOCK
+                        is Fluid -> Registries.FLUID
+                        else -> throw IllegalArgumentException("Unknown type ${orderedTick.type}")
+                    } as Registry<T>
+                )
+            }
         }
     }
     data class BlockEventInfo(
@@ -388,23 +406,17 @@ class TrackedStructure(
             val fluidTickSchedulers = chunks.asSequence().map { it.fluidTickScheduler as ChunkTickScheduler }
             blockScheduledTicks.addAll(blockTickSchedulers
                 .flatMap { it.queuedTicks.filter { isInArea(getRelativeCoordinate(it.pos)) } }
-                .map { TickInfo(
-                    pos = getRelativeCoordinate(it.pos),
-                    type = it.type as Block,
-                    delay = it.triggerTick - world.time,
-                    priority = it.priority,
-                    registry = Registries.BLOCK
-                ) }
+                .map {
+                    @Suppress("UNCHECKED_CAST")
+                    TickInfo.wrap(it, world) as TickInfo<Block>
+                }
             )
             fluidScheduledTicks.addAll(fluidTickSchedulers
                 .flatMap { it.queuedTicks.filter { isInArea(getRelativeCoordinate(it.pos)) } }
-                .map { TickInfo(
-                    pos = getRelativeCoordinate(it.pos),
-                    type = it.type as Fluid,
-                    delay = it.triggerTick - world.time,
-                    priority = it.priority,
-                    registry = Registries.FLUID
-                ) }
+                .map {
+                    @Suppress("UNCHECKED_CAST")
+                    TickInfo.wrap(it, world) as TickInfo<Fluid>
+                }
             )
         }
     }
