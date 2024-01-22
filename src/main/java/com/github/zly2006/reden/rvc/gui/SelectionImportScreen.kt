@@ -36,7 +36,7 @@ class SelectionImportScreen(
             .surface(Surface.VANILLA_TRANSLUCENT)
             .horizontalAlignment(HorizontalAlignment.LEFT)
             .verticalAlignment(VerticalAlignment.TOP)
-            .padding(Insets.of(5))
+            .padding(Insets.of(5, 0, 5, 0))
 
         rootComponent.gap(3)
 
