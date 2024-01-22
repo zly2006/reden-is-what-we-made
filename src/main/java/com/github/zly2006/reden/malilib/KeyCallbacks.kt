@@ -13,6 +13,8 @@ import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
 import com.github.zly2006.reden.network.*
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.report.onFunctionUsed
+import com.github.zly2006.reden.rvc.gui.SelectionExportScreen
+import com.github.zly2006.reden.rvc.gui.SelectionImportScreen
 import com.github.zly2006.reden.rvc.gui.SelectionListScreen
 import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.remote.github.GithubAuthScreen
@@ -172,6 +174,14 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
                 )
             )
         }
+        true
+    }
+    OPEN_EXPORT_SCREEN.callback {
+        mc.setScreen(SelectionExportScreen())
+        true
+    }
+    OPEN_IMPORT_SCREEN.callback {
+        mc.setScreen(SelectionImportScreen())
         true
     }
     OPEN_SELECTION_LIST.callback {
