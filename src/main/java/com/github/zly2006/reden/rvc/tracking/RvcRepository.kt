@@ -26,6 +26,10 @@ class RvcRepository(
 ) {
     var headCache: TrackedStructure? = null
         private set
+
+    /**
+     * @see TrackedStructure.placementInfo
+     */
     var placementInfo: PlacementInfo? = null
         private set
 

@@ -37,6 +37,13 @@ class TrackedStructure(
     override var enabled: Boolean = true
     override val structure = this
     override lateinit var world: World
+    /**
+     * This is stored in the file `.git/placement_info.json`.
+     *
+     * When we cloned or created a repository, don't forget to create this file.
+     *
+     * @see RvcRepository.placementInfo
+     */
     lateinit var placementInfo: PlacementInfo
     override val origin: BlockPos get() = placementInfo.origin
     override fun createPlacement(world: World, origin: BlockPos) = this
