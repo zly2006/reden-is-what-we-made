@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.rvc.gui
 
 import com.github.zly2006.reden.report.onFunctionUsed
+import com.github.zly2006.reden.utils.server
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
 import io.wispforest.owo.ui.component.Components
@@ -11,21 +12,18 @@ import io.wispforest.owo.ui.container.ScrollContainer.Scrollbar
 import io.wispforest.owo.ui.core.*
 import net.minecraft.text.Text
 import java.io.File
-import java.io.IOException
-import java.nio.file.*
-import java.nio.file.Files.walkFileTree
-import java.nio.file.attribute.BasicFileAttributes
+import java.io.FileFilter
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class SelectionImportScreen(
-    val fileType: Type = Type.StructureBlock,
+    val fileType: Type = Type.Litematica,
 ) : BaseOwoScreen<FlowLayout>() {
     var selectedLine: FileLine? = null
     val importButton: ButtonComponent = Components.button(Text.literal("Import")) {
-        onFunctionUsed("import_file")
+        onFunctionUsed("buttonImport_type${fileType.name}_importScreen")
         selectedLine?.let { fileType.import(it.file) }
     }.apply {
         active(selectedLine != null)
@@ -38,7 +36,7 @@ class SelectionImportScreen(
             .surface(Surface.VANILLA_TRANSLUCENT)
             .horizontalAlignment(HorizontalAlignment.LEFT)
             .verticalAlignment(VerticalAlignment.TOP)
-            .padding(Insets.of(5, 0, 5, 0))
+            .padding(Insets.of(5))
 
         rootComponent.gap(3)
 
@@ -48,7 +46,6 @@ class SelectionImportScreen(
             child(Components.label(Text.literal("Import RVC Structure from:")))
             Type.values().forEach { type ->
                 child(Components.button(Text.literal(type.displayName)) {
-                    onFunctionUsed("select_${type.name.lowercase()}_importScreen")
                     client!!.setScreen(SelectionImportScreen(type))
                 }.apply {
                     active(fileType != type)
@@ -121,63 +118,25 @@ class SelectionImportScreen(
     enum class Type(val displayName: String) {
         StructureBlock("Structure Block") {
             override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
-                File("saves").mkdirs()
-                File("saves").listFiles()!!.asSequence()
-                    .filter { it.isDirectory && it.resolve("generated").exists() }
-                    .forEach { file ->
-                        file.resolve("generated").getFiles().forEach {
-                            rootComponent.child(screen.FileLine(it, it.path.simplifyPath()))
-                        }
+                server.session.directory.path.resolve("generated").toFile()
+                    .listFiles(FileFilter { it.isDirectory })?.forEach {
+                        val namespace = it.name
+                        it.resolve("structures").listFiles()
+                            ?.filter { it.extension == "nbt" }
+                            ?.forEach { structureFile ->
+                                rootComponent.child(
+                                    screen.FileLine(
+                                        structureFile,
+                                        if (namespace == "minecraft") structureFile.nameWithoutExtension
+                                        else "$namespace:${structureFile.nameWithoutExtension}"
+                                    )
+                                )
+                            }
                     }
             }
 
             override fun import(file: File): Boolean {
                 TODO()
-            }
-
-            private fun File.getFiles(): List<File> {
-                val files = mutableListOf<File>()
-
-                val path = Paths.get(path)
-
-                walkFileTree(
-                    path,
-                    setOf(FileVisitOption.FOLLOW_LINKS),
-                    Int.MAX_VALUE,
-                    object : SimpleFileVisitor<Path>() {
-                        override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
-                            if (!file.toFile().isDirectory && file.toString().endsWith(".nbt")) {
-                                files.add(file.toFile())
-                            }
-                            return FileVisitResult.CONTINUE
-                        }
-
-                        override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult {
-                            return FileVisitResult.CONTINUE
-                        }
-                    }
-                )
-
-                return files
-            }
-
-            private fun String.simplifyPath(): String {
-                val split = split("\\")
-                if (split.size < 4) return this
-                return buildString {
-                    append(split[1])
-                    append("/")
-                    append(split[3])
-                    for (i in 4 until split.size) {
-                        if (i == split.size - 1) {
-                            append(":")
-                            append(split[i].replace(".nbt", ""))
-                        } else {
-                            append("/")
-                            append(split[i])
-                        }
-                    }
-                }
             }
         },
         Litematica("Litematica") {
@@ -196,7 +155,8 @@ class SelectionImportScreen(
             override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
                 File("schematics").mkdirs()
                 File("schematics").listFiles()!!.asSequence()
-                    .filter { !it.isDirectory && (it.name.endsWith(".schematic") || it.name.endsWith(".schem")) }
+                    .filterNot { it.isDirectory || it.name.endsWith(".litematic") } // ignore litematica
+                    .filter { (it.extension in setOf("schematic", "schem")) }
                     .forEach { rootComponent.child(screen.FileLine(it)) }
             }
 
