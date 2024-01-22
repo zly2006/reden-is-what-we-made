@@ -71,7 +71,7 @@ class SelectionImportScreen(
 
     inner class FileLine(
         val file: File,
-        vararg tooltips: String,
+        vararg tooltips: Text,
     ) : FlowLayout(Sizing.fill(), Sizing.content(), Algorithm.HORIZONTAL) {
         val left: FlowLayout = Containers.horizontalFlow(Sizing.fill(45), Sizing.content(1))
         val center: FlowLayout = Containers.horizontalFlow(Sizing.fill(10), Sizing.content(1))
@@ -98,12 +98,10 @@ class SelectionImportScreen(
             child(center)
             child(right)
 
+            tooltip(tooltips.toList())
+
             left.child(select)
-            left.child(
-                Components.label(Text.literal(file.name.substring(0, file.name.lastIndexOf(".")))).apply {
-                    tooltips.let { it.forEach { s -> tooltip(Text.literal(s)) } }
-                }
-            )
+            left.child(Components.label(Text.literal(file.nameWithoutExtension)))
             center.child(Components.label(Text.literal("${"%.2f".format((file.length() / 1024.0))}KB")))
             right.child(Components.label(Text.literal(file.lastModified().formatToDate())))
         }
@@ -127,8 +125,10 @@ class SelectionImportScreen(
                                 rootComponent.child(
                                     screen.FileLine(
                                         structureFile,
-                                        if (namespace == "minecraft") structureFile.nameWithoutExtension
-                                        else "$namespace:${structureFile.nameWithoutExtension}"
+                                        Text.literal(
+                                            if (namespace == "minecraft") structureFile.nameWithoutExtension
+                                            else "$namespace:${structureFile.nameWithoutExtension}"
+                                        )
                                     )
                                 )
                             }
