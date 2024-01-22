@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixin.rvc;
 
 import com.github.zly2006.reden.access.ClientData;
+import com.github.zly2006.reden.rvc.tracking.WorldInfo;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
@@ -19,6 +20,8 @@ import static com.github.zly2006.reden.access.ClientData.getData;
 public abstract class MixinWorldChunk {
     @Shadow @Final private World world;
 
+    @Shadow public abstract World getWorld();
+
     @Inject(
             method = "setBlockState",
             at = @At("HEAD")
@@ -27,7 +30,10 @@ public abstract class MixinWorldChunk {
         //todo
         if (world.isClient) {
             ClientData data = getData(MinecraftClient.getInstance());
+            WorldInfo worldInfo = WorldInfo.Companion.getWorldInfo(MinecraftClient.getInstance());
             data.getRvcStructures().values().forEach(repo -> {
+                if (repo.getPlacementInfo() == null) return;
+                if (!worldInfo.equals(repo.getPlacementInfo().getWorldInfo())) return;
                 var structure = repo.head();
                 if (structure.isInArea(structure.getRelativeCoordinate(pos))) {
                     if (state.isAir()) {
