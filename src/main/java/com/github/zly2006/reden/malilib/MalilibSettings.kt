@@ -63,6 +63,8 @@ private fun <T : ConfigBase<*>> T.hidden() = apply { (HIDDEN_TAB.add(this)) }
 // RVC
 @JvmField val OPEN_RVC_SCREEN = RedenConfigHotkey("openRvcScreen", "R", KeybindSettings.RELEASE).rvc().hotkey()
 @JvmField val OPEN_SELECTION_LIST = RedenConfigHotkey("openSelectionList", "R,L").rvc().hotkey()
+@JvmField val OPEN_EXPORT_SCREEN = RedenConfigHotkey("openExportScreen", "R,E").rvc().hotkey()
+@JvmField val OPEN_IMPORT_SCREEN = RedenConfigHotkey("openImportScreen", "R,I").rvc().hotkey()
 @JvmField val RVC_RECORD_MULTIPLAYER = RedenConfigBoolean("rvcRecordMultiplayer", true).rvc()
 @JvmField val RVC_FORCE_LOCALLY = RedenConfigBoolean("rvcForceLocally", false).rvc()
 // Super Right
