@@ -71,6 +71,7 @@ private fun <T : ConfigBase<*>> T.hidden() = apply { (HIDDEN_TAB.add(this)) }
 @JvmField val CHAT_RIGHT_CLICK_MENU = RedenConfigBoolean("chatRightClickMenu", true).sr()
 @JvmField val STRUCTURE_BLOCK_LOAD = RedenConfigHotkey("structureBlockLoad", "LEFT_CONTROL,L").sr().hotkey()
 @JvmField val STRUCTURE_BLOCK_SAVE = RedenConfigHotkey("structureBlockSave", "LEFT_CONTROL,S").sr().hotkey()
+@JvmField val WORMHOLE_SELECT = RedenConfigHotkey("wormholeSelect", "LEFT_ALT").sr().hotkey()
 @JvmField val RUN_COMMAND = RedenConfigCommandHotkeyList("runCommand").sr()
 // Debug
 @JvmField val DEBUG_LOGGER = RedenConfigBoolean("debugLogger", false) {
