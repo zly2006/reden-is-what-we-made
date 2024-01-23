@@ -45,7 +45,7 @@ class SelectionImportScreen(
             alignment(HorizontalAlignment.LEFT, VerticalAlignment.CENTER)
             child(Components.label(Text.literal("Import RVC Structure from:")))
             Type.values().forEach { type ->
-                child(Components.button(Text.literal(type.displayName)) {
+                child(Components.button(type.displayName) {
                     client!!.setScreen(SelectionImportScreen(type))
                 }.apply {
                     active(fileType != type)
@@ -72,7 +72,6 @@ class SelectionImportScreen(
     inner class FileLine(
         val file: File,
         val name: String,
-        vararg tooltips: Text,
     ) : FlowLayout(Sizing.fill(), Sizing.content(), Algorithm.HORIZONTAL) {
         val left: FlowLayout = Containers.horizontalFlow(Sizing.fill(45), Sizing.content(1))
         val center: FlowLayout = Containers.horizontalFlow(Sizing.fill(10), Sizing.content(1))
@@ -100,11 +99,7 @@ class SelectionImportScreen(
             child(right)
 
             left.child(select)
-            left.child(
-                Components.label(Text.literal(name)).apply {
-                    tooltips.forEach { s -> tooltip(s) }
-                }
-            )
+            left.child(Components.label(Text.literal(name)))
             center.child(Components.label(Text.literal("${"%.2f".format((file.length() / 1024.0))}KB")))
             right.child(Components.label(Text.literal(file.lastModified().formatToDate())))
         }
@@ -116,8 +111,8 @@ class SelectionImportScreen(
         return localDateTime.format(formatter)
     }
 
-    enum class Type(val displayName: String) {
-        StructureBlock("Structure Block") {
+    enum class Type(val displayName: Text) {
+        StructureBlock(Text.literal("Structure Block")) {
             override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
                 server.session.directory.path.resolve("generated").toFile()
                     .listFiles(FileFilter { it.isDirectory })?.forEach {
@@ -140,7 +135,7 @@ class SelectionImportScreen(
                 TODO()
             }
         },
-        Litematica("Litematica") {
+        Litematica(Text.literal("Litematica")) {
             override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
                 File("schematics").mkdirs()
                 File("schematics").listFiles()!!.asSequence()
@@ -152,7 +147,19 @@ class SelectionImportScreen(
                 TODO()
             }
         },
-        Other("Other") {
+        RVCArchive(Text.literal("RVC Archive")){
+            override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
+                File("schematics").mkdirs()
+                File("schematics").listFiles()!!.asSequence()
+                    .filter { !it.isDirectory && it.name.endsWith(".rvcarchive") }
+                    .forEach { rootComponent.child(screen.FileLine(it, it.nameWithoutExtension)) }
+            }
+
+            override fun import(file: File): Boolean {
+                TODO()
+            }
+        },
+        Other(Text.literal("Other")) {
             override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
                 File("schematics").mkdirs()
                 File("schematics").listFiles()!!.asSequence()
