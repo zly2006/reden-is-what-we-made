@@ -71,6 +71,7 @@ class SelectionImportScreen(
 
     inner class FileLine(
         val file: File,
+        val name: String,
         vararg tooltips: Text,
     ) : FlowLayout(Sizing.fill(), Sizing.content(), Algorithm.HORIZONTAL) {
         val left: FlowLayout = Containers.horizontalFlow(Sizing.fill(45), Sizing.content(1))
@@ -98,10 +99,12 @@ class SelectionImportScreen(
             child(center)
             child(right)
 
-            tooltip(tooltips.toList())
-
             left.child(select)
-            left.child(Components.label(Text.literal(file.nameWithoutExtension)))
+            left.child(
+                Components.label(Text.literal(name)).apply {
+                    tooltips.forEach { s -> tooltip(s) }
+                }
+            )
             center.child(Components.label(Text.literal("${"%.2f".format((file.length() / 1024.0))}KB")))
             right.child(Components.label(Text.literal(file.lastModified().formatToDate())))
         }
@@ -125,10 +128,8 @@ class SelectionImportScreen(
                                 rootComponent.child(
                                     screen.FileLine(
                                         structureFile,
-                                        Text.literal(
-                                            if (namespace == "minecraft") structureFile.nameWithoutExtension
-                                            else "$namespace:${structureFile.nameWithoutExtension}"
-                                        )
+                                        if (namespace == "minecraft") structureFile.nameWithoutExtension
+                                        else "$namespace:${structureFile.nameWithoutExtension}"
                                     )
                                 )
                             }
@@ -144,7 +145,7 @@ class SelectionImportScreen(
                 File("schematics").mkdirs()
                 File("schematics").listFiles()!!.asSequence()
                     .filter { !it.isDirectory && it.name.endsWith(".litematic") }
-                    .forEach { rootComponent.child(screen.FileLine(it)) }
+                    .forEach { rootComponent.child(screen.FileLine(it, it.nameWithoutExtension)) }
             }
 
             override fun import(file: File): Boolean {
@@ -157,7 +158,7 @@ class SelectionImportScreen(
                 File("schematics").listFiles()!!.asSequence()
                     .filterNot { it.isDirectory || it.name.endsWith(".litematic") } // ignore litematica
                     .filter { (it.extension in setOf("schematic", "schem")) }
-                    .forEach { rootComponent.child(screen.FileLine(it)) }
+                    .forEach { rootComponent.child(screen.FileLine(it, it.name)) }
             }
 
             override fun import(file: File): Boolean {
