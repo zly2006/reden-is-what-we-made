@@ -15,7 +15,6 @@ import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.report.reportException
-import com.github.zly2006.reden.rvc.gui.SelectionExportScreen
 import com.github.zly2006.reden.rvc.gui.SelectionImportScreen
 import com.github.zly2006.reden.rvc.gui.SelectionListScreen
 import com.github.zly2006.reden.rvc.gui.selectedStructure
@@ -184,10 +183,6 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
                 )
             )
         }
-        true
-    }
-    OPEN_EXPORT_SCREEN.callback {
-        mc.setScreen(SelectionExportScreen())
         true
     }
     OPEN_IMPORT_SCREEN.callback {
