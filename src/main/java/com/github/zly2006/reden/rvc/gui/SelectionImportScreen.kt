@@ -58,7 +58,7 @@ class SelectionImportScreen(
                 Sizing.fill(),
                 Sizing.fill(75),
                 Containers.verticalFlow(Sizing.fill(), Sizing.content()).apply {
-                    fileType.addChildren(this@SelectionImportScreen, this)
+                    fileType.discover(this@SelectionImportScreen, this)
                 }).apply {
                 scrollbar(Scrollbar.vanillaFlat())
             })
@@ -111,14 +111,22 @@ class SelectionImportScreen(
         return localDateTime.format(formatter)
     }
 
+    companion object {
+        const val FOLDER_SCHEMATICS = "schematics"
+        const val EXTENSION_NBT = "nbt"
+        const val EXTENSION_SCHEMATIC = "schematic"
+        const val EXTENSION_LITEMATICA = "litematic"
+        const val EXTENSION_RVC_ARCHIVE = "rvcarchive"
+    }
+
     enum class Type(val displayName: Text) {
         StructureBlock(Text.literal("Structure Block")) {
-            override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
+            override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
                 server.session.directory.path.resolve("generated").toFile()
                     .listFiles(FileFilter { it.isDirectory })?.forEach {
                         val namespace = it.name
                         it.resolve("structures").listFiles()
-                            ?.filter { it.extension == "nbt" }
+                            ?.filter { it.extension == EXTENSION_NBT }
                             ?.forEach { structureFile ->
                                 rootComponent.child(
                                     screen.FileLine(
@@ -136,10 +144,10 @@ class SelectionImportScreen(
             }
         },
         Litematica(Text.literal("Litematica")) {
-            override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
-                File("schematics").mkdirs()
-                File("schematics").listFiles()!!.asSequence()
-                    .filter { !it.isDirectory && it.name.endsWith(".litematic") }
+            override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
+                File(FOLDER_SCHEMATICS).mkdirs()
+                File(FOLDER_SCHEMATICS).listFiles()!!.asSequence()
+                    .filter { !it.isDirectory && it.extension == EXTENSION_LITEMATICA }
                     .forEach { rootComponent.child(screen.FileLine(it, it.nameWithoutExtension)) }
             }
 
@@ -148,10 +156,10 @@ class SelectionImportScreen(
             }
         },
         RVCArchive(Text.literal("RVC Archive")){
-            override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
-                File("schematics").mkdirs()
-                File("schematics").listFiles()!!.asSequence()
-                    .filter { !it.isDirectory && it.name.endsWith(".rvcarchive") }
+            override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
+                File(FOLDER_SCHEMATICS).mkdirs()
+                File(FOLDER_SCHEMATICS).listFiles()!!.asSequence()
+                    .filter { !it.isDirectory && it.extension == EXTENSION_RVC_ARCHIVE }
                     .forEach { rootComponent.child(screen.FileLine(it, it.nameWithoutExtension)) }
             }
 
@@ -160,11 +168,12 @@ class SelectionImportScreen(
             }
         },
         Other(Text.literal("Other")) {
-            override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
-                File("schematics").mkdirs()
-                File("schematics").listFiles()!!.asSequence()
-                    .filterNot { it.isDirectory || it.name.endsWith(".litematic") } // ignore litematica
-                    .filter { (it.extension in setOf("schematic", "schem")) }
+            override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
+                File(FOLDER_SCHEMATICS).mkdirs()
+                File(FOLDER_SCHEMATICS).listFiles()!!.asSequence()
+                    .filterNot { it.isDirectory }
+                    .filterNot { it.extension in setOf(EXTENSION_LITEMATICA, EXTENSION_RVC_ARCHIVE) } // ignore other formats
+                 //   .filter { (it.extension in setOf("schematic", "schem")) }
                     .forEach { rootComponent.child(screen.FileLine(it, it.name)) }
             }
 
@@ -173,7 +182,7 @@ class SelectionImportScreen(
             }
         };
 
-        abstract fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout)
+        abstract fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout)
         abstract fun import(file: File): Boolean
     }
 }

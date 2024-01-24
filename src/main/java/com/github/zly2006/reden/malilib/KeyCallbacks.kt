@@ -14,6 +14,7 @@ import com.github.zly2006.reden.network.*
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.report.onFunctionUsed
+import com.github.zly2006.reden.report.reportException
 import com.github.zly2006.reden.rvc.gui.SelectionExportScreen
 import com.github.zly2006.reden.rvc.gui.SelectionImportScreen
 import com.github.zly2006.reden.rvc.gui.SelectionListScreen
@@ -200,6 +201,12 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         true
     }
     ClientTickEvents.START_CLIENT_TICK.register {
+        val cosPitch = abs(cos(Math.toRadians(mc.player!!.pitch.toDouble())))
+        val pos = Vec3d(
+            -sin(Math.toRadians(mc.player!!.yaw.toDouble())) * cosPitch,
+            -sin(Math.toRadians(mc.player!!.pitch.toDouble())),
+            cos(Math.toRadians(mc.player!!.yaw.toDouble())) * cosPitch
+        ).normalize()
         fun eval(it: Wormhole): Double {
             /*
             val xOyDistance = mc.player!!.eyePos.withAxis(Direction.Axis.Y, 0.0)
@@ -208,15 +215,8 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             val pitch = Math.toDegrees(atan2(abs(mc.player!!.eyePos.y - it.destination.toCenterPos().y), xOyDistance))
 
             val d = abs((yaw - mc.player!!.yaw).mod(360.0)) + abs((pitch - mc.player!!.pitch).mod(360.0))
-
              */
-            val cosPitch = abs(cos(Math.toRadians(mc.player!!.pitch.toDouble())))
-            val pos = Vec3d(
-                -sin(Math.toRadians(mc.player!!.yaw.toDouble())) * cosPitch,
-                -sin(Math.toRadians(mc.player!!.pitch.toDouble())),
-                cos(Math.toRadians(mc.player!!.yaw.toDouble())) * cosPitch
-            )
-            val d = pos.normalize().distanceTo(it.destination.toCenterPos().subtract(mc.player!!.eyePos).normalize())
+            val d = pos.distanceTo(it.destination.toCenterPos().subtract(mc.player!!.eyePos).normalize())
             return d
         }
         if (WORMHOLE_SELECT.keybind.isPressed) {
@@ -406,6 +406,7 @@ private fun ConfigHotkey.callback(action: () -> Boolean) {
             } else false
         } catch (e: Exception) {
             Reden.LOGGER.error("Error when executing hotkey $name", e)
+            reportException(e)
             MinecraftClient.getInstance().player?.sendMessage(Text.literal("Error when executing hotkey $name").red())
             false
         }

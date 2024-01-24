@@ -24,6 +24,8 @@ private val LOGGER = Reden.LOGGER
 var debugLogger: (String) -> Unit = { if (isDebug) LOGGER.debug(it) }
 val isDebug: Boolean get() = if (isClient) DEBUG_LOGGER.booleanValue else RedenCarpetSettings.Options.redenDebug
 
+val isDevVersion: Boolean = listOf("dev", "alpha", "beta").any { Reden.MOD_VERSION.friendlyString.contains(it) }
+
 private val debugAppender = RollingRandomAccessFileAppender.Builder()
     .withFileName("logs/reden-debug.log")
     .setLayout(

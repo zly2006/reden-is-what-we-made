@@ -7,6 +7,7 @@ import com.github.zly2006.reden.malilib.data_BASIC
 import com.github.zly2006.reden.malilib.data_IDENTIFICATION
 import com.github.zly2006.reden.malilib.data_USAGE
 import com.github.zly2006.reden.utils.isClient
+import com.github.zly2006.reden.utils.isDevVersion
 import com.github.zly2006.reden.utils.redenApiBaseUrl
 import com.github.zly2006.reden.utils.server
 import com.mojang.authlib.minecraft.UserApiService
@@ -20,6 +21,8 @@ import net.minecraft.client.option.ServerList
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.Text
+import net.minecraft.util.crash.CrashMemoryReserve
+import net.minecraft.util.crash.CrashReport
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -189,6 +192,35 @@ private val jsonIgnoreUnknown = Json { ignoreUnknownKeys = true }
 
 fun reportServerStart(server: MinecraftServer) {
 
+}
+
+fun reportException(e: Exception) {
+    if (isDevVersion && data_USAGE.booleanValue) {
+        try {
+            CrashMemoryReserve.releaseMemory()
+            val asString = CrashReport("Reden generated crash report.", e).asString()
+            httpClient.newCall(Request.Builder().apply {
+                url("$redenApiBaseUrl/mc/exception")
+                @Serializable
+                class Req(
+                    val key: String,
+                    val crash: String,
+                )
+                json(Req(key, asString))
+                ua()
+            }.build()).execute().use {
+                @Serializable
+                class Res(
+                    val status: String,
+                    val shutdown: Boolean,
+                )
+
+                val res = jsonIgnoreUnknown.decodeFromString(Res.serializer(), it.body!!.string())
+            }
+            return
+        } catch (_: Exception) {
+        }
+    }
 }
 
 fun reportOnlineMC(client: MinecraftClient) {
