@@ -1,6 +1,12 @@
 package com.github.zly2006.reden.rvc.gui
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.report.onFunctionUsed
+import com.github.zly2006.reden.rvc.io.LitematicaIO
+import com.github.zly2006.reden.rvc.io.SchematicStructure
+import com.github.zly2006.reden.rvc.tracking.RvcRepository
+import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.utils.server
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
@@ -10,6 +16,10 @@ import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer.Scrollbar
 import io.wispforest.owo.ui.core.*
+import net.minecraft.client.MinecraftClient
+import net.minecraft.nbt.NbtIo
+import net.minecraft.nbt.NbtTagSizeTracker
+import net.minecraft.network.NetworkSide
 import net.minecraft.text.Text
 import java.io.File
 import java.io.FileFilter
@@ -78,11 +88,11 @@ class SelectionImportScreen(
         val right: FlowLayout = Containers.horizontalFlow(Sizing.fill(41), Sizing.content(1))
         val select: SmallCheckboxComponent = Components.smallCheckbox(Text.empty()).apply {
             onChanged().subscribe {
-                selectedLine = if (it) {
+                if (it) {
                     selectedLine?.select?.checked(false)
-                    this@FileLine
+                    selectedLine = this@FileLine
                 } else {
-                    null
+                    selectedLine = null
                 }
                 importButton.active(selectedLine != null)
             }
@@ -139,7 +149,7 @@ class SelectionImportScreen(
                     }
             }
 
-            override fun import(file: File): Boolean {
+            override fun import(file: File): RvcRepository? {
                 TODO()
             }
         },
@@ -151,7 +161,7 @@ class SelectionImportScreen(
                     .forEach { rootComponent.child(screen.FileLine(it, it.nameWithoutExtension)) }
             }
 
-            override fun import(file: File): Boolean {
+            override fun import(file: File): RvcRepository? {
                 TODO()
             }
         },
@@ -163,8 +173,13 @@ class SelectionImportScreen(
                     .forEach { rootComponent.child(screen.FileLine(it, it.nameWithoutExtension)) }
             }
 
-            override fun import(file: File): Boolean {
-                TODO()
+            override fun import(file: File): RvcRepository {
+                val mc = MinecraftClient.getInstance()
+                val repository = RvcRepository.create(file.nameWithoutExtension, mc.getWorldInfo(), NetworkSide.CLIENTBOUND)
+                val structure = TrackedStructure(file.nameWithoutExtension, NetworkSide.CLIENTBOUND)
+                LitematicaIO.load(file.toPath(), structure)
+                repository.commit(structure, "Import from $file", mc.player)
+                return repository
             }
         },
         Other(Text.literal("Other")) {
@@ -177,12 +192,29 @@ class SelectionImportScreen(
                     .forEach { rootComponent.child(screen.FileLine(it, it.name)) }
             }
 
-            override fun import(file: File): Boolean {
+            override fun import(file: File): RvcRepository? {
                 TODO()
             }
         };
 
         abstract fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout)
-        abstract fun import(file: File): Boolean
+
+        /**
+         * logic for structure template nbt files
+         */
+        open fun import(file: File): RvcRepository? {
+            try {
+                val mc = MinecraftClient.getInstance()
+                val repository = RvcRepository.create(file.nameWithoutExtension, mc.getWorldInfo(), NetworkSide.CLIENTBOUND)
+                val structure = TrackedStructure(file.nameWithoutExtension, NetworkSide.CLIENTBOUND)
+                val nbt = NbtIo.readCompressed(file.toPath(), NbtTagSizeTracker.ofUnlimitedBytes())
+                structure.assign(SchematicStructure().readFromNBT(nbt))
+                repository.commit(structure, "Import from $file", mc.player)
+                return repository
+            } catch (e: Exception) {
+                Reden.LOGGER.error("Failed to import structure from $file", e)
+                return null
+            }
+        }
     }
 }
