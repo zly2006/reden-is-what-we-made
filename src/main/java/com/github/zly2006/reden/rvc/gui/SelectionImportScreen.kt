@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.rvc.gui
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.io.LitematicaIO
 import com.github.zly2006.reden.rvc.io.SchematicStructure
@@ -16,6 +17,9 @@ import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer.Scrollbar
 import io.wispforest.owo.ui.core.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import net.minecraft.client.MinecraftClient
 import net.minecraft.nbt.NbtIo
 import net.minecraft.nbt.NbtTagSizeTracker
@@ -27,6 +31,10 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.zip.ZipFile
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.div
+import kotlin.io.path.extension
 
 class SelectionImportScreen(
     val fileType: Type = Type.Litematica,
@@ -148,28 +156,12 @@ class SelectionImportScreen(
                             }
                     }
             }
-
-            override fun import(file: File): RvcRepository? {
-                TODO()
-            }
         },
         Litematica(Text.literal("Litematica")) {
             override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
                 File(FOLDER_SCHEMATICS).mkdirs()
                 File(FOLDER_SCHEMATICS).listFiles()!!.asSequence()
                     .filter { !it.isDirectory && it.extension == EXTENSION_LITEMATICA }
-                    .forEach { rootComponent.child(screen.FileLine(it, it.nameWithoutExtension)) }
-            }
-
-            override fun import(file: File): RvcRepository? {
-                TODO()
-            }
-        },
-        RVCArchive(Text.literal("RVC Archive")){
-            override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
-                File(FOLDER_SCHEMATICS).mkdirs()
-                File(FOLDER_SCHEMATICS).listFiles()!!.asSequence()
-                    .filter { !it.isDirectory && it.extension == EXTENSION_RVC_ARCHIVE }
                     .forEach { rootComponent.child(screen.FileLine(it, it.nameWithoutExtension)) }
             }
 
@@ -182,6 +174,58 @@ class SelectionImportScreen(
                 return repository
             }
         },
+        RVCArchive(Text.literal("RVC Archive")){
+            override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
+                File(FOLDER_SCHEMATICS).mkdirs()
+                File(FOLDER_SCHEMATICS).listFiles()!!.asSequence()
+                    .filter { !it.isDirectory && it.extension == EXTENSION_RVC_ARCHIVE }
+                    .forEach { rootComponent.child(screen.FileLine(it, it.nameWithoutExtension)) }
+            }
+
+            private val json = Json {
+                ignoreUnknownKeys
+            }
+
+            override fun import(file: File): RvcRepository? {
+                val zip = ZipFile(file)
+                val mc = MinecraftClient.getInstance()
+                val manifestString = zip.getInputStream(zip.getEntry("manifest.rvc.json")).readAllBytes().decodeToString()
+                Reden.LOGGER.info("manifest: $manifestString")
+                @Serializable
+                class Manifest(
+                    val name: String
+                )
+                val manifest = json.decodeFromString<Manifest>(manifestString)
+                var name = manifest.name
+                if (name in mc.data.rvcStructures) {
+                    var i = 2
+                    while (name in mc.data.rvcStructures) {
+                        name = "${manifest.name} ($i)"
+                        i++
+                    }
+                }
+                val path = RvcRepository.path / name / ".git"
+                for (entry in zip.entries()) {
+                    val entryPath = path / entry.name
+                    if (!entryPath.absolutePathString().contains("/.git/")) {
+                        Reden.LOGGER.error("Invalid entry: ${entry.name}")
+                    }
+                    if (entry.isDirectory) {
+                        entryPath.toFile().mkdirs()
+                    } else {
+                        entryPath.parent.toFile().mkdirs()
+                        if (entryPath.parent.normalize() == path.normalize() && entryPath.extension == "json") {
+                            Reden.LOGGER.info("Skipping $entryPath")
+                            continue
+                        }
+                        entryPath.toFile().writeBytes(zip.getInputStream(entry).readAllBytes())
+                        Reden.LOGGER.info("Extracted ${entry.name} to $entryPath")
+                    }
+                }
+                val repository = RvcRepository.fromArchive(path, NetworkSide.CLIENTBOUND)
+                return repository
+            }
+        },
         Other(Text.literal("Other")) {
             override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
                 File(FOLDER_SCHEMATICS).mkdirs()
@@ -190,10 +234,6 @@ class SelectionImportScreen(
                     .filterNot { it.extension in setOf(EXTENSION_LITEMATICA, EXTENSION_RVC_ARCHIVE) } // ignore other formats
                  //   .filter { (it.extension in setOf("schematic", "schem")) }
                     .forEach { rootComponent.child(screen.FileLine(it, it.name)) }
-            }
-
-            override fun import(file: File): RvcRepository? {
-                TODO()
             }
         };
 

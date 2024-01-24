@@ -166,6 +166,13 @@ class RvcRepository(
                 side = side
             )
         }
+
+        fun fromArchive(worktreeOrGitPath: Path, side: NetworkSide): RvcRepository {
+            return RvcRepository(
+                git = Git.open(worktreeOrGitPath.toFile()),
+                side = side
+            )
+        }
     }
 }
 
