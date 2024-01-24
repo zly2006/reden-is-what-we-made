@@ -186,7 +186,7 @@ class SelectionImportScreen(
                 ignoreUnknownKeys
             }
 
-            override fun import(file: File): RvcRepository? {
+            override fun import(file: File): RvcRepository {
                 val zip = ZipFile(file)
                 val mc = MinecraftClient.getInstance()
                 val manifestString = zip.getInputStream(zip.getEntry("manifest.rvc.json")).readAllBytes().decodeToString()
