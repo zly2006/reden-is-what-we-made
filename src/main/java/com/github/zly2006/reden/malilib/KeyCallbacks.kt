@@ -196,14 +196,16 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         true
     }
     ClientTickEvents.START_CLIENT_TICK.register {
-        val cosPitch = abs(cos(Math.toRadians(mc.player!!.pitch.toDouble())))
-        val pos = Vec3d(
-            -sin(Math.toRadians(mc.player!!.yaw.toDouble())) * cosPitch,
-            -sin(Math.toRadians(mc.player!!.pitch.toDouble())),
-            cos(Math.toRadians(mc.player!!.yaw.toDouble())) * cosPitch
-        ).normalize()
-        fun eval(it: Wormhole): Double {
-            /*
+        if (mc.player != null) {
+            val cosPitch = abs(cos(Math.toRadians(mc.player!!.pitch.toDouble())))
+            val pos = Vec3d(
+                -sin(Math.toRadians(mc.player!!.yaw.toDouble())) * cosPitch,
+                -sin(Math.toRadians(mc.player!!.pitch.toDouble())),
+                cos(Math.toRadians(mc.player!!.yaw.toDouble())) * cosPitch
+            ).normalize()
+
+            fun eval(it: Wormhole): Double {
+                /*
             val xOyDistance = mc.player!!.eyePos.withAxis(Direction.Axis.Y, 0.0)
                 .distanceTo(it.destination.toCenterPos().withAxis(Direction.Axis.Y, 0.0))
             val yaw = Math.toDegrees(atan2(-(it.destination.toCenterPos().x - mc.player!!.eyePos.x), (it.destination.toCenterPos().z - mc.player!!.eyePos.z)))
@@ -211,22 +213,23 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
 
             val d = abs((yaw - mc.player!!.yaw).mod(360.0)) + abs((pitch - mc.player!!.pitch).mod(360.0))
              */
-            val d = pos.distanceTo(it.destination.toCenterPos().subtract(mc.player!!.eyePos).normalize())
-            return d
-        }
-        if (WORMHOLE_SELECT.keybind.isPressed) {
-            selectedWormhole = null
-            BlockOutline.blocks.clear()
-            mc.data.wormholes.minByOrNull(::eval)?.let {
-                if (eval(it) > 0.4) return@let
-                selectedWormhole = it
-                BlockOutline.blocks[it.destination] = Blocks.STONE.defaultState
+                val d = pos.distanceTo(it.destination.toCenterPos().subtract(mc.player!!.eyePos).normalize())
+                return d
+            }
+            if (WORMHOLE_SELECT.keybind.isPressed) {
+                selectedWormhole = null
+                BlockOutline.blocks.clear()
+                mc.data.wormholes.minByOrNull(::eval)?.let {
+                    if (eval(it) > 0.4) return@let
+                    selectedWormhole = it
+                    BlockOutline.blocks[it.destination] = Blocks.STONE.defaultState
+                }
             }
         }
     }
     InputEventHandler.getInputManager().registerMouseInputHandler(object : IMouseInputHandler {
         override fun onMouseClick(mouseX: Int, mouseY: Int, eventButton: Int, eventButtonState: Boolean): Boolean {
-            if (mc.currentScreen != null) return false
+            if (!WORMHOLE_SELECT.keybind.isPressed) return false
             if (eventButton == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
                 mc.data.wormholes.removeIf { it.destination == (mc.crosshairTarget as? BlockHitResult?)?.blockPos }
                 mc.data.wormholes.add(
