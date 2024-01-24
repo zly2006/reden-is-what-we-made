@@ -34,6 +34,10 @@ class SelectionExportScreen(
 //        RVCArchive
         ;
 
+        /**
+         * @param path the path to export to, for most types it should `./schematics`,
+         *   or for structure block it should be the save directory
+         */
         abstract fun export(path: Path)
     }
 }
