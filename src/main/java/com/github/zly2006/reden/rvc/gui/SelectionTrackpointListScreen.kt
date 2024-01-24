@@ -1,4 +1,9 @@
 package com.github.zly2006.reden.rvc.gui
 
-class SelectionTrackpointListScreen {
+import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+
+class SelectionTrackpointListScreen(
+    val trackedStructure: TrackedStructure
+) {
+
 }
