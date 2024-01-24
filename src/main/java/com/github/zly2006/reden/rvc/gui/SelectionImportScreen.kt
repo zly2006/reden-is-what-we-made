@@ -1,6 +1,13 @@
 package com.github.zly2006.reden.rvc.gui
 
+import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.report.onFunctionUsed
+import com.github.zly2006.reden.rvc.io.LitematicaIO
+import com.github.zly2006.reden.rvc.io.SchematicStructure
+import com.github.zly2006.reden.rvc.tracking.RvcRepository
+import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.utils.server
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
@@ -10,6 +17,13 @@ import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer.Scrollbar
 import io.wispforest.owo.ui.core.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import net.minecraft.client.MinecraftClient
+import net.minecraft.nbt.NbtIo
+import net.minecraft.nbt.NbtTagSizeTracker
+import net.minecraft.network.NetworkSide
 import net.minecraft.text.Text
 import java.io.File
 import java.io.FileFilter
@@ -17,6 +31,10 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.zip.ZipFile
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.div
+import kotlin.io.path.extension
 
 class SelectionImportScreen(
     val fileType: Type = Type.Litematica,
@@ -58,7 +76,7 @@ class SelectionImportScreen(
                 Sizing.fill(),
                 Sizing.fill(75),
                 Containers.verticalFlow(Sizing.fill(), Sizing.content()).apply {
-                    fileType.addChildren(this@SelectionImportScreen, this)
+                    fileType.discover(this@SelectionImportScreen, this)
                 }).apply {
                 scrollbar(Scrollbar.vanillaFlat())
             })
@@ -78,11 +96,11 @@ class SelectionImportScreen(
         val right: FlowLayout = Containers.horizontalFlow(Sizing.fill(41), Sizing.content(1))
         val select: SmallCheckboxComponent = Components.smallCheckbox(Text.empty()).apply {
             onChanged().subscribe {
-                selectedLine = if (it) {
+                if (it) {
                     selectedLine?.select?.checked(false)
-                    this@FileLine
+                    selectedLine = this@FileLine
                 } else {
-                    null
+                    selectedLine = null
                 }
                 importButton.active(selectedLine != null)
             }
@@ -111,14 +129,22 @@ class SelectionImportScreen(
         return localDateTime.format(formatter)
     }
 
+    companion object {
+        const val FOLDER_SCHEMATICS = "schematics"
+        const val EXTENSION_NBT = "nbt"
+        const val EXTENSION_SCHEMATIC = "schematic"
+        const val EXTENSION_LITEMATICA = "litematic"
+        const val EXTENSION_RVC_ARCHIVE = "rvcarchive"
+    }
+
     enum class Type(val displayName: Text) {
         StructureBlock(Text.literal("Structure Block")) {
-            override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
+            override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
                 server.session.directory.path.resolve("generated").toFile()
                     .listFiles(FileFilter { it.isDirectory })?.forEach {
                         val namespace = it.name
                         it.resolve("structures").listFiles()
-                            ?.filter { it.extension == "nbt" }
+                            ?.filter { it.extension == EXTENSION_NBT }
                             ?.forEach { structureFile ->
                                 rootComponent.child(
                                     screen.FileLine(
@@ -130,50 +156,105 @@ class SelectionImportScreen(
                             }
                     }
             }
-
-            override fun import(file: File): Boolean {
-                TODO()
-            }
         },
         Litematica(Text.literal("Litematica")) {
-            override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
-                File("schematics").mkdirs()
-                File("schematics").listFiles()!!.asSequence()
-                    .filter { !it.isDirectory && it.name.endsWith(".litematic") }
+            override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
+                File(FOLDER_SCHEMATICS).mkdirs()
+                File(FOLDER_SCHEMATICS).listFiles()!!.asSequence()
+                    .filter { !it.isDirectory && it.extension == EXTENSION_LITEMATICA }
                     .forEach { rootComponent.child(screen.FileLine(it, it.nameWithoutExtension)) }
             }
 
-            override fun import(file: File): Boolean {
-                TODO()
+            override fun import(file: File): RvcRepository {
+                val mc = MinecraftClient.getInstance()
+                val repository = RvcRepository.create(file.nameWithoutExtension, mc.getWorldInfo(), NetworkSide.CLIENTBOUND)
+                val structure = TrackedStructure(file.nameWithoutExtension, NetworkSide.CLIENTBOUND)
+                LitematicaIO.load(file.toPath(), structure)
+                repository.commit(structure, "Import from $file", mc.player)
+                return repository
             }
         },
         RVCArchive(Text.literal("RVC Archive")){
-            override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
-                File("schematics").mkdirs()
-                File("schematics").listFiles()!!.asSequence()
-                    .filter { !it.isDirectory && it.name.endsWith(".rvcarchive") }
+            override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
+                File(FOLDER_SCHEMATICS).mkdirs()
+                File(FOLDER_SCHEMATICS).listFiles()!!.asSequence()
+                    .filter { !it.isDirectory && it.extension == EXTENSION_RVC_ARCHIVE }
                     .forEach { rootComponent.child(screen.FileLine(it, it.nameWithoutExtension)) }
             }
 
-            override fun import(file: File): Boolean {
-                TODO()
+            private val json = Json {
+                ignoreUnknownKeys
+            }
+
+            override fun import(file: File): RvcRepository {
+                val zip = ZipFile(file)
+                val mc = MinecraftClient.getInstance()
+                val manifestString = zip.getInputStream(zip.getEntry("manifest.rvc.json")).readAllBytes().decodeToString()
+                Reden.LOGGER.info("manifest: $manifestString")
+                @Serializable
+                class Manifest(
+                    val name: String
+                )
+                val manifest = json.decodeFromString<Manifest>(manifestString)
+                var name = manifest.name
+                if (name in mc.data.rvcStructures) {
+                    var i = 2
+                    while (name in mc.data.rvcStructures) {
+                        name = "${manifest.name} ($i)"
+                        i++
+                    }
+                }
+                val path = RvcRepository.path / name / ".git"
+                for (entry in zip.entries()) {
+                    val entryPath = path / entry.name
+                    if (!entryPath.absolutePathString().contains("/.git/")) {
+                        Reden.LOGGER.error("Invalid entry: ${entry.name}")
+                    }
+                    if (entry.isDirectory) {
+                        entryPath.toFile().mkdirs()
+                    } else {
+                        entryPath.parent.toFile().mkdirs()
+                        if (entryPath.parent.normalize() == path.normalize() && entryPath.extension == "json") {
+                            Reden.LOGGER.info("Skipping $entryPath")
+                            continue
+                        }
+                        entryPath.toFile().writeBytes(zip.getInputStream(entry).readAllBytes())
+                        Reden.LOGGER.info("Extracted ${entry.name} to $entryPath")
+                    }
+                }
+                val repository = RvcRepository.fromArchive(path, NetworkSide.CLIENTBOUND)
+                return repository
             }
         },
         Other(Text.literal("Other")) {
-            override fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout) {
-                File("schematics").mkdirs()
-                File("schematics").listFiles()!!.asSequence()
-                    .filterNot { it.isDirectory || it.name.endsWith(".litematic") } // ignore litematica
-                    .filter { (it.extension in setOf("schematic", "schem")) }
+            override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
+                File(FOLDER_SCHEMATICS).mkdirs()
+                File(FOLDER_SCHEMATICS).listFiles()!!.asSequence()
+                    .filterNot { it.isDirectory }
+                    .filterNot { it.extension in setOf(EXTENSION_LITEMATICA, EXTENSION_RVC_ARCHIVE) } // ignore other formats
+                 //   .filter { (it.extension in setOf("schematic", "schem")) }
                     .forEach { rootComponent.child(screen.FileLine(it, it.name)) }
-            }
-
-            override fun import(file: File): Boolean {
-                TODO()
             }
         };
 
-        abstract fun addChildren(screen: SelectionImportScreen, rootComponent: FlowLayout)
-        abstract fun import(file: File): Boolean
+        abstract fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout)
+
+        /**
+         * logic for structure template nbt files
+         */
+        open fun import(file: File): RvcRepository? {
+            try {
+                val mc = MinecraftClient.getInstance()
+                val repository = RvcRepository.create(file.nameWithoutExtension, mc.getWorldInfo(), NetworkSide.CLIENTBOUND)
+                val structure = TrackedStructure(file.nameWithoutExtension, NetworkSide.CLIENTBOUND)
+                val nbt = NbtIo.readCompressed(file.toPath(), NbtTagSizeTracker.ofUnlimitedBytes())
+                structure.assign(SchematicStructure().readFromNBT(nbt))
+                repository.commit(structure, "Import from $file", mc.player)
+                return repository
+            } catch (e: Exception) {
+                Reden.LOGGER.error("Failed to import structure from $file", e)
+                return null
+            }
+        }
     }
 }

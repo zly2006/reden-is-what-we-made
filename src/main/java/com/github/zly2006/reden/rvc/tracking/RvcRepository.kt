@@ -14,6 +14,7 @@ import net.minecraft.util.math.BlockPos
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.InitCommand
+import org.eclipse.jgit.lib.PersonIdent
 import org.jetbrains.annotations.Contract
 import java.nio.file.Path
 import kotlin.io.path.*
@@ -40,15 +41,21 @@ class RvcRepository(
         }
     }
 
-    fun commit(structure: TrackedStructure, message: String, committer: PlayerEntity?) {
+    fun commit(structure: TrackedStructure, message: String, committer: PlayerEntity?, author: PersonIdent? = null) {
         headCache = structure
         this.createReadmeIfNotExists()
         val path = git.repository.workTree.toPath()
         RvcFileIO.save(path, structure)
         git.add().addFilepattern(".").call()
         val cmd = git.commit()
-        if (committer != null) {
+        if (committer != null && author == null) {
             cmd.setAuthor(committer.nameForScoreboard, committer.uuid.toString() + "@mc-player.redenmc.com")
+        }
+        if (author != null) {
+            cmd.setAuthor(author)
+        }
+        if (committer != null) {
+            cmd.setCommitter(committer.nameForScoreboard, committer.uuid.toString() + "@mc-player.redenmc.com")
         }
         cmd.setMessage("$message\n\nUser-Agent: Reden-RVC")
         cmd.call()
@@ -156,6 +163,13 @@ class RvcRepository(
                     .setURI(url)
                     .setDirectory(path / name)
                     .call(),
+                side = side
+            )
+        }
+
+        fun fromArchive(worktreeOrGitPath: Path, side: NetworkSide): RvcRepository {
+            return RvcRepository(
+                git = Git.open(worktreeOrGitPath.toFile()),
                 side = side
             )
         }

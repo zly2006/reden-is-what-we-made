@@ -12,8 +12,9 @@ import com.github.zly2006.reden.gui.CreditScreen
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
 import com.github.zly2006.reden.network.*
 import com.github.zly2006.reden.render.BlockBorder
+import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.report.onFunctionUsed
-import com.github.zly2006.reden.rvc.gui.SelectionExportScreen
+import com.github.zly2006.reden.report.reportException
 import com.github.zly2006.reden.rvc.gui.SelectionImportScreen
 import com.github.zly2006.reden.rvc.gui.SelectionListScreen
 import com.github.zly2006.reden.rvc.gui.selectedStructure
@@ -24,6 +25,7 @@ import com.github.zly2006.reden.utils.red
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.toBlockPos
 import com.github.zly2006.reden.utils.translateMessage
+import com.github.zly2006.reden.wormhole.Wormhole
 import fi.dy.masa.malilib.config.options.ConfigHotkey
 import fi.dy.masa.malilib.event.InputEventHandler
 import fi.dy.masa.malilib.gui.GuiConfigsBase
@@ -37,8 +39,10 @@ import io.wispforest.owo.ui.core.Surface
 import io.wispforest.owo.ui.hud.Hud
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents
+import net.minecraft.block.Blocks
 import net.minecraft.block.entity.StructureBlockBlockEntity
 import net.minecraft.block.enums.StructureBlockMode
 import net.minecraft.client.MinecraftClient
@@ -48,9 +52,14 @@ import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.HitResult
+import net.minecraft.util.math.Vec3d
 import net.minecraft.world.GameMode
+import org.lwjgl.glfw.GLFW
 import java.util.zip.ZipInputStream
+import kotlin.math.abs
+import kotlin.math.cos
 import kotlin.math.sign
+import kotlin.math.sin
 import kotlin.random.Random
 
 fun configureKeyCallbacks(mc: MinecraftClient) {
@@ -176,14 +185,75 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         }
         true
     }
-    OPEN_EXPORT_SCREEN.callback {
-        mc.setScreen(SelectionExportScreen())
-        true
-    }
     OPEN_IMPORT_SCREEN.callback {
         mc.setScreen(SelectionImportScreen())
         true
     }
+    var selectedWormhole: Wormhole? = null
+    WORMHOLE_SELECT.callback {
+        selectedWormhole = null
+        BlockOutline.blocks.clear()
+        true
+    }
+    ClientTickEvents.START_CLIENT_TICK.register {
+        val cosPitch = abs(cos(Math.toRadians(mc.player!!.pitch.toDouble())))
+        val pos = Vec3d(
+            -sin(Math.toRadians(mc.player!!.yaw.toDouble())) * cosPitch,
+            -sin(Math.toRadians(mc.player!!.pitch.toDouble())),
+            cos(Math.toRadians(mc.player!!.yaw.toDouble())) * cosPitch
+        ).normalize()
+        fun eval(it: Wormhole): Double {
+            /*
+            val xOyDistance = mc.player!!.eyePos.withAxis(Direction.Axis.Y, 0.0)
+                .distanceTo(it.destination.toCenterPos().withAxis(Direction.Axis.Y, 0.0))
+            val yaw = Math.toDegrees(atan2(-(it.destination.toCenterPos().x - mc.player!!.eyePos.x), (it.destination.toCenterPos().z - mc.player!!.eyePos.z)))
+            val pitch = Math.toDegrees(atan2(abs(mc.player!!.eyePos.y - it.destination.toCenterPos().y), xOyDistance))
+
+            val d = abs((yaw - mc.player!!.yaw).mod(360.0)) + abs((pitch - mc.player!!.pitch).mod(360.0))
+             */
+            val d = pos.distanceTo(it.destination.toCenterPos().subtract(mc.player!!.eyePos).normalize())
+            return d
+        }
+        if (WORMHOLE_SELECT.keybind.isPressed) {
+            selectedWormhole = null
+            BlockOutline.blocks.clear()
+            mc.data.wormholes.minByOrNull(::eval)?.let {
+                if (eval(it) > 0.4) return@let
+                selectedWormhole = it
+                BlockOutline.blocks[it.destination] = Blocks.STONE.defaultState
+            }
+        }
+    }
+    InputEventHandler.getInputManager().registerMouseInputHandler(object : IMouseInputHandler {
+        override fun onMouseClick(mouseX: Int, mouseY: Int, eventButton: Int, eventButtonState: Boolean): Boolean {
+            if (mc.currentScreen != null) return false
+            if (eventButton == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+                mc.data.wormholes.removeIf { it.destination == (mc.crosshairTarget as? BlockHitResult?)?.blockPos }
+                mc.data.wormholes.add(
+                    Wormhole(
+                        (mc.crosshairTarget as? BlockHitResult?)?.blockPos ?: return false,
+                        "Wormhole 1",
+                        mc.player?.pos ?: return false,
+                        mc.player?.yaw ?: return false,
+                        mc.player?.pitch ?: return false,
+                    )
+                )
+                return true
+            } else if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+                val wormhole = selectedWormhole ?: return false
+                if (mc.server == null) {
+                    mc.player!!.sendMessage("You can not use this in a server")
+                    return false
+                }
+                mc.server!!.playerManager.getPlayer(mc.player!!.uuid)!!
+                    .teleport(wormhole.tpPosition.x, wormhole.tpPosition.y, wormhole.tpPosition.z)
+                mc.player!!.yaw = wormhole.tpYaw
+                mc.player!!.pitch = wormhole.tpPitch
+                return true
+            }
+            return false
+        }
+    })
     OPEN_SELECTION_LIST.callback {
         mc.setScreen(SelectionListScreen())
         true
@@ -331,6 +401,7 @@ private fun ConfigHotkey.callback(action: () -> Boolean) {
             } else false
         } catch (e: Exception) {
             Reden.LOGGER.error("Error when executing hotkey $name", e)
+            reportException(e)
             MinecraftClient.getInstance().player?.sendMessage(Text.literal("Error when executing hotkey $name").red())
             false
         }
