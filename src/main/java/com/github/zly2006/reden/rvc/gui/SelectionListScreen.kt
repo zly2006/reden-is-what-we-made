@@ -100,6 +100,10 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             })
             right.child(saveButton)
             right.child(enableForWorldButton)
+            right.child(Components.button(Text.literal("Export")) {
+                onFunctionUsed("export_rvcStructure")
+                client!!.setScreen(SelectionExportScreen(this@SelectionListScreen, repository))
+            })
         }
     }
 
