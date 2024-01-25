@@ -22,7 +22,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import net.minecraft.client.MinecraftClient
 import net.minecraft.nbt.NbtIo
-import net.minecraft.nbt.NbtTagSizeTracker
+import net.minecraft.nbt.NbtSizeTracker
 import net.minecraft.network.NetworkSide
 import net.minecraft.text.Text
 import java.io.File
@@ -247,7 +247,7 @@ class SelectionImportScreen(
                 val mc = MinecraftClient.getInstance()
                 val repository = RvcRepository.create(file.nameWithoutExtension, mc.getWorldInfo(), NetworkSide.CLIENTBOUND)
                 val structure = TrackedStructure(file.nameWithoutExtension, NetworkSide.CLIENTBOUND)
-                val nbt = NbtIo.readCompressed(file.toPath(), NbtTagSizeTracker.ofUnlimitedBytes())
+                val nbt = NbtIo.readCompressed(file.toPath(), NbtSizeTracker.ofUnlimitedBytes())
                 structure.assign(SchematicStructure().readFromNBT(nbt))
                 repository.commit(structure, "Import from $file", mc.player)
                 return repository
