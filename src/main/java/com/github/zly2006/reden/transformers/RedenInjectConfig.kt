@@ -98,15 +98,10 @@ object RedenInjectConfig {
     }
 
     val targetList = mutableListOf(
-        ClassToTransform( // Just for test
-            "com/mojang/brigadier/CommandDispatcher",
-        ) { listOf() },
         ClassToTransform(
-            "net/minecraft/server/MinecraftServer"
-        ) { listOf(
-            // net.minecraft.server.MinecraftServer.tickWorlds
-            SplitHeadTailTransformer("method_3813")
-        ) }
+            // Just for test
+            "com/mojang/brigadier/CommandDispatcher",
+        ) { listOf() }
     )
 
     val targets = targetList.associateBy { it.mappedName }

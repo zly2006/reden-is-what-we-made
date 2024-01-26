@@ -4,7 +4,6 @@ import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.impl.launch.FabricLauncherBase
-import net.fabricmc.mapping.tree.ClassDef
 import net.minecraft.server.MinecraftServer
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
@@ -72,44 +71,8 @@ class MethodInfo(
 }
 
 object IntermediaryMappingAccess {
-    val mapping = FabricLauncherBase.getLauncher().mappingConfiguration.getMappings()!!
-    private val classMapping2default: Map<String, String> = mapping.run {
-        classes.associate {
-            it.getName("intermediary") to it.getName(metadata.namespaces[0])
-        }
-    }
-
-    private val methodMapping = mutableMapOf<String, MethodInfo>()
     fun getMethod(owner: String?, name: String): MethodInfo? {
-        if (owner?.contains('.') == true) {
-            throw IllegalArgumentException("Found '.' in owner: $owner, do you mean ${owner.replace('.', '/')}?")
-        }
-        if (name in methodMapping) {
-            return methodMapping[name]!!
-        }
-        val targetNamespace = FabricLauncherBase.getLauncher().mappingConfiguration.targetNamespace
-        fun addMethods(classDef: ClassDef) {
-            for (methodDef in classDef.methods) {
-                methodMapping.computeIfAbsent(
-                    methodDef.getName("intermediary")
-                ) {
-                    MethodInfo(
-                        classDef.getName(targetNamespace),
-                        methodDef.getName(targetNamespace),
-                        methodDef.getDescriptor(targetNamespace)
-                    )
-                }
-            }
-        }
-        if (owner == null) {
-            for (classDef in mapping.classes) {
-                addMethods(classDef)
-            }
-        } else {
-            val classDef = mapping.defaultNamespaceClassMap[classMapping2default[owner]]
-            classDef?.let(::addMethods)
-        }
-        return methodMapping[name]
+        TODO()
     }
     fun getMethodOrDefault(owner: String, name: String): MethodInfo {
         return getMethod(owner, name) ?: MethodInfo(owner, name, "")
