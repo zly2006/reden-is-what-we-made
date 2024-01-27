@@ -49,6 +49,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             onFunctionUsed("commit_rvcStructure")
             // todo: commit message
             repository.commit(repository.head(), "RedenMC RVC Commit", MinecraftClient.getInstance().player)
+            it.active(false)
         }
         private val enableForWorldButton: ButtonComponent = Components.button(Text.literal("Change World")) {
             onFunctionUsed("enable_rvcStructure")

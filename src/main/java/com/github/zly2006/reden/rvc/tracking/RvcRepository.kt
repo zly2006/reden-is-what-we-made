@@ -34,10 +34,12 @@ class RvcRepository(
     var placementInfo: PlacementInfo? = null
         private set
 
-    init {
-        val placementJson = git.repository.directory.resolve("placement.json")
-        if (placementJson.exists()) {
-            placementInfo = Json.decodeFromStream(placementJson.inputStream())
+    /**
+     * At `.git/placement.json`
+     */
+    private val placementJson = git.repository.directory.resolve("placement.json").also {
+        if (it.exists()) {
+            placementInfo = Json.decodeFromStream(it.inputStream())
         }
     }
 
@@ -58,6 +60,7 @@ class RvcRepository(
             cmd.setCommitter(committer.nameForScoreboard, committer.uuid.toString() + "@mc-player.redenmc.com")
         }
         cmd.setMessage("$message\n\nUser-Agent: Reden-RVC")
+        cmd.setSign(false)
         cmd.call()
     }
 
@@ -124,7 +127,7 @@ class RvcRepository(
         val mc = MinecraftClient.getInstance()
         val info = PlacementInfo(mc.getWorldInfo(), placementInfo?.origin ?: headCache?.detectOrigin() ?: BlockPos.ORIGIN)
         placementInfo = info
-        git.repository.directory.resolve("placement.json").writeText(Json.encodeToString(info))
+        placementJson.writeText(Json.encodeToString(info))
     }
 
     @OptIn(ExperimentalPathApi::class)
