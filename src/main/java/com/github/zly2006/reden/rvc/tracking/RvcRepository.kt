@@ -11,6 +11,8 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.network.NetworkSide
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.Util
+import net.minecraft.util.Util.OperatingSystem.WINDOWS
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.InitCommand
@@ -132,13 +134,18 @@ class RvcRepository(
     fun delete() {
         val path = git.repository.workTree.toPath()
         git.close()
-        // 删不掉的不管它
-        try {
-            if (path.exists()) {
-                path.deleteRecursively()
+        // 判断系统类型.
+        if (Util.getOperatingSystem() == WINDOWS) {
+            // 跳过无法删除的
+            try {
+                if (path.exists()) {
+                    path.deleteRecursively()
+                }
+            } catch (e: FileSystemException) {
+                return
             }
-        } catch (e: FileSystemException) {
-            return
+        } else {
+            path.deleteRecursively()
         }
     }
 
