@@ -17,6 +17,7 @@ import org.eclipse.jgit.api.InitCommand
 import org.eclipse.jgit.lib.PersonIdent
 import org.jetbrains.annotations.Contract
 import java.nio.file.Path
+import java.nio.file.FileSystemException
 import kotlin.io.path.*
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -131,8 +132,12 @@ class RvcRepository(
     fun delete() {
         val path = git.repository.workTree.toPath()
         git.close()
-        if (path.exists()) {
-            path.deleteRecursively()
+        try {
+            if (path.exists()) {
+                path.deleteRecursively()
+            }
+        } catch (e: FileSystemException) {
+            return
         }
     }
 

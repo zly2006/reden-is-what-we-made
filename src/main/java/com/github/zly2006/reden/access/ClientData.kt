@@ -4,9 +4,11 @@ import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
 import com.github.zly2006.reden.wormhole.Wormhole
+import com.github.zly2006.reden.Reden.LOGGER;
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.NetworkSide
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.errors.RepositoryNotFoundException
 import java.io.File
 
 class ClientData(
@@ -21,9 +23,16 @@ class ClientData(
     init {
         File("rvc").mkdirs()
         File("rvc").listFiles()!!.asSequence()
-            .filter { it.isDirectory && it.resolve(".git").exists() }
-            .map { RvcRepository(Git.open(it), side = NetworkSide.CLIENTBOUND) }
-            .forEach { rvcStructures[it.name] = it }
+                .filter { it.isDirectory && it.resolve(".git").exists() }
+                .forEach {
+                    try {
+                        val repo = RvcRepository(Git.open(it), side = NetworkSide.CLIENTBOUND)
+                        rvcStructures[it.name] = repo
+                    } catch (e: RepositoryNotFoundException) {
+                        LOGGER.warn("Dir '" + it.name + "' is not a git repo, it will be deleted")
+                        it.deleteRecursively()
+                    }
+                }
     }
 
     interface ClientDataAccess {
