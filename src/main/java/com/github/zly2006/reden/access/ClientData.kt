@@ -24,7 +24,9 @@ class ClientData(
         File("rvc").mkdirs()
         File("rvc").listFiles()!!.asSequence()
                 .filter { it.isDirectory && it.resolve(".git").exists() }
+                // 直接forEach遍历
                 .forEach {
+                    // 使用try, 若不是Repo直接删除
                     try {
                         val repo = RvcRepository(Git.open(it), side = NetworkSide.CLIENTBOUND)
                         rvcStructures[it.name] = repo

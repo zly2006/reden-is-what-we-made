@@ -132,6 +132,7 @@ class RvcRepository(
     fun delete() {
         val path = git.repository.workTree.toPath()
         git.close()
+        // 删不掉的不管它
         try {
             if (path.exists()) {
                 path.deleteRecursively()
