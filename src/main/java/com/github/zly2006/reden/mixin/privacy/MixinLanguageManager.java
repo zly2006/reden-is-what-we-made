@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.mixin.privacy;
 
 import com.github.zly2006.reden.gui.PrivacyScreen;
-import com.github.zly2006.reden.malilib.MalilibSettingsKt;
+import com.github.zly2006.reden.malilib.HiddenOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.resource.language.LanguageManager;
 import net.minecraft.resource.ResourceManager;
@@ -19,7 +19,7 @@ public class MixinLanguageManager {
     // so we have to wait for it to be initialized
     private void reloadLanguage(ResourceManager manager, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (!MalilibSettingsKt.iPRIVACY_SETTING_SHOWN.getBooleanValue()) {
+        if (!HiddenOption.iPRIVACY_SETTING_SHOWN.getBooleanValue()) {
             client.setScreen(new PrivacyScreen(client.currentScreen));
         }
     }

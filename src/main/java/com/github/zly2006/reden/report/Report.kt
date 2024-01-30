@@ -2,10 +2,11 @@ package com.github.zly2006.reden.report
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.Reden.LOGGER
-import com.github.zly2006.reden.malilib.ALLOW_SOCIAL_FOLLOW
-import com.github.zly2006.reden.malilib.data_BASIC
-import com.github.zly2006.reden.malilib.data_IDENTIFICATION
-import com.github.zly2006.reden.malilib.data_USAGE
+import com.github.zly2006.reden.gui.message.ClientMessageQueue
+import com.github.zly2006.reden.malilib.HiddenOption
+import com.github.zly2006.reden.malilib.HiddenOption.data_BASIC
+import com.github.zly2006.reden.malilib.HiddenOption.data_IDENTIFICATION
+import com.github.zly2006.reden.malilib.HiddenOption.data_USAGE
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.isDevVersion
 import com.github.zly2006.reden.utils.redenApiBaseUrl
@@ -19,8 +20,8 @@ import net.minecraft.MinecraftVersion
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.option.ServerList
 import net.minecraft.server.MinecraftServer
-import net.minecraft.text.ClickEvent
 import net.minecraft.text.Text
+import net.minecraft.util.Util
 import net.minecraft.util.crash.CrashMemoryReserve
 import net.minecraft.util.crash.CrashReport
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -29,6 +30,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.userAgent
 import okio.use
+import java.net.URI
 import java.util.*
 
 var key = ""
@@ -148,25 +150,30 @@ class ClientMetadataReq(
 private var usedTimes = 0
 
 private fun requestFollow() {
-    if (!ALLOW_SOCIAL_FOLLOW.booleanValue) return
     val mc = MinecraftClient.getInstance()
-    val text = Text.literal(
-        if (mc.languageManager.language == "zh_cn")
-            "你已经使用本mod的功能$usedTimes 次了，如果觉得好用的话，可以点击关注一下作者的B站哦！"
-        else
-            "You have used this mod $usedTimes times. If you like it, please click to follow the author's Youtube!"
-    ).styled {
-        it.withColor(0x00ff00).withClickEvent(
-            ClickEvent(
-                ClickEvent.Action.OPEN_URL,
-                if (mc.languageManager.language == "zh_cn")
-                    "https://space.bilibili.com/1545239761"
-                else
-                    "https://www.youtube.com/@guratory"
-            )
+    val key = "reden:youtube"
+    ClientMessageQueue.onceNotification(
+        key,
+        Reden.LOGO,
+        Text.translatable("reden.message.youtube.title"),
+        Text.translatable("reden.message.youtube.desc"),
+        listOf(
+            ClientMessageQueue.Button(Text.translatable("reden.message.youtube.yes")) {
+                Util.getOperatingSystem().open(
+                    URI(
+                        if (mc.languageManager.language == "zh_cn")
+                            "https://space.bilibili.com/1545239761"
+                        else
+                            "https://www.youtube.com/@zly2006"
+                    )
+                )
+                ClientMessageQueue.dontShowAgain(key)
+            },
+            ClientMessageQueue.Button(Text.translatable("reden.message.youtube.no")) {
+                ClientMessageQueue.dontShowAgain(key)
+            }
         )
-    }
-    mc.player?.sendMessage(text)
+    )
 }
 
 private fun requestDonate() {
@@ -223,7 +230,28 @@ fun reportException(e: Exception) {
     }
 }
 
-fun reportOnlineMC(client: MinecraftClient) {
+class UpdateInfo(
+    val version: String,
+    val url: String,
+    val changelog: String,
+    val type: String,
+)
+
+fun checkUpdateFromModrinth(): UpdateInfo? {
+    TODO()
+}
+
+fun checkUpdateFromRedenApi(): UpdateInfo? {
+    TODO()
+}
+
+fun checkAnnouncements() {
+    httpClient.newCall(Request.Builder().apply {
+        ua()
+    }.build())
+}
+
+fun redenSetup(client: MinecraftClient) {
     Thread {
         try {
             @Serializable
@@ -312,6 +340,19 @@ fun reportOnlineMC(client: MinecraftClient) {
             LOGGER.debug("", e)
         }
     }.start()
+    if (HiddenOption.iCHECK_UPDATES.booleanValue) {
+        Thread {
+            val updateInfo = try {
+                checkUpdateFromRedenApi() ?: checkUpdateFromModrinth()
+            } catch (e: Exception) {
+                LOGGER.debug("", e)
+                null
+            }
+            if (updateInfo != null) {
+
+            }
+        }.start()
+    }
     Runtime.getRuntime().addShutdownHook(Thread {
         try {
             if (featureUsageData.isNotEmpty()) doHeartHeat()

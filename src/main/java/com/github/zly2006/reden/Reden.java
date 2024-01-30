@@ -44,12 +44,13 @@ import java.util.Map;
 public class Reden implements ModInitializer, CarpetExtension {
     public static final String MOD_ID = "reden";
     public static final String MOD_NAME = "Reden";
-    public static final String CONFIG_FILE = "reden.json";
+    public static final String CONFIG_FILE = "reden/config.json";
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     public static final Version MOD_VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion();
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final int REDEN_HIGHEST_MIXIN_PRIORITY = 10;
+    public static final Identifier LOGO = identifier("reden_16.png");
 
     @Override
     public String version() {

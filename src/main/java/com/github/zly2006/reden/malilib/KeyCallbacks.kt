@@ -9,6 +9,7 @@ import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
 import com.github.zly2006.reden.debugger.gui.BreakpointInfoScreen
 import com.github.zly2006.reden.debugger.gui.BreakpointListComponent
 import com.github.zly2006.reden.gui.CreditScreen
+import com.github.zly2006.reden.gui.message.ClientMessageQueue
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
 import com.github.zly2006.reden.network.*
 import com.github.zly2006.reden.render.BlockBorder
@@ -79,7 +80,6 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         }
         if (mc.interactionManager?.currentGameMode != GameMode.CREATIVE)
             return@callback false
-        iEVER_USED_UNDO.booleanValue = true
         val playSound = Random.nextInt(100) < EASTER_EGG_RATE.integerValue
         if (playSound) {
             mc.world!!.playSound(
@@ -391,6 +391,24 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
     DEBUG_DISPLAY_RVC_WORLD_INFO.callback {
         val info = mc.getWorldInfo()
         MinecraftClient.getInstance().player?.sendMessage(Text.literal(Json.encodeToString(info)))
+        true
+    }
+    OPEN_NOTIFICATIONS_SCREEN.callback {
+        ClientMessageQueue.openScreen()
+        true
+    }
+    DEBUG_NEW_NOTIFICATION.callback {
+        var id = 0
+        id = ClientMessageQueue.add(
+            Reden.identifier("textures/gui/notification.png"),
+            Text.literal("Test"),
+            Text.literal("Test"),
+            listOf(
+                ClientMessageQueue.Button(Text.literal("OK")) {
+                    ClientMessageQueue.remove(id)
+                }
+            )
+        )
         true
     }
 }

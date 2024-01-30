@@ -8,7 +8,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerNetworkIo;
-import org.apache.http.util.Asserts;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

@@ -41,6 +41,9 @@ private fun <T : ConfigBase<*>> T.hidden() = apply { (HIDDEN_TAB.add(this)) }
 @JvmField val REDO_KEY = RedenConfigHotkey("redoKey", "LEFT_CONTROL,Y").generic().hotkey()
 @JvmField val UNDO_SUPPORT_LITEMATICA_OPERATION = RedenConfigBoolean("undoSupportLitematicaOperation", true).generic()
 @JvmField val UNDO_CHEATING_ONLY = RedenConfigBoolean("undoCheatingOnly", true).generic()
+
+@JvmField
+val OPEN_NOTIFICATIONS_SCREEN = RedenConfigHotkey("openNotificationsScreen", "R,T").generic().hotkey()
 @JvmField val MAX_RENDER_DISTANCE = RedenConfigInteger("maxRenderDistance", 48).generic()
 @JvmField val SOLID_FACE_RENDERER = RedenConfigBoolean("solidFaceRenderer", false).generic()
 @JvmField val ENABLE_CLIENT_GLOW = RedenConfigBooleanHotkeyed("enableClientGlow", true, "LEFT_CONTROL,G").hotkey().generic()
@@ -88,7 +91,6 @@ val WORMHOLE_SELECT = RedenConfigHotkey("wormholeSelect", "LEFT_ALT", KeybindSet
 @JvmField val UNDO_REPORT_UN_TRACKED_TNT = RedenConfigBoolean("undoReportUnTrackedTnt", false).debug()
 @JvmField val OPEN_GITHUB_AUTH_SCREEN = RedenConfigHotkey("openGithubAuthScreen", "R,G").debug().hotkey()
 @JvmField val GITHUB_TOKEN = RedenConfigString("githubToken", "").debug()
-@JvmField val ALLOW_SOCIAL_FOLLOW = RedenConfigBoolean("allowSocialFollow", true).debug()
 @JvmField val DEBUG_RVC_REQUEST_SYNC_DATA = RedenConfigHotkey("debugRvcRequestSyncData", "").debug().hotkey()
 @JvmField val SPONSOR_SCREEN_KEY = RedenConfigHotkey("sponsorScreenKey", "").debug().hotkey()
 @JvmField val CREDIT_SCREEN_KEY = RedenConfigHotkey("creditScreenKey", "").debug().hotkey()
@@ -97,13 +99,31 @@ val WORMHOLE_SELECT = RedenConfigHotkey("wormholeSelect", "LEFT_ALT", KeybindSet
 @JvmField val LOCAL_API_BASEURL = RedenConfigString("localApiAddr", "http://localhost:10005/api").debug()
 @JvmField val ENTITY_OUTLINE_RENDER_RAW = RedenConfigBoolean("entityOutlinrRenderRaw", false).debug()
 @JvmField val DEBUG_DISPLAY_RVC_WORLD_INFO = RedenConfigHotkey("debugDisplayRvcWorldInfo", "").debug().hotkey()
+
+@JvmField
+val DEBUG_NEW_NOTIFICATION = RedenConfigHotkey("debugNewNotification", "").debug().hotkey()
 // Hidden
-@JvmField val iEVER_USED_UNDO = RedenConfigBoolean("iEverUsedUndo", false).hidden()
-@JvmField val iNOTIFICATIONS_ENABLED = RedenConfigBoolean("iNotificationsEnabled", true).hidden()
-@JvmField val iSHOW_TIME_OUT_NOTIFICATION = RedenConfigBoolean("iShowTimeOutNotification", true).hidden()
-@JvmField val iPRIVACY_SETTING_SHOWN = RedenConfigBoolean("iPrivacySettingShown", false).hidden()
-@JvmField val data_BASIC = RedenConfigBoolean("dataBasic", true).hidden()
-@JvmField val data_USAGE = RedenConfigBoolean("dataUsage", true).hidden()
-@JvmField val data_IDENTIFICATION = RedenConfigBoolean("dataIdentification", false).hidden()
+object HiddenOption {
+    @JvmField
+    val iNOTIFICATIONS_ENABLED = RedenConfigBoolean("iNotificationsEnabled", true).hidden()
+
+    @JvmField
+    val iCHECK_UPDATES = RedenConfigBoolean("iNotificationsEnabled", true).hidden()
+
+    @JvmField
+    val iSHOW_TIME_OUT_NOTIFICATION = RedenConfigBoolean("iShowTimeOutNotification", true).hidden()
+
+    @JvmField
+    val iPRIVACY_SETTING_SHOWN = RedenConfigBoolean("iPrivacySettingShown", false).hidden()
+
+    @JvmField
+    val data_BASIC = RedenConfigBoolean("dataBasic", true).hidden()
+
+    @JvmField
+    val data_USAGE = RedenConfigBoolean("dataUsage", true).hidden()
+
+    @JvmField
+    val data_IDENTIFICATION = RedenConfigBoolean("dataIdentification", false).hidden()
+}
 
 fun getAllOptions() = GENERIC_TAB + RVC_TAB + MICRO_TICK_TAB + SUPER_RIGHT_TAB + DEBUG_TAB + HIDDEN_TAB

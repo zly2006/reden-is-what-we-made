@@ -1,13 +1,14 @@
 package com.github.zly2006.reden.mixinhelper
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.BlockEntityInterface
 import com.github.zly2006.reden.access.ChunkSectionInterface
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
+import com.github.zly2006.reden.gui.message.ClientMessageQueue
 import com.github.zly2006.reden.malilib.DEBUG_LOGGER_IGNORE_UNDO_ID_0
-import com.github.zly2006.reden.malilib.iEVER_USED_UNDO
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.monitorSetBlock
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.playerStartRecording
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.playerStopRecording
@@ -23,16 +24,10 @@ import com.github.zly2006.reden.utils.server
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.block.BlockState
-import net.minecraft.block.entity.BlockEntity
-import net.minecraft.block.entity.BlockEntityType
-import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.math.BlockPos
@@ -126,14 +121,6 @@ object UpdateMonitorHelper {
     var lastTickChanged: MutableSet<Changed> = hashSetOf(); private set
     var thisTickChanged: MutableSet<Changed> = hashSetOf(); private set
     val recording: PlayerData.UndoRecord? get() = undoRecords.lastOrNull()?.record
-    enum class LifeTime {
-        PERMANENT,
-        TICK,
-        CHAIN,
-        ONCE
-    }
-
-    private var suggestedUndo = if (isClient) iEVER_USED_UNDO.booleanValue else true
 
     /**
      * Monitor block changes.
@@ -151,18 +138,21 @@ object UpdateMonitorHelper {
         recording?.data?.computeIfAbsent(pos.asLong()) {
             recording!!.fromWorld(world, pos, true)
         }
-        if (isClient && recording != null && !recording!!.notified && !suggestedUndo) {
-            suggestedUndo = true
+        if (isClient && recording != null && !recording!!.notified) {
             // Send a notification that maybe he wants undo.
             if (recording!!.data.size > 2) {
                 recording!!.notified = true
-                val mc = MinecraftClient.getInstance()
-                mc.player?.sendMessage(
-                    Text.literal("Did you make it by mistake? Press Ctrl+Z to undo it!").formatted(Formatting.GOLD)
-                        .append(Text.literal("Click here if you don't want to see this again.").setStyle(Style.EMPTY
-                            .withColor(Formatting.GRAY)
-                            .withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "reden:malilib:${iEVER_USED_UNDO.name}=true"))
-                            .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("This is a feature provided by Reden Mod. Click to disable this notification.")))))
+                val key = "reden:undo"
+                ClientMessageQueue.onceNotification(
+                    key,
+                    Reden.LOGO,
+                    Text.literal("Reden Undo"),
+                    Text.literal("Did you make it by mistake? Press Ctrl+Z to undo it!").formatted(Formatting.GOLD),
+                    listOf(
+                        ClientMessageQueue.Button(Text.literal("Got it")) {
+                            ClientMessageQueue.dontShowAgain(key)
+                        }
+                    )
                 )
             }
         }
@@ -199,13 +189,6 @@ object UpdateMonitorHelper {
             be.`saveLastNbt$reden`()
             debugLogger("postSetBlock: done.")
         }
-    }
-
-    private fun prepareBEData(data: NbtCompound?, pos: BlockPos, type: BlockEntityType<*>) = data?.apply {
-        BlockEntity.writeIdToNbt(this, type)
-        this.putInt("x", pos.x)
-        this.putInt("y", pos.y)
-        this.putInt("z", pos.z)
     }
 
     /**

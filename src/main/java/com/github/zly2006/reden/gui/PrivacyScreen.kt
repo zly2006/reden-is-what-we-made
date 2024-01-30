@@ -1,10 +1,10 @@
 package com.github.zly2006.reden.gui
 
 import com.github.zly2006.reden.RedenClient
-import com.github.zly2006.reden.malilib.data_BASIC
-import com.github.zly2006.reden.malilib.data_IDENTIFICATION
-import com.github.zly2006.reden.malilib.data_USAGE
-import com.github.zly2006.reden.malilib.iPRIVACY_SETTING_SHOWN
+import com.github.zly2006.reden.malilib.HiddenOption.data_BASIC
+import com.github.zly2006.reden.malilib.HiddenOption.data_IDENTIFICATION
+import com.github.zly2006.reden.malilib.HiddenOption.data_USAGE
+import com.github.zly2006.reden.malilib.HiddenOption.iPRIVACY_SETTING_SHOWN
 import com.github.zly2006.reden.report.onFunctionUsed
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components

@@ -105,7 +105,7 @@ public class RedenClient implements ClientModInitializer {
             });
             KeyCallbacksKt.configureKeyCallbacks(MinecraftClient.getInstance());
         });
-        ClientLifecycleEvents.CLIENT_STARTED.register(ReportKt::reportOnlineMC);
+        ClientLifecycleEvents.CLIENT_STARTED.register(ReportKt::redenSetup);
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             RvcLocalCommandKt.register(dispatcher);
             ClientGlowKt.register(dispatcher);
@@ -139,6 +139,7 @@ public class RedenClient implements ClientModInitializer {
 
     public static void saveMalilibOptions() {
         JsonObject jo = new JsonObject();
+        new File(FileUtils.getConfigDirectory(), "reden").mkdirs();
         ConfigUtils.writeConfigBase(jo, Reden.MOD_NAME, MalilibSettingsKt.getAllOptions());
         try {
             Files.writeString(new File(FileUtils.getConfigDirectory(), Reden.CONFIG_FILE).toPath(), Reden.GSON.toJson(jo));

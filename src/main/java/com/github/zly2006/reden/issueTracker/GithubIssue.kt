@@ -77,10 +77,10 @@ class GithubIssue(
         val commit_url: String? = null,
     ) {
         companion object {
-            val labeled = "labeled"
-            val commented = "commented"
-            val referenced = "referenced"
-            val closed = "closed"
+            const val labeled = "labeled"
+            const val commented = "commented"
+            const val referenced = "referenced"
+            const val closed = "closed"
         }
         @Serializable
         data class TimeLineLabeld(

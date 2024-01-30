@@ -2,7 +2,6 @@ package com.github.zly2006.reden.mixin.debugger.network;
 
 import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.debugger.stages.TickStageWorldProvider;
-import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -11,8 +10,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Optional;
 
 import static com.github.zly2006.reden.access.ServerData.getData;
 
@@ -24,7 +21,7 @@ public class MixinServerPlayNetworkHandler {
             method = "method_44356",
             at = @At("HEAD")
     )
-    private void startCommandExecute(CommandExecutionC2SPacket commandExecutionC2SPacket, Optional<?> optional, CallbackInfo ci) {
+    private void startCommandExecute(CallbackInfo ci) {
         ServerData data = getData(player.server);
         ServerWorld world = player.getServerWorld();
         data.getTickStageTree().push$reden_is_what_we_made(new TickStageWorldProvider("commands_stage", data.getTickStageTree().getActiveStage(), world));
@@ -34,7 +31,7 @@ public class MixinServerPlayNetworkHandler {
             method = "method_44356",
             at = @At("RETURN")
     )
-    private void endCommandExecute(CommandExecutionC2SPacket commandExecutionC2SPacket, Optional<?> optional, CallbackInfo ci) {
+    private void endCommandExecute(CallbackInfo ci) {
         ServerData data = getData(player.server);
         data.getTickStageTree().pop(TickStageWorldProvider.class);
     }

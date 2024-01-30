@@ -13,8 +13,8 @@ import net.minecraft.world.GameMode
 import org.lwjgl.glfw.GLFW
 
 class CheatCode(
-    val codeSequence: List<Int>,
-    val action: () -> Unit,
+    private val codeSequence: List<Int>,
+    private val action: () -> Unit,
 ) {
     private var index = 0
     fun keyPressed(key: Int) {
@@ -30,7 +30,7 @@ class CheatCode(
     }
 
     companion object {
-        val cheatCodes = mutableListOf<CheatCode>()
+        private val cheatCodes = mutableListOf<CheatCode>()
         fun register(code: CheatCode) {
             cheatCodes.add(code)
         }

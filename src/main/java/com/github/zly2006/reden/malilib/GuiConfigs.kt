@@ -24,6 +24,7 @@ class GuiConfigs(parent: Screen? = null): GuiConfigsBase(
             addButton(button) { _, _ ->
                 if (tab != this.tab) {
                     this.tab = tab
+                    listWidget?.resetScrollbarPosition()
                     initGui()
                 }
             }

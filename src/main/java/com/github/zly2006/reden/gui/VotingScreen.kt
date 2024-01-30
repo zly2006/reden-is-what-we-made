@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.gui
 
-import com.github.zly2006.reden.malilib.data_IDENTIFICATION
+import com.github.zly2006.reden.malilib.HiddenOption.data_IDENTIFICATION
 import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
@@ -15,7 +15,7 @@ import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 
 class VotingScreen(
-
+    val voting: Voting
 ): BaseOwoScreen<FlowLayout>() {
     @Serializable
     data class Voting(

@@ -40,13 +40,12 @@ class CreditScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
             Sizing.fill(20)
         ).apply {
             this.verticalAlignment(VerticalAlignment.CENTER)
-            this.child(Components.texture(
-                Reden.identifier("reden_16.png"),
-                0, 0, 16, 16, 16, 16
-            ))
-            this.child(Components.label(Text.literal("Reden Credits"))
-                .shadow(true)
-                .margins(Insets.of(3)))
+            this.child(Components.texture(Reden.LOGO, 0, 0, 16, 16, 16, 16))
+            this.child(
+                Components.label(Text.literal("Reden Credits"))
+                    .shadow(true)
+                    .margins(Insets.of(3))
+            )
         })
         rootComponent.child(Containers.verticalScroll(Sizing.fill(70), Sizing.fill(80), creditsScreenContent()).apply {
             scrollbar(ScrollContainer.Scrollbar.vanillaFlat())

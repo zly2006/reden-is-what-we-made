@@ -48,7 +48,8 @@ object MethodBytecodePrinter: MethodVisitor(Opcodes.ASM9) {
     }
 
     override fun visitTableSwitchInsn(min: Int, max: Int, dflt: Label?, vararg labels: Label?) {
-        println("  TABLESWITCH $min $max $dflt " + labels.map { "\n  - $it"}.joinToString(""))
+        println("  TABLESWITCH $min $max $dflt "
+                + labels.joinToString("") { "\n  - $it" })
     }
 
     override fun visitVarInsn(opcode: Int, varIndex: Int) {
@@ -56,7 +57,7 @@ object MethodBytecodePrinter: MethodVisitor(Opcodes.ASM9) {
     }
 
     override fun visitInvokeDynamicInsn(name: String?, descriptor: String?, bootstrapMethodHandle: Handle?, vararg bootstrapMethodArguments: Any?) {
-        println("  INVOKEDYNAMIC $name $descriptor $bootstrapMethodHandle " + bootstrapMethodArguments.map { "\n  - $it"}.joinToString(""))
+        println("  INVOKEDYNAMIC $name $descriptor $bootstrapMethodHandle " + bootstrapMethodArguments.joinToString("") { "\n  - $it" })
     }
 
     override fun visitMultiANewArrayInsn(descriptor: String?, numDimensions: Int) {

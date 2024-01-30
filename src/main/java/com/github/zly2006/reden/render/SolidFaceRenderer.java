@@ -119,7 +119,7 @@ public class SolidFaceRenderer {
         }
     }
 
-    public static enum ShapePredicateOptionEntry implements IConfigOptionListEntry {
+    public enum ShapePredicateOptionEntry implements IConfigOptionListEntry {
         FULL(0, SideShapeType.FULL),
         CENTER(1, SideShapeType.CENTER),
         RIGID(2, SideShapeType.RIGID);
@@ -127,7 +127,7 @@ public class SolidFaceRenderer {
         private final int id;
         private final SideShapeType shapeType;
 
-        private ShapePredicateOptionEntry(int id, SideShapeType type) {
+        ShapePredicateOptionEntry(int id, SideShapeType type) {
             this.id = id;
             this.shapeType = type;
         }

@@ -21,11 +21,8 @@ public abstract class MixinReadTimeoutHandler {
             remap = false
     )
     private void onTimeOut(ReadTimeoutHandler handler, io.netty.channel.ChannelHandlerContext ctx) throws Exception {
-        if (MalilibSettingsKt.NO_TIME_OUT.getBooleanValue()) {
-            // do nothing
-        }
-        else {
-            readTimedOut(ctx);
+        if (!MalilibSettingsKt.NO_TIME_OUT.getBooleanValue()) {
+            readTimedOut(ctx); // call original method
         }
     }
 }

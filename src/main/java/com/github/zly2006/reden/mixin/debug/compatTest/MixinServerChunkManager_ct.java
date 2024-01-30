@@ -24,7 +24,7 @@ public class MixinServerChunkManager_ct {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void localCaptureTest(CallbackInfo ci, long l, long m, Profiler profiler, List list, int i, SpawnHelper.Info info, boolean bl, int j, boolean bl2, Iterator var12, ServerChunkManager.ChunkWithHolder chunkWithHolder, WorldChunk worldChunk2, ChunkPos chunkPos) {
+    private void localCaptureTest(CallbackInfo ci, long l, long m, Profiler profiler, List<?> list, int i, SpawnHelper.Info info, boolean bl, int j, boolean bl2, Iterator<?> var12, ServerChunkManager.ChunkWithHolder chunkWithHolder, WorldChunk worldChunk2, ChunkPos chunkPos) {
 
     }
 }

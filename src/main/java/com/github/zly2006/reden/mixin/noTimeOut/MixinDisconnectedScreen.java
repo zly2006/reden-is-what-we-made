@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixin.noTimeOut;
 
 import com.github.zly2006.reden.RedenClient;
+import com.github.zly2006.reden.malilib.HiddenOption;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -41,7 +42,7 @@ public class MixinDisconnectedScreen extends Screen {
     )
     private void addSomething(CallbackInfo ci, ButtonWidget buttonWidget) {
         if (reason.getContent() instanceof TranslatableTextContent content && "disconnect.timeout".equals(content.getKey())) {
-            if (MalilibSettingsKt.iSHOW_TIME_OUT_NOTIFICATION.getBooleanValue() && !MalilibSettingsKt.NO_TIME_OUT.getBooleanValue()) {
+            if (HiddenOption.iSHOW_TIME_OUT_NOTIFICATION.getBooleanValue() && !MalilibSettingsKt.NO_TIME_OUT.getBooleanValue()) {
                 grid.add(new TextWidget(
                         Text.of("If you are a developer debugging your server by breakpoints,\n try NoTimeOut provided by Reden Mod!"),
                         textRenderer
@@ -56,7 +57,7 @@ public class MixinDisconnectedScreen extends Screen {
                 grid.add(ButtonWidget.builder(
                         Text.literal("Dont show again"),
                         s -> {
-                            MalilibSettingsKt.iSHOW_TIME_OUT_NOTIFICATION.setBooleanValue(false);
+                            HiddenOption.iSHOW_TIME_OUT_NOTIFICATION.setBooleanValue(false);
                             RedenClient.saveMalilibOptions();
                         }
                 ).build());

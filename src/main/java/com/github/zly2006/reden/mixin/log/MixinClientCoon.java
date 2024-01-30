@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.log;
 
+import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.listener.PacketListener;
@@ -23,10 +24,10 @@ public class MixinClientCoon {
                     field.setAccessible(true);
                     sb.append("; ").append(field.getName()).append(": ").append(StringUtils.abbreviate(String.valueOf(field.get(packet)), 100));
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    Reden.LOGGER.error("Failed to access field " + field.getName() + " in packet " + packet.getClass().getName(), e);
                 }
             }
-            System.out.println(sb);
+            Reden.LOGGER.info(sb.toString());
         }
     }
 }

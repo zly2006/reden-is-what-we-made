@@ -15,7 +15,7 @@ public class FabricLoaderInjector {
     private final Method auMethod;
     private final Object delegate; // {@link net.fabricmc.loader.impl.launch.knot.KnotClassLoaderInterface}
 
-    public FabricLoaderInjector(ClassLoader knotClassLoader) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+    public FabricLoaderInjector(ClassLoader knotClassLoader) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException {
         this.knotClassLoader = knotClassLoader;
         var kclClass = Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassLoader");
         if (!kclClass.isInstance(knotClassLoader)) {
