@@ -1,4 +1,4 @@
-package com.github.zly2006.reden
+package com.github.zly2006.reden.test
 
 import com.github.zly2006.reden.debugger.breakpoint.*
 import com.github.zly2006.reden.debugger.breakpoint.behavior.FreezeGame
