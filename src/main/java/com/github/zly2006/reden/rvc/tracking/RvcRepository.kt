@@ -130,12 +130,13 @@ class RvcRepository(
         placementJson.writeText(Json.encodeToString(info))
     }
 
-    @OptIn(ExperimentalPathApi::class)
     fun delete() {
         val path = git.repository.workTree.toPath()
         git.close()
         if (path.exists()) {
-            path.deleteRecursively()
+            // java.nio doesn't remove the readonly attribute of file on Windows
+            // use the java.io method instead
+            path.toFile().deleteRecursively()
         }
     }
 
