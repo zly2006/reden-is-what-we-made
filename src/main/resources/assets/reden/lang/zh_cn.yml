@@ -88,6 +88,13 @@ reden:
       not_recording: 未录制
       unknown_error: 未知错误
       unknown_status: 未知状态
+    youtube:
+      "yes": 好哒!
+      "no": 先不了吧…
+      title: Reden B站账号
+      desc: |
+        您已经使用Reden的功能%s次了!
+        要去关注一下我的B站账号吗?
 
   config:
     # ===== Generic =====

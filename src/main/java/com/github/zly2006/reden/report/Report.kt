@@ -152,27 +152,33 @@ private var usedTimes = 0
 private fun requestFollow() {
     val mc = MinecraftClient.getInstance()
     val key = "reden:youtube"
-    ClientMessageQueue.onceNotification(
+    val buttonList = mutableListOf<ClientMessageQueue.Button>()
+    val id = ClientMessageQueue.addNotification(
         key,
         Reden.LOGO,
         Text.translatable("reden.message.youtube.title"),
-        Text.translatable("reden.message.youtube.desc"),
-        listOf(
-            ClientMessageQueue.Button(Text.translatable("reden.message.youtube.yes")) {
-                Util.getOperatingSystem().open(
-                    URI(
-                        if (mc.languageManager.language == "zh_cn")
-                            "https://space.bilibili.com/1545239761"
-                        else
-                            "https://www.youtube.com/@zly2006"
-                    )
+        Text.translatable("reden.message.youtube.desc", usedTimes),
+        buttonList
+    )
+    buttonList.add(
+        ClientMessageQueue.Button(Text.translatable("reden.message.youtube.yes")) {
+            Util.getOperatingSystem().open(
+                URI(
+                    if (mc.languageManager.language == "zh_cn")
+                        "https://space.bilibili.com/1545239761"
+                    else
+                        "https://www.youtube.com/@zly2006"
                 )
-                ClientMessageQueue.dontShowAgain(key)
-            },
-            ClientMessageQueue.Button(Text.translatable("reden.message.youtube.no")) {
-                ClientMessageQueue.dontShowAgain(key)
-            }
-        )
+            )
+            ClientMessageQueue.dontShowAgain(key)
+            ClientMessageQueue.remove(id)
+        }
+    )
+    buttonList.add(
+        ClientMessageQueue.Button(Text.translatable("reden.message.youtube.no")) {
+            ClientMessageQueue.dontShowAgain(key)
+            ClientMessageQueue.remove(id)
+        }
     )
 }
 

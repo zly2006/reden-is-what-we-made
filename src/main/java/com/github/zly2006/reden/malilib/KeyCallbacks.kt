@@ -78,6 +78,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             mc.player?.sendMessage(Text.literal("Sorry, this server doesn't support undo.").red(), true)
             return@callback false
         }
+        ClientMessageQueue.dontShowAgain("reden:undo")
         if (mc.interactionManager?.currentGameMode != GameMode.CREATIVE)
             return@callback false
         val playSound = Random.nextInt(100) < EASTER_EGG_RATE.integerValue
@@ -89,6 +90,18 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
                 SoundCategory.BLOCKS
             )
             undoEasterEggLock = true
+            if (!EASTER_EGG_RATE.isModified) {
+                val key = "reden:easter_egg/the_world"
+                ClientMessageQueue.remove(
+                    ClientMessageQueue.onceNotification(
+                        key,
+                        Reden.identifier("textures/gui/notification.png"),
+                        Text.literal("Easter eggs..."),
+                        Text.literal("You can turn it off at this setting: easterEggRate"),
+                        listOf()
+                    )
+                )
+            }
             Thread {
                 Thread.sleep(2000)
                 undoEasterEggLock = false
@@ -399,7 +412,8 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
     }
     DEBUG_NEW_NOTIFICATION.callback {
         var id = 0
-        id = ClientMessageQueue.add(
+        id = ClientMessageQueue.addNotification(
+            "reden:debug",
             Reden.identifier("textures/gui/notification.png"),
             Text.literal("Test"),
             Text.literal("Test"),

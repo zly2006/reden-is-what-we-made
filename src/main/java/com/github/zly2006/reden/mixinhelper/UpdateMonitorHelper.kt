@@ -143,16 +143,19 @@ object UpdateMonitorHelper {
             if (recording!!.data.size > 2) {
                 recording!!.notified = true
                 val key = "reden:undo"
-                ClientMessageQueue.onceNotification(
+                val buttonList = mutableListOf<ClientMessageQueue.Button>()
+                val id = ClientMessageQueue.onceNotification(
                     key,
                     Reden.LOGO,
                     Text.literal("Reden Undo"),
                     Text.literal("Did you make it by mistake? Press Ctrl+Z to undo it!").formatted(Formatting.GOLD),
-                    listOf(
-                        ClientMessageQueue.Button(Text.literal("Got it")) {
-                            ClientMessageQueue.dontShowAgain(key)
-                        }
-                    )
+                    buttonList
+                )
+                buttonList.add(
+                    ClientMessageQueue.Button(Text.literal("Got it")) {
+                        ClientMessageQueue.dontShowAgain(key)
+                        ClientMessageQueue.remove(id)
+                    }
                 )
             }
         }

@@ -110,8 +110,8 @@ reden:
       unknown_error: Unknown error
       unknown_status: Unknown status
     youtube:
-      yes: Yes!
-      no: Don't show again
+      "yes": Yes!
+      "no": Don't show again
       title: Reden YouTube Channel
       desc: |
         You have used Reden for %s times!

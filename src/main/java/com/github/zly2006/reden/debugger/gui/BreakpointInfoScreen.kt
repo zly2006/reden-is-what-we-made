@@ -217,12 +217,21 @@ class BreakpointInfoScreen(
         else if (packet.sender != client!!.player!!.uuid) {
             // Others updated breakpoint
             client!!.setScreen(BreakpointInfoScreen(client!!.data.breakpoints.breakpointMap[packet.bpId]))
-            ClientMessageQueue.add(
+            val buttonList = mutableListOf<ClientMessageQueue.Button>()
+            val id = ClientMessageQueue.addNotification(
+                "reden:breakpoint_updated_other_player",
                 Reden.identifier("reden-icon.png"),
                 Text.literal("Breakpoint updated"),
                 Text.literal("Another player updated the breakpoint you are now editing."),
-                listOf()
+                buttonList
             )
+            buttonList.add(ClientMessageQueue.Button(Text.literal("OK")) {
+                ClientMessageQueue.remove(id)
+            })
+            buttonList.add(ClientMessageQueue.Button(Text.literal("Don't show again")) {
+                ClientMessageQueue.dontShowAgain("reden:breakpoint_updated_other_player")
+                ClientMessageQueue.remove(id)
+            })
         }
     }
 
