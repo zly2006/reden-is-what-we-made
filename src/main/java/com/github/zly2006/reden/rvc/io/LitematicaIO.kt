@@ -131,6 +131,9 @@ open class LitematicaIO: StructureIO {
                 for (y in 0 until subRegionContainer.size.y) {
                     for (z in 0 until subRegionContainer.size.z) {
                         val pos = RelativeCoordinate(x, y, z)
+                        if (subRegionContainer.get(x, y, z).isAir) {
+                            continue
+                        }
                         structure.setBlockState(pos, subRegionContainer.get(x, y, z))
                         val be = blockEntityMap[pos.blockPos(BlockPos.ORIGIN)]
                         if (be != null) {
