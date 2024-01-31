@@ -484,13 +484,11 @@ class TrackedStructure(
             cachedPositions.entries.removeIf { it.value == existing }
             trackPoints.remove(existing)
         }
-        refreshPositions()
     }
 
     fun addTrackPoint(trackPoint: TrackPoint) {
         dirty = true
         removeTrackpoint(trackPoint.pos)
         trackPoints.add(trackPoint)
-        refreshPositions()
     }
 }
