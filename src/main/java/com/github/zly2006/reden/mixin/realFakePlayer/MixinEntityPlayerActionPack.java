@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(EntityPlayerActionPack.class)
+@Mixin(value = EntityPlayerActionPack.class, remap = false)
 public class MixinEntityPlayerActionPack implements IEntityPlayerActionPack {
     @Unique
     boolean isNetworkPhase = false;

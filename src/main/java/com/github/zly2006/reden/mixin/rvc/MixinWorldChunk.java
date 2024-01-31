@@ -2,6 +2,7 @@ package com.github.zly2006.reden.mixin.rvc;
 
 import com.github.zly2006.reden.rvc.gui.SelectionListScreenKt;
 import com.github.zly2006.reden.rvc.tracking.WorldInfo;
+import com.github.zly2006.reden.utils.UtilsKt;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
@@ -29,7 +30,7 @@ public abstract class MixinWorldChunk {
     )
     private void onBlockChanged(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
         //todo
-        if (world.isClient) {
+        if (UtilsKt.isClient()) {
             var repo = SelectionListScreenKt.getSelectedRepository();
             if (repo == null) return;
             if (repo.getPlacementInfo() == null) return;
@@ -37,6 +38,7 @@ public abstract class MixinWorldChunk {
             if (!worldInfo.equals(repo.getPlacementInfo().getWorldInfo())) return;
 
             var structure = repo.head();
+            if (structure.world == null || structure.world != world) return;
             if (structure.isInArea(structure.getRelativeCoordinate(pos))) {
                 if (state.isAir()) {
                     structure.onBlockRemoved(pos);
@@ -46,6 +48,7 @@ public abstract class MixinWorldChunk {
             } else if (Arrays.stream(Direction.values()).anyMatch(dir -> structure.isInArea(structure.getRelativeCoordinate(pos.offset(dir))))) {
                 structure.onBlockAdded(pos);
             }
+            structure.refreshPositions();
         }
     }
 }

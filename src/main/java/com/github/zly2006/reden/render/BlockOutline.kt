@@ -87,7 +87,10 @@ object BlockOutline {
         val mc = MinecraftClient.getInstance()
         val renderManager = mc.blockRenderManager
         val random = Random.create()
-        blocks.forEach { (pos, state) ->
+        synchronized(blocks) {
+            // Note: ConcurrentModificationException
+            blocks.toList()
+        }.forEach { (pos, state) ->
             if (state.fluidState != null) {
                 renderManager.renderFluid(
                     pos,

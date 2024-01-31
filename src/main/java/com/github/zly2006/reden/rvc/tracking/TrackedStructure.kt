@@ -275,10 +275,8 @@ class TrackedStructure(
 
     fun onBlockRemoved(pos: BlockPos) {
         dirty = true
-        val trackPoint = trackPoints.find { it.pos == pos }
-        if (trackPoint != null) {
-            trackPoints.remove(trackPoint)
-        }
+        removeTrackpoint(pos)
+        cachedPositions -= pos
     }
 
     init {
@@ -482,7 +480,7 @@ class TrackedStructure(
         val existing = trackPoints.find { it.pos == pos }
         if (existing != null) {
             cachedPositions.entries.removeIf { it.value == existing }
-            trackPoints.remove(existing)
+            trackPoints -= existing
         }
     }
 
