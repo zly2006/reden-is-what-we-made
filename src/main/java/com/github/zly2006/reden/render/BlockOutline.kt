@@ -147,5 +147,6 @@ object BlockOutline {
         }
     }
 
+    var color: Int = 0xffffff
     val blocks = mutableMapOf<BlockPos, BlockState>()
 }

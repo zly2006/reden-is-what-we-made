@@ -84,7 +84,8 @@ public abstract class MixinWorldRenderer {
     private void onRenderOutline(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f projectionMatrix, CallbackInfo ci) {
         if (BlockOutline.INSTANCE.getBlocks().isEmpty()) return;
         OutlineVertexConsumerProvider vertexConsumers = this.bufferBuilders.getOutlineVertexConsumers();
-        vertexConsumers.setColor(255, 255, 255, 255);
+        int color = BlockOutline.INSTANCE.getColor();
+        vertexConsumers.setColor(color >> 16 & 255, color >> 8 & 255, color & 255, 255);
         // only render to outline frame buffer
         VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getOutline(Reden.identifier("icon.png")));
         RenderSystem.disableCull();
