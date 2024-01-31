@@ -2,8 +2,8 @@ package com.github.zly2006.reden.mixin.render;
 
 import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
-import com.github.zly2006.reden.render.SolidFaceRenderer;
 import com.github.zly2006.reden.render.BlockOutline;
+import com.github.zly2006.reden.render.SolidFaceRenderer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -84,7 +84,8 @@ public abstract class MixinWorldRenderer {
     private void onRenderOutline(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f projectionMatrix, CallbackInfo ci) {
         if (BlockOutline.INSTANCE.getBlocks().isEmpty()) return;
         OutlineVertexConsumerProvider vertexConsumers = this.bufferBuilders.getOutlineVertexConsumers();
-        vertexConsumers.setColor(255, 0, 255, 255);
+        int color = BlockOutline.INSTANCE.getColor();
+        vertexConsumers.setColor(color >> 16 & 255, color >> 8 & 255, color & 255, 255);
         // only render to outline frame buffer
         VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getOutline(Reden.identifier("icon.png")));
         RenderSystem.disableCull();

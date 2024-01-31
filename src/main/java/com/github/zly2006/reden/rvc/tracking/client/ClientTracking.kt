@@ -32,6 +32,7 @@ fun registerSelectionTool() {
                             selectedStructure!!
                         )
                     )
+                    selectedStructure?.refreshPositions()
                 } else {
                     selectedStructure?.addTrackPoint(
                         TrackedStructure.TrackPoint(
@@ -41,6 +42,7 @@ fun registerSelectionTool() {
                             selectedStructure!!
                         )
                     )
+                    selectedStructure?.refreshPositions()
                 }
                 selectedStructure?.refreshPositions()
             }

@@ -255,8 +255,9 @@ class TrackedStructure(
             val readPos = mutableSetOf<BlockPos>()
             val queue = LinkedList<SpreadEntry>()
             queue.add(SpreadEntry(pos, trackPoint.predicate, trackPoint.mode, this))
-            var maxElements = 80000
+            var maxElements = 8000
             while (queue.isNotEmpty() && maxElements > 0) {
+                maxElements--
                 val entry = queue.removeFirst()
                 if (entry.pos in cachedIgnoredPositions || world.isAir(entry.pos)) continue
                 entry.spreadAround(world, { newPos ->
@@ -265,7 +266,6 @@ class TrackedStructure(
                         if (!world.isAir(newPos)) {
                             cachedPositions[newPos] = trackPoint
                         }
-                        maxElements--
                         queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, this))
                     }
                 })
@@ -275,10 +275,8 @@ class TrackedStructure(
 
     fun onBlockRemoved(pos: BlockPos) {
         dirty = true
-        val trackPoint = trackPoints.find { it.pos == pos }
-        if (trackPoint != null) {
-            trackPoints.remove(trackPoint)
-        }
+        removeTrackpoint(pos)
+        cachedPositions -= pos
     }
 
     init {
@@ -312,8 +310,9 @@ class TrackedStructure(
             // first, add all blocks recursively
             val queue = LinkedList<SpreadEntry>()
             queue.add(trackPoint)
-            var maxElements = 100000
+            var maxElements = 1000
             while (queue.isNotEmpty() && maxElements > 0) {
+                maxElements--
                 val entry = queue.removeFirst()
                 if (entry.pos in cachedIgnoredPositions) continue
                 if (world.air(entry.pos)) {
@@ -323,7 +322,6 @@ class TrackedStructure(
                 cachedIgnoredPositions[entry.pos] = trackPoint
                 entry.spreadAround(world, { newPos ->
                     if (readPos.add(newPos)) {
-                        maxElements--
                         queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, this))
                     }
                 })
@@ -334,8 +332,9 @@ class TrackedStructure(
             // first, add all blocks recursively
             val queue = LinkedList<SpreadEntry>()
             queue.add(trackPoint)
-            var maxElements = 80000
+            var maxElements = 8000
             while (queue.isNotEmpty() && maxElements > 0) {
+                maxElements--
                 val entry = queue.removeFirst()
                 if (entry.pos in cachedIgnoredPositions) continue
                 if (world.air(entry.pos)) {
@@ -352,7 +351,6 @@ class TrackedStructure(
                         if (!world.air(newPos)) {
                             cachedPositions[newPos] = trackPoint
                         }
-                        maxElements--
                         queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, this))
                     }
                 })
@@ -477,10 +475,18 @@ class TrackedStructure(
         return BlockPos(minX, minY, minZ)
     }
 
+    fun removeTrackpoint(pos: BlockPos) {
+        dirty = true
+        val existing = trackPoints.find { it.pos == pos }
+        if (existing != null) {
+            cachedPositions.entries.removeIf { it.value == existing }
+            trackPoints -= existing
+        }
+    }
+
     fun addTrackPoint(trackPoint: TrackPoint) {
         dirty = true
-        trackPoints.removeIf { it.pos == trackPoint.pos }
+        removeTrackpoint(trackPoint.pos)
         trackPoints.add(trackPoint)
-        refreshPositions()
     }
 }

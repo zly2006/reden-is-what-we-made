@@ -16,8 +16,10 @@ import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.sound.AbstractSoundInstance
 import net.minecraft.sound.SoundCategory
+import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
+import net.minecraft.text.TextColor
 import net.minecraft.util.Formatting
 import net.minecraft.util.Util
 import net.minecraft.util.math.random.Random
@@ -93,7 +95,17 @@ fun Screen.creditsScreenContent(): FlowLayout {
         .margins(Insets.vertical(15))))
 
     content.child(labelComponent(Text.literal("zly2006").append(
-        Text.literal(" - Project Owner, Developer").formatted(Formatting.GRAY)
+        Text.literal(" - Project Owner, Developer\nFollow me on: ").formatted(Formatting.GRAY)
+    ).append(
+        Text.literal("Youtube ").styled {
+            it.withColor(TextColor.fromRgb(0xff2401))
+                .withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "https://www.youtube.com/@zly2006"))
+        }
+    ).append(
+        Text.literal("Bilbili ").styled {
+            it.withColor(TextColor.fromRgb(0x00a2d6))
+                .withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "https://space.bilibili.com/1545239761"))
+        }
     )).margins(Insets.vertical(3)))
     content.child(labelComponent(Text.literal("Cubik65536").append(
         Text.literal(" - Developer, Moderator").formatted(Formatting.GRAY)
