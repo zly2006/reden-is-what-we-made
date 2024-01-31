@@ -2,6 +2,7 @@ package com.github.zly2006.reden.mixin.realFakePlayer;
 
 import carpet.fakes.ServerPlayerInterface;
 import carpet.patches.EntityPlayerMPFake;
+import com.github.zly2006.reden.access.IEntityPlayerActionPack;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerNetworkIo;
@@ -23,13 +24,20 @@ public class MixinServerNetworkIo {
     )
     private void onTick(CallbackInfo ci) {
         if (RedenCarpetSettings.Options.realFakePlayer) {
+            // Player phase
             for (ServerPlayerEntity player : server.getPlayerManager().players) {
                 if (player instanceof EntityPlayerMPFake fake) {
                     // do player tick
                     fake.playerTick();
                 }
+            }
+            // Network phase
+            for (ServerPlayerEntity player : server.getPlayerManager().players) {
                 // tick action pack
-                ((ServerPlayerInterface) player).getActionPack().onUpdate();
+                var actionPack = ((ServerPlayerInterface) player).getActionPack();
+                ((IEntityPlayerActionPack) actionPack).setNetworkPhase$reden(true);
+                actionPack.onUpdate();
+                ((IEntityPlayerActionPack) actionPack).setNetworkPhase$reden(false);
             }
         }
     }

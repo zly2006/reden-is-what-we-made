@@ -44,6 +44,7 @@
     "otherMods.tweeakeroo.hopperDelaySync.MixinX",
     "pearl.MixinExplosion",
     "realFakePlayer.MixinCarpetFakePlayer",
+    "realFakePlayer.MixinEntityPlayerActionPack",
     "realFakePlayer.MixinServerNetworkIo",
     "rvc.MixinWorldChunk",
     "sctuctureBlock.MixinStructureBlock",
