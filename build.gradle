@@ -209,3 +209,15 @@ artifactory {
         }
     }
 }
+
+shadowJar {
+    zip64 true
+    exclude('META-INF/**')
+    exclude('kotlin/**')
+    exclude('kotlinx/**')
+    exclude('*.json')
+    exclude('*.properties')
+    exclude('*.accesswidener')
+    exclude('LICENSE*')
+    exclude('Log4j*')
+}

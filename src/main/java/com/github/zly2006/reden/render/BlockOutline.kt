@@ -87,6 +87,12 @@ object BlockOutline {
         val mc = MinecraftClient.getInstance()
         val renderManager = mc.blockRenderManager
         val random = Random.create()
+//        WorldSchematic(
+//            mc.world!!.levelProperties,
+//            mc.world!!.dimensionEntry,
+//            { DummyProfiler.INSTANCE },
+//            null
+//        )
         synchronized(blocks) {
             // Note: ConcurrentModificationException
             blocks.toList()
