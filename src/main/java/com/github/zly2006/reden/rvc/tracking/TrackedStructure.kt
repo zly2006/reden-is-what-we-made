@@ -250,7 +250,7 @@ class TrackedStructure(
 
     fun onBlockAdded(pos: BlockPos) {
         dirty = true
-        val trackPoint = Direction.values().map(pos::offset).map { cachedIgnoredPositions[it] }.firstOrNull()
+        val trackPoint = Direction.entries.map(pos::offset).map { cachedIgnoredPositions[it] }.firstOrNull()
         if (trackPoint != null) {
             val readPos = mutableSetOf<BlockPos>()
             val queue = LinkedList<SpreadEntry>()
