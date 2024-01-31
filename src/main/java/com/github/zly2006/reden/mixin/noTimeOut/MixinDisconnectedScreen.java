@@ -1,13 +1,14 @@
 package com.github.zly2006.reden.mixin.noTimeOut;
 
+import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.RedenClient;
-import com.github.zly2006.reden.malilib.HiddenOption;
+import com.github.zly2006.reden.gui.message.ClientMessageQueue;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
+import kotlin.Unit;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
-import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import org.spongepowered.asm.mixin.Final;
@@ -17,6 +18,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import java.util.ArrayList;
 
 @Mixin(DisconnectedScreen.class)
 public class MixinDisconnectedScreen extends Screen {
@@ -40,27 +43,34 @@ public class MixinDisconnectedScreen extends Screen {
             ),
             locals = LocalCapture.CAPTURE_FAILSOFT
     )
-    private void addSomething(CallbackInfo ci, ButtonWidget buttonWidget) {
+    private void tryNoTimeOut(CallbackInfo ci, ButtonWidget buttonWidget) {
         if (reason.getContent() instanceof TranslatableTextContent content && "disconnect.timeout".equals(content.getKey())) {
-            if (HiddenOption.iSHOW_TIME_OUT_NOTIFICATION.getBooleanValue() && !MalilibSettingsKt.NO_TIME_OUT.getBooleanValue()) {
-                grid.add(new TextWidget(
-                        Text.of("If you are a developer debugging your server by breakpoints,\n try NoTimeOut provided by Reden Mod!"),
-                        textRenderer
-                ));
-                grid.add(ButtonWidget.builder(
-                        Text.literal("Enable NoTimeOut"),
-                        s -> {
+            if (!MalilibSettingsKt.NO_TIME_OUT.getBooleanValue()) {
+                var buttonList = new ArrayList<ClientMessageQueue.Button>();
+                int id = ClientMessageQueue.INSTANCE.addNotification(
+                        "reden:no_time_out",
+                        Reden.LOGO,
+                        Text.of("Enable NoTimeOut"),
+                        Text.of("If you are a developer debugging your server by breakpoints,\ntry NoTimeOut provided by Reden Mod! It will prevent you from being kicked out of the server!"),
+                        buttonList
+                );
+                buttonList.add(new ClientMessageQueue.Button(
+                        Text.of("Enable NoTimeOut"),
+                        () -> {
                             MalilibSettingsKt.NO_TIME_OUT.setBooleanValue(true);
                             RedenClient.saveMalilibOptions();
+                            ClientMessageQueue.INSTANCE.remove(id);
+                            return Unit.INSTANCE;
                         }
-                ).build());
-                grid.add(ButtonWidget.builder(
-                        Text.literal("Dont show again"),
-                        s -> {
-                            HiddenOption.iSHOW_TIME_OUT_NOTIFICATION.setBooleanValue(false);
-                            RedenClient.saveMalilibOptions();
+                ));
+                buttonList.add(new ClientMessageQueue.Button(
+                        Text.of("Dont show again"),
+                        () -> {
+                            ClientMessageQueue.INSTANCE.remove(id);
+                            ClientMessageQueue.INSTANCE.dontShowAgain("reden:no_time_out");
+                            return Unit.INSTANCE;
                         }
-                ).build());
+                ));
             }
         }
     }

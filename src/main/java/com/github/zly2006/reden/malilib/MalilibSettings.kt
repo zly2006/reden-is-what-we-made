@@ -111,9 +111,6 @@ object HiddenOption {
     val iCHECK_UPDATES = RedenConfigBoolean("iNotificationsEnabled", true).hidden()
 
     @JvmField
-    val iSHOW_TIME_OUT_NOTIFICATION = RedenConfigBoolean("iShowTimeOutNotification", true).hidden()
-
-    @JvmField
     val iPRIVACY_SETTING_SHOWN = RedenConfigBoolean("iPrivacySettingShown", false).hidden()
 
     @JvmField

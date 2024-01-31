@@ -7,8 +7,11 @@ import net.fabricmc.api.Environment
 import net.minecraft.block.BlockRenderType
 import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.render.*
 import net.minecraft.client.render.BufferBuilder.BuiltBuffer
+import net.minecraft.client.render.Camera
+import net.minecraft.client.render.RenderLayer
+import net.minecraft.client.render.RenderLayers
+import net.minecraft.client.render.VertexConsumer
 import net.minecraft.client.render.chunk.BlockBufferBuilderStorage
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.BlockPos
@@ -83,21 +86,29 @@ object BlockOutline {
     fun render(buffer: VertexConsumer, matrices: MatrixStack, camera: Camera) {
         val mc = MinecraftClient.getInstance()
         val renderManager = mc.blockRenderManager
+        val random = Random.create()
         blocks.forEach { (pos, state) ->
+            if (state.fluidState != null) {
+                renderManager.renderFluid(
+                    pos,
+                    mc.world,
+                    buffer,
+                    state,
+                    state.fluidState
+                )
+            }
             matrices.push()
             matrices.translate(-camera.pos.x, -camera.pos.y, -camera.pos.z)
             matrices.translate(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
             if (FANCY_BLOCK_OUTLINE.booleanValue) {
-                renderManager.modelRenderer.render(
-                    matrices.peek(),
-                    buffer,
+                renderManager.renderBlock(
                     state,
-                    renderManager.getModel(state),
-                    1.0f,
-                    1.0f,
-                    1.0f,
-                    15,
-                    OverlayTexture.DEFAULT_UV
+                    pos,
+                    mc.world,
+                    matrices,
+                    buffer,
+                    false,
+                    random
                 )
             } else {
                 val matrix4f = matrices.peek().positionMatrix
