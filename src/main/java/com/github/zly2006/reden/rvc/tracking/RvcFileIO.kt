@@ -163,6 +163,12 @@ object RvcFileIO: StructureIO {
         // ================================ Save Fluid Scheduled Ticks =================================
         structure.fluidScheduledTicks.joinToString("\n", transform = TrackedStructure.TickInfo<*>::toRvcDataString)
             .let { data -> writeRvcFile(path, "fluidScheduledTicks", RVC_HEADER, data) }
+
+        if (usePalette) {
+            palette.idToName.entries.joinToString("\n") { (id, name) ->
+                "$id,$name"
+            }.let { data -> writeRvcFile(path, "palette", RVC_HEADER, data) }
+        }
     }
 
     private fun toNbtString(nbt: NbtCompound) =

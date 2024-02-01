@@ -23,9 +23,8 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
     private val worldInfo = MinecraftClient.getInstance().getWorldInfo()
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
-    inner class RepositoryLine(
-        private val repository: RvcRepository
-    ): FlowLayout(Sizing.fill(), Sizing.content(), Algorithm.HORIZONTAL) {
+    inner class RepositoryLine(private val repository: RvcRepository) :
+        FlowLayout(Sizing.fill(), Sizing.content(), Algorithm.HORIZONTAL) {
         var sameWorld = repository.placementInfo?.worldInfo == worldInfo
             set(value) {
                 field = value
@@ -54,6 +53,8 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
         private val enableForWorldButton: ButtonComponent = Components.button(Text.literal("Change World")) {
             onFunctionUsed("enable_rvcStructure")
             repository.setWorld()
+            it.active(false)
+            sameWorld = true
         }.apply {
             tooltip(Text.literal("""
                 Note: This will set the current world as the world for this structure.
@@ -93,9 +94,15 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
                 repository.delete()
                 parent!!.removeChild(this)
             })
-            right.child(Components.button(Text.literal("Open")) {
+            right.child(Components.button(Text.literal("Details")) {
                 onFunctionUsed("open_rvcStructure")
-                MinecraftClient.getInstance().setScreen(SelectionInfoScreen(repository.head()))
+                MinecraftClient.getInstance().setScreen(SelectionInfoScreen(repository, repository.head()))
+            }.apply {
+                active(false)
+            })
+            right.child(Components.button(Text.literal("Export")) {
+                onFunctionUsed("export_rvcStructure")
+                MinecraftClient.getInstance().setScreen(SelectionExportScreen(this@SelectionListScreen, repository))
             }.apply {
                 active(false)
             })
@@ -113,9 +120,16 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             .horizontalAlignment(HorizontalAlignment.LEFT)
             .verticalAlignment(VerticalAlignment.TOP)
 
-        rootComponent.child(Components.button(Text.literal("New")) {
-            onFunctionUsed("new_rvcListScreen")
-            client!!.setScreen(SelectionCreateScreen())
+        rootComponent.child(Containers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
+            gap(5)
+            child(Components.button(Text.literal("New")) {
+                onFunctionUsed("new_rvcListScreen")
+                client!!.setScreen(SelectionCreateScreen())
+            })
+            child(Components.button(Text.literal("Import")) {
+                onFunctionUsed("import_rvcListScreen")
+                client!!.setScreen(SelectionImportScreen())
+            })
         })
 
         mc.data.rvcStructures.values.forEach {

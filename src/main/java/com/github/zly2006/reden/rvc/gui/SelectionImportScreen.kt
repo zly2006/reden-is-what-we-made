@@ -18,7 +18,6 @@ import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer.Scrollbar
 import io.wispforest.owo.ui.core.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import net.minecraft.client.MinecraftClient
 import net.minecraft.nbt.NbtIo
@@ -42,7 +41,12 @@ class SelectionImportScreen(
     var selectedLine: FileLine? = null
     val importButton: ButtonComponent = Components.button(Text.literal("Import")) {
         onFunctionUsed("buttonImport_type${fileType.name}_importScreen")
-        selectedLine?.let { fileType.import(it.file) }
+        selectedLine?.let {
+            fileType.import(it.file)?.let { repository ->
+                repository.setWorld()
+                client!!.data.rvcStructures[repository.name] = repository
+            }
+        }
     }.apply {
         active(selectedLine != null)
     }

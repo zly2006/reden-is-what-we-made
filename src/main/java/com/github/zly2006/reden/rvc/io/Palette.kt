@@ -20,7 +20,8 @@ class Palette {
     }
 
     fun getName(id: Int): String {
-        return idToName[id]!!
+        return idToName[id]
+            ?: throw IllegalArgumentException("Palette does not contain id $id")
     }
 
     fun getNbt(id: Int): NbtCompound {
@@ -38,6 +39,7 @@ class Palette {
                 val id = it.substringBefore(",").toInt()
                 val name = it.substringAfter(",")
                 palette.palette[name] = id
+                palette.idToName[id] = name
             }
             return palette
         }

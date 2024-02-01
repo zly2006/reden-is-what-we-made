@@ -17,7 +17,9 @@ import org.eclipse.jgit.api.InitCommand
 import org.eclipse.jgit.lib.PersonIdent
 import org.jetbrains.annotations.Contract
 import java.nio.file.Path
-import kotlin.io.path.*
+import kotlin.io.path.Path
+import kotlin.io.path.div
+import kotlin.io.path.exists
 
 @OptIn(ExperimentalSerializationApi::class)
 class RvcRepository(
@@ -139,6 +141,9 @@ class RvcRepository(
             path.toFile().deleteRecursively()
         }
     }
+
+    val headHash: String get() = git.repository.resolve("HEAD").name()
+    val headBranch: String get() = git.repository.branch
 
     companion object {
         val path = Path("rvc")
