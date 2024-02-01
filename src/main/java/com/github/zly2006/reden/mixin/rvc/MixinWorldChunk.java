@@ -2,7 +2,8 @@ package com.github.zly2006.reden.mixin.rvc;
 
 import com.github.zly2006.reden.rvc.gui.SelectionListScreenKt;
 import com.github.zly2006.reden.rvc.tracking.WorldInfo;
-import com.github.zly2006.reden.utils.UtilsKt;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
@@ -19,38 +20,38 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Arrays;
 
 @Mixin(WorldChunk.class)
+@Environment(EnvType.CLIENT)
 public abstract class MixinWorldChunk {
     @Shadow
     @Final
     World world;
 
-    @Shadow public abstract World getWorld();
+    @Shadow
+    public abstract World getWorld();
 
     @Inject(
             method = "setBlockState",
             at = @At("TAIL")
     )
     private void onBlockChanged(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
-        //todo
-        if (UtilsKt.isClient()) {
-            var repo = SelectionListScreenKt.getSelectedRepository();
-            if (repo == null) return;
-            if (repo.getPlacementInfo() == null) return;
-            WorldInfo worldInfo = WorldInfo.Companion.getWorldInfo(MinecraftClient.getInstance());
-            if (!worldInfo.equals(repo.getPlacementInfo().getWorldInfo())) return;
+        // we are sure that the world is client
+        var repo = SelectionListScreenKt.getSelectedRepository();
+        if (repo == null) return;
+        if (repo.getPlacementInfo() == null) return;
+        WorldInfo worldInfo = WorldInfo.Companion.getWorldInfo(MinecraftClient.getInstance());
+        if (!worldInfo.equals(repo.getPlacementInfo().getWorldInfo())) return;
 
-            var structure = repo.head();
-            if (structure.world == null || structure.world != world) return;
-            if (structure.isInArea(structure.getRelativeCoordinate(pos))) {
-                if (state.isAir()) {
-                    structure.onBlockRemoved(pos);
-                } else {
-                    structure.onBlockAdded(pos);
-                }
-            } else if (Arrays.stream(Direction.values()).anyMatch(dir -> structure.isInArea(structure.getRelativeCoordinate(pos.offset(dir))))) {
+        var structure = repo.head();
+        if (structure.world == null || structure.world != world) return;
+        if (structure.isInArea(structure.getRelativeCoordinate(pos))) {
+            if (state.isAir()) {
+                structure.onBlockRemoved(pos);
+            } else {
                 structure.onBlockAdded(pos);
             }
-            structure.refreshPositions();
+        } else if (Arrays.stream(Direction.values()).anyMatch(dir -> structure.isInArea(structure.getRelativeCoordinate(pos.offset(dir))))) {
+            structure.onBlockAdded(pos);
         }
+        structure.refreshPositions();
     }
 }
