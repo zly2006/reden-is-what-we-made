@@ -78,7 +78,9 @@ class TrackedStructure(
                         is Fluid -> Registries.FLUID
                         else -> throw IllegalArgumentException("Unknown type ${orderedTick.type}")
                     } as Registry<T>
-                )
+                ).apply {
+                    this.priority.index
+                }
             }
         }
     }

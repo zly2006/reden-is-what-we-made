@@ -2,6 +2,7 @@ package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.IWritableStructure
+import com.github.zly2006.reden.rvc.io.Palette
 import com.github.zly2006.reden.rvc.io.StructureIO
 import com.github.zly2006.reden.rvc.tracking.reader.RvcReaderV1
 import net.minecraft.nbt.NbtCompound
@@ -59,7 +60,7 @@ object RvcFileIO: StructureIO {
      * @return [IRvcFileReader.RvcFile] that contains the correct [IRvcFileReader]
      * for its data version and the data to read
      */
-    private fun loadRvcFile(path: Path, name: String): IRvcFileReader.RvcFile? {
+    fun loadRvcFile(path: Path, name: String): IRvcFileReader.RvcFile? {
         val filename = "$name.rvc"
         if (path.resolve(filename).toFile().exists()) {
             val lines = path.resolve(filename).toFile().readLines()
@@ -77,6 +78,10 @@ object RvcFileIO: StructureIO {
      * @throws IllegalArgumentException if the structure is not a [TrackedStructure]
      */
     override fun save(path: Path, structure: IStructure) {
+        save(path, structure, null)
+    }
+
+    fun save(path: Path, structure: IStructure, palette: Boolean?) {
         // ================================ Check Saving Structure Type ================================
         if (structure !is TrackedStructure) {
             throw IllegalArgumentException("Structure is not a TrackedStructure")
@@ -85,20 +90,50 @@ object RvcFileIO: StructureIO {
             path.toFile().mkdirs()
         }
         structure.refreshPositions()
+        val usePalette = palette ?: (structure.blocks.size > 1000)
+
+        @Suppress("NAME_SHADOWING")
+        val palette = Palette()
 
         // ======================================== Save Blocks ========================================
         // public final val blocks: MutableMap<BlockPos, BlockState>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.blocks.entries.joinToString("\n") { (pos, state) ->
-            "${pos.x},${pos.y},${pos.z},${toNbtString(NbtHelper.fromBlockState(state))}"
-        }.let { data -> writeRvcFile(path, "blocks", RVC_HEADER, data) }
+            if (usePalette)
+                "${pos.x},${pos.y},${pos.z},${palette.getId(toNbtString(NbtHelper.fromBlockState(state)))}"
+            else
+                "${pos.x},${pos.y},${pos.z},${toNbtString(NbtHelper.fromBlockState(state))}"
+        }.let { data ->
+            writeRvcFile(
+                path, "blocks", IRvcFileReader.RvcHeader(
+                    mutableMapOf(
+                        "Version" to CURRENT_VERSION,
+                        "Platform" to "MCMod/Reden",
+                        "Palette" to usePalette.toString()
+                    )
+                ), data
+            )
+        }
 
         // ==================================== Save Block Entities ====================================
         // public final val blockEntities: MutableMap<BlockPos, NbtCompound>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.blockEntities.entries.joinToString("\n") { (pos, nbt) ->
-            "${pos.x},${pos.y},${pos.z},${toNbtString(nbt)}"
-        }.let { data -> writeRvcFile(path, "blockEntities", RVC_HEADER, data) }
+            if (usePalette)
+                "${pos.x},${pos.y},${pos.z},${palette.getId(toNbtString(nbt))}"
+            else
+                "${pos.x},${pos.y},${pos.z},${toNbtString(nbt)}"
+        }.let { data ->
+            writeRvcFile(
+                path, "blockEntities", IRvcFileReader.RvcHeader(
+                    mutableMapOf(
+                        "Version" to CURRENT_VERSION,
+                        "Platform" to "MCMod/Reden",
+                        "Palette" to usePalette.toString()
+                    )
+                ), data
+            )
+        }
 
         // ======================================= Save Entities =======================================
         // public open val entities: MutableMap<UUID, NbtCompound>
@@ -157,8 +192,9 @@ object RvcFileIO: StructureIO {
         // public final val blocks: MutableMap<BlockPos, BlockState>
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.blocks.clear()
+        val palette = Palette.load(loadRvcFile(path, "palette"))
         loadRvcFile(path, "blocks")?.let { rvcFile ->
-            structure.blocks.putAll(rvcFile.reader.readBlocksData(rvcFile.data))
+            structure.blocks.putAll(rvcFile.reader.readBlocksData(rvcFile.data, palette))
         }
 
         // ==================================== Load Block Entities ====================================
@@ -166,7 +202,7 @@ object RvcFileIO: StructureIO {
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.blockEntities.clear()
         loadRvcFile(path, "blockEntities")?.let { rvcFile ->
-            structure.blockEntities.putAll(rvcFile.reader.readBlockEntitiesData(rvcFile.data))
+            structure.blockEntities.putAll(rvcFile.reader.readBlockEntitiesData(rvcFile.data, palette))
         }
 
         // ======================================= Load Entities =======================================

@@ -20,7 +20,9 @@ import java.util.Arrays;
 
 @Mixin(WorldChunk.class)
 public abstract class MixinWorldChunk {
-    @Shadow @Final private World world;
+    @Shadow
+    @Final
+    World world;
 
     @Shadow public abstract World getWorld();
 

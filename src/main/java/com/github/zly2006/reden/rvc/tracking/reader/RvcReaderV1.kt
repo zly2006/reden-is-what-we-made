@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.rvc.tracking.reader
 
 import com.github.zly2006.reden.rvc.RelativeCoordinate
+import com.github.zly2006.reden.rvc.io.Palette
 import com.github.zly2006.reden.rvc.tracking.IRvcFileReader
 import com.github.zly2006.reden.rvc.tracking.RvcDataReader
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
@@ -15,28 +16,34 @@ import net.minecraft.world.tick.TickPriority
 import java.util.*
 
 class RvcReaderV1(
-    val header: IRvcFileReader.RvcHeader
-): IRvcFileReader {
-    override fun readBlocksData(data: List<String>): Map<RelativeCoordinate, BlockState> {
+    override val header: IRvcFileReader.RvcHeader
+) : IRvcFileReader {
+    override fun readBlocksData(data: List<String>, palette: Palette): Map<RelativeCoordinate, BlockState> {
+        val usePalette = header.metadata["Palette"]?.toBoolean() ?: false
         val blocks = mutableMapOf<RelativeCoordinate, BlockState>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
             val blockPos = RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
             val blockState = NbtHelper.toBlockState(
                 Registries.BLOCK.readOnlyWrapper,
-                NbtHelper.fromNbtProviderString(rvcData.readGreedy())
+                NbtHelper.fromNbtProviderString(
+                    if (usePalette) palette.getName(rvcData.next().toInt()) else rvcData.readGreedy()
+                )
             )
             blocks[blockPos] = blockState
         }
         return blocks
     }
 
-    override fun readBlockEntitiesData(data: List<String>): Map<RelativeCoordinate, NbtCompound> {
+    override fun readBlockEntitiesData(data: List<String>, palette: Palette): Map<RelativeCoordinate, NbtCompound> {
+        val usePalette = header.metadata["Palette"]?.toBoolean() ?: false
         val blockEntities = mutableMapOf<RelativeCoordinate, NbtCompound>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
             val blockPos = RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
-            val nbt = NbtHelper.fromNbtProviderString(rvcData.readGreedy())
+            val nbt = NbtHelper.fromNbtProviderString(
+                if (usePalette) palette.getName(rvcData.next().toInt()) else rvcData.readGreedy()
+            )
             blockEntities[blockPos] = nbt
         }
         return blockEntities
@@ -53,7 +60,10 @@ class RvcReaderV1(
         return entities
     }
 
-    override fun readTrackPointData(data: List<String>, structure: TrackedStructure): List<TrackedStructure.TrackPoint> {
+    override fun readTrackPointData(
+        data: List<String>,
+        structure: TrackedStructure
+    ): List<TrackedStructure.TrackPoint> {
         val trackPoints = mutableListOf<TrackedStructure.TrackPoint>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
@@ -76,16 +86,19 @@ class RvcReaderV1(
         val blockEvents = mutableListOf<TrackedStructure.BlockEventInfo>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
-            val relativeCoordinate = RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
+            val relativeCoordinate =
+                RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
             val type = rvcData.next().toInt()
             val data = rvcData.next().toInt()
             val block = Registries.BLOCK.get(Identifier(rvcData.readGreedy()))
-            blockEvents.add(TrackedStructure.BlockEventInfo(
-                pos = relativeCoordinate,
-                type = type,
-                data = data,
-                block = block
-            ))
+            blockEvents.add(
+                TrackedStructure.BlockEventInfo(
+                    pos = relativeCoordinate,
+                    type = type,
+                    data = data,
+                    block = block
+                )
+            )
         }
         return blockEvents
     }
@@ -95,18 +108,24 @@ class RvcReaderV1(
         throw UnsupportedOperationException()
     }
 
-    override fun <T> readScheduledTicksData(data: List<String>, registry: Registry<T>): List<TrackedStructure.TickInfo<T>> {
+    override fun <T> readScheduledTicksData(
+        data: List<String>,
+        registry: Registry<T>
+    ): List<TrackedStructure.TickInfo<T>> {
         val blockTicks = mutableListOf<TrackedStructure.TickInfo<T>>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
-            val relativeCoordinate = RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
-            blockTicks.add(TrackedStructure.TickInfo(
-                pos = relativeCoordinate,
-                type = registry.get(Identifier(rvcData.next()))!! as T,
-                delay = rvcData.next().toLong(),
-                priority = TickPriority.byIndex(rvcData.next().toInt()),
-                registry = registry
-            ))
+            val relativeCoordinate =
+                RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
+            blockTicks.add(
+                TrackedStructure.TickInfo(
+                    pos = relativeCoordinate,
+                    type = registry.get(Identifier(rvcData.next()))!! as T,
+                    delay = rvcData.next().toLong(),
+                    priority = TickPriority.byIndex(rvcData.next().toInt()),
+                    registry = registry
+                )
+            )
         }
         return blockTicks
     }
