@@ -1,7 +1,12 @@
 package com.github.zly2006.reden.rvc.gui
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.rvc.CuboidStructure
+import com.github.zly2006.reden.rvc.RelativeCoordinate
+import com.github.zly2006.reden.rvc.io.LitematicaIO
+import com.github.zly2006.reden.rvc.io.SchematicIO
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
+import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
@@ -14,10 +19,13 @@ import io.wispforest.owo.ui.container.ScrollContainer
 import io.wispforest.owo.ui.core.*
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
+import net.minecraft.util.Identifier
 import net.minecraft.util.Util
+import org.lwjgl.glfw.GLFW
 import java.awt.Color
 import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.Path
 
 private const val WIKI = "https://wiki.redenmc.com/RVC/导入导出#导出"
 
@@ -26,15 +34,24 @@ class SelectionExportScreen(
     val rvc: RvcRepository,
 ) : BaseOwoScreen<FlowLayout>() {
 
+    private var optionsPanel: FlowLayout? = null
     private val exportButton: ButtonComponent = Components.button(Text.literal("Export")) {
-        TODO()
+        val path = if (selectedType == ExportType.StructureBlock) {
+            client!!.server?.session?.directory?.path
+        } else Path(SelectionImportScreen.FOLDER_SCHEMATICS)
+        if (path != null) {
+            selectedType.export(path, rvc.head().apply {
+                name = nameField.text
+            })
+            close()
+        }
     }
     private val nameField = Components.textBox(Sizing.fixed(100)).apply {
-        text(rvc.name)
         onChanged().subscribe { content ->
             onNameFieldChanged(content)
             if (selectedLine != null && content != selectedLine!!.file.nameWithoutExtension) selectedLine = null
         }
+        text(rvc.name)
     }
 
     private fun onNameFieldChanged(content: String = nameField.text) {
@@ -42,42 +59,77 @@ class SelectionExportScreen(
         if (File(SelectionImportScreen.FOLDER_SCHEMATICS).listFiles()!!
                 .any { it.name == "$content.${selectedType.extension}" }
         ) {
-            label.text(Text.literal("Will overwrite the file with same name").red())
+            statusLabel.text(Text.literal("This operation will overwrite the file with same name").red())
             exportButton.active(true)
         } else if (content.isEmpty()) {
-            label.text(Text.literal("Name cannot be empty").red())
+            statusLabel.text(Text.literal("Name cannot be empty").red())
             exportButton.active(false)
         } else {
-            label.text(Text.literal("Export to ${selectedType.displayName.string} type"))
+            statusLabel.text(Text.literal("Export to ${selectedType.displayName.string} type"))
             exportButton.active(true)
         }
     }
 
     var selectedType: ExportType = ExportType.Litematica
+        set(value) {
+            field = value
+            extensionLabel.text(Text.literal(".${value.extension}"))
+            onNameFieldChanged()
+
+            val parent = optionsPanel?.parent() as? FlowLayout?
+            optionsPanel?.remove()
+            refreshOptions()
+            parent?.child(optionsPanel!!)
+        }
     lateinit var selectedButton: ButtonComponent
     var selectedLine: FileLine? = null
-    private val label = Components.label(Text.literal("Export to ${selectedType.displayName.string} type"))
-    val multiBoxCheckBox: CheckboxComponent = Components.checkbox(ExportType.LitematicaMultiBox.displayName).apply {
+    private val statusLabel = Components.label(Text.literal("Export to ${selectedType.displayName.string} type"))
+    private val extensionLabel = Components.label(Text.literal(".${selectedType.extension}"))
+    private val multiBoxCheckBox: CheckboxComponent =
+        Components.checkbox(ExportType.LitematicaMultiBox.displayName).apply {
         checked(false)
         onChanged {
             selectedType = if (it) {
-                label.text(Text.literal("Export to ${ExportType.LitematicaMultiBox.displayName.string} type"))
+//                statusLabel.text(Text.literal("Export to ${ExportType.LitematicaMultiBox.displayName.string} type"))
                 ExportType.LitematicaMultiBox
             } else {
-                label.text(Text.literal("Export to ${ExportType.Litematica.displayName.string} type"))
+//                statusLabel.text(Text.literal("Export to ${ExportType.Litematica.displayName.string} type"))
                 ExportType.Litematica
             }
             onNameFieldChanged()
         }
     }
-    val helpIcon: TextureComponent = Components.texture(Reden.identifier("help.png"), 0, 0, 16, 16, 16, 16).apply {
-        mouseDown().subscribe { _: Double, _: Double, i: Int ->
-            if (multiBoxCheckBox.visible && i == 0) {
+    val multiBoxHelp: TextureComponent =
+        Components.texture(Reden.identifier("help_icon.png"), 0, 0, 16, 16, 16, 16).apply {
+            mouseDown().subscribe { _: Double, _: Double, b: Int ->
+                if (b == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
                 Util.getOperatingSystem().open(WIKI)
-                return@subscribe true
-            }
-            false
+                    true
+                } else false
         }
+            cursorStyle(CursorStyle.HAND)
+    }
+
+    private fun refreshOptions() {
+        optionsPanel = (Containers.verticalFlow(Sizing.fill(50), Sizing.fill()).apply {
+            gap(5)
+            child(Components.label(Text.literal(rvc.name)))
+            child(Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+                alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
+                child(Components.label(Text.literal("Name:")))
+                child(nameField)
+                child(extensionLabel)
+            })
+            child(exportButton)
+            child(statusLabel)
+            if (selectedType == ExportType.LitematicaMultiBox || selectedType == ExportType.Litematica) {
+                child(Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+                    gap(5)
+                    child(multiBoxCheckBox)
+                    child(multiBoxHelp)
+                })
+            }
+        })
     }
 
     override fun createAdapter(): OwoUIAdapter<FlowLayout> = OwoUIAdapter.create(this, Containers::verticalFlow)!!
@@ -95,22 +147,14 @@ class SelectionExportScreen(
                 gap(5)
                 alignment(HorizontalAlignment.LEFT, VerticalAlignment.CENTER)
                 child(Components.label(Text.literal("Export RVC Structure to:")))
-                ExportType.values().forEach { type: ExportType ->
-                    if (type != ExportType.LitematicaMultiBox) {
+                ExportType.entries
+                    // Note: it is the same format as [Litematica] mode
+                    .filterNot { it == ExportType.LitematicaMultiBox }.forEach { type: ExportType ->
                         child(Components.button(type.displayName) {
                             it.active(false)
                             selectedButton.active(true)
                             selectedType = type
                             selectedButton = it
-                            multiBoxCheckBox.checked(false)
-                            val isLitematica = type == ExportType.Litematica
-                            multiBoxCheckBox.active = isLitematica
-                            multiBoxCheckBox.visible = isLitematica
-                            if (isLitematica) {
-                                helpIcon.sizing(Sizing.content(), Sizing.content())
-                            } else {
-                                helpIcon.sizing(Sizing.fill(0), Sizing.fill(0))
-                            }
                             onNameFieldChanged()
                         }.apply {
                             tooltip(type.hover)
@@ -120,7 +164,6 @@ class SelectionExportScreen(
                             }
                         })
                     }
-                }
             }
         )
 
@@ -147,23 +190,8 @@ class SelectionExportScreen(
                     scrollbar(ScrollContainer.Scrollbar.vanillaFlat())
                 }
             )
-            child(Containers.verticalFlow(Sizing.fill(50), Sizing.fill()).apply {
-                gap(5)
-                alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
-                child(Components.label(Text.literal(rvc.name)))
-                child(Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
-                    alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
-                    child(Components.label(Text.literal("Name:")))
-                    child(nameField)
-                    child(exportButton)
-                })
-                child(label)
-                child(Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
-                    gap(5)
-                    child(multiBoxCheckBox)
-                    child(helpIcon)
-                })
-            })
+            refreshOptions()
+            child(optionsPanel)
         })
     }
 
@@ -184,7 +212,7 @@ class SelectionExportScreen(
 
             content.child(Components.label(Text.literal(" $name")))
 
-            mouseDown().subscribe { _: Double, _: Double, _: Int ->
+            mouseDown().subscribe { _, _, _ ->
                 selectedLine = this
                 nameField.text(file.nameWithoutExtension)
                 true
@@ -207,18 +235,53 @@ class SelectionExportScreen(
         val hover: Text,
         val extension: String,
     ) {
-        StructureBlock(Text.literal("Structure Block"), Text.empty(), SelectionImportScreen.EXTENSION_NBT),
-        Schematics(Text.literal("Schematics"), Text.empty(), SelectionImportScreen.EXTENSION_SCHEMATIC),
-        Litematica(Text.literal("Litematica"), Text.empty(), SelectionImportScreen.EXTENSION_LITEMATICA),
+        StructureBlock(Text.literal("Structure Block"), Text.empty(), SelectionImportScreen.EXTENSION_NBT) {
+            override fun export(path: Path, head: TrackedStructure) {
+                val identifier = Identifier(head.name)
+                TODO()
+            }
+        },
+        Schematics(Text.literal("Schematics"), Text.empty(), SelectionImportScreen.EXTENSION_SCHEMATIC) {
+            override fun export(path: Path, head: TrackedStructure) {
+                SchematicIO.save(path, head)
+            }
+        },
+        Litematica(Text.literal("Litematica"), Text.empty(), SelectionImportScreen.EXTENSION_LITEMATICA) {
+            override fun export(path: Path, head: TrackedStructure) {
+                val structure = CuboidStructure(head.name, 0, 0, 0)
+                val minX = head.blocks.keys.minOf { it.x }
+                val minY = head.blocks.keys.minOf { it.y }
+                val minZ = head.blocks.keys.minOf { it.z }
+                head.blocks.forEach { (pos, state) ->
+                    structure.setBlockState(
+                        RelativeCoordinate(
+                            x = pos.x - minX,
+                            y = pos.y - minY,
+                            z = pos.z - minZ
+                        ), state
+                    )
+                    if (pos.x - minX + 1 > structure.xSize) structure.xSize = pos.x - minX + 1
+                    if (pos.y - minY + 1 > structure.ySize) structure.ySize = pos.y - minY + 1
+                    if (pos.z - minZ + 1 > structure.zSize) structure.zSize = pos.z - minZ + 1
+                }
+                LitematicaIO.save(path, head, false)
+            }
+        },
         LitematicaMultiBox(
             Text.literal("Litematica Multi-Box"),
             Text.empty(),
             SelectionImportScreen.EXTENSION_LITEMATICA
-        ),
-        RVCArchive(Text.literal("RVC Archive"), Text.empty(), SelectionImportScreen.EXTENSION_RVC_ARCHIVE);
+        ) {
+            override fun export(path: Path, head: TrackedStructure) {
+                LitematicaIO.save(path, head, true)
+            }
+        },
+        RVCArchive(Text.literal("RVC Archive"), Text.empty(), SelectionImportScreen.EXTENSION_RVC_ARCHIVE) {
+            override fun export(path: Path, head: TrackedStructure) {
+                TODO("Not yet implemented")
+            }
+        };
 
-        fun export(path: Path) {
-            TODO()
-        }
+        abstract fun export(path: Path, head: TrackedStructure)
     }
 }

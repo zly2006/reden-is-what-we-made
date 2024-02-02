@@ -62,6 +62,14 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
                 Usually you should do this after server ip change.
             """.trimIndent()))
         }
+        private val detailsButton: ButtonComponent = Components.button(Text.literal("Details")) {
+            onFunctionUsed("open_rvcStructure")
+            MinecraftClient.getInstance().setScreen(SelectionInfoScreen(repository, repository.head()))
+        }
+        private val exportButton: ButtonComponent = Components.button(Text.literal("Export")) {
+            onFunctionUsed("export_rvcStructure")
+            MinecraftClient.getInstance().setScreen(SelectionExportScreen(this@SelectionListScreen, repository))
+        }
         val left = Containers.horizontalFlow(Sizing.content(), Sizing.content())
         val right = Containers.horizontalFlow(Sizing.content(), Sizing.content())
         private fun checkActive() {
@@ -94,18 +102,8 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
                 repository.delete()
                 parent!!.removeChild(this)
             })
-            right.child(Components.button(Text.literal("Details")) {
-                onFunctionUsed("open_rvcStructure")
-                MinecraftClient.getInstance().setScreen(SelectionInfoScreen(repository, repository.head()))
-            }.apply {
-                active(false)
-            })
-            right.child(Components.button(Text.literal("Export")) {
-                onFunctionUsed("export_rvcStructure")
-                MinecraftClient.getInstance().setScreen(SelectionExportScreen(this@SelectionListScreen, repository))
-            }.apply {
-                active(false)
-            })
+            right.child(detailsButton)
+            right.child(exportButton)
             right.child(saveButton)
             right.child(enableForWorldButton)
         }

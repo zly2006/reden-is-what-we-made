@@ -31,6 +31,17 @@ class SelectionInfoScreen(
             .verticalAlignment(VerticalAlignment.TOP)
 
         rootComponent.child(Components.label(Text.literal("Name: ${structure.name}")))
-        rootComponent.child(Components.label(Text.literal("Head: ${repository.headHash} on ${repository.headBranch}")))
+        rootComponent.child(
+            Components.label(
+                Text.literal(
+                    "Head: ${
+                        repository.headHash.substring(
+                            0,
+                            7
+                        )
+                    } on ${repository.headBranch}"
+                )
+            )
+        )
     }
 }

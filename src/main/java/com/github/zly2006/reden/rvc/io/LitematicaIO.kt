@@ -15,11 +15,15 @@ import kotlin.io.path.name
 
 open class LitematicaIO: StructureIO {
     override fun save(path: Path, structure: IStructure) {
+        save(path, structure, false)
+    }
+
+    fun save(path: Path, structure: IStructure, multiBox: Boolean) {
         val litematica: LitematicaSchematic
         if (!path.exists()) {
             path.createDirectories()
         }
-        if (structure is TrackedStructure) {
+        if (structure is TrackedStructure && multiBox) {
             val boxes = structure.splitCuboids()
             litematica = LitematicaSchematic.createEmptySchematic(
                 AreaSelection().apply {
@@ -110,7 +114,7 @@ open class LitematicaIO: StructureIO {
         litematica.metadata.timeCreated = System.currentTimeMillis()
         litematica.writeToFile(
             path.toFile(),
-            "Reden-Exported-${litematica.metadata.name}",
+            structure.name,
             true,
         )
     }

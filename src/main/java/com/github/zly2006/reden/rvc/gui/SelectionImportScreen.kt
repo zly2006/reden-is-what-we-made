@@ -45,6 +45,10 @@ class SelectionImportScreen(
             fileType.import(it.file)?.let { repository ->
                 repository.setWorld()
                 client!!.data.rvcStructures[repository.name] = repository
+                selectedRepository = repository
+
+                close()
+                client!!.setScreen(SelectionListScreen())
             }
         }
     }.apply {
