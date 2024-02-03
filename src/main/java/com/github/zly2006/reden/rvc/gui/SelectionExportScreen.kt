@@ -1,8 +1,6 @@
 package com.github.zly2006.reden.rvc.gui
 
 import com.github.zly2006.reden.Reden
-import com.github.zly2006.reden.rvc.CuboidStructure
-import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.rvc.io.LitematicaIO
 import com.github.zly2006.reden.rvc.io.SchematicIO
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
@@ -26,6 +24,7 @@ import java.awt.Color
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.absolute
 
 private const val WIKI = "https://wiki.redenmc.com/RVC/导入导出#导出"
 
@@ -33,9 +32,22 @@ class SelectionExportScreen(
     val parent: Screen? = null,
     val rvc: RvcRepository,
 ) : BaseOwoScreen<FlowLayout>() {
+    private var selectedType: ExportType = ExportType.Litematica
+        set(value) {
+            field = value
+            extensionLabel.text(Text.literal(".${value.extension}"))
+            onNameFieldChanged()
 
+            val parent = optionsPanel?.parent() as? FlowLayout?
+            optionsPanel?.remove()
+            refreshOptions()
+            parent?.child(optionsPanel!!)
+        }
+    private val statusLabel = Components.label(Text.literal("Export to ${selectedType.displayName.string} type"))
+    private val extensionLabel = Components.label(Text.literal(".${selectedType.extension}"))
     private var optionsPanel: FlowLayout? = null
     private val exportButton: ButtonComponent = Components.button(Text.literal("Export")) {
+        val timeStart = System.currentTimeMillis()
         val path = if (selectedType == ExportType.StructureBlock) {
             client!!.server?.session?.directory?.path
         } else Path(SelectionImportScreen.FOLDER_SCHEMATICS)
@@ -44,6 +56,7 @@ class SelectionExportScreen(
                 name = nameField.text
             })
             close()
+            Reden.LOGGER.info("$selectedType Exported to ${path.absolute()} in ${System.currentTimeMillis() - timeStart}ms")
         }
     }
     private val nameField = Components.textBox(Sizing.fixed(100)).apply {
@@ -70,21 +83,8 @@ class SelectionExportScreen(
         }
     }
 
-    var selectedType: ExportType = ExportType.Litematica
-        set(value) {
-            field = value
-            extensionLabel.text(Text.literal(".${value.extension}"))
-            onNameFieldChanged()
-
-            val parent = optionsPanel?.parent() as? FlowLayout?
-            optionsPanel?.remove()
-            refreshOptions()
-            parent?.child(optionsPanel!!)
-        }
     lateinit var selectedButton: ButtonComponent
     var selectedLine: FileLine? = null
-    private val statusLabel = Components.label(Text.literal("Export to ${selectedType.displayName.string} type"))
-    private val extensionLabel = Components.label(Text.literal(".${selectedType.extension}"))
     private val multiBoxCheckBox: CheckboxComponent =
         Components.checkbox(ExportType.LitematicaMultiBox.displayName).apply {
         checked(false)
@@ -248,22 +248,6 @@ class SelectionExportScreen(
         },
         Litematica(Text.literal("Litematica"), Text.empty(), SelectionImportScreen.EXTENSION_LITEMATICA) {
             override fun export(path: Path, head: TrackedStructure) {
-                val structure = CuboidStructure(head.name, 0, 0, 0)
-                val minX = head.blocks.keys.minOf { it.x }
-                val minY = head.blocks.keys.minOf { it.y }
-                val minZ = head.blocks.keys.minOf { it.z }
-                head.blocks.forEach { (pos, state) ->
-                    structure.setBlockState(
-                        RelativeCoordinate(
-                            x = pos.x - minX,
-                            y = pos.y - minY,
-                            z = pos.z - minZ
-                        ), state
-                    )
-                    if (pos.x - minX + 1 > structure.xSize) structure.xSize = pos.x - minX + 1
-                    if (pos.y - minY + 1 > structure.ySize) structure.ySize = pos.y - minY + 1
-                    if (pos.z - minZ + 1 > structure.zSize) structure.zSize = pos.z - minZ + 1
-                }
                 LitematicaIO.save(path, head, false)
             }
         },

@@ -71,6 +71,9 @@ open class LitematicaIO: StructureIO {
             }
         }
         else {
+            val structure = if (structure is TrackedStructure) {
+                structure.asCuboid()
+            } else structure
             val boxName = "RVC Structure"
             litematica = LitematicaSchematic.createEmptySchematic(
                 AreaSelection().apply {
@@ -92,7 +95,8 @@ open class LitematicaIO: StructureIO {
                 for (y in 0 until structure.ySize) {
                     for (z in 0 until structure.zSize) {
                         val pos = RelativeCoordinate(x, y, z)
-                        subRegionContainer.set(x, y, z, structure.getBlockState(pos))
+                        val state = structure.getBlockState(pos)
+                        subRegionContainer.set(x, y, z, state)
                         val be = structure.getBlockEntityData(pos)
                         if (be != null) {
                             blockEntityMap[pos.blockPos(BlockPos.ORIGIN)] = be

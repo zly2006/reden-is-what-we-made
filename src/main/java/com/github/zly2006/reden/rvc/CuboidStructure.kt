@@ -5,9 +5,6 @@ import net.minecraft.world.World
 
 class CuboidStructure(
     name: String,
-    override var xSize: Int,
-    override var ySize: Int,
-    override var zSize: Int
 ) : ReadWriteStructure(name), PositionIterable, SizeMutableStructure {
     override val blockIterator = object : Iterator<RelativeCoordinate> {
         private var x = 0

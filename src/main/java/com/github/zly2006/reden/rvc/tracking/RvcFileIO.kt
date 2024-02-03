@@ -172,7 +172,7 @@ object RvcFileIO: StructureIO {
     }
 
     private fun toNbtString(nbt: NbtCompound) =
-        NbtHelper.toNbtProviderString(nbt).replace("\n", "").replace(" ", "")
+        NbtHelper.toNbtProviderString(nbt).replace("\n", "")
 
     /**
      * Load a [TrackedStructure] from a RVC file.

@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.rvc.gui
 
 import com.github.zly2006.reden.malilib.HUD_POSITION
+import com.github.zly2006.reden.utils.holdingToolItem
 import fi.dy.masa.malilib.config.HudAlignment
 import fi.dy.masa.malilib.interfaces.IRenderer
 import fi.dy.masa.malilib.render.RenderUtils
@@ -22,8 +23,9 @@ object RvcHudRenderer: IRenderer {
     }
 
     override fun onRenderGameOverlayPost(drawContext: DrawContext) {
-        updateLines()
         val mc = MinecraftClient.getInstance()
+        if (mc.player?.holdingToolItem != null) return
+        updateLines()
         val allLines = mutableListOf<OrderedText>()
         lines.forEach { (name, lines) ->
             if (conditionMap[name]?.invoke() != false) {

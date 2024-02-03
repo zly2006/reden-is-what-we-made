@@ -6,6 +6,7 @@ import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.rvc.*
 import com.github.zly2006.reden.utils.setBlockNoPP
 import net.minecraft.block.Block
+import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
@@ -22,6 +23,7 @@ import net.minecraft.world.tick.ChunkTickScheduler
 import net.minecraft.world.tick.OrderedTick
 import net.minecraft.world.tick.TickPriority
 import org.jetbrains.annotations.Contract
+import java.nio.file.Path
 import java.util.*
 
 /**
@@ -31,9 +33,6 @@ class TrackedStructure(
     name: String,
     var side: NetworkSide
 ) : ReadWriteStructure(name), IPlacement, PositionIterable {
-    override var xSize: Int = 0
-    override var ySize: Int = 0
-    override var zSize: Int = 0
     override var enabled: Boolean = true
     override val structure = this
     override lateinit var world: World
@@ -370,14 +369,22 @@ class TrackedStructure(
 
     override fun clearArea() {
         clearSchedules()
-        blockIterator.forEach { pos ->
-            world.setBlockNoPP(pos.blockPos(origin), Blocks.AIR.defaultState, 0)
+        blockIterator.forEach {
+            world.setBlockNoPP(it.blockPos(origin), Blocks.AIR.defaultState, 0)
+        }
+        blocks.keys.forEach {
+            world.setBlockNoPP(it.blockPos(origin), Blocks.AIR.defaultState, 0)
         }
     }
 
     override fun paste() {
-        clearArea()
-        super.paste()
+        blocks.forEach { (pos, state) ->
+            world.setBlockNoPP(pos.blockPos(origin), state, 0)
+        }
+        blockEntities.forEach { (pos, nbt) ->
+            world.getBlockEntity(pos.blockPos(origin))?.readNbt(nbt)
+        }
+        // todo
     }
 
     fun clearSchedules() {
@@ -490,5 +497,55 @@ class TrackedStructure(
         dirty = true
         removeTrackpoint(trackPoint.pos)
         trackPoints.add(trackPoint)
+    }
+
+    fun asCuboid(): IStructure {
+        return object : IStructure {
+            override var name = this@TrackedStructure.name
+            override val xSize: Int get() = this@TrackedStructure.xSize
+            override val ySize: Int get() = this@TrackedStructure.ySize
+            override val zSize: Int get() = this@TrackedStructure.zSize
+            override fun save(path: Path) {}
+            override fun load(path: Path) {}
+            override fun isInArea(pos: RelativeCoordinate): Boolean {
+                return this@TrackedStructure.isInArea(
+                    RelativeCoordinate(
+                        pos.x + minX,
+                        pos.y + minY,
+                        pos.z + minZ
+                    )
+                )
+            }
+
+            override fun createPlacement(world: World, origin: BlockPos): IPlacement {
+                return this@TrackedStructure
+            }
+
+            override fun getBlockEntityData(pos: RelativeCoordinate): NbtCompound? {
+                return this@TrackedStructure.getBlockEntityData(
+                    RelativeCoordinate(
+                        pos.x + minX,
+                        pos.y + minY,
+                        pos.z + minZ
+                    )
+                )
+            }
+
+            override fun getBlockState(pos: RelativeCoordinate): BlockState {
+                return this@TrackedStructure.getBlockState(RelativeCoordinate(pos.x + minX, pos.y + minY, pos.z + minZ))
+            }
+
+            override fun getOrCreateBlockEntityData(pos: RelativeCoordinate): NbtCompound {
+                return this@TrackedStructure.getOrCreateBlockEntityData(
+                    RelativeCoordinate(
+                        pos.x + minX,
+                        pos.y + minY,
+                        pos.z + minZ
+                    )
+                )
+            }
+
+            override val entities = this@TrackedStructure.entities
+        }
     }
 }
