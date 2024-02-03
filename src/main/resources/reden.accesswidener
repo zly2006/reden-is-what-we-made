@@ -82,7 +82,6 @@ accessible method net/minecraft/server/world/ChunkTicketManager addTicket (JLnet
 accessible method net/minecraft/util/thread/ThreadExecutor runTasks ()V
 accessible field net/minecraft/server/world/ServerEntityManager managedStatuses Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
 accessible field net/minecraft/server/world/ServerEntityManager cache Lnet/minecraft/world/entity/SectionedEntityCache;
-accessible method net/minecraft/server/world/ThreadedAnvilChunkStorage loadChunk (Lnet/minecraft/util/math/ChunkPos;)Ljava/util/concurrent/CompletableFuture;
 accessible field net/minecraft/client/MinecraftClient userApiService Lcom/mojang/authlib/minecraft/UserApiService;
 accessible field net/minecraft/screen/HopperScreenHandler inventory Lnet/minecraft/inventory/Inventory;
 accessible field net/minecraft/block/entity/HopperBlockEntity transferCooldown I
