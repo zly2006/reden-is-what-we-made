@@ -8,7 +8,11 @@ import com.github.zly2006.reden.utils.setBlockNoPP
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
+import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityType
+import net.minecraft.entity.SpawnReason
+import net.minecraft.entity.mob.MobEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.fluid.Fluid
 import net.minecraft.nbt.NbtCompound
@@ -375,6 +379,10 @@ class TrackedStructure(
         blocks.keys.forEach {
             world.setBlockNoPP(it.blockPos(origin), Blocks.AIR.defaultState, 0)
         }
+        entities.forEach {
+            (world as? ClientWorld)?.entityLookup?.get(it.key)?.discard()
+            (world as? ServerWorld)?.getEntity(it.key)?.discard()
+        }
     }
 
     override fun paste() {
@@ -383,6 +391,29 @@ class TrackedStructure(
         }
         blockEntities.forEach { (pos, nbt) ->
             world.getBlockEntity(pos.blockPos(origin))?.readNbt(nbt)
+        }
+        entities.forEach {
+            val entity = EntityType.getEntityFromNbt(it.value, world).get()
+            world.spawnEntity(entity)
+            entity.refreshPositionAndAngles(
+                entity.x + origin.x,
+                entity.y + origin.y,
+                entity.z + origin.z,
+                entity.yaw,
+                entity.pitch
+            )
+            if (world is ServerWorld) {
+                (entity as? MobEntity)?.initialize(
+                    world as ServerWorld,
+                    world.getLocalDifficulty(entity.blockPos),
+                    SpawnReason.STRUCTURE,
+                    null,
+                    it.value
+                )
+                (world as ServerWorld).spawnEntityAndPassengers(entity)
+            } else {
+                world.spawnEntity(entity)
+            }
         }
         // todo
     }
@@ -467,7 +498,21 @@ class TrackedStructure(
             .filter {
                 it !is PlayerEntity
             }.forEach {
-                entities[it.uuid] = it.writeNbt(NbtCompound())
+                it.refreshPositionAndAngles(
+                    it.x - origin.x,
+                    it.y - origin.y,
+                    it.z - origin.z,
+                    it.yaw,
+                    it.pitch
+                )
+                entities[it.uuid] = NbtCompound().apply(it::saveSelfNbt)
+                it.refreshPositionAndAngles(
+                    it.x + origin.x,
+                    it.y + origin.y,
+                    it.z + origin.z,
+                    it.yaw,
+                    it.pitch
+                )
             }
     }
 
