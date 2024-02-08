@@ -116,6 +116,7 @@ open class LitematicaIO: StructureIO {
         litematica.metadata.description = "Reden Exported to Litematica"
         litematica.metadata.name = structure.name
         litematica.metadata.timeCreated = System.currentTimeMillis()
+        litematica.subRegionCount
         litematica.writeToFile(
             path.toFile(),
             structure.name,

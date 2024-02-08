@@ -2,6 +2,7 @@ package com.github.zly2006.reden
 
 import com.github.zly2006.reden.rvc.CuboidStructure
 import com.github.zly2006.reden.rvc.RelativeCoordinate
+import com.github.zly2006.reden.rvc.blockPos
 import com.github.zly2006.reden.rvc.io.LitematicaIO
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
@@ -10,6 +11,7 @@ import com.github.zly2006.reden.utils.ResourceLoader
 import fi.dy.masa.litematica.schematic.LitematicaSchematic
 import net.minecraft.block.Blocks
 import net.minecraft.network.NetworkSide
+import net.minecraft.util.math.BlockPos
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
@@ -54,8 +56,12 @@ class LitematicaIOTest {
         LitematicaIO.save(file.parent, structure)
         val litematica = LitematicaSchematic.createFromFile(file.parent.toFile(), file.name)!!
 
-        assert(structure.blocks.size == litematica.metadata.totalBlocks) {
-            "Expected ${structure.blocks.size} blocks, got ${litematica.metadata.totalBlocks}"
+        structure.blocks.forEach { (coord, state) ->
+            val pos = coord.blockPos(BlockPos.ORIGIN)
+            val got = litematica.getSubRegionContainer("RVC Structure")!!.get(pos.x, pos.y, pos.z)
+            assert(got == state) {
+                "Expected $state at $pos, got $got"
+            }
         }
     }
 
