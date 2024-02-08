@@ -1,12 +1,16 @@
 package com.github.zly2006.reden
 
+import com.github.zly2006.reden.rvc.CuboidStructure
+import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.rvc.io.LitematicaIO
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.rvc.tracking.WorldInfo
 import com.github.zly2006.reden.utils.ResourceLoader
 import fi.dy.masa.litematica.schematic.LitematicaSchematic
+import net.minecraft.block.Blocks
 import net.minecraft.network.NetworkSide
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
@@ -16,10 +20,18 @@ import kotlin.io.path.writeBytes
 class LitematicaIOTest {
     private val file = ResourceLoader.loadBytes("schematics/8gt_Multi_Box_Sorter_Testing.litematic")!!
 
+    companion object {
+        @BeforeAll
+        @JvmStatic
+        fun setup() {
+            Path("run/rvc/test").toFile().deleteRecursively()
+            setupMinecraftRegistries()
+        }
+    }
+
     @Test
     fun testImport_Blocks() {
-        setupMinecraftRegistries()
-        val file = Path("run", "rvc", "test", "schematics", "test.litematic").createParentDirectories()
+        val file = Path("run/rvc/test/schematics/test.litematic").createParentDirectories()
         file.writeBytes(this.file)
         val litematica = LitematicaSchematic.createFromFile(file.parent.toFile(), file.name)!!
         val repository = RvcRepository.create("test", WorldInfo(), NetworkSide.CLIENTBOUND)
@@ -27,11 +39,28 @@ class LitematicaIOTest {
         LitematicaIO.load(file, structure)
         repository.commit(structure, "import", null)
 
-        assert(structure.blocks.size == litematica.metadata.totalBlocks)
+        assert(structure.blocks.size == litematica.metadata.totalBlocks) {
+            "Expected ${litematica.metadata.totalBlocks} blocks, got ${structure.blocks.size}"
+        }
     }
 
-    //    @Test
+    @Test
     fun testExport_Block() {
+        val file = Path("run/rvc/test/schematics/test.litematic").createParentDirectories()
+        val structure = CuboidStructure("test")
+        for (i in 0..<100) {
+            structure.blocks[RelativeCoordinate(i, i, i)] = Blocks.ALLIUM.defaultState
+        }
+        LitematicaIO.save(file.parent, structure)
+        val litematica = LitematicaSchematic.createFromFile(file.parent.toFile(), file.name)!!
+
+        assert(structure.blocks.size == litematica.metadata.totalBlocks) {
+            "Expected ${structure.blocks.size} blocks, got ${litematica.metadata.totalBlocks}"
+        }
+    }
+
+    //@Test
+    fun testExport_TrackedStructure() {
         TODO()
     }
 }

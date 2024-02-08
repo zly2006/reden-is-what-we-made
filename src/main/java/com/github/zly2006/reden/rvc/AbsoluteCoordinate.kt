@@ -2,7 +2,7 @@ package com.github.zly2006.reden.rvc
 
 import net.minecraft.util.math.BlockPos
 
-class AbsoluteCoordinate(
+data class AbsoluteCoordinate(
     override val x: Int,
     override val y: Int,
     override val z: Int

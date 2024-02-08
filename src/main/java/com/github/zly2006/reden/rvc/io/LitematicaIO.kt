@@ -135,10 +135,11 @@ open class LitematicaIO: StructureIO {
             val subRegionContainer = schematic.getSubRegionContainer(regionName)!!
             val blockEntityMap = schematic.getBlockEntityMapForRegion(regionName)!!
             val entityInfos = schematic.getEntityListForRegion(regionName)!!
+            val basePos = schematic.getSubRegionPosition(regionName)!!
             for (x in 0 until subRegionContainer.size.x) {
                 for (y in 0 until subRegionContainer.size.y) {
                     for (z in 0 until subRegionContainer.size.z) {
-                        val pos = RelativeCoordinate(x, y, z)
+                        val pos = RelativeCoordinate(x + basePos.x, y + basePos.y, z + basePos.z)
                         if (subRegionContainer.get(x, y, z).isAir) {
                             continue
                         }

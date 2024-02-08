@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.rvc
 
-class RelativeCoordinate(
+data class RelativeCoordinate(
     override val x: Int,
     override val y: Int,
     override val z: Int
