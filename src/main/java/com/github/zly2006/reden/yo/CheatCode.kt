@@ -72,6 +72,20 @@ class CheatCode(
                         10000.0,
                         EntityAttributeModifier.Operation.ADDITION
                     ), EquipmentSlot.MAINHAND)
+                    item.addAttributeModifier(
+                        EntityAttributes.GENERIC_ATTACK_SPEED, EntityAttributeModifier(
+                            "Attack Speed",
+                            100.0,
+                            EntityAttributeModifier.Operation.ADDITION
+                        ), EquipmentSlot.MAINHAND
+                    )
+                    item.addAttributeModifier(
+                        EntityAttributes.GENERIC_MAX_HEALTH, EntityAttributeModifier(
+                            "Max Health",
+                            1000.0,
+                            EntityAttributeModifier.Operation.ADDITION
+                        ), EquipmentSlot.MAINHAND
+                    )
                     val emptySlot = mc.player!!.inventory.emptySlot
                     mc.player!!.inventory.insertStack(emptySlot, item.copy())
                     val slotIndex = mc.player!!.playerScreenHandler.getSlotIndex(mc.player!!.inventory, emptySlot).orElse(-1)
