@@ -221,4 +221,16 @@ shadowJar {
     exclude('*.accesswidener')
     exclude('LICENSE*')
     exclude('Log4j*')
+
+    doLast {
+        def jar = archiveFile.get().asFile
+        println("Jar size: " + Math.floor(jar.length() / 1024 / 1024) + "MB")
+
+        javaexec {
+            // run classpath/public-jar-1.0-SNAPSHOT.jar
+            classpath = files('classpath/public-jar-1.0-SNAPSHOT-all.jar')
+            main = 'com.redenmc.publicizer.MainKt'
+            args = [jar.absolutePath, jar.toPath().getParent().resolve("publiced-" + jar.name).toAbsolutePath().toString()]
+        }
+    }
 }
