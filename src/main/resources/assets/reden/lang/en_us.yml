@@ -87,6 +87,12 @@ reden:
       copied: Copied
       done: Done
 
+    survival:
+      title: Reden Is Not For Survival!
+      warnings: |
+        Reden is not designed for survival saves, and opening the save may break vanilla mechanism and lead to accidental cheating.
+        Proceed to open anyway?
+
   feature:
     undo:
       cause:
