@@ -17,6 +17,9 @@ import org.eclipse.jgit.api.InitCommand
 import org.eclipse.jgit.lib.PersonIdent
 import org.jetbrains.annotations.Contract
 import java.nio.file.Path
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.exists
@@ -122,6 +125,21 @@ class RvcRepository(
                 .replace("\${name}", name)
         )
         git.add().addFilepattern("README.md").call()
+    }
+
+    fun createLicense(license: String, author: String? = null) {
+        val year = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy"))
+        val content = ResourceLoader.loadString("assets/rvc/licenses/$license.txt")
+            .replace("\${year}", year)
+            .replace("\${year-start}", year)
+            .replace("\${author}", author ?: "")
+
+        if (git.repository.workTree.resolve("LICENSE").exists()) {
+            error("LICENSE already exists")
+        }
+        git.repository.workTree.resolve("LICENSE").writeText(content)
+
+        TODO()
     }
 
     fun setWorld() {
