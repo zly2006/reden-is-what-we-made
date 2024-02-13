@@ -116,6 +116,8 @@ public class RedenClient implements ClientModInitializer {
                             .executes(context -> {
                                 MinecraftClient client = MinecraftClient.getInstance();
                                 client.gameRenderer.showFloatingItem(ItemStackArgumentType.getItemStackArgument(context, "item").createStack(1, false));
+                                assert client.world != null;
+                                assert client.player != null;
                                 client.world.playSound(client.player.getX(), client.player.getY(), client.player.getZ(), SoundEvents.ITEM_TOTEM_USE, client.player.getSoundCategory(), 1.0F, 1.0F, false);
                                 return 1;
                             }))).then(ClientCommandManager.literal("luck-today").executes(context -> {

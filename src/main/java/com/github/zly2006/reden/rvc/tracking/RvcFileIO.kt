@@ -5,8 +5,9 @@ import com.github.zly2006.reden.rvc.IWritableStructure
 import com.github.zly2006.reden.rvc.io.Palette
 import com.github.zly2006.reden.rvc.io.StructureIO
 import com.github.zly2006.reden.rvc.tracking.reader.RvcReaderV1
+import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtCompound
-import net.minecraft.nbt.NbtHelper
+import net.minecraft.nbt.visitor.StringNbtWriter
 import net.minecraft.registry.Registries
 import java.nio.file.Path
 import kotlin.io.path.notExists
@@ -14,7 +15,7 @@ import kotlin.io.path.notExists
 /**
  * Save and load [TrackedStructure]s into and from RVC files.
  */
-object RvcFileIO: StructureIO {
+object RvcFileIO : StructureIO {
     const val CURRENT_VERSION = "1.0.0"
     private val RVC_HEADER = IRvcFileReader.RvcHeader(
         mutableMapOf(
@@ -100,9 +101,9 @@ object RvcFileIO: StructureIO {
         // com.github.zly2006.reden.rvc.ReadWriteStructure
         structure.blocks.entries.joinToString("\n") { (pos, state) ->
             if (usePalette)
-                "${pos.x},${pos.y},${pos.z},${palette.getId(toNbtString(NbtHelper.fromBlockState(state)))}"
+                "${pos.x},${pos.y},${pos.z},${palette.getId(toNbtString(state))}"
             else
-                "${pos.x},${pos.y},${pos.z},${toNbtString(NbtHelper.fromBlockState(state))}"
+                "${pos.x},${pos.y},${pos.z},${toNbtString(state)}"
         }.let { data ->
             writeRvcFile(
                 path, "blocks", IRvcFileReader.RvcHeader(
@@ -172,7 +173,14 @@ object RvcFileIO: StructureIO {
     }
 
     private fun toNbtString(nbt: NbtCompound) =
-        NbtHelper.toNbtProviderString(nbt).replace("\n", "")
+        StringNbtWriter().apply(nbt)
+
+    private fun toNbtString(state: BlockState) =
+        Registries.BLOCK.getId(state.block).toString() + state.properties.map {
+            it to state[it]
+        }.joinToString(",", "[", "]") {
+            "${it.first.name}=${it.second}"
+        }
 
     /**
      * Load a [TrackedStructure] from a RVC file.

@@ -7,6 +7,7 @@ import com.github.zly2006.reden.rvc.tracking.RvcDataReader
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import net.minecraft.block.BlockState
+import net.minecraft.command.argument.BlockArgumentParser
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.registry.Registries
@@ -18,19 +19,19 @@ import java.util.*
 class RvcReaderV1(
     override val header: IRvcFileReader.RvcHeader
 ) : IRvcFileReader {
+    abstract class FuckKotlin : Comparable<FuckKotlin> {
+
+    }
+
     override fun readBlocksData(data: List<String>, palette: Palette): Map<RelativeCoordinate, BlockState> {
         val usePalette = header.metadata["Palette"]?.toBoolean() ?: false
         val blocks = mutableMapOf<RelativeCoordinate, BlockState>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
             val blockPos = RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
-            val blockState = NbtHelper.toBlockState(
-                Registries.BLOCK.readOnlyWrapper,
-                NbtHelper.fromNbtProviderString(
-                    if (usePalette) palette.getName(rvcData.next().toInt()) else rvcData.readGreedy()
-                )
-            )
-            blocks[blockPos] = blockState
+            val blockData = if (usePalette) palette.getName(rvcData.next().toInt()) else rvcData.readGreedy()
+
+            blocks[blockPos] = BlockArgumentParser.block(Registries.BLOCK.readOnlyWrapper, blockData, false).blockState
         }
         return blocks
     }

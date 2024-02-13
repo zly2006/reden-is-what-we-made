@@ -212,6 +212,11 @@ artifactory {
 }
 
 shadowJar {
+    /**
+     * Note: use of this shadowJar task is on your own risk.
+     * It contains minecraft classes so make sure to not distribute it.
+     * See Mojang's EULA for more information.
+     */
     zip64 true
     exclude('META-INF/**')
     exclude('kotlin/**')
@@ -221,6 +226,8 @@ shadowJar {
     exclude('*.accesswidener')
     exclude('LICENSE*')
     exclude('Log4j*')
+    exclude("mixin/**")
+    exclude("mappings/**")
 
     doLast {
         def jar = archiveFile.get().asFile

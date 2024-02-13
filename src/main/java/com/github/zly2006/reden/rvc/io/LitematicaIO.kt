@@ -147,6 +147,11 @@ open class LitematicaIO: StructureIO {
                         structure.setBlockState(pos, subRegionContainer.get(x, y, z))
                         val be = blockEntityMap[pos.blockPos(BlockPos.ORIGIN)]
                         if (be != null) {
+                            // Note: litematica may add some unnecessary data
+                            be.remove("x")
+                            be.remove("y")
+                            be.remove("z")
+                            be.remove("id")
                             structure.setBlockEntityData(pos, be)
                         }
                     }
