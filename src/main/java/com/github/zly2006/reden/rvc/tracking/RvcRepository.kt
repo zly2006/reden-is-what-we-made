@@ -2,6 +2,7 @@ package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
+import com.github.zly2006.reden.task.taskStack
 import com.github.zly2006.reden.utils.ResourceLoader
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
@@ -53,8 +54,7 @@ class RvcRepository(
         this.createReadmeIfNotExists()
         val path = git.repository.workTree.toPath()
         RvcFileIO.save(path, structure)
-        git.add().addFilepattern(".").call()
-        val cmd = git.commit()
+        val cmd = git.commit().setAll(true) // git commit -a
         if (committer != null && author == null) {
             cmd.setAuthor(committer.nameForScoreboard, committer.uuid.toString() + "@mc-player.redenmc.com")
         }
