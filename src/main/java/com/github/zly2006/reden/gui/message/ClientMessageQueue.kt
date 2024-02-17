@@ -17,7 +17,7 @@ import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 
 object ClientMessageQueue {
-    private val tempDontShow = mutableSetOf<String>()
+    private val temporaryDontShow = mutableSetOf<String>()
     private val dontShowAgain = mutableSetOf<String>()
     private val dontShowAgainConfig = FileUtils.getConfigDirectory().resolve("reden/notifications_dont_show_again.txt")
 
@@ -27,7 +27,7 @@ object ClientMessageQueue {
                 dontShowAgain.add(it)
             }
         }
-        tempDontShow.addAll(dontShowAgain)
+        temporaryDontShow.addAll(dontShowAgain)
     }
 
     private val toastType = SystemToast.Type()
@@ -110,14 +110,14 @@ object ClientMessageQueue {
     }
 
     fun onceNotification(key: String, icon: Identifier, title: Text, body: Text, buttons: List<Button>): Int {
-        if (tempDontShow.contains(key)) return -1
-        tempDontShow.add(key)
+        if (temporaryDontShow.contains(key)) return -1
+        temporaryDontShow.add(key)
         return addNotification(key, icon, title, body, buttons)
     }
 
     fun dontShowAgain(key: String) {
         dontShowAgain.add(key)
-        tempDontShow.add(key)
+        temporaryDontShow.add(key)
         dontShowAgainConfig.writeText(dontShowAgain.joinToString("\n"))
     }
     fun remove(id: Int) {

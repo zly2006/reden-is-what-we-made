@@ -46,6 +46,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
         }
         private val saveButton: ButtonComponent = Components.button(Text.literal("Save")) {
             onFunctionUsed("commit_rvcStructure")
+            repository.head().collectFromWorld()
             // todo: commit message
             repository.commit(repository.head(), "RedenMC RVC Commit", MinecraftClient.getInstance().player)
             it.active(false)

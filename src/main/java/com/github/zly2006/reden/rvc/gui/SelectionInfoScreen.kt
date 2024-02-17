@@ -6,11 +6,9 @@ import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
-import io.wispforest.owo.ui.core.HorizontalAlignment
-import io.wispforest.owo.ui.core.OwoUIAdapter
-import io.wispforest.owo.ui.core.Surface
-import io.wispforest.owo.ui.core.VerticalAlignment
+import io.wispforest.owo.ui.core.*
 import net.minecraft.text.Text
+import org.eclipse.jgit.revwalk.RevCommit
 
 /**
  * Edit trackpoints
@@ -22,6 +20,12 @@ class SelectionInfoScreen(
     val repository: RvcRepository,
     val structure: TrackedStructure
 ): BaseOwoScreen<FlowLayout>() {
+    inner class ReversionLine(
+        val commit: RevCommit
+    ) : FlowLayout(Sizing.fill(), Sizing.content(), Algorithm.HORIZONTAL) {
+
+    }
+
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
     override fun build(rootComponent: FlowLayout) {

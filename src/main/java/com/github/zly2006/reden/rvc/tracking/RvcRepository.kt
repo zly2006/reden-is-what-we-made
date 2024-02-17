@@ -160,6 +160,11 @@ class RvcRepository(
         }
     }
 
+    fun startPlacing() {
+        setWorld()
+        taskStack.add(TODO("Not yet implemented"))
+    }
+
     val headHash: String get() = git.repository.resolve("HEAD").name()
     val headBranch: String get() = git.repository.branch
 
