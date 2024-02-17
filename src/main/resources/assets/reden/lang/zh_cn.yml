@@ -58,6 +58,10 @@ reden:
       warnings: |
         Reden不是为生存存档设计的，打开该存档有可能会破坏原版游戏机制或造成意外作弊。
         是否继续打开？
+      risks: |
+        您现在正在使用Reden打开生存存档，我们强烈不推荐这么做，因为这可能会破坏原版游戏机制或造成意外作弊。
+      more: 更多信息
+      dismiss: 不再显示
 
   chat:
     about: 关于 SuperRight

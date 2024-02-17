@@ -90,8 +90,12 @@ reden:
     survival:
       title: Reden Is Not For Survival!
       warnings: |
-        Reden is not designed for survival saves, and opening the save may break vanilla mechanism and lead to accidental cheating.
+        Reden is not designed for survival saves, and opening the save may break vanilla mechanisms and lead to accidental cheating.
         Proceed to open anyway?
+      risks: |
+        You are opening survival saves with Reden, which is strongly unrecommended due to the possibility of breaking vanilla mechanisms and leading to accidental cheating.
+      more: Read More
+      dismiss: Don't show again
 
   feature:
     undo:
