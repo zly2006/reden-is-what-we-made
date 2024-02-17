@@ -184,6 +184,11 @@ reden:
       .: maxRenderDistance
       comment: |-
 
+    survivalSaveProtection:
+      .: survivalSaveProtection
+      comment: |-
+        Require manual confirmation when trying to open survival saves.
+
     # ===== Micro Tick =====
     toggleNcBreakpoint:
       .: toggleNcBreakpoint

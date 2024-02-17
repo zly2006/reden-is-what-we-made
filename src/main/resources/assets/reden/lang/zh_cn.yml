@@ -163,6 +163,11 @@ reden:
       .: 最大渲染距离
       comment: |-
 
+    survivalSaveProtection:
+      .: survivalSaveProtection
+      comment: |-
+        在尝试打开生存存档时要求玩家手动确认。
+
     # ===== Micro Tick =====
     toggleNcBreakpoint:
       .: 添加/移除NC断点

@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.survivalProtection;
 
+import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Final;
@@ -35,7 +36,8 @@ public abstract class MixinWorldListWidgetEntry {
             cancellable = true
     )
     private void requireConfirmIfNeeded(CallbackInfo ci) {
-        if(this.level.getGameMode().isSurvivalLike() && !this.level.hasCheats()) {
+        if(this.level.getGameMode().isSurvivalLike() && !this.level.hasCheats()
+                && MalilibSettingsKt.SURVIVAL_SAVE_PROTECTION.getBooleanValue()) {
             BooleanConsumer bc = (bool) -> {
                 if(bool) {
                     this.client.createIntegratedServerLoader().start(this.level.getName(), () -> {

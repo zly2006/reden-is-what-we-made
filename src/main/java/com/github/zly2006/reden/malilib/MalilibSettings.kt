@@ -41,6 +41,7 @@ private fun <T : ConfigBase<*>> T.hidden() = apply { (HIDDEN_TAB.add(this)) }
 @JvmField val REDO_KEY = RedenConfigHotkey("redoKey", "LEFT_CONTROL,Y").generic().hotkey()
 @JvmField val UNDO_SUPPORT_LITEMATICA_OPERATION = RedenConfigBoolean("undoSupportLitematicaOperation", true).generic()
 @JvmField val UNDO_CHEATING_ONLY = RedenConfigBoolean("undoCheatingOnly", true).generic()
+@JvmField val SURVIVAL_SAVE_PROTECTION = RedenConfigBoolean("survivalSaveProtection", true).generic()
 
 @JvmField
 val OPEN_NOTIFICATIONS_SCREEN = RedenConfigHotkey("openNotificationsScreen", "R,T").generic().hotkey()
