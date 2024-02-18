@@ -96,6 +96,7 @@ reden:
         You are opening survival saves with Reden, which is strongly unrecommended due to the possibility of breaking vanilla mechanisms and leading to accidental cheating.
       more: Read More
       dismiss: Don't show again
+      link: https://wiki.redenmc.com/Survival_Save_Protection
 
   feature:
     undo:

@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.world.SelectWorldScreen;
@@ -52,18 +51,16 @@ public abstract class MixinWorldListWidgetEntry {
                 && MalilibSettingsKt.SURVIVAL_SAVE_PROTECTION.getBooleanValue()) {
             Text title = Text.translatable("reden.widget.survival.title").formatted(Formatting.BOLD, Formatting.RED);
             Text warnings = Text.translatable("reden.widget.survival.warnings");
-            BooleanConsumer bc = (bool) -> {
-                if(bool) {
-                    sendWarningToast();
-                    this.client.createIntegratedServerLoader().start(this.level.getName(), () -> {
-                        ((IMixinWorldListWidget) this.field_19135).invokeLoadForReden();
-                    });
-                } else {
-                    this.client.setScreen(this.screen);
-                }
-            };
-
-            this.client.setScreen(new ConfirmScreen(bc, title, warnings));
+            this.client.setScreen(new ConfirmScreen((bool) -> {
+                        if(bool) {
+                            sendWarningToast();
+                            this.client.createIntegratedServerLoader().start(this.level.getName(), () -> {
+                                this.field_19135.load();
+                            });
+                        } else {
+                            this.client.setScreen(this.screen);
+                        }
+                    }, title, warnings));
             ci.cancel();
         }
     }
@@ -89,11 +86,7 @@ public abstract class MixinWorldListWidgetEntry {
 
     @Unique
     private Unit openHelpPageAndDismissToast(int id) {
-        String url = switch(this.client.getLanguageManager().getLanguage()) {
-            case "zh_cn" -> "https://wiki.redenmc.com/index.php/%E7%94%9F%E5%AD%98%E5%AD%98%E6%A1%A3%E4%BF%9D%E6%8A%A4";
-            case "en_us" -> "https://wiki.redenmc.com/index.php/Survival_Save_Protection";
-            default -> "https://wiki.redenmc.com/index.php/Survival_Save_Protection";
-        };
+        String url = Text.translatable("reden.widget.survival.link").getString();
         try {
             Util.getOperatingSystem().open(new URL(url));
         } catch (MalformedURLException e) {
