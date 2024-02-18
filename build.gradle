@@ -75,9 +75,14 @@ allprojects {
     repositories {
         mavenCentral()
         maven {
+            name = "Reden"
+            url = "https://maven.starlight.cool/artifactory/reden"
+        }
+        maven {
             url 'https://masa.dy.fi/maven'
         }
         maven { url 'https://maven.wispforest.io' }
+        maven { url = "https://maven.terraformersmc.com/releases/" }
         maven {
             name = "CurseForge"
             url = "https://cursemaven.com"
@@ -130,9 +135,10 @@ dependencies {
     include(implementation("com.squareup.okhttp3:okhttp:4.11.0"))
     include(implementation("org.eclipse.jgit:org.eclipse.jgit:6.6.0.202305301015-r"))
     include(implementation("com.squareup.okio:okio-jvm:3.2.0"))
-    modImplementation "curse.maven:litematica-308892:4946471"
+    modImplementation("fi.dy.masa.litematica:litematica:0.17.1")
     modImplementation "curse.maven:tweakeroo-297344:4946344"
-    modApi "maven.modrinth:modmenu:9.0.0-pre.1"
+    //  https://maven.terraformersmc.com/releases/com/terraformersmc/modmenu/
+    modApi "com.terraformersmc:modmenu:9.0.0-pre.1"
     modImplementation "maven.modrinth:ferrite-core:6.0.3-fabric"
     modApi "io.wispforest:owo-lib:${project.owo_version}"
     //testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.20")
