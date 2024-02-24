@@ -2,6 +2,7 @@ package com.github.zly2006.reden.utils
 
 import com.github.zly2006.reden.ModNames
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.exceptions.RedenException
 import com.github.zly2006.reden.malilib.DEVELOPER_MODE
 import com.github.zly2006.reden.malilib.LOCAL_API_BASEURL
 import com.github.zly2006.reden.malilib.SELECTION_TOOL
@@ -127,7 +128,7 @@ fun memorySizeToString(size: Int) {
     println("%.2f".format(s) + unit[i])
 }
 
-fun MutableText.red() = formatted(Formatting.RED)
+fun MutableText.red() = formatted(Formatting.RED)!!
 
 val litematicaInstalled get() = FabricLoader.getInstance().isModLoaded(ModNames.litematica)
 
@@ -233,3 +234,17 @@ val redenApiBaseUrl: String
     get() = if (isClient && DEVELOPER_MODE.booleanValue) LOCAL_API_BASEURL.stringValue else "https://redenmc.com/api"
 
 infix fun Int.has(flag: Int) = (this and flag) == flag
+
+fun redenError(message: String, throwable: Throwable? = null, log: Boolean = false): Nothing {
+    if (log) {
+        Reden.LOGGER.error(message, throwable)
+    }
+    throw if (throwable != null) RedenException(message, throwable) else RedenException(message)
+}
+
+fun redenError(message: Text, throwable: Throwable? = null, log: Boolean = false): Nothing {
+    if (log) {
+        Reden.LOGGER.error(message.string, throwable)
+    }
+    throw if (throwable != null) RedenException(message, throwable) else RedenException(message)
+}

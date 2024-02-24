@@ -5,6 +5,7 @@ import com.github.zly2006.reden.rvc.IWritableStructure
 import com.github.zly2006.reden.rvc.io.Palette
 import com.github.zly2006.reden.rvc.io.StructureIO
 import com.github.zly2006.reden.rvc.tracking.reader.RvcReaderV1
+import com.github.zly2006.reden.utils.Utils
 import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.visitor.StringNbtWriter
@@ -179,7 +180,7 @@ object RvcFileIO : StructureIO {
         Registries.BLOCK.getId(state.block).toString() + state.properties.map {
             it to state[it]
         }.joinToString(",", "[", "]") {
-            "${it.first.name}=${it.second}"
+            "${it.first.name}=${Utils.blockPropertyName(it.first, it.second)}"
         }
 
     /**

@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.tracking.reader
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.rvc.io.Palette
 import com.github.zly2006.reden.rvc.tracking.IRvcFileReader
@@ -31,7 +32,12 @@ class RvcReaderV1(
             val blockPos = RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
             val blockData = if (usePalette) palette.getName(rvcData.next().toInt()) else rvcData.readGreedy()
 
-            blocks[blockPos] = BlockArgumentParser.block(Registries.BLOCK.readOnlyWrapper, blockData, false).blockState
+            try {
+                blocks[blockPos] =
+                    BlockArgumentParser.block(Registries.BLOCK.readOnlyWrapper, blockData, false).blockState
+            } catch (e: Exception) {
+                Reden.LOGGER.error("Failed to load block state at $blockPos, $blockData", e)
+            }
         }
         return blocks
     }

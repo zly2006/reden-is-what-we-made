@@ -51,9 +51,9 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             repository.commit(repository.head(), "RedenMC RVC Commit", MinecraftClient.getInstance().player)
             it.active(false)
         }
-        private val enableForWorldButton: ButtonComponent = Components.button(Text.literal("Change World")) {
-            onFunctionUsed("enable_rvcStructure")
-            repository.setWorld()
+        private val placeButton: ButtonComponent = Components.button(Text.literal("Place")) {
+            onFunctionUsed("place_rvcStructure")
+            repository.startPlacing()
             it.active(false)
             sameWorld = true
         }.apply {
@@ -75,7 +75,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
         val right = Containers.horizontalFlow(Sizing.content(), Sizing.content())
         private fun checkActive() {
             saveButton.active(repository.hasChanged() && sameWorld)
-            enableForWorldButton.active(!sameWorld)
+            placeButton.active(!sameWorld)
             select.active = sameWorld
             if (!sameWorld) {
                 select.checked(false)
@@ -106,7 +106,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             right.child(detailsButton)
             right.child(exportButton)
             right.child(saveButton)
-            right.child(enableForWorldButton)
+            right.child(placeButton)
         }
     }
 

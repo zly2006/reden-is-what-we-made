@@ -346,19 +346,6 @@ fun redenSetup(client: MinecraftClient) {
             LOGGER.debug("", e)
         }
     }.start()
-    if (HiddenOption.iCHECK_UPDATES.booleanValue) {
-        Thread {
-            val updateInfo = try {
-                checkUpdateFromRedenApi() ?: checkUpdateFromModrinth()
-            } catch (e: Exception) {
-                LOGGER.debug("", e)
-                null
-            }
-            if (updateInfo != null) {
-
-            }
-        }.start()
-    }
     Runtime.getRuntime().addShutdownHook(Thread {
         try {
             if (featureUsageData.isNotEmpty()) doHeartHeat()
@@ -380,4 +367,17 @@ fun redenSetup(client: MinecraftClient) {
             LOGGER.debug("", e)
         }
     })
+    if (HiddenOption.iCHECK_UPDATES.booleanValue) {
+        Thread {
+            val updateInfo = try {
+                checkUpdateFromRedenApi() ?: checkUpdateFromModrinth()
+            } catch (e: Exception) {
+                LOGGER.debug("", e)
+                null
+            }
+            if (updateInfo != null) {
+
+            }
+        }.start()
+    }
 }

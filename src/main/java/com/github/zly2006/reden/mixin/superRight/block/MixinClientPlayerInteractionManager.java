@@ -4,7 +4,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -23,7 +22,6 @@ public class MixinClientPlayerInteractionManager {
     private void onUse(ClientPlayerEntity player, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (ChatScreen.hasControlDown()) {
-            mc.player.sendMessage(Text.of("o/"));
             cir.setReturnValue(ActionResult.SUCCESS);
         }
     }

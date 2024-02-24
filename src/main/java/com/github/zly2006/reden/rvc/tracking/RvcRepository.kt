@@ -1,9 +1,13 @@
 package com.github.zly2006.reden.rvc.tracking
 
+import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureLitematicaTask
+import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureTask
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.task.taskStack
 import com.github.zly2006.reden.utils.ResourceLoader
+import com.github.zly2006.reden.utils.litematicaInstalled
+import com.github.zly2006.reden.utils.redenError
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -91,24 +95,30 @@ class RvcRepository(
     }
 
     fun head(): TrackedStructure {
-        if (headCache == null) {
-            val refs = git.branchList().call()
-            headCache = if (refs.isEmpty()) {
-                TrackedStructure(name, side)
-            } else if (refs.any { it.name == RVC_BRANCH_REF }) {
-                checkoutBranch(RVC_BRANCH)
-            } else {
-                checkout(refs.first().name)
+        try {
+            if (headCache == null) {
+                val refs = git.branchList().call()
+                headCache = if (refs.isEmpty()) {
+                    TrackedStructure(name, side)
+                }
+                else if (refs.any { it.name == RVC_BRANCH_REF }) {
+                    checkoutBranch(RVC_BRANCH)
+                }
+                else {
+                    checkout(refs.first().name)
+                }
             }
+            // todo: this line is debug only
+            placementInfo?.worldInfo?.getWorld()?.let {
+                headCache!!.world = it
+            }
+            placementInfo?.let {
+                headCache!!.placementInfo = it
+            }
+            return headCache!!
+        } catch (e: Exception) {
+            redenError("Failed to load RVC head structure from repository ${this.name}", e, log = true)
         }
-        // todo: this line is debug only
-        placementInfo?.worldInfo?.getWorld()?.let {
-            headCache!!.world = it
-        }
-        placementInfo?.let {
-            headCache!!.placementInfo = it
-        }
-        return headCache!!
     }
 
     fun checkout(tag: String) = TrackedStructure(name, side).apply {
@@ -162,7 +172,13 @@ class RvcRepository(
 
     fun startPlacing() {
         setWorld()
-        taskStack.add(TODO("Not yet implemented"))
+        val world = MinecraftClient.getInstance().world!! // place locally may be fast? // todo
+        taskStack.add(
+            if (litematicaInstalled)
+                RvcMoveStructureLitematicaTask(world, this.head())
+            else
+                RvcMoveStructureTask(world, this.head())
+        )
     }
 
     val headHash: String get() = git.repository.resolve("HEAD").name()
