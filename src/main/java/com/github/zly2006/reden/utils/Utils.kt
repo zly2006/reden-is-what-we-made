@@ -248,3 +248,8 @@ fun redenError(message: Text, throwable: Throwable? = null, log: Boolean = false
     }
     throw if (throwable != null) RedenException(message, throwable) else RedenException(message)
 }
+
+fun Class<*>.shortenName(): String {
+    val simple = this.name.substringAfterLast('.')
+    return this.name.split('.').dropLast(1).joinToString(".") { it[0].toString() } + "." + simple
+}

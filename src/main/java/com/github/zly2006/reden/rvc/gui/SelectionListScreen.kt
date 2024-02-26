@@ -25,7 +25,8 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
 
     inner class RepositoryLine(private val repository: RvcRepository) :
         FlowLayout(Sizing.fill(), Sizing.content(), Algorithm.HORIZONTAL) {
-        var sameWorld = repository.placementInfo?.worldInfo == worldInfo
+        private val sameWorld = repository.placementInfo?.worldInfo?.equals(worldInfo)
+        var canPlace = repository.placementInfo == null || !repository.placed
             set(value) {
                 field = value
                 checkActive()
@@ -55,13 +56,17 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             onFunctionUsed("place_rvcStructure")
             repository.startPlacing()
             it.active(false)
-            sameWorld = true
         }.apply {
-            tooltip(Text.literal("""
-                Note: This will set the current world as the world for this structure.
-                This operation will disable the structure for other worlds.
-                Usually you should do this after server ip change.
-            """.trimIndent()))
+            if (sameWorld == false) {
+                tooltip(
+                    Text.literal(
+                        """
+                Note: We have detected that this machine has been placed in a different world.
+                It is recommended to remove it first and then place it again.
+                """.trimIndent()
+                    )
+                )
+            }
         }
         private val detailsButton: ButtonComponent = Components.button(Text.literal("Details")) {
             onFunctionUsed("open_rvcStructure")
@@ -74,10 +79,10 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
         val left = Containers.horizontalFlow(Sizing.content(), Sizing.content())
         val right = Containers.horizontalFlow(Sizing.content(), Sizing.content())
         private fun checkActive() {
-            saveButton.active(repository.hasChanged() && sameWorld)
-            placeButton.active(!sameWorld)
-            select.active = sameWorld
-            if (!sameWorld) {
+            saveButton.active(repository.hasChanged() && sameWorld == true)
+            placeButton.active(canPlace)
+            select.active = sameWorld == true
+            if (sameWorld == false) {
                 select.checked(false)
                 this.tooltip(Text.literal("Not in the same world").red())
             }
