@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.debugger.tree
 
-import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.access.TickStageTreeOwnerAccess
 import com.github.zly2006.reden.debugger.TickStage
@@ -13,10 +12,14 @@ import net.minecraft.server.world.BlockEvent
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.tick.OrderedTick
+import org.slf4j.LoggerFactory
 
 class TickStageTree(
     val activeStages: MutableList<TickStage> = mutableListOf()
 ) {
+    companion object {
+        val LOGGER = LoggerFactory.getLogger("Reden/TickStageTree")!!
+    }
     val activeStage get() = activeStages.lastOrNull()
 
     /**
@@ -34,7 +37,7 @@ class TickStageTree(
 
     fun clear() {
         checkOnThread()
-        Reden.LOGGER.debug("TickStageTree: clear()")
+        LOGGER.debug("clear()")
         activeStages.clear()
         history.clear()
         if (steppingInto || stepOverUntil != null) {
@@ -52,27 +55,27 @@ class TickStageTree(
             "Stage $stage is not a child of $activeStage"
         }
         if (stage in activeStages) {
-            Reden.LOGGER.error("Stage $stage is already active")
+            LOGGER.error("Stage $stage is already active")
         }
         activeStage?.children?.add(stage)
         activeStages.add(stage)
         if (stacktrace) {
             stacktraces.add(Thread.getAllStackTraces()[Thread.currentThread()])
         }
-        Reden.LOGGER.debug("TickStageTree: [{}] push {}", activeStages.size, stage)
+        LOGGER.debug("[{}] push {}", activeStages.size, stage)
 
         // Note: some network packets should not trigger step into
         if (steppingInto && stage !is TickStageWorldProvider) {
             steppingInto = false
             stepIntoCallback?.invoke()
             stepIntoCallback = null
-            Reden.LOGGER.debug("TickStageTree: step into")
+            LOGGER.debug("step into")
             server.data.freeze("step-into")
             while (server.data.frozen && server.isRunning) {
                 tickPackets(server)
             }
         }
-        Reden.LOGGER.debug("TickStageTree: preTick {}", stage)
+        LOGGER.debug("preTick {}", stage)
         stage.status = TickStage.StageStatus.Pending
         stage.preTick()
     }
@@ -95,12 +98,12 @@ class TickStageTree(
 
         val stage = activeStages.removeLast().also(history::add)
         stacktraces.removeLastOrNull()
-        Reden.LOGGER.debug("TickStageTree: [{}] pop {}", activeStages.size, stage)
+        LOGGER.debug("[{}] pop {}", activeStages.size, stage)
         stage.status = TickStage.StageStatus.Ticked
         stage.postTick()
         stage.status = TickStage.StageStatus.Finished
         if (stage == stepOverUntil) {
-            Reden.LOGGER.debug("stage == stepOverUntil")
+            LOGGER.debug("stage == stepOverUntil")
             stepOverUntil = null
             stepOverCallback?.invoke()
             stepOverCallback = null
@@ -109,7 +112,7 @@ class TickStageTree(
                 tickPackets(server)
             }
         }
-        Reden.LOGGER.debug("TickStageTree: preTick {}", stage)
+        LOGGER.debug("preTick {}", stage)
         return stage
     }
 
@@ -118,10 +121,10 @@ class TickStageTree(
             push(stage)
             block()
         } catch (e: Exception) {
-            Reden.LOGGER.error("Exception in stage $stage", e)
-            Reden.LOGGER.error("Active stages:")
+            LOGGER.error("Exception in stage $stage", e)
+            LOGGER.error("Active stages:")
             for (tickStage in activeStages) {
-                Reden.LOGGER.error("  $tickStage")
+                LOGGER.error("  $tickStage")
             }
         } finally {
             pop(stage.javaClass)

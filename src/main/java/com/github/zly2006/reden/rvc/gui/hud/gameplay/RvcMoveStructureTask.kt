@@ -12,8 +12,9 @@ import net.minecraft.world.World
 
 open class RvcMoveStructureTask(
     private val world: World,
-    val placingStructure: IStructure
-) : Task("move_structure") {
+    val placingStructure: IStructure,
+    id: String = "move_structure"
+) : Task(id) {
     open var currentOrigin: BlockPos? = MinecraftClient.getInstance().player?.blockPos
 
     open fun customTexts(): List<Text> = listOf()

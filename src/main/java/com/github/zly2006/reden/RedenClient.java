@@ -12,6 +12,8 @@ import com.github.zly2006.reden.rvc.gui.RvcHudRenderer;
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.SelectModeHudKt;
 import com.github.zly2006.reden.rvc.tracking.client.ClientTrackingKt;
 import com.github.zly2006.reden.sponsor.LuckToday;
+import com.github.zly2006.reden.task.Task;
+import com.github.zly2006.reden.task.TaskKt;
 import com.github.zly2006.reden.update.AutoUpdateKt;
 import com.github.zly2006.reden.utils.DebugKt;
 import com.github.zly2006.reden.utils.UtilsKt;
@@ -109,6 +111,15 @@ public class RedenClient implements ClientModInitializer {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             RvcLocalCommandKt.register(dispatcher);
             ClientGlowKt.register(dispatcher);
+            dispatcher.register(ClientCommandManager.literal("reden-debug-client")
+                    .then(ClientCommandManager.literal("task")
+                            .then(ClientCommandManager.literal("list").executes(context -> {
+                                context.getSource().sendFeedback(Text.literal(String.valueOf(TaskKt.getTaskStack().size())));
+                                for (Task task : TaskKt.getTaskStack()) {
+                                    context.getSource().sendFeedback(Text.literal(task.getId()));
+                                }
+                                return 1;
+                            }))));
             dispatcher.register(ClientCommandManager.literal("qubit").executes(context -> {
                 throw new Error("Qu(b)it!");
             }).then(ClientCommandManager.literal("floating-item")

@@ -24,7 +24,7 @@ data class Wormhole(
     val tpPitch: Float,
 )
 
-object Vec3dSerializer: KSerializer<Vec3d> {
+private object Vec3dSerializer : KSerializer<Vec3d> {
     @OptIn(ExperimentalSerializationApi::class)
     override val descriptor: SerialDescriptor = listSerialDescriptor<Double>()
 

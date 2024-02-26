@@ -43,6 +43,7 @@ class RvcRepository(
      */
     var placementInfo: PlacementInfo? = null
         private set
+    var placed = false
 
     /**
      * At `.git/placement.json`
@@ -108,7 +109,6 @@ class RvcRepository(
                     checkout(refs.first().name)
                 }
             }
-            // todo: this line is debug only
             placementInfo?.worldInfo?.getWorld()?.let {
                 headCache!!.world = it
             }

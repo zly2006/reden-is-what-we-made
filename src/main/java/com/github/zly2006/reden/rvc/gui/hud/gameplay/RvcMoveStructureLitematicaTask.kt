@@ -18,7 +18,7 @@ import net.minecraft.world.World
  */
 class RvcMoveStructureLitematicaTask(
     world: World, placingStructure: IStructure
-) : RvcMoveStructureTask(world, placingStructure) {
+) : RvcMoveStructureTask(world, placingStructure, "move_structure_litematica") {
     companion object {
         init {
             if (!litematicaInstalled) {

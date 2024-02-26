@@ -8,6 +8,7 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
+import okhttp3.internal.toHexString
 
 /**
  * See [wiki page](https://wiki.redenmc.com/R-Debugger/Tick_Stage)
@@ -103,5 +104,9 @@ abstract class TickStage(
 
     open fun unfocused(mc: MinecraftClient) {
         assert(mc.isOnThread) { "Focused on wrong thread" }
+    }
+
+    override fun toString(): String {
+        return "$name@${hashCode().toHexString()}"
     }
 }
