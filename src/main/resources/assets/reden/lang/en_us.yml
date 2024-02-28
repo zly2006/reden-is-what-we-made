@@ -94,6 +94,17 @@ reden:
       copied: Copied
       done: Done
 
+    survival:
+      title: Reden Is Not For Survival!
+      warnings: |
+        Reden is not designed for survival saves, and opening the save may break vanilla mechanisms and lead to accidental cheating.
+        Proceed to open anyway?
+      risks: |
+        You are opening survival saves with Reden, which is strongly unrecommended due to the possibility of breaking vanilla mechanisms and leading to accidental cheating.
+      more: Read More
+      dismiss: Don't show again
+      link: https://wiki.redenmc.com/Survival_Save_Protection
+
   feature:
     undo:
       cause:
@@ -184,6 +195,11 @@ reden:
     maxRenderDistance:
       .: maxRenderDistance
       comment: |-
+
+    survivalSaveProtection:
+      .: survivalSaveProtection
+      comment: |-
+        Require manual confirmation when trying to open survival saves.
 
     # ===== Micro Tick =====
     toggleNcBreakpoint:
