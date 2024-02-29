@@ -6,6 +6,7 @@ import com.github.zly2006.reden.utils.litematicaInstalled
 import com.github.zly2006.reden.utils.redenError
 import fi.dy.masa.litematica.data.DataManager
 import fi.dy.masa.litematica.world.SchematicWorldHandler
+import fi.dy.masa.malilib.util.IntBoundingBox
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
@@ -42,6 +43,7 @@ class RvcMoveStructureLitematicaTask(
                 placementSchematicWorld?.paste()
             }
         }
+    val box: IntBoundingBox? = null
     private var placementSchematicWorld: IPlacement? = placingStructure.createPlacement(schematicWorld, currentOrigin!!)
 
     override fun onCancel(): Boolean {

@@ -46,6 +46,7 @@
     "realFakePlayer.MixinCarpetFakePlayer",
     "realFakePlayer.MixinEntityPlayerActionPack",
     "realFakePlayer.MixinServerNetworkIo",
+    "render.otherMods.litematica.MixinRvcSchematicWorldRender",
     "sctuctureBlock.MixinStructureBlock",
     "sctuctureBlock.MixinStructureBlockEntity",
     "undo.MixinBlockEntity",
