@@ -14,6 +14,8 @@ import com.github.zly2006.reden.utils.TaskScheduler;
 import com.github.zly2006.reden.utils.UtilsKt;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fi.dy.masa.litematica.render.LitematicaRenderer;
+import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -21,7 +23,9 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.argument.BlockPosArgumentType;
+import net.minecraft.command.argument.BlockStateArgumentType;
 import net.minecraft.command.argument.ItemStackArgument;
 import net.minecraft.command.argument.ItemStackArgumentType;
 import net.minecraft.entity.EntityStatuses;
@@ -88,6 +92,24 @@ public class Reden implements ModInitializer, CarpetExtension {
                                     PlayerData.Companion.data(context.getSource().getPlayer()).topRedo();
                                     return 1;
                                 }))
+                        .then(CommandManager.literal("schematic")
+                                // Note: single-player mode only
+                                // Note:
+                                //   rendering is only available in placement part (by litematica)
+                                //   and the move structure task (reden hack)
+                                .then(CommandManager.literal("setblock")
+                                        .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
+                                                .then(CommandManager.argument("block", BlockStateArgumentType.blockState(access))
+                                                        .executes(context -> {
+                                                            MinecraftClient client = MinecraftClient.getInstance();
+                                                            assert client.player != null;
+                                                            var pos = BlockPosArgumentType.getBlockPos(context, "pos");
+                                                            SchematicWorldHandler.getSchematicWorld().setBlockState(pos, BlockStateArgumentType.getBlockState(context, "block").getBlockState(), 3);
+                                                            SchematicWorldHandler.getSchematicWorld().scheduleChunkRenders(pos.getX() >> 4, pos.getZ() >> 4);
+                                                            LitematicaRenderer.getInstance().getWorldRenderer().markNeedsUpdate();
+                                                            client.player.sendMessage(SchematicWorldHandler.getSchematicWorld().getBlockState(pos).getBlock().getName());
+                                                            return 1;
+                                                        })))))
                         .then(CommandManager.literal("last-saved-nbt")
                                 .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
                                         .executes(context -> {

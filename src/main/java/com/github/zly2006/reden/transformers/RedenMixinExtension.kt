@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.transformers
 
 import com.github.zly2006.reden.Reden
+import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.impl.launch.knot.MixinServiceKnot
 import org.apache.logging.log4j.LogManager
 import org.objectweb.asm.ClassWriter
@@ -101,6 +102,10 @@ class RedenMixinExtension: IExtension, IMixinConfigPlugin {
     override fun shouldApplyMixin(targetClassName: String, mixinClassName: String): Boolean {
         if (mixinClassName.startsWith("com.github.zly2006.reden.mixin.debugger."))
             return APPLY_DEBUGGER_MIXINS
+        if (mixinClassName.startsWith("com.github.zly2006.reden.mixin.") && mixinClassName.contains(".otherMods.")) {
+            val modId = mixinClassName.split(".").dropWhile { it != "otherMods" }.drop(1).firstOrNull() ?: return true
+            return FabricLoader.getInstance().isModLoaded(modId)
+        }
         return true
     }
 
