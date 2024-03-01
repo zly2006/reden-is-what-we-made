@@ -133,11 +133,12 @@ dependencies {
 
     // Optional dependencies
     modImplementation("fi.dy.masa.litematica:litematica:0.17.1")
-    modImplementation "curse.maven:tweakeroo-297344:4946344" // todo: upload it to reden maven
+    modImplementation("fi.dy.masa.tweakeroo:tweakeroo:0.19.2")
     modApi("com.terraformersmc:modmenu:9.0.0")
 
     // Runtime only dependencies (game optimization)
-    modRuntimeOnly "maven.modrinth:ferrite-core:6.0.3-fabric"
+    modRuntimeOnly("maven.modrinth:ferrite-core:6.0.3-fabric")
+    modRuntimeOnly("maven.modrinth:notenoughcrashes:4.4.7+1.20.4-fabric")
 }
 
 test {
