@@ -73,6 +73,9 @@ val OPEN_NOTIFICATIONS_SCREEN = RedenConfigHotkey("openNotificationsScreen", "R,
 
 @JvmField
 val RVC_CONFIRM_KEY = RedenConfigHotkey("rvcConfirmKey", "RIGHT_SHIFT,ENTER").rvc().hotkey()
+
+@JvmField
+val RVC_CANCEL_KEY = RedenConfigHotkey("rvcCancelKey", "BACKSPACE").rvc().hotkey()
 // Super Right
 @JvmField val CHAT_RIGHT_CLICK_MENU = RedenConfigBoolean("chatRightClickMenu", true).sr()
 @JvmField val STRUCTURE_BLOCK_LOAD = RedenConfigHotkey("structureBlockLoad", "LEFT_CONTROL,L").sr().hotkey()
@@ -102,9 +105,13 @@ val WORMHOLE_SELECT = RedenConfigHotkey("wormholeSelect", "LEFT_ALT", KeybindSet
 @JvmField val LOCAL_API_BASEURL = RedenConfigString("localApiAddr", "http://localhost:10005/api").debug()
 @JvmField val ENTITY_OUTLINE_RENDER_RAW = RedenConfigBoolean("entityOutlinrRenderRaw", false).debug()
 @JvmField val DEBUG_DISPLAY_RVC_WORLD_INFO = RedenConfigHotkey("debugDisplayRvcWorldInfo", "").debug().hotkey()
-
 @JvmField
 val DEBUG_NEW_NOTIFICATION = RedenConfigHotkey("debugNewNotification", "").debug().hotkey()
+
+@JvmField
+val DEBUG_LITEMATICA_SCHEMATIC_RENDERING =
+    RedenConfigBooleanHotkeyed("debugLitematicaSchematicRendering", false, "").debug().hotkey()
+
 // Hidden
 object HiddenOption {
     @JvmField

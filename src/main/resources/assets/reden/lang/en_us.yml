@@ -62,7 +62,7 @@ reden:
         move_machine:
           .: "[RVC] Moving Machine"
           structure: "Structure: %s"
-          origin: 'Origin at: %s'
+          origin: 'Origin at: [%s %s %s]'
           litematica: "Using Litematica"
           confirm: "Press %s to confirm this position"
           conflict: "This position is conflicted with %s blocks"

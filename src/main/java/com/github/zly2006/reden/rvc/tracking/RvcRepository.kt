@@ -4,6 +4,7 @@ import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureLitematicaT
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureTask
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
+import com.github.zly2006.reden.task.Task
 import com.github.zly2006.reden.task.taskStack
 import com.github.zly2006.reden.utils.ResourceLoader
 import com.github.zly2006.reden.utils.litematicaInstalled
@@ -168,6 +169,7 @@ class RvcRepository(
     fun startPlacing() {
         setWorld()
         val world = MinecraftClient.getInstance().world!! // place locally may be fast? // todo
+        Task.all<RvcMoveStructureTask>().forEach { it.onCancel() }
         taskStack.add(
             if (litematicaInstalled)
                 RvcMoveStructureLitematicaTask(world, this.head())

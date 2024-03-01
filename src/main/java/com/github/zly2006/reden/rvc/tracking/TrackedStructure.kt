@@ -62,7 +62,7 @@ class TrackedStructure(
             ?: redenError("getting origin but PlacementInfo not set for $name")
 
     override fun createPlacement(world: World, origin: BlockPos) = apply {
-        placementInfo = PlacementInfo(WorldInfo.of(world))
+        placementInfo = PlacementInfo(WorldInfo.of(world), origin)
     }
     var cachedPositions = HashMap<BlockPos, TrackPoint>()
     var cachedIgnoredPositions = HashMap<BlockPos, TrackPoint>()

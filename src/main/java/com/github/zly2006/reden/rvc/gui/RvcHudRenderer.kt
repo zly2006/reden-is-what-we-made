@@ -24,7 +24,7 @@ object RvcHudRenderer: IRenderer {
 
     override fun onRenderGameOverlayPost(drawContext: DrawContext) {
         val mc = MinecraftClient.getInstance()
-        if (mc.player?.holdingToolItem != null) return
+        if ((mc.player)?.holdingToolItem != true) return
         updateLines()
         val allLines = mutableListOf<OrderedText>()
         lines.forEach { (name, lines) ->
@@ -33,9 +33,9 @@ object RvcHudRenderer: IRenderer {
             }
         }
 
-        val scale = 1.0
-        var xOff = 0
-        var yOff = 0
+        val scale = 1.0 // todo : malilib config  // fixme
+        var xOff = 0    // todo : malilib config
+        var yOff = 20   // todo : malilib config
         val alignment = HUD_POSITION.optionListValue as HudAlignment
         val textColor = 0xffffff
         val useShadow = true

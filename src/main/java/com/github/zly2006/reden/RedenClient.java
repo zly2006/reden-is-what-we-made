@@ -116,7 +116,7 @@ public class RedenClient implements ClientModInitializer {
                             .then(ClientCommandManager.literal("list").executes(context -> {
                                 context.getSource().sendFeedback(Text.literal(String.valueOf(TaskKt.getTaskStack().size())));
                                 for (Task task : TaskKt.getTaskStack()) {
-                                    context.getSource().sendFeedback(Text.literal(task.getId()));
+                                    context.getSource().sendFeedback(Text.literal(task.toString()));
                                 }
                                 return 1;
                             }))));

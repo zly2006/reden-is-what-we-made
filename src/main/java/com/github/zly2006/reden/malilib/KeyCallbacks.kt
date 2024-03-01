@@ -22,6 +22,7 @@ import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.remote.github.GithubAuthScreen
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.sponsor.SponsorScreen
+import com.github.zly2006.reden.task.taskStack
 import com.github.zly2006.reden.utils.red
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.toBlockPos
@@ -424,6 +425,12 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             )
         )
         true
+    }
+    RVC_CONFIRM_KEY.callback {
+        taskStack.last().onConfirm()
+    }
+    RVC_CANCEL_KEY.callback {
+        taskStack.last().onCancel()
     }
 }
 
