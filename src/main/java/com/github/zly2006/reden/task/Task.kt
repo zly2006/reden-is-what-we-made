@@ -8,8 +8,10 @@ import net.minecraft.client.world.ClientWorld
 import org.slf4j.LoggerFactory
 
 val taskStack = mutableListOf<Task>()
+private var nextId = 0
 
-abstract class Task(val id: String) {
+abstract class Task(val name: String) {
+    val id: Int = nextId++
     /**
      * these methods are called when state changes, don't call them directly
      */
@@ -30,7 +32,11 @@ abstract class Task(val id: String) {
             }
         }
 
-        fun tick() {
+        inline fun <reified T : Task> all(): List<T> {
+            return taskStack.filterIsInstance<T>()
+        }
+
+        private fun tick() {
             val consumer: (String) -> Unit = { MinecraftClient.getInstance().player?.sendMessage(it) }
             val task = taskStack.lastOrNull()
             if (task != lastTickedTask) {
@@ -38,25 +44,25 @@ abstract class Task(val id: String) {
                     val lastTask = lastTickedTask!!
                     if (lastTask.active) {
                         lastTask.onPause()
-                        LOGGER.debug("Task ${lastTask.id} paused")
-                        consumer("Task ${lastTask.id} paused")
+                        LOGGER.debug("{} paused", lastTask)
+                        consumer("$lastTask paused")
                     }
                     else {
                         lastTask.onStopped()
-                        LOGGER.debug("Task ${lastTask.id} stopped")
-                        consumer("Task ${lastTask.id} stopped")
+                        LOGGER.debug("{} stopped", lastTask)
+                        consumer("$lastTask stopped")
                     }
                 }
                 if (task != null) {
                     if (task.active) {
                         task.onResume()
-                        LOGGER.debug("Task ${task.id} resumed")
-                        consumer("Task ${task.id} resumed")
+                        LOGGER.debug("{} resumed", task)
+                        consumer("$task resumed")
                     }
                     else {
                         task.onCreated()
-                        LOGGER.debug("Task ${task.id} created")
-                        consumer("Task ${task.id} created")
+                        LOGGER.debug("{} created", task)
+                        consumer("$task created")
                     }
                 }
                 lastTickedTask = task
@@ -65,8 +71,8 @@ abstract class Task(val id: String) {
             task.tick()
             if (!task.active) {
                 taskStack.removeLast()
-                LOGGER.debug("Task ${task.id} is not active, removed from stack")
-                consumer("Task ${task.id} is not active, removed from stack")
+                LOGGER.debug("{} is not active, removed from stack", task)
+                consumer("$task is not active, removed from stack")
             }
         }
     }
@@ -117,5 +123,9 @@ abstract class Task(val id: String) {
     @StateChanged
     open fun onClientSideWorldChanged(newWorld: ClientWorld?) {
 
+    }
+
+    override fun toString(): String {
+        return "Task#$id $name"
     }
 }
