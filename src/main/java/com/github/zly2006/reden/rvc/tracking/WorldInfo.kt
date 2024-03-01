@@ -15,6 +15,7 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import java.util.*
 import kotlin.io.path.name
 
 @Serializable
@@ -36,7 +37,17 @@ data class WorldInfo(
     val worldDimension: Identifier? = null,
 ) {
     companion object {
-        private fun ofRemote(mc: MinecraftClient): WorldInfo {
+        fun ofMemory(world: World) = WorldInfo(
+            isRemoteServer = true,
+            worldId = UUID.randomUUID().toString(),
+            worldDimension = world.dimensionKey.value,
+            worldKey = world.registryKey.value,
+        ).apply {
+            worldCache = world
+        }
+
+        private fun ofRemote(mc: MinecraftClient): WorldInfo? {
+            if (mc.currentServerEntry == null) return null
             val host = mc.currentServerEntry!!.address.substringBeforeLast(":")
             val port = mc.currentServerEntry!!.address.substringAfterLast(":").toIntOrNull() ?: 25565
 
@@ -63,9 +74,13 @@ data class WorldInfo(
             )
         }
 
-        fun MinecraftClient.getWorldInfo() =
-            if (server == null) ofRemote(this)
-            else ofLocal(server!!.getWorld(world!!.registryKey)!!)
+        fun MinecraftClient.getWorldInfo() = of(world!!)
+
+        fun of(world: World) =
+            if (world is ServerWorld) ofLocal(world)
+            else MinecraftClient.getInstance().server?.getWorld(world.registryKey)?.let { ofLocal(it) }
+                ?: ofRemote(MinecraftClient.getInstance())
+                ?: ofMemory(world)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -93,12 +108,12 @@ data class WorldInfo(
     @Transient
     @get:JvmName("world")
     @set:JvmName("world")
-    var world: World? = null
+    var worldCache: World? = null
 
     fun getWorld(): World? {
-        if (world != null) return world
+        if (worldCache != null) return worldCache
         val registryKey = RegistryKey.of(RegistryKeys.WORLD, worldKey)
-        world = if (isClient) {
+        worldCache = if (isClient) {
             val server = MinecraftClient.getInstance().server
             if (server != null) {
                 server.getWorld(registryKey)
@@ -107,7 +122,7 @@ data class WorldInfo(
         } else {
             server.getWorld(registryKey)
         }
-        return world
+        return worldCache
     }
 }
 

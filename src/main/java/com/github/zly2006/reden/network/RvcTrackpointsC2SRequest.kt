@@ -30,7 +30,6 @@ class RvcTrackpointsC2SRequest(
             val origin = it.readBlockPos()
             val size = it.readVarInt()
             val trackpoints = ArrayList<TrackedStructure.TrackPoint>(size)
-            structure.world = server.overworld
             structure.placementInfo = PlacementInfo(WorldInfo.ofLocal(server.overworld), origin)
             for (i in 0 until size) {
                 trackpoints.add(
@@ -47,12 +46,13 @@ class RvcTrackpointsC2SRequest(
 
         fun register() {
             ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
+                TODO()
                 fun sendStatus(status: Int) =
                     sender.sendPacket(RvcTrackpointsC2SRequest(status, packet.structure))
                 when (packet.operation) {
                     0 -> sendStatus(0)
                     1 -> {
-                        packet.structure.world = player.world
+                        packet.structure.placementInfo = PlacementInfo(WorldInfo.ofLocal(player.serverWorld))
                         packet.structure.trackPoints.addAll(packet.structure.trackPoints)
                         packet.structure.collectFromWorld()
                         val path = Path("rvc", "sync", player.nameForScoreboard, packet.structure.name)

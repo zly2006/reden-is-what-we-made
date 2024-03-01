@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.rvc.*
+import com.github.zly2006.reden.utils.redenError
 import com.github.zly2006.reden.utils.setBlockNoPP
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
@@ -39,7 +40,6 @@ class TrackedStructure(
 ) : ReadWriteStructure(name), IPlacement, PositionIterable {
     override var enabled: Boolean = true
     override val structure = this
-    override lateinit var world: World
     /**
      * This is stored in the file `.git/placement_info.json`.
      *
@@ -47,9 +47,23 @@ class TrackedStructure(
      *
      * @see RvcRepository.placementInfo
      */
-    lateinit var placementInfo: PlacementInfo
-    override val origin: BlockPos get() = placementInfo.origin
-    override fun createPlacement(world: World, origin: BlockPos) = this
+    var placementInfo: PlacementInfo? = null
+    override val world: World
+        get() = placementInfo?.worldInfo?.getWorld() ?: redenError("getting world but PlacementInfo not set for $name")
+    val minPos: BlockPos by lazy {
+        BlockPos(
+            blocks.keys.minOf { it.x },
+            blocks.keys.minOf { it.y },
+            blocks.keys.minOf { it.z }
+        )
+    }
+    override val origin: BlockPos
+        get() = placementInfo?.origin?.toImmutable()?.subtract(minPos)
+            ?: redenError("getting origin but PlacementInfo not set for $name")
+
+    override fun createPlacement(world: World, origin: BlockPos) = apply {
+        placementInfo = PlacementInfo(WorldInfo.of(world))
+    }
     var cachedPositions = HashMap<BlockPos, TrackPoint>()
     var cachedIgnoredPositions = HashMap<BlockPos, TrackPoint>()
     val trackPoints = mutableListOf<TrackPoint>()
@@ -111,17 +125,6 @@ class TrackedStructure(
                 BlockBorder[it.pos] = if (it.mode.isTrack()) 1 else 2
         }
     }
-
-    val blockBox: BlockBox
-        get() {
-            val minX = cachedPositions.keys.minOf { it.x }
-            val minY = cachedPositions.keys.minOf { it.y }
-            val minZ = cachedPositions.keys.minOf { it.z }
-            val maxX = cachedPositions.keys.maxOf { it.x }
-            val maxY = cachedPositions.keys.maxOf { it.y }
-            val maxZ = cachedPositions.keys.maxOf { it.z }
-            return BlockBox(minX, minY, minZ, maxX, maxY, maxZ)
-        }
 
     fun splitCuboids(
         includeUntracked: Boolean = true,

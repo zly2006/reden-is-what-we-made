@@ -42,7 +42,6 @@ public abstract class MixinWorldChunk {
         if (!worldInfo.equals(repo.getPlacementInfo().getWorldInfo())) return;
 
         var structure = repo.head();
-        if (structure.world == null || structure.world != world) return;
         if (structure.isInArea(structure.getRelativeCoordinate(pos))) {
             if (state.isAir()) {
                 structure.onBlockRemoved(pos);

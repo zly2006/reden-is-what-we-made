@@ -32,8 +32,14 @@ class RvcMoveStructureLitematicaTask(
         Text.literal("Using litematica rendering.")
     )
 
+    override fun onCreated() {
+        super.onCreated()
+        placementSchematicWorld?.startMoving()
+        currentOrigin = MinecraftClient.getInstance().player?.blockPos
+    }
+
     private val schematicWorld = SchematicWorldHandler.getSchematicWorld() ?: error("Failed to load litematica world")
-    override var currentOrigin: BlockPos? = MinecraftClient.getInstance().player?.blockPos
+    override var currentOrigin: BlockPos? = BlockPos.ORIGIN
         set(value) {
             placementSchematicWorld?.clearArea()
             placementSchematicWorld = null

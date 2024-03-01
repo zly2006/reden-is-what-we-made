@@ -2,6 +2,7 @@ package com.github.zly2006.reden.rvc
 
 import com.github.zly2006.reden.utils.setBlockNoPP
 import net.minecraft.block.Block
+import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
@@ -10,6 +11,10 @@ interface IPlacement {
     var enabled: Boolean
     val structure: IStructure
     val world: World
+
+    /**
+     * This value should make sure coordinates >= 0
+     */
     val origin: BlockPos
     fun clearArea() {
         val mutablePos = origin.mutableCopy()
@@ -37,6 +42,15 @@ interface IPlacement {
             }
         }
     }
+    fun startMoving() {}
+    fun blockBox() = BlockBox(
+        origin.x,
+        origin.y,
+        origin.z,
+        origin.x + structure.xSize,
+        origin.y + structure.ySize,
+        origin.z + structure.zSize,
+    )
 }
 
 // This is a private function

@@ -109,12 +109,7 @@ class RvcRepository(
                     checkout(refs.first().name)
                 }
             }
-            placementInfo?.worldInfo?.getWorld()?.let {
-                headCache!!.world = it
-            }
-            placementInfo?.let {
-                headCache!!.placementInfo = it
-            }
+            headCache!!.placementInfo = this.placementInfo
             return headCache!!
         } catch (e: Exception) {
             redenError("Failed to load RVC head structure from repository ${this.name}", e, log = true)
