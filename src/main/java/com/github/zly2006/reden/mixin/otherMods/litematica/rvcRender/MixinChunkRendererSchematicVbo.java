@@ -24,7 +24,14 @@ public class MixinChunkRendererSchematicVbo {
     @Final
     protected BlockPos.Mutable position;
 
-    @Inject(method = "rebuildWorldView", at = @At(value = "INVOKE", target = "Ljava/util/List;clear()V"))
+    @Inject(
+            method = "rebuildWorldView",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/util/List;clear()V",
+                    shift = At.Shift.AFTER
+            )
+    )
     private void addRedenBox(CallbackInfo ci) {
         // todo: is it working?
         RvcMoveStructureLitematicaTask litematicaTask = RvcMoveStructureLitematicaTask.stackTop();
