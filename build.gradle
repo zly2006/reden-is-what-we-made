@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.4-SNAPSHOT'
+    id 'fabric-loom' version '1.5-SNAPSHOT'
     id 'maven-publish'
     id "org.ajoberstar.grgit" version "5.2.0"
     id 'org.jetbrains.kotlin.jvm' version '1.9.20'
@@ -120,7 +120,8 @@ dependencies {
     // Optional dependencies
     modImplementation("fi.dy.masa.litematica:litematica:0.17.1")
     modImplementation("fi.dy.masa.tweakeroo:tweakeroo:0.19.2")
-    modApi("com.terraformersmc:modmenu:9.0.0")
+    modImplementation("com.glisco:isometric-renders:0.4.7+1.20.3")
+    modImplementation("com.terraformersmc:modmenu:9.0.0")
 
     // Runtime only dependencies (game optimization)
     modRuntimeOnly("maven.modrinth:ferrite-core:6.0.3-fabric")
