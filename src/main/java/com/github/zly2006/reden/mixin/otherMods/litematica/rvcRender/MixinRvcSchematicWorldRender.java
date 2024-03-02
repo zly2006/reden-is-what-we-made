@@ -1,6 +1,5 @@
-package com.github.zly2006.reden.mixin.render.otherMods.litematica;
+package com.github.zly2006.reden.mixin.otherMods.litematica.rvcRender;
 
-import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureLitematicaTask;
 import com.github.zly2006.reden.task.Task;
 import com.github.zly2006.reden.task.TaskKt;
@@ -30,10 +29,6 @@ public class MixinRvcSchematicWorldRender {
     @Inject(method = "rebuildWorldView", at = @At(value = "INVOKE", target = "Ljava/util/List;clear()V"))
     private void addRedenBox(CallbackInfo ci) {
         BlockPos startPos = new ChunkPos(position).getStartPos();
-        // fixme
-        if (MalilibSettingsKt.DEBUG_LITEMATICA_SCHEMATIC_RENDERING.getBooleanValue()) {
-            this.boxes.add(new IntBoundingBox(startPos.getX(), -64, startPos.getZ(), startPos.getX() + 15, 255, startPos.getZ() + 15));
-        }
         List<Task> taskStack = TaskKt.getTaskStack();
         if (taskStack.isEmpty()) return;
         Task task = taskStack.get(taskStack.size() - 1);

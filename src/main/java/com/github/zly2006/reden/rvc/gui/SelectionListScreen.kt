@@ -5,6 +5,7 @@ import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.utils.red
+import com.github.zly2006.reden.utils.redenError
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
 import io.wispforest.owo.ui.component.CheckboxComponent
@@ -48,8 +49,12 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
         private val saveButton: ButtonComponent = Components.button(Text.literal("Save")) {
             onFunctionUsed("commit_rvcStructure")
             repository.head().collectFromWorld()
+            if (repository.head().blocks.isEmpty()) {
+                redenError(Text.translatable("reden.rvc.message.save.empty_structure").red())
+            }
             // todo: commit message
             repository.commit(repository.head(), "RedenMC RVC Commit", MinecraftClient.getInstance().player)
+            client?.player?.sendMessage(Text.translatable("reden.rvc.message.save.ok"))
             it.active(false)
         }
         private val placeButton: ButtonComponent = Components.button(Text.literal("Place")) {

@@ -396,6 +396,7 @@ class TrackedStructure(
             world.getBlockEntity(pos.blockPos(origin))?.readNbt(nbt)
         }
         entities.forEach {
+            (world as? ServerWorld)?.getEntity(it.key)?.discard()
             val entity = EntityType.getEntityFromNbt(it.value, world).get()
             world.spawnEntity(entity)
             entity.refreshPositionAndAngles(

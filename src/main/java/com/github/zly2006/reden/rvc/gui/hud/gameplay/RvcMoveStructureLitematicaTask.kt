@@ -9,8 +9,10 @@ import fi.dy.masa.litematica.world.SchematicWorldHandler
 import fi.dy.masa.malilib.util.IntBoundingBox
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
+import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import net.minecraft.world.chunk.WorldChunk
 
 /**
  * Note: Hey i know this class needs to be rewritten for litematica compatibility
@@ -45,11 +47,17 @@ class RvcMoveStructureLitematicaTask(
             placementSchematicWorld = null
             field = value
             if (value != null) {
-                placementSchematicWorld = placingStructure.createPlacement(schematicWorld, value)
-                placementSchematicWorld?.paste()
+                placementSchematicWorld = placingStructure
+                    .createPlacement(schematicWorld, value)
+                    .also(IPlacement::paste)
+                this.box = placementSchematicWorld!!.blockBox().apply {
+                    this.streamChunkPos().forEach {
+                        SchematicWorldHandler.getSchematicWorld()!!.scheduleChunkRenders(it.x, it.z)
+                    }
+                }.toMasaBox()
             }
         }
-    val box: IntBoundingBox? = null
+    var box: IntBoundingBox? = null
     private var placementSchematicWorld: IPlacement? = placingStructure.createPlacement(schematicWorld, currentOrigin!!)
 
     override fun onCancel(): Boolean {
@@ -63,4 +71,10 @@ class RvcMoveStructureLitematicaTask(
         // refresh litematica
         manager.allSchematicsPlacements.forEach(manager::markChunksForRebuild)
     }
+
+    fun pasteSchematicChunk(chunk: WorldChunk) {
+        TODO()
+    }
 }
+
+private fun BlockBox.toMasaBox() = IntBoundingBox(minX, minY, minZ, maxX, maxY, maxZ)

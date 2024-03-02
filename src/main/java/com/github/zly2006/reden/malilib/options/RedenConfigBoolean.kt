@@ -4,7 +4,7 @@ import fi.dy.masa.malilib.config.options.ConfigBoolean
 
 class RedenConfigBoolean(
     name: String,
-    defaultValue: Boolean,
+    defaultValue: Boolean = false,
     callback: (ConfigBoolean.() -> Unit)? = null
 ): IRedenConfigBase,
     ConfigBoolean(name, defaultValue, REDEN_NAMESPACE_PREFIX + name + COMMENT_SUFFIX) {

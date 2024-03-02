@@ -18,6 +18,7 @@ import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.report.reportException
 import com.github.zly2006.reden.rvc.gui.SelectionImportScreen
 import com.github.zly2006.reden.rvc.gui.SelectionListScreen
+import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureLitematicaTask
 import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.remote.github.GithubAuthScreen
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
@@ -426,11 +427,13 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         )
         true
     }
-    RVC_CONFIRM_KEY.callback {
-        taskStack.last().onConfirm()
-    }
-    RVC_CANCEL_KEY.callback {
-        taskStack.last().onCancel()
+    RVC_CONFIRM_KEY.callback { taskStack.last().onConfirm() }
+    RVC_CANCEL_KEY.callback { taskStack.last().onCancel() }
+    DEBUG_LITEMATICA_SCHEMATIC_RERENDER.callback {
+        (taskStack.last() as RvcMoveStructureLitematicaTask).apply {
+            currentOrigin = currentOrigin
+        }
+        true
     }
 }
 
