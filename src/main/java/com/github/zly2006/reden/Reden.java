@@ -4,6 +4,7 @@ import carpet.CarpetExtension;
 import carpet.CarpetServer;
 import com.github.zly2006.reden.access.BlockEntityInterface;
 import com.github.zly2006.reden.access.PlayerData;
+import com.github.zly2006.reden.behalf.BehalfCommandKt;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.indexing.IndexingKt;
 import com.github.zly2006.reden.network.ChannelsKt;
@@ -81,6 +82,7 @@ public class Reden implements ModInitializer, CarpetExtension {
         ChannelsKt.register();
         CarpetServer.manageExtension(this);
         CommandRegistrationCallback.EVENT.register((dispatcher, access, environment) -> {
+            BehalfCommandKt.register(dispatcher);
             // Debug command
             if (isRedenDev()) {
                 dispatcher.register(CommandManager.literal("reden-debug")

@@ -47,7 +47,6 @@ class SelectionImportScreen(
                 client!!.data.rvcStructures[repository.name] = repository
                 selectedRepository = repository
 
-                close()
                 client!!.setScreen(SelectionListScreen())
             }
         }

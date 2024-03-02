@@ -20,3 +20,7 @@ For example, the `otherMods/jei` package contains mixins that are only loaded if
 > See: com.github.zly2006.reden.transformers.RedenMixinExtension.shouldApplyMixin
 
 </details>
+
+### Disable litematica time check for chunk building
+
+`-Dreden.ignoreLitematicaTaskTime=true`

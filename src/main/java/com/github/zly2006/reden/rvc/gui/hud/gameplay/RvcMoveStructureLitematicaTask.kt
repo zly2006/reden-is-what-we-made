@@ -49,6 +49,9 @@ class RvcMoveStructureLitematicaTask(
     override var currentOrigin: BlockPos? = BlockPos.ORIGIN
         set(value) {
             placementSchematicWorld?.clearArea()
+            placementSchematicWorld?.blockBox()?.streamChunkPos()
+                ?.forEach(DataManager.getSchematicPlacementManager()::markChunkForRebuild)
+
             placementSchematicWorld = null
             field = value
             if (value != null) {

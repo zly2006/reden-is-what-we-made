@@ -28,7 +28,7 @@ import java.net.URI
 class CreditScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
     object MikuSinging: AbstractSoundInstance(
         Reden.identifier("miku_miku"),
-        SoundCategory.MUSIC,
+        SoundCategory.VOICE,
         Random.create()
     )
 
@@ -78,7 +78,7 @@ private fun labelComponent(text: Text): LabelComponent {
     }
 }
 
-fun Screen.creditsScreenContent(): FlowLayout {
+private fun Screen.creditsScreenContent(): FlowLayout {
     val content = Containers.verticalFlow(Sizing.fill(), Sizing.content())
     content.child(labelComponent(
         Text.literal("Reden is an open source project under LGPL-3.0 license.").styled {

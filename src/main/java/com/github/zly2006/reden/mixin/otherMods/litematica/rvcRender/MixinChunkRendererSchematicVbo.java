@@ -26,6 +26,7 @@ public class MixinChunkRendererSchematicVbo {
 
     @Inject(method = "rebuildWorldView", at = @At(value = "INVOKE", target = "Ljava/util/List;clear()V"))
     private void addRedenBox(CallbackInfo ci) {
+        // todo: is it working?
         RvcMoveStructureLitematicaTask litematicaTask = RvcMoveStructureLitematicaTask.stackTop();
         if (litematicaTask == null) return;
         BlockPos startPos = new ChunkPos(position).getStartPos();
