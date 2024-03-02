@@ -2,6 +2,7 @@ package com.github.zly2006.reden.rvc.gui.hud.gameplay
 
 import com.github.zly2006.reden.rvc.IPlacement
 import com.github.zly2006.reden.rvc.IStructure
+import com.github.zly2006.reden.task.taskStack
 import com.github.zly2006.reden.utils.litematicaInstalled
 import com.github.zly2006.reden.utils.redenError
 import fi.dy.masa.litematica.data.DataManager
@@ -11,6 +12,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.World
 import net.minecraft.world.chunk.WorldChunk
 
@@ -23,6 +25,9 @@ class RvcMoveStructureLitematicaTask(
     world: World, placingStructure: IStructure
 ) : RvcMoveStructureTask(world, placingStructure, "move_structure_litematica") {
     companion object {
+        @JvmStatic
+        fun stackTop() = taskStack.lastOrNull() as? RvcMoveStructureLitematicaTask?
+
         init {
             if (!litematicaInstalled) {
                 redenError("Litematica is not installed, cannot use this task: " + this::class.qualifiedName)
@@ -51,29 +56,28 @@ class RvcMoveStructureLitematicaTask(
                     .createPlacement(schematicWorld, value)
                     .also(IPlacement::paste)
                 this.box = placementSchematicWorld!!.blockBox().apply {
-                    this.streamChunkPos().forEach {
-                        SchematicWorldHandler.getSchematicWorld()!!.scheduleChunkRenders(it.x, it.z)
-                    }
+                    this.streamChunkPos().forEach(DataManager.getSchematicPlacementManager()::markChunkForRebuild)
                 }.toMasaBox()
             }
         }
     var box: IntBoundingBox? = null
     private var placementSchematicWorld: IPlacement? = placingStructure.createPlacement(schematicWorld, currentOrigin!!)
 
-    override fun onCancel(): Boolean {
-        placementSchematicWorld?.clearArea()
-        return super.onCancel()
-    }
-
     override fun onStopped() {
         super.onStopped()
-        val manager = DataManager.getSchematicPlacementManager()
         // refresh litematica
-        manager.allSchematicsPlacements.forEach(manager::markChunksForRebuild)
+        placementSchematicWorld?.clearArea()
+        placementSchematicWorld?.blockBox()?.streamChunkPos()
+            ?.forEach(DataManager.getSchematicPlacementManager()::markChunkForRebuild)
+        currentOrigin = null
     }
 
-    fun pasteSchematicChunk(chunk: WorldChunk) {
-        TODO()
+    fun previewContainsChunk(chunkPos: ChunkPos) =
+        placementSchematicWorld?.blockBox()?.streamChunkPos()?.anyMatch { it == chunkPos } ?: false
+
+    fun pasteChunk(chunk: WorldChunk) {
+        // todo
+        placingStructure.createPlacement(chunk.world, currentOrigin ?: return).paste()
     }
 }
 

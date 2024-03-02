@@ -42,11 +42,10 @@ open class RvcMoveStructureTask(
         }
     }
 
-    override fun onCancel(): Boolean {
+    override fun onStopped() {
+        super.onStopped()
         currentOrigin = null // clear the area
         RvcHudRenderer.supplierMap -= "move_machine_hud"
-        active = false
-        return true
     }
 
     override fun onConfirm(): Boolean {
