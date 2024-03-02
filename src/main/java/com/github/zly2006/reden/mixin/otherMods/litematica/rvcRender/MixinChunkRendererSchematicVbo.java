@@ -31,7 +31,9 @@ public class MixinChunkRendererSchematicVbo {
         if (litematicaTask == null) return;
         BlockPos startPos = new ChunkPos(position).getStartPos();
         IntBoundingBox box = litematicaTask.getBox();
-        if (box != null && box.minX >= startPos.getX() && box.minZ >= startPos.getZ() && box.maxX < startPos.getX() + 16 && box.maxZ < startPos.getZ() + 16) {
+        if (box == null) return;
+        if (box.maxX >= startPos.getX() && box.minX < startPos.getX() + 16 &&
+                box.maxZ >= startPos.getZ() && box.minZ < startPos.getZ() + 16) {
             boxes.add(box);
         }
     }
