@@ -20,11 +20,16 @@ import net.minecraft.text.Text
 val selectedStructure get() = selectedRepository?.head()
 var selectedRepository: RvcRepository? = null
 
-class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
-    var selectedUIElement: RepositoryLine? = null
+class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
+    private var _selectedUIElement: RepositoryLine? = null
+    var selectedUIElement: RepositoryLine?
+        get() = _selectedUIElement
         set(value) {
-            field?.select?.checked(false)
-            field = value
+            if (value != _selectedUIElement) {
+                _selectedUIElement?.select?.checked(false)
+                _selectedUIElement = value
+            }
+            selectedRepository = value?.repository
             infoBox = Containers.verticalFlow(Sizing.fill(100), Sizing.fill(100)).apply {
                 fun childTr(key: String, vararg args: Any) = child(Components.label(Text.translatable(key, *args)))
                 selectedStructure?.run {
@@ -40,8 +45,11 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
     private val worldInfo = MinecraftClient.getInstance().getWorldInfo()
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
-    inner class RepositoryLine(private val repository: RvcRepository) :
+    inner class RepositoryLine(val repository: RvcRepository) :
         FlowLayout(Sizing.fill(), Sizing.content(), Algorithm.HORIZONTAL) {
+        override fun mount(parent: ParentComponent?, x: Int, y: Int) {
+            super.mount(parent, x, y)
+        }
         private val sameWorld = repository.placementInfo?.worldInfo?.equals(worldInfo)
         var canPlace = repository.placementInfo == null || !repository.placed
             set(value) {
@@ -50,17 +58,8 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             }
         val select: CheckboxComponent = Components.checkbox(Text.empty()).apply {
             onChanged {
-                if (it) {
-                    selectedUIElement?.select?.checked(false)
-
-                    selectedRepository = repository
-                    selectedUIElement = this@RepositoryLine
-                } else {
-                    selectedRepository = null
-                    selectedUIElement = null
-                }
+                selectedUIElement = if (it) this@RepositoryLine else null
             }
-            checked(selectedRepository == repository)
         }
 
         // TODO: move to info screen
@@ -104,7 +103,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
         private fun checkActive() {
             saveButton.active(repository.hasChanged() && sameWorld == true)
             placeButton.active(canPlace)
-            select.active = sameWorld == true
+            select.active = sameWorld != false
             if (sameWorld == false) {
                 select.checked(false)
                 this.tooltip(Text.literal("Not in the same world").red())
@@ -140,14 +139,7 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
 
     override fun build(rootComponent: FlowLayout) {
         val mc = MinecraftClient.getInstance()
-        rootComponent
-            .gap(5)
-            .padding(Insets.of(5))
-            .surface(Surface.VANILLA_TRANSLUCENT)
-            .horizontalAlignment(HorizontalAlignment.LEFT)
-            .verticalAlignment(VerticalAlignment.TOP)
-
-        rootComponent.child(Containers.horizontalFlow(Sizing.fill(), Sizing.fixed(20)).apply {
+        val addRepository = Containers.horizontalFlow(Sizing.fill(), Sizing.fixed(20)).apply {
             gap(5)
             child(Components.button(Text.literal("New")) {
                 onFunctionUsed("new_rvcListScreen")
@@ -157,20 +149,40 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
                 onFunctionUsed("import_rvcListScreen")
                 client!!.setScreen(SelectionImportScreen())
             })
-        })
-
+        }
         val repositoryLines = Containers.verticalFlow(Sizing.fill(), Sizing.content())
-        rootComponent.child(Containers.verticalScroll(Sizing.fill(), Sizing.fill(70), repositoryLines))
+        val infoBoxScroll = Containers.verticalScroll(
+            Sizing.fill(100),
+            Sizing.fill(20),
+            infoBox
+        )
+
         mc.data.rvcStructures.values.forEach {
-            repositoryLines.child(RepositoryLine(it))
+            val element = RepositoryLine(it)
+            if (it == selectedRepository) {
+                _selectedUIElement = element
+            }
+            repositoryLines.child(element)
         }
 
-        rootComponent.child(
-            Containers.verticalScroll(
-                Sizing.fill(100),
-                Sizing.fill(20),
-                infoBox
+        rootComponent
+            .children(
+                listOf(
+                    addRepository,
+                    Containers.verticalScroll(Sizing.fill(), Sizing.fill(70), repositoryLines),
+                    infoBoxScroll
+                )
             )
-        )
+            .gap(5)
+            .padding(Insets.of(5))
+            .surface(Surface.VANILLA_TRANSLUCENT)
+            .horizontalAlignment(HorizontalAlignment.LEFT)
+            .verticalAlignment(VerticalAlignment.TOP)
+    }
+
+    // work around. I am finding a better way to implement (including PR to owo)
+    override fun init() {
+        super.init()
+        _selectedUIElement?.select?.checked(true)
     }
 }
