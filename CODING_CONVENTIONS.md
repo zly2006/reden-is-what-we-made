@@ -17,7 +17,7 @@ A GUI class includes of the following parts:
 
   except the wrappers (e.g. scroll container) and immutable components.
 
-  set their initial style and listeners such as onClick here.
+  set their initial style and listeners such as onClick here using `apply` function.
 
 + **Properties**, the properties of the gui, they may have a custom setter.
   > [!NOTE]
@@ -25,7 +25,12 @@ A GUI class includes of the following parts:
   > We prefer custom setters for related properties than to set them manually each time.
   > Please specify the proper access modifier for the property.
 
-+ **Initialization**, the build function
++ **Initialization**, the `build` function for screens or `<init>` for components.
+
+    + First, define all child components using `val`, as well as their initial style and listeners.
+    + Then, do some extra initialization if needed.
+    + Finally, add children to the parent component and set the parent's style.
+      **You should use the parent component (or `this`) only once here in the entire initialization function.**
 
 ## Knowledge
 
