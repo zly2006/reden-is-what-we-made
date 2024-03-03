@@ -5,7 +5,6 @@ import com.github.zly2006.reden.rvc.gui.RvcHudRenderer
 import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.utils.holdingToolItem
-import com.github.zly2006.reden.utils.red
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
@@ -20,7 +19,7 @@ fun registerHud() {
         val mc = MinecraftClient.getInstance()
         if (mc.player?.holdingToolItem == true) {
             if (selectedStructure == null) {
-                list.add(Text.literal("reden.widget.rvc.hud.selected_nothing").red())
+                list.add(Text.translatable("reden.widget.rvc.hud.selected_nothing"))
             }
             else {
                 list.add(Text.translatable("reden.widget.rvc.hud.selected", selectedStructure!!.name))

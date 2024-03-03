@@ -4,6 +4,10 @@ pluginManagement {
             name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
         }
+        maven {
+            name = "Reden"
+            url = "https://maven.starlight.cool/artifactory/reden"
+        }
         mavenCentral()
         gradlePluginPortal()
     }

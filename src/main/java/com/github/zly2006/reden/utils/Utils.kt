@@ -6,10 +6,8 @@ import com.github.zly2006.reden.exceptions.RedenException
 import com.github.zly2006.reden.malilib.DEVELOPER_MODE
 import com.github.zly2006.reden.malilib.LOCAL_API_BASEURL
 import com.github.zly2006.reden.malilib.SELECTION_TOOL
+import com.google.gson.Gson
 import io.wispforest.owo.ui.core.Surface
-import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.json.Json
 import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.impl.discovery.ModResolutionException
@@ -103,7 +101,9 @@ object ResourceLoader {
     @JvmStatic
     fun loadLang(lang: String) =
         loadStringOrNull("assets/reden/lang/$lang.json")?.let {
-            Json.decodeFromString(MapSerializer(String.serializer(), String.serializer()), it)
+            // work around for owo rich translate
+            @Suppress("UNCHECKED_CAST")
+            Gson().fromJson(it, Map::class.java).filterValues { value -> value is String } as Map<String, String>
         }
 }
 

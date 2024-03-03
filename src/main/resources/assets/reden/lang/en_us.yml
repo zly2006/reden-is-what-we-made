@@ -67,7 +67,7 @@ reden:
           confirm: "Press %s to confirm this position"
           conflict: "This position is conflicted with %s blocks"
         selected: "Selected: %s"
-        selected_nothing: "Selected: Nothing"
+        selected_nothing: [ { text: "Selected: Nothing", color: red } ]
         trackpoints:
           .: "Trackpoints: "
           tracking: "%s Tracking"
