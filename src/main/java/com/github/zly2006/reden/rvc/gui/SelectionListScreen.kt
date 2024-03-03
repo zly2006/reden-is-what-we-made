@@ -121,16 +121,6 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
 
             left.child(select)
             left.child(Components.label(Text.literal(repository.name)))
-            right.child(Components.button(Text.literal("Delete")) {
-                onFunctionUsed("delete_rvcStructure")
-                if (selectedRepository == repository) {
-                    selectedRepository = null
-                    selectedUIElement = null
-                }
-                client!!.data.rvcStructures.remove(repository.name)
-                repository.delete()
-                parent!!.removeChild(this)
-            })
             right.child(detailsButton)
             right.child(exportButton)
             right.child(placeButton)
