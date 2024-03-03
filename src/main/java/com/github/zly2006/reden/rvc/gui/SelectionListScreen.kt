@@ -12,6 +12,7 @@ import io.wispforest.owo.ui.component.CheckboxComponent
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
+import io.wispforest.owo.ui.container.ScrollContainer
 import io.wispforest.owo.ui.core.*
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
@@ -21,6 +22,21 @@ var selectedRepository: RvcRepository? = null
 
 class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
     var selectedUIElement: RepositoryLine? = null
+        set(value) {
+            field?.select?.checked(false)
+            field = value
+            infoBox = Containers.verticalFlow(Sizing.fill(100), Sizing.fill(100)).apply {
+                fun childTr(key: String, vararg args: Any) = child(Components.label(Text.translatable(key, *args)))
+                selectedStructure?.run {
+                    childTr("reden.widget.rvc.structure.name", name)
+                    childTr("reden.widget.rvc.structure.block_count", blocks.count())
+                    childTr("reden.widget.rvc.structure.entity_count", entities.count())
+                    if (fluidScheduledTicks.isNotEmpty() || blockScheduledTicks.isNotEmpty() || blockEvents.isNotEmpty()) {
+                        childTr("reden.widget.rvc.structure.scheduled_tick_unstable")
+                    }
+                }
+            }
+        }
     private val worldInfo = MinecraftClient.getInstance().getWorldInfo()
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
@@ -46,6 +62,8 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             }
             checked(selectedRepository == repository)
         }
+
+        // TODO: move to info screen
         private val saveButton: ButtonComponent = Components.button(Text.literal("Save")) {
             onFunctionUsed("commit_rvcStructure")
             repository.head().collectFromWorld()
@@ -115,21 +133,31 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             })
             right.child(detailsButton)
             right.child(exportButton)
-            right.child(saveButton)
             right.child(placeButton)
         }
     }
 
-    private var infoBox: Component? = null
+    /**
+     * root -> scroll -> infBox
+     */
+    @Suppress("UNCHECKED_CAST")
+    private var infoBox: FlowLayout = Containers.verticalFlow(Sizing.fill(100), Sizing.fill(100))
+        set(value) {
+            val parent = field.parent() as ScrollContainer<Component>
+            field = value
+            parent.child(field)
+        }
 
     override fun build(rootComponent: FlowLayout) {
         val mc = MinecraftClient.getInstance()
         rootComponent
+            .gap(5)
+            .padding(Insets.of(5))
             .surface(Surface.VANILLA_TRANSLUCENT)
             .horizontalAlignment(HorizontalAlignment.LEFT)
             .verticalAlignment(VerticalAlignment.TOP)
 
-        rootComponent.child(Containers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
+        rootComponent.child(Containers.horizontalFlow(Sizing.fill(), Sizing.fixed(20)).apply {
             gap(5)
             child(Components.button(Text.literal("New")) {
                 onFunctionUsed("new_rvcListScreen")
@@ -141,25 +169,18 @@ class SelectionListScreen: BaseOwoScreen<FlowLayout>() {
             })
         })
 
+        val repositoryLines = Containers.verticalFlow(Sizing.fill(), Sizing.content())
+        rootComponent.child(Containers.verticalScroll(Sizing.fill(), Sizing.fill(70), repositoryLines))
         mc.data.rvcStructures.values.forEach {
-            rootComponent.child(RepositoryLine(it))
+            repositoryLines.child(RepositoryLine(it))
         }
 
-        infoBox = Containers.verticalScroll(
-            Sizing.fill(100),
-            Sizing.fill(40),
-            Containers.verticalFlow(Sizing.fill(100), Sizing.fill(100)).apply {
-                fun childTr(key: String, vararg args: Any) = child(Components.label(Text.translatable(key, *args)))
-                selectedStructure?.run {
-                    childTr("reden.widget.rvc.structure.name", name)
-                    childTr("reden.widget.rvc.structure.block_count", blocks.count())
-                    childTr("reden.widget.rvc.structure.entity_count", entities.count())
-                    if (fluidScheduledTicks.isNotEmpty() || blockScheduledTicks.isNotEmpty() || blockEvents.isNotEmpty()) {
-                        childTr("reden.widget.rvc.structure.scheduled_tick_unstable")
-                    }
-                }
-            }
+        rootComponent.child(
+            Containers.verticalScroll(
+                Sizing.fill(100),
+                Sizing.fill(20),
+                infoBox
+            )
         )
-        rootComponent.child(Components.label(Text.empty()))
     }
 }
