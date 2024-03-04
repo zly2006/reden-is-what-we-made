@@ -32,7 +32,7 @@ import kotlin.io.path.exists
 
 @OptIn(ExperimentalSerializationApi::class)
 class RvcRepository(
-    private val git: Git,
+    internal val git: Git,
     val name: String = git.repository.workTree.name,
     val side: NetworkSide
 ) {

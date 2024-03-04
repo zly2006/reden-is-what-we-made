@@ -143,7 +143,7 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
             gap(5)
             child(Components.button(Text.literal("New")) {
                 onFunctionUsed("new_rvcListScreen")
-                client!!.setScreen(SelectionCreateScreen())
+                client!!.setScreen(SelectionCreateScreen(this@SelectionListScreen))
             })
             child(Components.button(Text.literal("Import")) {
                 onFunctionUsed("import_rvcListScreen")

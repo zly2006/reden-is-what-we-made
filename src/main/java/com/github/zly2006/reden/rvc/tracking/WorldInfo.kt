@@ -134,5 +134,7 @@ private infix fun <T> T?.eqNotNull(other: T?): Boolean {
 data class PlacementInfo(
     val worldInfo: WorldInfo,
     @Serializable(with = BlockPosSerializer::class)
-    val origin: BlockPos = BlockPos.ORIGIN
+    val origin: BlockPos = BlockPos.ORIGIN,
+    val isImported: Boolean = false,
+    val isServerSide: Boolean = false,
 )

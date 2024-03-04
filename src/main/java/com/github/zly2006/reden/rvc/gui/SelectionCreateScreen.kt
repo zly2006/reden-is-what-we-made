@@ -10,12 +10,13 @@ import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.core.*
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.network.NetworkSide
 import net.minecraft.text.Text
 
 private val DEFAULT_STATUS_TIP = Text.literal("Create a new RVC repository")
 
-class SelectionCreateScreen: BaseOwoScreen<FlowLayout>() {
+class SelectionCreateScreen(val parent: Screen?) : BaseOwoScreen<FlowLayout>() {
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
     private val confirmNameButton: ButtonComponent = Components.button(Text.literal("OK")) {
         val repository = RvcRepository.create(nameField.text, client!!.getWorldInfo(), NetworkSide.CLIENTBOUND)
@@ -51,5 +52,9 @@ class SelectionCreateScreen: BaseOwoScreen<FlowLayout>() {
                 .verticalAlignment(VerticalAlignment.CENTER)
         )
         rootComponent.child(label)
+    }
+
+    override fun close() {
+        client!!.setScreen(parent)
     }
 }
