@@ -36,7 +36,9 @@ class SponsorScreen(val parent: Screen? = null, private val loadIfNull: Boolean 
             val list = Containers.verticalFlow(Sizing.fill(100), Sizing.content())
             sponsors!!.forEach {
                 list.child(labelComponent(Text.literal(it.name)).shadow(true).margins(Insets.of(10, 5, 0, 0)))
-                list.child(labelComponent(Text.literal((it.detail ?: "¥${it.amount}") + it.message).formatted(Formatting.GRAY)))
+                val display = (if (it.detail.isNullOrEmpty()) "¥${it.amount}" else it.detail) +
+                        (if (it.message.isEmpty()) "" else "\n${it.message}")
+                list.child(labelComponent(Text.literal(display).formatted(Formatting.GRAY)))
             }
             rootComponent.child(Containers.verticalScroll(Sizing.fill(70), Sizing.fill(80), list))
         }

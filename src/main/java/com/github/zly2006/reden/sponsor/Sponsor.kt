@@ -26,9 +26,6 @@ var sponsors: List<Sponsor>? = null
     get() = if (time + 1000 * 60 < System.currentTimeMillis()) null else field
     private set
 private var time = 0L
-val x by lazy {
-    8
-}
 
 fun updateSponsors() {
     Logger.getLogger(OkHttpClient::class.java.getName()).setLevel(Level.FINE)

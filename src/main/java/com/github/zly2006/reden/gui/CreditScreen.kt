@@ -152,6 +152,7 @@ private fun Screen.creditsScreenContent(): FlowLayout {
         .append(Text.literal(" - For providing free licenses of IntelliJ IDEA and other awesome developing tools.").formatted(Formatting.GRAY))
     ).apply {
         margins(Insets.vertical(3))
+        cursorStyle(CursorStyle.HAND)
         mouseDown().subscribe { _, _, _ ->
             Util.getOperatingSystem().open(URI("https://www.jetbrains.com/?from=Reden"))
             true
