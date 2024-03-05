@@ -27,6 +27,8 @@ reden:
       overworld: Overworld
       the_nether: The Nether
       the_end: The End
+    mod:
+      litematica: Litematica
   widget:
     privacy:
       desc: |

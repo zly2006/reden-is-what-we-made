@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.gui
 
+import com.github.zly2006.reden.ModNames
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.report.onFunctionUsed
@@ -164,7 +165,7 @@ class SelectionImportScreen(
                     }
             }
         },
-        Litematica(Text.literal("Litematica")) {
+        Litematica(ModNames.litematicaName) {
             override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
                 File(FOLDER_SCHEMATICS).mkdirs()
                 File(FOLDER_SCHEMATICS).listFiles()!!.asSequence()

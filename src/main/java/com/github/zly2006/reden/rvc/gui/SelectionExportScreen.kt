@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.gui
 
+import com.github.zly2006.reden.ModNames
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.rvc.io.LitematicaIO
 import com.github.zly2006.reden.rvc.io.SchematicIO
@@ -246,7 +247,7 @@ class SelectionExportScreen(
                 SchematicIO.save(path, head)
             }
         },
-        Litematica(Text.literal("Litematica"), Text.empty(), SelectionImportScreen.EXTENSION_LITEMATICA) {
+        Litematica(ModNames.litematicaName, Text.empty(), SelectionImportScreen.EXTENSION_LITEMATICA) {
             override fun export(path: Path, head: TrackedStructure) {
                 LitematicaIO.save(path, head, false)
             }

@@ -23,6 +23,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
+import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.argument.BlockPosArgumentType;
@@ -44,6 +45,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.Map;
 
 public class Reden implements ModInitializer, CarpetExtension {
@@ -51,7 +53,9 @@ public class Reden implements ModInitializer, CarpetExtension {
     public static final String MOD_NAME = "Reden";
     public static final String CONFIG_FILE = "reden/config.json";
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public static final Version MOD_VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion();
+    private static final ModMetadata MOD_METADATA = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata();
+    public static final Version MOD_VERSION = MOD_METADATA.getVersion();
+    public static final Date BUILD_TIME = new Date(Long.parseLong(MOD_METADATA.getCustomValue("reden").getAsObject().get("build_timestamp").getAsString()));
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final int REDEN_HIGHEST_MIXIN_PRIORITY = 10;
@@ -72,7 +76,7 @@ public class Reden implements ModInitializer, CarpetExtension {
         return ResourceLoader.loadLang(lang);
     }
 
-    public boolean isRedenDev() {
+    public static boolean isRedenDev() {
         return Boolean.parseBoolean(System.getProperty("reden.debug", String.valueOf(FabricLoader.getInstance().isDevelopmentEnvironment())));
     }
 
@@ -86,14 +90,19 @@ public class Reden implements ModInitializer, CarpetExtension {
             // Debug command
             if (isRedenDev()) {
                 dispatcher.register(CommandManager.literal("reden-debug")
-                                .then(CommandManager.literal("top-undo").executes(context -> {
-                                    PlayerData.Companion.data(context.getSource().getPlayer()).topUndo();
-                                    return 1;
-                                }))
-                                .then(CommandManager.literal("top-redo").executes(context -> {
-                                    PlayerData.Companion.data(context.getSource().getPlayer()).topRedo();
-                                    return 1;
-                                }))
+                        .then(CommandManager.literal("version").executes(context -> {
+                            context.getSource().sendMessage(Text.of("Reden v" + MOD_VERSION.getFriendlyString()));
+                            context.getSource().sendMessage(Text.of("Build time: " + BUILD_TIME));
+                            return 1;
+                        }))
+                        .then(CommandManager.literal("top-undo").executes(context -> {
+                            PlayerData.Companion.data(context.getSource().getPlayer()).topUndo();
+                            return 1;
+                        }))
+                        .then(CommandManager.literal("top-redo").executes(context -> {
+                            PlayerData.Companion.data(context.getSource().getPlayer()).topRedo();
+                            return 1;
+                        }))
                         .then(CommandManager.literal("schematic")
                                 // Note: single-player mode only
                                 // Note:

@@ -93,7 +93,8 @@ allprojects {
         filesMatching("fabric.mod.json") {
             expand(
                     "version": project.version,
-                    "is_main_branch": project.is_main_branch
+                    "is_main_branch": project.is_main_branch,
+                    "build_timestamp": System.currentTimeMillis()
             )
         }
     }
@@ -175,8 +176,8 @@ publishing {
         maven {
             url = uri('https://maven.starlight.cool/artifactory/reden')
             credentials {
-                username = project.artifactory_user
-                password = project.artifactory_password
+                username = System.getenv().MAVEN_USER
+                password = System.getenv().MAVEN_PASSWORD
             }
         }
     }

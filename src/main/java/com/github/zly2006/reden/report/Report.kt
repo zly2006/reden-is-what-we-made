@@ -15,11 +15,15 @@ import com.mojang.authlib.minecraft.UserApiService
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.loader.api.FabricLoader
+import net.fabricmc.loader.api.Version
 import net.minecraft.MinecraftVersion
+import net.minecraft.SharedConstants
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.option.ServerList
 import net.minecraft.server.MinecraftServer
+import net.minecraft.text.ClickEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Util
 import net.minecraft.util.crash.CrashMemoryReserve
@@ -244,11 +248,42 @@ class UpdateInfo(
 )
 
 fun checkUpdateFromModrinth(): UpdateInfo? {
-    TODO()
+    @Serializable
+    data class ModrinthFile(
+        val url: String,
+        val filename: String,
+        val size: Long
+    )
+
+    @Serializable
+    data class ModrinthVersion(
+        val id: String,
+        val name: String,
+        val version_number: String,
+        val changelog: String,
+        val game_versions: List<String>,
+        val files: List<ModrinthFile>
+    )
+
+    val modrinthVersion = FabricLoader.getInstance().getModContainer(Reden.MOD_ID)
+        .get().metadata.getCustomValue("modmenu").asObject.get("modrinth").asString
+    val res = httpClient.newCall(Request.Builder().apply {
+        url("https://api.modrinth.com/v2/project/$modrinthVersion/version")
+        ua()
+    }.build()).execute().use {
+        it.body!!.string()
+    }
+    val curVersion = SharedConstants.getGameVersion().name
+    val versions =
+        jsonIgnoreUnknown.decodeFromString<List<ModrinthVersion>>(res).filter { curVersion in it.game_versions }
+    val latest = versions.maxByOrNull { Version.parse(it.version_number) }
+    return if (latest != null && Version.parse(latest.version_number) > Reden.MOD_VERSION)
+        UpdateInfo(latest.version_number, latest.files.first().url, latest.changelog, "modrinth")
+    else null
 }
 
 fun checkUpdateFromRedenApi(): UpdateInfo? {
-    TODO()
+    return null // todo
 }
 
 fun checkAnnouncements() {
@@ -284,24 +319,23 @@ fun redenSetup(client: MinecraftClient) {
             val serverList = ServerList(client)
             serverList.loadFile()
             val req = Req(
-                if (data_IDENTIFICATION.booleanValue) client.session.username
-                else "Anonymous",
-                false,
-                client.userApiService != UserApiService.OFFLINE,
-                System.getProperty("os.name") + " " + System.getProperty("os.version"),
-                Runtime.getRuntime().availableProcessors(),
-                MinecraftVersion.create().name,
-                FabricLoader.getInstance().getModContainer("reden").get().metadata.version.toString(),
-                if (data_IDENTIFICATION.booleanValue) FabricLoader.getInstance().allMods.map {
+                name = if (data_IDENTIFICATION.booleanValue) client.session.username else "Anonymous",
+                early_access = false,
+                online_mode = client.userApiService != UserApiService.OFFLINE,
+                os = System.getProperty("os.name") + " " + System.getProperty("os.version"),
+                cpus = Runtime.getRuntime().availableProcessors(),
+                mc_version = MinecraftVersion.create().name,
+                reden_version = Reden.MOD_VERSION.friendlyString,
+                mods = if (data_IDENTIFICATION.booleanValue) FabricLoader.getInstance().allMods.map {
                     ModData(
                         it.metadata.name,
                         it.metadata.version.toString(),
                         it.metadata.id,
-                        it.metadata.authors.map { it.name + " <" + it.contact.asMap().entries.joinToString() + ">" },
+                        listOf()
                     )
                 }
                 else listOf(),
-                if (data_IDENTIFICATION.booleanValue) (0 until serverList.size()).map { serverList[it] }.map {
+                servers = if (data_IDENTIFICATION.booleanValue) (0 until serverList.size()).map { serverList[it] }.map {
                     mapOf(
                         "name" to it.name,
                         "ip" to it.address,
@@ -376,7 +410,13 @@ fun redenSetup(client: MinecraftClient) {
                 null
             }
             if (updateInfo != null) {
-
+                ClientPlayConnectionEvents.JOIN.register { _, _, _ ->
+                    client.player?.sendMessage(
+                        Text.literal("RedenMC: New version ${updateInfo.version} is available, download at ${updateInfo.url}")
+                            .styled {
+                                it.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, updateInfo.url))
+                            })
+                }
             }
         }.start()
     }

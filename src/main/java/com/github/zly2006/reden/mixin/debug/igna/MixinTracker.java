@@ -24,8 +24,6 @@ public class MixinTracker {
 
     @Shadow private int trackingTick;
 
-    @Shadow @Final private int tickInterval;
-
     @Shadow @Final private ServerWorld world;
 
     @Inject(
