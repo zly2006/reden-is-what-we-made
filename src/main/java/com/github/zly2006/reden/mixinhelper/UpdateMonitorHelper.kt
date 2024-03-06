@@ -175,7 +175,7 @@ object UpdateMonitorHelper {
     fun postSetBlock(world: ServerWorld, pos: BlockPos, finalState: BlockState, beChangeOnly: Boolean) {
         val be = world.getBlockEntity(pos) as BlockEntityInterface?
         if (be != null) {
-            val data = be.`getLastSavedNbt$reden`()
+            val data = be.lastSavedNbt
             debugLogger("id ${recording?.id ?: 0}: set$pos, block entity lastSaved=$data")
 
             if (beChangeOnly) {
@@ -189,7 +189,7 @@ object UpdateMonitorHelper {
                 }
             }
 
-            be.`saveLastNbt$reden`()
+            be.saveLastNbt()
             debugLogger("postSetBlock: done.")
         }
     }

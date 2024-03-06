@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.gui
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.gui.git.RvcManageRemotesScreen
@@ -12,6 +13,7 @@ import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.core.*
+import io.wispforest.owo.ui.util.UIErrorToast
 import net.minecraft.text.Text
 import org.eclipse.jgit.revwalk.RevCommit
 
@@ -52,7 +54,12 @@ class SelectionInfoScreen(
 
             override val gitUrl = repository.git.repository.config.getString("remote", "origin", "url")
         }
-        repository.push(remote)
+        try {
+            repository.push(remote)
+        } catch (e: Exception) {
+            Reden.LOGGER.error("Failed to push ${repository.name}", e)
+            UIErrorToast.report(e)
+        }
     }!!
     private val pullButton = Components.button(Text.literal("Pull")) {
         onFunctionUsed("pull_rvcStructure")

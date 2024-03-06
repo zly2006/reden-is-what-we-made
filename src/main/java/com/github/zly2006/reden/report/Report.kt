@@ -36,10 +36,13 @@ import okhttp3.internal.userAgent
 import okio.use
 import java.net.URI
 import java.util.*
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 var key = ""
 
 val httpClient = OkHttpClient.Builder().apply {
+    readTimeout(60.seconds.toJavaDuration())
 }.build()
 
 inline fun <reified T> Request.Builder.json(data: T) = apply {
@@ -48,7 +51,7 @@ inline fun <reified T> Request.Builder.json(data: T) = apply {
 }
 
 fun Request.Builder.ua() = apply {
-    header("Authentication", "ApiKey $key")
+    header("Authorization", "ApiKey $key")
     header("User-Agent", "RedenMC/${Reden.MOD_VERSION} Minecraft/${MinecraftVersion.create().name} (Fabric) $userAgent")
 }
 
@@ -292,33 +295,78 @@ fun checkAnnouncements() {
     }.build())
 }
 
+@Serializable
+private class ModData(
+    val name: String,
+    val version: String,
+    val modid: String,
+    val authors: List<String>
+)
+
+@Serializable
+private class OnlineReq(
+    val name: String,
+    val early_access: Boolean,
+    var online_mode: Boolean,
+    val os: String,
+    val cpus: Int,
+    val mc_version: String,
+    val reden_version: String,
+    val mods: List<ModData>,
+    val servers: List<Map<String, String>>
+)
+
+fun updateOnlineInfo(client: MinecraftClient) {
+    if (client.userApiService == UserApiService.OFFLINE) return
+    try {
+        client.sessionService.joinServer(
+            client.session.uuidOrNull,
+            client.session.accessToken,
+            "3cb49a79c3af1f1dba6c56eddd760ac7d50c518a"
+        )
+
+        val serverList = ServerList(client)
+        serverList.loadFile()
+        val req = OnlineReq(
+            name = client.session.username,
+            early_access = false,
+            online_mode = client.userApiService != UserApiService.OFFLINE,
+            os = System.getProperty("os.name") + " " + System.getProperty("os.version"),
+            cpus = Runtime.getRuntime().availableProcessors(),
+            mc_version = MinecraftVersion.create().name,
+            reden_version = Reden.MOD_VERSION.friendlyString,
+            mods = FabricLoader.getInstance().allMods.map {
+                ModData(
+                    it.metadata.name,
+                    it.metadata.version.toString(),
+                    it.metadata.id,
+                    listOf()
+                )
+            },
+            servers = (0 until serverList.size()).map { serverList[it] }.map {
+                mapOf(
+                    "name" to it.name,
+                    "ip" to it.address,
+                )
+            }
+        )
+        val res = httpClient.newCall(Request.Builder().apply {
+            url("$redenApiBaseUrl/mc/online")
+            json(req)
+            ua()
+        }.build()).execute().body!!.string()
+        LOGGER.info(res)
+    } catch (e: Exception) {
+        LOGGER.debug("", e)
+    }
+}
+
 fun redenSetup(client: MinecraftClient) {
     Thread {
         try {
-            @Serializable
-            class ModData(
-                val name: String,
-                val version: String,
-                val modid: String,
-                val authors: List<String>
-            )
-
-            @Serializable
-            class Req(
-                val name: String,
-                val early_access: Boolean,
-                var online_mode: Boolean,
-                val os: String,
-                val cpus: Int,
-                val mc_version: String,
-                val reden_version: String,
-                val mods: List<ModData>,
-                val servers: List<Map<String, String>>
-            )
-
             val serverList = ServerList(client)
             serverList.loadFile()
-            val req = Req(
+            val req = OnlineReq(
                 name = if (data_IDENTIFICATION.booleanValue) client.session.username else "Anonymous",
                 early_access = false,
                 online_mode = client.userApiService != UserApiService.OFFLINE,
@@ -379,6 +427,7 @@ fun redenSetup(client: MinecraftClient) {
         } catch (e: Exception) {
             LOGGER.debug("", e)
         }
+        updateOnlineInfo(client)
     }.start()
     Runtime.getRuntime().addShutdownHook(Thread {
         try {

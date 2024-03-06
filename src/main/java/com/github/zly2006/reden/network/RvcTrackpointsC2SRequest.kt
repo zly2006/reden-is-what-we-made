@@ -26,7 +26,7 @@ class RvcTrackpointsC2SRequest(
         val id = Reden.identifier("rvc_trackpoints_c2s")
         val pType = PacketType.create(id) {
             val op = it.readVarInt()
-            val structure = TrackedStructure(it.readString(), NetworkSide.SERVERBOUND)
+            val structure = TrackedStructure(it.readString(), null, NetworkSide.SERVERBOUND)
             val origin = it.readBlockPos()
             val size = it.readVarInt()
             val trackpoints = ArrayList<TrackedStructure.TrackPoint>(size)

@@ -18,9 +18,12 @@ class RvcManageRemotesScreen(val repository: RvcRepository, val parent: Screen?)
     val remoteText = Components.textBox(
         Sizing.fill(),
         repository.git.repository.config.getString("remote", "origin", "url")
-    )
+    ).apply {
+        setMaxLength(100)
+    }
     val okButton = Components.button(Text.literal("OK")) {
         repository.git.repository.config.setString("remote", "origin", "url", remoteText.text)
+        repository.git.repository.config.save()
         close()
     }
 

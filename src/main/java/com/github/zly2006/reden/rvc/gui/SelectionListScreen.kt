@@ -15,7 +15,10 @@ import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer
 import io.wispforest.owo.ui.core.*
 import net.minecraft.client.MinecraftClient
+import net.minecraft.network.NetworkSide
 import net.minecraft.text.Text
+import org.eclipse.jgit.api.Git
+import java.io.File
 
 val selectedStructure get() = selectedRepository?.head()
 var selectedRepository: RvcRepository? = null
@@ -43,6 +46,16 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
             }
         }
     private val worldInfo = MinecraftClient.getInstance().getWorldInfo()
+    private val reloadAllButton = Components.button(Text.literal("Reload All")) {
+        onFunctionUsed("reloadAll_rvcListScreen")
+        client!!.data.rvcStructures.clear()
+        selectedRepository = null
+        File("rvc").listFiles()!!.asSequence()
+            .filter { it.isDirectory && it.resolve(".git").exists() }
+            .map { RvcRepository(Git.open(it), side = NetworkSide.CLIENTBOUND) }
+            .forEach { client!!.data.rvcStructures[it.name] = it }
+        close()
+    }
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
     inner class RepositoryLine(val repository: RvcRepository) :
@@ -149,6 +162,7 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
                 onFunctionUsed("import_rvcListScreen")
                 client!!.setScreen(SelectionImportScreen())
             })
+            child(reloadAllButton)
         }
         val repositoryLines = Containers.verticalFlow(Sizing.fill(), Sizing.content())
         val infoBoxScroll = Containers.verticalScroll(

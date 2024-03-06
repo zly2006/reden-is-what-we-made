@@ -51,7 +51,10 @@ open class RvcMoveStructureTask(
     override fun onConfirm(): Boolean {
         val pos = currentOrigin ?: return false
         currentOrigin = null
-        placingStructure.createPlacement(world, pos).paste()
+        placingStructure.createPlacement(world, pos).apply {
+            paste()
+            setPlaced()
+        }
         active = false
         return true
     }

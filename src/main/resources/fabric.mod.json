@@ -15,7 +15,8 @@
   "contact": {
     "sources": "https://github.com/zly2006/reden-is-what-we-made",
     "homepage": "https://www.redenmc.com/",
-    "issues": "https://github.com/zly2006/reden-is-what-we-made/issues"
+    "issues": "https://github.com/zly2006/reden-is-what-we-made/issues",
+    "discord": "https://discord.gg/fCxmEyFgAd"
   },
   "license": "LGPL-v3",
   "icon": "assets/reden/icon.png",

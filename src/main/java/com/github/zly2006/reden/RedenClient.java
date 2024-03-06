@@ -53,26 +53,14 @@ public class RedenClient implements ClientModInitializer {
             ConfigManager.getInstance().registerConfigHandler("reden", new IConfigHandler() {
                 @Override
                 public void load() {
-                    try {
-                        File file = new File(FileUtils.getConfigDirectory(), Reden.CONFIG_FILE);
-                        if (!file.exists()) {
-                            return;
-                        }
-                        JsonObject jo = Reden.GSON.fromJson(Files.readString(file.toPath()), JsonObject.class);
-                        ConfigUtils.readConfigBase(jo, Reden.MOD_NAME, MalilibSettingsKt.getAllOptions());
-                        if (DebugKt.isDebug()) {
-                            DebugKt.startDebugAppender();
-                        }
-                    } catch (IOException e) {
-                        save();
-                    }
+                    loadMalilibSettings();
                 }
-
                 @Override
                 public void save() {
                     saveMalilibOptions();
                 }
             });
+            loadMalilibSettings();
             ClientTrackingKt.registerSelectionTool();
             InputEventHandler.getKeybindManager().registerKeybindProvider(new IKeybindProvider() {
                 @Override
@@ -148,6 +136,22 @@ public class RedenClient implements ClientModInitializer {
                 Reden.LOGGER.error("", e);
             }
         });
+    }
+
+    public static void loadMalilibSettings() {
+        try {
+            File file = new File(FileUtils.getConfigDirectory(), Reden.CONFIG_FILE);
+            if (!file.exists()) {
+                return;
+            }
+            JsonObject jo = Reden.GSON.fromJson(Files.readString(file.toPath()), JsonObject.class);
+            ConfigUtils.readConfigBase(jo, Reden.MOD_NAME, MalilibSettingsKt.getAllOptions());
+            if (DebugKt.isDebug()) {
+                DebugKt.startDebugAppender();
+            }
+        } catch (IOException e) {
+            Reden.LOGGER.error("Failed to load malilib settings", e);
+        }
     }
 
     public static void saveMalilibOptions() {

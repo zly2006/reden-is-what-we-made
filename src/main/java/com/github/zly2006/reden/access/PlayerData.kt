@@ -88,7 +88,7 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
             if (isClient && MinecraftClient.getInstance().server?.isOnThread == false) {
                 error("Cannot call undo stuff off main thread.")
             }
-            return Entry(state, be?.`getLastSavedNbt$reden`(), server.ticks).apply {
+            return Entry(state, be?.lastSavedNbt(), server.ticks).apply {
                 if (state.hasBlockEntity() && blockEntity == null) {
                     Reden.LOGGER.error("BlockEntity $be at $pos has no last saved nbt")
                 }
@@ -133,6 +133,9 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
             COMMAND(Text.translatable("reden.feature.undo.cause.command")),
             LITEMATICA_TASK(Text.translatable("reden.feature.undo.cause.litematica_task")),
             PROJECTILE(Text.translatable("reden.feature.undo.cause.projectile")),
+            RVC_MOVE(Text.translatable("reden.feature.undo.cause.rvc_move")),
+            RVC_RESTORE(Text.translatable("reden.feature.undo.cause.rvc_restore")),
+            RVC_CHECKOUT(Text.translatable("reden.feature.undo.cause.rvc_checkout")),
             UNKNOWN(Text.translatable("reden.feature.undo.cause.unknown"))
         }
     }
@@ -158,17 +161,14 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
         override val nbt: NbtCompound,
         override val pos: BlockPos
     ) : EntityEntry {
-        override fun toString() = "EntityEntryImpl(entity=$entity, nbt=..., pos=$pos)"
+        override fun toString() = "EntityEntryImpl(entity=$entity, nbt={${nbt.size} items}, pos=$pos)"
     }
 
-
-    object NotExistEntityEntry : EntityEntry {
+    data object NotExistEntityEntry : EntityEntry {
         override val entity = null
         override val nbt: NbtCompound = NbtCompound()
         override val pos: BlockPos = BlockPos.ORIGIN
-
-        override fun toString() = "NotExistEntityEntry"
     }
 }
 
-private fun BlockEntity.`getLastSavedNbt$reden`() = (this as BlockEntityInterface).`getLastSavedNbt$reden`()
+private fun BlockEntity.lastSavedNbt() = (this as BlockEntityInterface).lastSavedNbt

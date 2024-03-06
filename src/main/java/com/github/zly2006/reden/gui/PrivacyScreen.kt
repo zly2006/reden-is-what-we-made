@@ -6,6 +6,7 @@ import com.github.zly2006.reden.malilib.HiddenOption.data_IDENTIFICATION
 import com.github.zly2006.reden.malilib.HiddenOption.data_USAGE
 import com.github.zly2006.reden.malilib.HiddenOption.iPRIVACY_SETTING_SHOWN
 import com.github.zly2006.reden.report.onFunctionUsed
+import com.github.zly2006.reden.report.updateOnlineInfo
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
@@ -67,5 +68,11 @@ class PrivacyScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
 
     override fun close() {
         client!!.setScreen(parent)
+        RedenClient.saveMalilibOptions()
+        if (data_IDENTIFICATION.booleanValue) {
+            Thread {
+                updateOnlineInfo(client!!)
+            }.start()
+        }
     }
 }

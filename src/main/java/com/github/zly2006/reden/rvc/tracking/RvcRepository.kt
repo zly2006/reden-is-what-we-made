@@ -1,5 +1,9 @@
 package com.github.zly2006.reden.rvc.tracking
 
+import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.gui.LoginRedenScreen
+import com.github.zly2006.reden.report.httpClient
+import com.github.zly2006.reden.report.ua
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureLitematicaTask
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureTask
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
@@ -8,19 +12,22 @@ import com.github.zly2006.reden.task.Task
 import com.github.zly2006.reden.task.taskStack
 import com.github.zly2006.reden.utils.ResourceLoader
 import com.github.zly2006.reden.utils.litematicaInstalled
+import com.github.zly2006.reden.utils.redenApiBaseUrl
 import com.github.zly2006.reden.utils.redenError
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.*
+import net.minecraft.SharedConstants
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.network.NetworkSide
 import net.minecraft.util.math.BlockPos
+import okhttp3.Request
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.InitCommand
 import org.eclipse.jgit.lib.PersonIdent
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.jetbrains.annotations.Contract
 import java.nio.file.Path
 import java.time.ZoneOffset
@@ -29,6 +36,31 @@ import java.time.format.DateTimeFormatter
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.exists
+
+private var ghCredential = Pair("RedenMC", "")
+    get() {
+        if (field.second.isEmpty() || tokenUpdated + 600 * 1000 < System.currentTimeMillis()) {
+            val obj = httpClient.newCall(Request.Builder().apply {
+                ua()
+                url("$redenApiBaseUrl/mc/git/github")
+            }.build()).execute().use {
+                if (it.code == 401) {
+                    MinecraftClient.getInstance().setScreen(LoginRedenScreen())
+                }
+                require(it.isSuccessful) {
+                    "Failed to get private key from Reden API: ${it.code} ${it.message}"
+                }
+                Json.decodeFromString<JsonObject>(it.body!!.string())
+            }
+            if (obj["token"] is JsonNull) {
+                MinecraftClient.getInstance().setScreen(LoginRedenScreen())
+            }
+            field = Pair(obj["name"]!!.jsonPrimitive.content, obj["token"]!!.jsonPrimitive.content)
+            tokenUpdated = System.currentTimeMillis()
+        }
+        return field
+    }
+private var tokenUpdated = 0L
 
 @OptIn(ExperimentalSerializationApi::class)
 class RvcRepository(
@@ -40,22 +72,28 @@ class RvcRepository(
         private set
 
     /**
-     * @see TrackedStructure.placementInfo
-     */
-    var placementInfo: PlacementInfo? = null
-        private set
-    var placed = false
-
-    /**
      * At `.git/placement.json`
      */
-    private val placementJson = git.repository.directory.resolve("placement.json").also {
-        if (it.exists()) {
-            placementInfo = Json.decodeFromStream(it.inputStream())
+    private val placementJson = git.repository.directory.resolve("placement.json")
+
+    /**
+     * @see TrackedStructure.placementInfo
+     */
+    var placementInfo: PlacementInfo? =
+        if (placementJson.exists()) Json.decodeFromStream(placementJson.inputStream()) else null
+        set(value) {
+            field = value
+            if (value != null) {
+                placementJson.writeText(Json.encodeToString(value))
+            }
+            else {
+                placementJson.delete()
+            }
         }
-    }
+    var placed = false
 
     fun commit(structure: TrackedStructure, message: String, committer: PlayerEntity?, author: PersonIdent? = null) {
+        require(structure.repository == this) { "The structure is not from this repository" }
         headCache = structure
         this.createReadmeIfNotExists()
         val path = git.repository.workTree.toPath()
@@ -70,20 +108,25 @@ class RvcRepository(
         if (committer != null) {
             cmd.setCommitter(committer.nameForScoreboard, committer.uuid.toString() + "@mc-player.redenmc.com")
         }
-        cmd.setMessage("$message\n\nUser-Agent: Reden-RVC")
+        cmd.setMessage("$message\n\nUser-Agent: Reden-RVC/${Reden.MOD_VERSION} Minecraft/${SharedConstants.getGameVersion().name}")
         cmd.setSign(false)
         cmd.call()
     }
 
-    fun push(remote: IRemoteRepository) {
-        git.push()
+    fun push(remote: IRemoteRepository, force: Boolean = false) {
+        val push = git.push()
             .setRemote(remote.gitUrl)
-            .setForce(false)
+            .setForce(force)
+            .setCredentialsProvider(UsernamePasswordCredentialsProvider(ghCredential.first, ghCredential.second))
             .call()
+        push.forEach {
+            it.peerUserAgent
+        }
     }
 
     fun fetch() {
         headCache = null
+        git.fetch().call()
         TODO() // Note: currently we have no gui for this
     }
 
@@ -101,7 +144,7 @@ class RvcRepository(
             if (headCache == null) {
                 val refs = git.branchList().call()
                 headCache = if (refs.isEmpty()) {
-                    TrackedStructure(name, side)
+                    TrackedStructure(name, this, side)
                 }
                 else if (refs.any { it.name == RVC_BRANCH_REF }) {
                     checkoutBranch(RVC_BRANCH)
@@ -117,7 +160,7 @@ class RvcRepository(
         }
     }
 
-    fun checkout(tag: String) = TrackedStructure(name, side).apply {
+    fun checkout(tag: String) = TrackedStructure(name, this, side).apply {
         git.checkout().setName(tag).setForced(true).call()
         this@RvcRepository.placementInfo?.let { this.placementInfo = it }
         RvcFileIO.load(git.repository.workTree.toPath(), this)
@@ -151,9 +194,9 @@ class RvcRepository(
     fun setWorld() {
         headCache = null
         val mc = MinecraftClient.getInstance()
-        val info = PlacementInfo(mc.getWorldInfo(), placementInfo?.origin ?: headCache?.detectOrigin() ?: BlockPos.ORIGIN)
+        val info =
+            PlacementInfo(mc.getWorldInfo(), placementInfo?.origin ?: headCache?.detectOrigin() ?: BlockPos.ORIGIN)
         placementInfo = info
-        placementJson.writeText(Json.encodeToString(info))
     }
 
     fun delete() {
@@ -205,6 +248,12 @@ class RvcRepository(
             }
             return RvcRepository(
                 git = Git.cloneRepository()
+                    .setCredentialsProvider(
+                        UsernamePasswordCredentialsProvider(
+                            ghCredential.first,
+                            ghCredential.second
+                        )
+                    )
                     .setURI(url)
                     .setDirectory(path / name)
                     .call(),

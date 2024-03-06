@@ -115,7 +115,9 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader-junit:${project.loader_version}")
     // Embedded dependencies
     include(implementation("com.squareup.okhttp3:okhttp:4.11.0"))
-    include(implementation("org.eclipse.jgit:org.eclipse.jgit:6.6.0.202305301015-r"))
+    include(implementation("org.eclipse.jgit:org.eclipse.jgit:${project.jgit_version}"))
+    include(implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:${project.jgit_version}"))
+    include(implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.apache:${project.jgit_version}"))
     include(implementation("com.squareup.okio:okio-jvm:3.2.0"))
 
     // Optional dependencies

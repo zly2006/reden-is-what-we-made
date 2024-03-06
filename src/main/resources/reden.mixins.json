@@ -99,6 +99,7 @@
     "superRight.chat.ChatHudMixin",
     "superRight.chat.ChatScreenMixin",
     "superRight.chat.VisibleChatHudLineMixin",
+    "yo.MixinCreateWorldScreen",
     "yo.MixinKeyboard",
     "yo.MixinLanguage",
     "yo.MixinTitleScreen"

@@ -36,6 +36,7 @@ import java.util.*
  */
 class TrackedStructure(
     name: String,
+    val repository: RvcRepository?,
     var side: NetworkSide
 ) : ReadWriteStructure(name), IPlacement, PositionIterable {
     override var enabled: Boolean = true
@@ -420,6 +421,27 @@ class TrackedStructure(
             }
         }
         // todo
+    }
+
+    override fun setPlaced() {
+        require(repository != null) { "Repository is null" }
+        repository.placed = true
+        repository.placementInfo = this.placementInfo
+    }
+
+    override fun startMoving() {
+        require(repository != null) { "Repository is null" }
+        repository.placed = false
+    }
+
+    /**
+     * Remove this structure from the world, including all blocks
+     */
+    fun remove() {
+        require(repository != null) { "Repository is null" }
+        repository.placementInfo = null
+        repository.placed = false
+        clearArea()
     }
 
     fun clearSchedules() {

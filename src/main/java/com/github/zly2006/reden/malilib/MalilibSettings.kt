@@ -22,14 +22,12 @@ import com.github.zly2006.reden.malilib.options.RedenConfigBooleanHotkeyed as RC
 @JvmField val MICRO_TICK_TAB = mutableListOf<ConfigBase<*>>()
 @JvmField val SUPER_RIGHT_TAB = mutableListOf<ConfigBase<*>>()
 @JvmField val DEBUG_TAB = mutableListOf<ConfigBase<*>>()
-@JvmField val HIDDEN_TAB = mutableListOf<ConfigBase<*>>()
 private fun <T : IHotkey> T.hotkey() = this.apply(HOTKEYS::add)
 private fun <T : ConfigBase<*>> T.generic() = apply { (GENERIC_TAB.add(this)) }
 private fun <T : ConfigBase<*>> T.rvc() = apply { (RVC_TAB.add(this)) }
 private fun <T : ConfigBase<*>> T.mt() = apply { (MICRO_TICK_TAB.add(this)) }
 private fun <T : ConfigBase<*>> T.sr() = apply { (SUPER_RIGHT_TAB.add(this)) }
 private fun <T : ConfigBase<*>> T.debug() = apply { (DEBUG_TAB.add(this)) }
-private fun <T : ConfigBase<*>> T.hidden() = apply { (HIDDEN_TAB.add(this)) }
 
 // Generic
 @JvmField val REDEN_CONFIG_KEY = RedenConfigHotkey("redenConfigKey", "R,C").generic().hotkey()
@@ -73,7 +71,9 @@ val TOGGLE_FORCE_ENTITY_POS_SYNC =
 // RVC
 @JvmField val OPEN_RVC_SCREEN = RedenConfigHotkey("openRvcScreen", "R", KeybindSettings.RELEASE).rvc().hotkey()
 @JvmField val OPEN_SELECTION_LIST = RedenConfigHotkey("openSelectionList", "R,L").rvc().hotkey()
-@JvmField val  OPEN_EXPORT_SCREEN = RedenConfigHotkey("openExportScreen", "R,E").rvc().hotkey()
+
+@JvmField
+val OPEN_EXPORT_SCREEN = RedenConfigHotkey("openExportScreen", "R,E").rvc().hotkey()
 @JvmField val OPEN_IMPORT_SCREEN = RedenConfigHotkey("openImportScreen", "R,I").rvc().hotkey()
 @JvmField val RVC_RECORD_MULTIPLAYER = RedenConfigBoolean("rvcRecordMultiplayer", true).rvc()
 @JvmField
@@ -129,6 +129,10 @@ val DEBUG_LITEMATICA_SCHEMATIC_RERENDER = RedenConfigHotkey("debugLitematicaSche
 // Hidden
 object HiddenOption {
     @JvmField
+    val HIDDEN_TAB = mutableListOf<ConfigBase<*>>()
+    private fun <T : ConfigBase<*>> T.hidden() = apply { (HIDDEN_TAB.add(this)) }
+
+    @JvmField
     val iNOTIFICATIONS_ENABLED = RedenConfigBoolean("iNotificationsEnabled", true).hidden()
 
     @JvmField
@@ -147,4 +151,4 @@ object HiddenOption {
     val data_IDENTIFICATION = RedenConfigBoolean("dataIdentification").hidden()
 }
 
-fun getAllOptions() = GENERIC_TAB + RVC_TAB + MICRO_TICK_TAB + SUPER_RIGHT_TAB + DEBUG_TAB + HIDDEN_TAB
+fun getAllOptions() = GENERIC_TAB + RVC_TAB + MICRO_TICK_TAB + SUPER_RIGHT_TAB + DEBUG_TAB + HiddenOption.HIDDEN_TAB
