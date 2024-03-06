@@ -98,7 +98,8 @@ class RvcRepository(
         this.createReadmeIfNotExists()
         val path = git.repository.workTree.toPath()
         RvcFileIO.save(path, structure)
-        val cmd = git.commit().setAll(true) // git commit -a
+        git.add().addFilepattern(".").call()
+        val cmd = git.commit()
         if (committer != null && author == null) {
             cmd.setAuthor(committer.nameForScoreboard, committer.uuid.toString() + "@mc-player.redenmc.com")
         }

@@ -14,6 +14,7 @@ import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.core.*
 import io.wispforest.owo.ui.util.UIErrorToast
+import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.text.Text
 import org.eclipse.jgit.revwalk.RevCommit
 
@@ -55,12 +56,14 @@ class SelectionInfoScreen(
             override val gitUrl = repository.git.repository.config.getString("remote", "origin", "url")
         }
         try {
-            repository.push(remote)
+            repository.push(remote, ChatScreen.hasShiftDown())
         } catch (e: Exception) {
             Reden.LOGGER.error("Failed to push ${repository.name}", e)
             UIErrorToast.report(e)
         }
-    }!!
+    }!!.apply {
+        tooltip(Text.literal("Hold shift to force push"))
+    }
     private val pullButton = Components.button(Text.literal("Pull")) {
         onFunctionUsed("pull_rvcStructure")
         TODO()
