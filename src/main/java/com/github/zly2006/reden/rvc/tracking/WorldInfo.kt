@@ -9,6 +9,7 @@ import com.github.zly2006.reden.utils.server
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.world.ClientWorld
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.world.ServerWorld
@@ -123,6 +124,16 @@ data class WorldInfo(
             server.getWorld(registryKey)
         }
         return worldCache
+    }
+
+    fun getClientWorld(): World? {
+        if (worldCache is ClientWorld) return worldCache
+        val client = MinecraftClient.getInstance()
+        if (client.world?.registryKey?.value == worldKey) {
+            worldCache = client.world
+            return worldCache
+        }
+        else return null
     }
 }
 

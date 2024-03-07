@@ -3,6 +3,7 @@ package com.github.zly2006.reden.rvc.gui
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.report.onFunctionUsed
+import com.github.zly2006.reden.rvc.gui.git.RvcCommitScreen
 import com.github.zly2006.reden.rvc.gui.git.RvcManageRemotesScreen
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
@@ -28,7 +29,11 @@ class SelectionInfoScreen(
     val repository: RvcRepository,
     val structure: TrackedStructure
 ): BaseOwoScreen<FlowLayout>() {
-    private val deleteButton = Components.button(Text.literal("Delete")) {
+    private val commitButton = Components.button(Text.literal("Commit")) {
+        onFunctionUsed("commit_rvcStructure")
+        client!!.setScreen(RvcCommitScreen(repository, structure))
+    }!!
+    private val deleteButton = Components.button(Text.literal("Delete").red()) {
         // todo confirm screen
         onFunctionUsed("delete_rvcStructure")
         if (selectedRepository == repository) {
@@ -103,9 +108,14 @@ class SelectionInfoScreen(
 
     override fun build(rootComponent: FlowLayout) {
         val commits = Containers.verticalFlow(Sizing.fill(), Sizing.content()).apply {
-            val allCommits = repository.git.log().call().filterIsInstance<RevCommit>()
-            allCommits.forEach {
-                child(ReversionLine(it))
+            if (repository.git.branchList().call().isEmpty()) {
+                child(Components.label(Text.literal("No commits").red()))
+            }
+            else {
+                val allCommits = repository.git.log().call().filterIsInstance<RevCommit>()
+                allCommits.forEach {
+                    child(ReversionLine(it))
+                }
             }
         }
         rootComponent
@@ -118,11 +128,12 @@ class SelectionInfoScreen(
         rootComponent.child(Components.label(Text.literal("Name: ${structure.name}")))
             .child(Containers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
                 gap(5)
-                child(deleteButton)
+                child(commitButton)
                 child(remotesButton)
                 child(fetchButton)
                 child(pushButton)
                 child(pullButton)
+                child(deleteButton)
             })
             .child(
                 Components.label(

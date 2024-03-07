@@ -41,6 +41,7 @@ class TrackedStructure(
 ) : ReadWriteStructure(name), IPlacement, PositionIterable {
     override var enabled: Boolean = true
     override val structure = this
+
     /**
      * This is stored in the file `.git/placement_info.json`.
      *
@@ -50,12 +51,15 @@ class TrackedStructure(
      */
     var placementInfo: PlacementInfo? = null
     override val world: World
-        get() = placementInfo?.worldInfo?.getWorld() ?: redenError("getting world but PlacementInfo not set for $name")
+        get() = (if (side == NetworkSide.SERVERBOUND)
+            placementInfo?.worldInfo?.getWorld()
+        else placementInfo?.worldInfo?.getClientWorld())
+            ?: redenError("getting world but PlacementInfo not set for $name")
     val minPos: BlockPos by lazy {
         BlockPos(
-            blocks.keys.minOf { it.x },
-            blocks.keys.minOf { it.y },
-            blocks.keys.minOf { it.z }
+            blocks.keys.minOfOrNull { it.x } ?: 0,
+            blocks.keys.minOfOrNull { it.y } ?: 0,
+            blocks.keys.minOfOrNull { it.z } ?: 0
         )
     }
     override val origin: BlockPos
@@ -65,6 +69,7 @@ class TrackedStructure(
     override fun createPlacement(world: World, origin: BlockPos) = apply {
         placementInfo = PlacementInfo(WorldInfo.of(world), origin)
     }
+
     var cachedPositions = HashMap<BlockPos, TrackPoint>()
     var cachedIgnoredPositions = HashMap<BlockPos, TrackPoint>()
     val trackPoints = mutableListOf<TrackPoint>()
@@ -72,6 +77,7 @@ class TrackedStructure(
     val blockScheduledTicks = mutableListOf<TickInfo<Block>>() // order sensitive
     val fluidScheduledTicks = mutableListOf<TickInfo<Fluid>>() // order sensitive
     var dirty = true
+
     data class TickInfo<T>(
         val pos: RelativeCoordinate,
         val type: T,
@@ -102,6 +108,7 @@ class TrackedStructure(
             }
         }
     }
+
     data class BlockEventInfo(
         val pos: RelativeCoordinate,
         val type: Int,
@@ -182,13 +189,16 @@ class TrackedStructure(
                         if (entry.points.none { it.x == ignoredPos.key.x }) {
                             iter.remove()
                             splitByAxis(entry) { x }
-                        } else if (entry.points.none { it.y == ignoredPos.key.y }) {
+                        }
+                        else if (entry.points.none { it.y == ignoredPos.key.y }) {
                             iter.remove()
                             splitByAxis(entry) { y }
-                        } else if (entry.points.none { it.z == ignoredPos.key.z }) {
+                        }
+                        else if (entry.points.none { it.z == ignoredPos.key.z }) {
                             iter.remove()
                             splitByAxis(entry) { z }
-                        } else {
+                        }
+                        else {
                             var entryToSplit = entry
                             iter.remove()
                             // first, split by x
@@ -212,7 +222,8 @@ class TrackedStructure(
                 }
                 result.removeIf { it.points.isEmpty() || it.cuboid == null }
             }
-        } else
+        }
+        else
             result = (cachedPositions.keys).map { SplitingContext(listOf(it)) }.toMutableList()
 
         return result.mapNotNull { it.cuboid }
@@ -240,7 +251,8 @@ class TrackedStructure(
                         if (pos.getManhattanDistance(this.pos) > predicate.distance) continue
                         if (predicate.match(world, this.pos, pos, mode, structure!!)) {
                             successConsumer(pos)
-                        } else {
+                        }
+                        else {
                             failConsumer?.invoke(pos)
                         }
                     }
@@ -308,7 +320,8 @@ class TrackedStructure(
             val chunkPos = ChunkPos(pos)
             return airCache.contains(pos) || if (isClient) {
                 isAir(pos)
-            } else {
+            }
+            else {
                 (chunkManager as ServerChunkManager).threadedAnvilChunkStorage.currentChunkHolders[chunkPos.toLong()]?.let {
                     it.worldChunk?.getBlockState(pos)?.isAir ?: true
                 } ?: true
@@ -372,8 +385,9 @@ class TrackedStructure(
         dirty = false
     }
 
-    override val blockIterator: Iterator<RelativeCoordinate> get() =
-        cachedPositions.keys.asSequence().map { getRelativeCoordinate(it) }.iterator()
+    override val blockIterator: Iterator<RelativeCoordinate>
+        get() =
+            cachedPositions.keys.asSequence().map { getRelativeCoordinate(it) }.iterator()
 
     override fun clearArea() {
         clearSchedules()
@@ -396,6 +410,9 @@ class TrackedStructure(
         blockEntities.forEach { (pos, nbt) ->
             world.getBlockEntity(pos.blockPos(origin))?.readNbt(nbt)
         }
+        blocks.keys.forEach {
+            world.markDirty(it.blockPos(origin))
+        }
         entities.forEach {
             (world as? ServerWorld)?.getEntity(it.key)?.discard()
             val entity = EntityType.getEntityFromNbt(it.value, world).get()
@@ -416,7 +433,8 @@ class TrackedStructure(
                     it.value
                 )
                 (world as ServerWorld).spawnEntityAndPassengers(entity)
-            } else {
+            }
+            else {
                 world.spawnEntity(entity)
             }
         }
@@ -463,12 +481,14 @@ class TrackedStructure(
         fluidScheduledTicks.clear()
 
         (world as? ServerWorld)?.run {
-            blockEvents.addAll(syncedBlockEventQueue.filter { isInArea(getRelativeCoordinate(it.pos)) }.map { BlockEventInfo(
-                pos = getRelativeCoordinate(it.pos),
-                block = it.block,
-                type = it.type,
-                data = it.data
-            ) })
+            blockEvents.addAll(syncedBlockEventQueue.filter { isInArea(getRelativeCoordinate(it.pos)) }.map {
+                BlockEventInfo(
+                    pos = getRelativeCoordinate(it.pos),
+                    block = it.block,
+                    type = it.type,
+                    data = it.data
+                )
+            })
             val chunks = cachedPositions.keys.asSequence()
                 .map(ChunkPos::toLong)
                 .toList().distinct()
@@ -497,7 +517,7 @@ class TrackedStructure(
         return RelativeCoordinate(pos.x - origin.x, pos.y - origin.y, pos.z - origin.z)
     }
 
-    fun collectFromWorld() {
+    fun collectAllFromWorld() {
         blocks.clear()
         blockEntities.clear()
         entities.clear()

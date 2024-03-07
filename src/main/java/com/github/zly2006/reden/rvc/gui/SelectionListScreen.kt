@@ -78,7 +78,7 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
         // TODO: move to info screen
         private val saveButton: ButtonComponent = Components.button(Text.literal("Save")) {
             onFunctionUsed("commit_rvcStructure")
-            repository.head().collectFromWorld()
+            repository.head().collectAllFromWorld()
             if (repository.head().blocks.isEmpty()) {
                 redenError(Text.translatable("reden.rvc.message.save.empty_structure").red())
             }

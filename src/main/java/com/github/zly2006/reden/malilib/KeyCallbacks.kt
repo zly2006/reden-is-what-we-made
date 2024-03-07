@@ -18,7 +18,9 @@ import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.report.reportException
 import com.github.zly2006.reden.rvc.gui.SelectionImportScreen
 import com.github.zly2006.reden.rvc.gui.SelectionListScreen
+import com.github.zly2006.reden.rvc.gui.git.RvcCommitScreen
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureLitematicaTask
+import com.github.zly2006.reden.rvc.gui.selectedRepository
 import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.remote.github.GithubAuthScreen
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
@@ -433,6 +435,19 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         (taskStack.last() as RvcMoveStructureLitematicaTask).apply {
             currentOrigin = currentOrigin
         }
+        true
+    }
+    RVC_SAVE_KEY.callback {
+        if (selectedRepository == null) {
+            mc.player?.sendMessage(
+                Text.literal(
+                    "Cannot save this structure: Not found, please select a structure by pressing " +
+                            OPEN_SELECTION_LIST.stringValue
+                ).red()
+            )
+            return@callback false
+        }
+        mc.setScreen(RvcCommitScreen(selectedRepository!!, selectedStructure!!))
         true
     }
 }

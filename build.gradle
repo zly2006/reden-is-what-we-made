@@ -128,6 +128,7 @@ dependencies {
 
     // Runtime only dependencies (game optimization)
     modRuntimeOnly("maven.modrinth:ferrite-core:6.0.3-fabric")
+    modRuntimeOnly("maven.modrinth:in-game-account-switcher:8.0.2-fabric1.20.4")
     modRuntimeOnly("maven.modrinth:notenoughcrashes:4.4.7+1.20.4-fabric")
 }
 

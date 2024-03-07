@@ -75,6 +75,8 @@ val TOGGLE_FORCE_ENTITY_POS_SYNC =
 @JvmField
 val OPEN_EXPORT_SCREEN = RedenConfigHotkey("openExportScreen", "R,E").rvc().hotkey()
 @JvmField val OPEN_IMPORT_SCREEN = RedenConfigHotkey("openImportScreen", "R,I").rvc().hotkey()
+@JvmField
+val RVC_SAVE_KEY = RedenConfigHotkey("redenSaveKey", "LEFT_CONTROL,S").rvc().hotkey()
 @JvmField val RVC_RECORD_MULTIPLAYER = RedenConfigBoolean("rvcRecordMultiplayer", true).rvc()
 @JvmField
 val RVC_FORCE_LOCALLY = RedenConfigBoolean("rvcForceLocally").rvc()
@@ -86,8 +88,10 @@ val RVC_CONFIRM_KEY = RedenConfigHotkey("rvcConfirmKey", "RIGHT_SHIFT,ENTER").rv
 val RVC_CANCEL_KEY = RedenConfigHotkey("rvcCancelKey", "BACKSPACE").rvc().hotkey()
 // Super Right
 @JvmField val CHAT_RIGHT_CLICK_MENU = RedenConfigBoolean("chatRightClickMenu", true).sr()
-@JvmField val STRUCTURE_BLOCK_LOAD = RedenConfigHotkey("structureBlockLoad", "LEFT_CONTROL,L").sr().hotkey()
-@JvmField val STRUCTURE_BLOCK_SAVE = RedenConfigHotkey("structureBlockSave", "LEFT_CONTROL,S").sr().hotkey()
+@JvmField
+val STRUCTURE_BLOCK_LOAD = RedenConfigHotkey("structureBlockLoad", "").sr().hotkey()
+@JvmField
+val STRUCTURE_BLOCK_SAVE = RedenConfigHotkey("structureBlockSave", "").sr().hotkey()
 @JvmField
 val WORMHOLE_SELECT = RedenConfigHotkey("wormholeSelect", "LEFT_ALT", KeybindSettings.INGAME_BOTH).sr().hotkey()
 @JvmField val RUN_COMMAND = RedenConfigCommandHotkeyList("runCommand").sr()

@@ -97,6 +97,7 @@ class RvcRepository(
         headCache = structure
         this.createReadmeIfNotExists()
         val path = git.repository.workTree.toPath()
+        structure.collectAllFromWorld()
         RvcFileIO.save(path, structure)
         git.add().addFilepattern(".").call()
         val cmd = git.commit()
@@ -111,7 +112,7 @@ class RvcRepository(
         }
         cmd.setMessage("$message\n\nUser-Agent: Reden-RVC/${Reden.MOD_VERSION} Minecraft/${SharedConstants.getGameVersion().name}")
         cmd.setSign(false)
-        cmd.call()
+        val commit = cmd.call()
     }
 
     fun push(remote: IRemoteRepository, force: Boolean = false) {
