@@ -1,8 +1,10 @@
 package com.github.zly2006.reden.rvc.tracking.client
 
 import com.github.zly2006.reden.rvc.gui.selectedStructure
+import com.github.zly2006.reden.rvc.tracking.PlacementInfo
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.utils.holdingToolItem
 import fi.dy.masa.malilib.event.InputEventHandler
 import fi.dy.masa.malilib.hotkeys.IMouseInputHandler
@@ -23,28 +25,33 @@ fun registerSelectionTool() {
             val raycast = mc.cameraEntity!!.raycast(256.0, 0f, false)
             if (raycast.type == HitResult.Type.BLOCK) {
                 val blockResult = raycast as BlockHitResult
-                if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                    selectedStructure?.addTrackPoint(
-                        TrackedStructure.TrackPoint(
-                            selectedStructure!!.getRelativeCoordinate(blockResult.blockPos),
-                            TrackPredicate.QC,
-                            TrackPredicate.TrackMode.TRACK,
-                            selectedStructure!!
+                if (selectedStructure != null && selectedStructure!!.placementInfo != null) {
+                    val structure = selectedStructure!!
+                    if (structure.placementInfo == null) {
+                        structure.placementInfo = PlacementInfo(mc.getWorldInfo())
+                    }
+                    if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+                        structure.addTrackPoint(
+                            TrackedStructure.TrackPoint(
+                                structure.getRelativeCoordinate(blockResult.blockPos),
+                                TrackPredicate.QC,
+                                TrackPredicate.TrackMode.TRACK,
+                                structure
+                            )
                         )
-                    )
-                    selectedStructure?.refreshPositions()
-                } else {
-                    selectedStructure?.addTrackPoint(
-                        TrackedStructure.TrackPoint(
-                            selectedStructure!!.getRelativeCoordinate(blockResult.blockPos),
-                            TrackPredicate.Same,
-                            TrackPredicate.TrackMode.IGNORE,
-                            selectedStructure!!
+                    }
+                    else {
+                        structure.addTrackPoint(
+                            TrackedStructure.TrackPoint(
+                                structure.getRelativeCoordinate(blockResult.blockPos),
+                                TrackPredicate.Same,
+                                TrackPredicate.TrackMode.IGNORE,
+                                structure
+                            )
                         )
-                    )
-                    selectedStructure?.refreshPositions()
+                    }
+                    structure.refreshPositions()
                 }
-                selectedStructure?.refreshPositions()
             }
             return true
         }

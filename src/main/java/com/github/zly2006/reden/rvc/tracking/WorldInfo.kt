@@ -9,7 +9,6 @@ import com.github.zly2006.reden.utils.server
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.world.ClientWorld
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.world.ServerWorld
@@ -45,6 +44,7 @@ data class WorldInfo(
             worldKey = world.registryKey.value,
         ).apply {
             worldCache = world
+            getClientWorld()
         }
 
         private fun ofRemote(mc: MinecraftClient): WorldInfo? {
@@ -127,7 +127,7 @@ data class WorldInfo(
     }
 
     fun getClientWorld(): World? {
-        if (worldCache is ClientWorld) return worldCache
+        if (worldCache !is ServerWorld) return worldCache // allows: schematic world, client world
         val client = MinecraftClient.getInstance()
         if (client.world?.registryKey?.value == worldKey) {
             worldCache = client.world

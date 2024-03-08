@@ -1,7 +1,6 @@
 package com.github.zly2006.reden;
 
 import com.github.zly2006.reden.clientGlow.ClientGlowKt;
-import com.github.zly2006.reden.issueTracker.GithubIssue;
 import com.github.zly2006.reden.malilib.KeyCallbacksKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.malilib.data.CommandHotkey;
@@ -55,6 +54,7 @@ public class RedenClient implements ClientModInitializer {
                 public void load() {
                     loadMalilibSettings();
                 }
+
                 @Override
                 public void save() {
                     saveMalilibOptions();
@@ -107,34 +107,30 @@ public class RedenClient implements ClientModInitializer {
                                     context.getSource().sendFeedback(Text.literal(task.toString()));
                                 }
                                 return 1;
-                            }))));
-            dispatcher.register(ClientCommandManager.literal("qubit").executes(context -> {
-                throw new Error("Qu(b)it!");
-            }).then(ClientCommandManager.literal("floating-item")
-                    .then(ClientCommandManager.argument("item", ItemStackArgumentType.itemStack(registryAccess))
-                            .executes(context -> {
-                                MinecraftClient client = MinecraftClient.getInstance();
-                                client.gameRenderer.showFloatingItem(ItemStackArgumentType.getItemStackArgument(context, "item").createStack(1, false));
-                                assert client.world != null;
-                                assert client.player != null;
-                                client.world.playSound(client.player.getX(), client.player.getY(), client.player.getZ(), SoundEvents.ITEM_TOTEM_USE, client.player.getSoundCategory(), 1.0F, 1.0F, false);
-                                return 1;
-                            }))).then(ClientCommandManager.literal("luck-today").executes(context -> {
-                context.getSource().sendFeedback(
-                        Text.literal(String.valueOf(LuckToday.Companion.getLuckValue().getData()))
-                );
-                return 1;
-            })).then(ClientCommandManager.literal("relaunch").executes(context -> {
-                AutoUpdateKt.relaunch(null);
-                return 1;
-            })));
-        });
-        ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
-            try {
-                GithubIssue issue = new GithubIssue("zly2006", "reden-is-what-we-made", 38);
-            } catch (Exception e) {
-                Reden.LOGGER.error("", e);
-            }
+                            })))
+                    .then(ClientCommandManager.literal("qubit").executes(context -> {
+                        throw new Error("Qu(b)it!");
+                    }))
+                    .then(ClientCommandManager.literal("floating-item")
+                            .then(ClientCommandManager.argument("item", ItemStackArgumentType.itemStack(registryAccess))
+                                    .executes(context -> {
+                                        MinecraftClient client = MinecraftClient.getInstance();
+                                        client.gameRenderer.showFloatingItem(ItemStackArgumentType.getItemStackArgument(context, "item").createStack(1, false));
+                                        assert client.world != null;
+                                        assert client.player != null;
+                                        client.world.playSound(client.player.getX(), client.player.getY(), client.player.getZ(), SoundEvents.ITEM_TOTEM_USE, client.player.getSoundCategory(), 1.0F, 1.0F, false);
+                                        return 1;
+                                    }))).then(ClientCommandManager.literal("luck-today").executes(context -> {
+                        context.getSource().sendFeedback(
+                                Text.literal(String.valueOf(LuckToday.Companion.getLuckValue().getData()))
+                        );
+                        return 1;
+                    }))
+                    .then(ClientCommandManager.literal("relaunch").executes(context -> {
+                        AutoUpdateKt.relaunch(null);
+                        return 1;
+                    }))
+            );
         });
     }
 

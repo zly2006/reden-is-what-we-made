@@ -45,7 +45,7 @@ class TrackedStructure(
     /**
      * This is stored in the file `.git/placement_info.json`.
      *
-     * When we cloned or created a repository, don't forget to create this file.
+     * When we cloned or created a repository, remember to create this file.
      *
      * @see RvcRepository.placementInfo
      */
@@ -55,15 +55,9 @@ class TrackedStructure(
             placementInfo?.worldInfo?.getWorld()
         else placementInfo?.worldInfo?.getClientWorld())
             ?: redenError("getting world but PlacementInfo not set for $name")
-    val minPos: BlockPos by lazy {
-        BlockPos(
-            blocks.keys.minOfOrNull { it.x } ?: 0,
-            blocks.keys.minOfOrNull { it.y } ?: 0,
-            blocks.keys.minOfOrNull { it.z } ?: 0
-        )
-    }
+
     override val origin: BlockPos
-        get() = placementInfo?.origin?.toImmutable()?.subtract(minPos)
+        get() = placementInfo?.origin?.toImmutable()
             ?: redenError("getting origin but PlacementInfo not set for $name")
 
     override fun createPlacement(world: World, origin: BlockPos) = apply {

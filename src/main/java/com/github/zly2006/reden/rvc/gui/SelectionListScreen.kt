@@ -5,7 +5,6 @@ import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.utils.red
-import com.github.zly2006.reden.utils.redenError
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
 import io.wispforest.owo.ui.component.CheckboxComponent
@@ -64,7 +63,7 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
             super.mount(parent, x, y)
         }
         private val sameWorld = repository.placementInfo?.worldInfo?.equals(worldInfo)
-        var canPlace = repository.placementInfo == null || !repository.placed
+        private var canPlace = repository.placementInfo == null
             set(value) {
                 field = value
                 checkActive()
@@ -75,18 +74,6 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
             }
         }
 
-        // TODO: move to info screen
-        private val saveButton: ButtonComponent = Components.button(Text.literal("Save")) {
-            onFunctionUsed("commit_rvcStructure")
-            repository.head().collectAllFromWorld()
-            if (repository.head().blocks.isEmpty()) {
-                redenError(Text.translatable("reden.rvc.message.save.empty_structure").red())
-            }
-            // todo: commit message
-            repository.commit(repository.head(), "RedenMC RVC Commit", MinecraftClient.getInstance().player)
-            client?.player?.sendMessage(Text.translatable("reden.rvc.message.save.ok"))
-            it.active(false)
-        }
         private val placeButton: ButtonComponent = Components.button(Text.literal("Place")) {
             onFunctionUsed("place_rvcStructure")
             repository.startPlacing()
@@ -111,12 +98,21 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
             onFunctionUsed("export_rvcStructure")
             MinecraftClient.getInstance().setScreen(SelectionExportScreen(this@SelectionListScreen, repository))
         }
+        private val removeButton = Components.button(Text.literal("Remove")) {
+            onFunctionUsed("remove_rvcStructure")
+            repository.head().clearArea()
+            repository.clearCache()
+            repository.placementInfo = null
+            close()
+        }.apply {
+            tooltip(Text.literal("Remove the structure from the current world, this does not delete the structure"))
+        }
         val left = Containers.horizontalFlow(Sizing.content(), Sizing.content())
         val right = Containers.horizontalFlow(Sizing.content(), Sizing.content())
         private fun checkActive() {
-            saveButton.active(repository.hasChanged() && sameWorld == true)
             placeButton.active(canPlace)
-            select.active = sameWorld != false
+            removeButton.active(sameWorld == true)
+            select.active = (sameWorld != false)
             if (sameWorld == false) {
                 select.checked(false)
                 this.tooltip(Text.literal("Not in the same world").red())
@@ -126,16 +122,19 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
         init {
             checkActive()
             gap(5)
+            horizontalSizing(Sizing.fill())
             left.gap(5).alignment(HorizontalAlignment.LEFT, VerticalAlignment.CENTER)
             right.gap(5).alignment(HorizontalAlignment.RIGHT, VerticalAlignment.CENTER)
-            child(left)
-            child(right)
 
             left.child(select)
             left.child(Components.label(Text.literal(repository.name)))
             right.child(detailsButton)
             right.child(exportButton)
             right.child(placeButton)
+            right.child(removeButton)
+
+            child(left)
+            child(right)
         }
     }
 

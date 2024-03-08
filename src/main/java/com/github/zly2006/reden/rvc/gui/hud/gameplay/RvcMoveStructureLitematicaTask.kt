@@ -68,13 +68,12 @@ class RvcMoveStructureLitematicaTask(
     private var placementSchematicWorld: IPlacement? = placingStructure.createPlacement(schematicWorld, currentOrigin!!)
 
     override fun onStopped() {
-        super.onStopped()
         try {
+            super.onStopped()
             // refresh litematica
             placementSchematicWorld?.clearArea()
             placementSchematicWorld?.blockBox()?.streamChunkPos()
                 ?.forEach(DataManager.getSchematicPlacementManager()::markChunkForRebuild)
-            currentOrigin = null
         } catch (e: Exception) {
             Reden.LOGGER.error("Failed to stop moving structure", e)
             active = false

@@ -134,9 +134,11 @@ fun initHeartBeat() {
     }
     heartbeatThread = Thread("RedenMC HeartBeat") {
         while (true) {
-            Thread.sleep(1000 * 60 * 5)
             try {
+                Thread.sleep(1000 * 60 * 5)
                 doHeartHeat()
+            } catch (e: InterruptedException) {
+                break
             } catch (e: Exception) {
                 LOGGER.error("", e)
             }

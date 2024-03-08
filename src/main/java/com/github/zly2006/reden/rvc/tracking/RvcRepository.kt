@@ -70,6 +70,9 @@ class RvcRepository(
 ) {
     var headCache: TrackedStructure? = null
         private set
+    fun clearCache() {
+        headCache = null
+    }
 
     /**
      * At `.git/placement.json`
@@ -94,9 +97,21 @@ class RvcRepository(
 
     fun commit(structure: TrackedStructure, message: String, committer: PlayerEntity?, author: PersonIdent? = null) {
         require(structure.repository == this) { "The structure is not from this repository" }
+        require(structure.placementInfo != null) { "The structure is not placed in this world" }
         headCache = structure
         this.createReadmeIfNotExists()
         val path = git.repository.workTree.toPath()
+        structure.refreshPositions()
+        val minPos = BlockPos(
+            structure.cachedPositions.keys.minOfOrNull { it.x } ?: 0,
+            structure.cachedPositions.keys.minOfOrNull { it.y } ?: 0,
+            structure.cachedPositions.keys.minOfOrNull { it.z } ?: 0
+        )
+        if (git.branchList().call().isEmpty()) {
+            // if this is the first commit, reset the origin
+            structure.placementInfo = structure.placementInfo!!.copy(origin = minPos)
+            structure.repository.placementInfo = structure.placementInfo
+        }
         structure.collectAllFromWorld()
         RvcFileIO.save(path, structure)
         git.add().addFilepattern(".").call()
@@ -163,8 +178,8 @@ class RvcRepository(
     }
 
     fun checkout(tag: String) = TrackedStructure(name, this, side).apply {
-        git.checkout().setName(tag).setForced(true).call()
         this@RvcRepository.placementInfo?.let { this.placementInfo = it }
+        git.checkout().setName(tag).setForced(true).call()
         RvcFileIO.load(git.repository.workTree.toPath(), this)
     }
 
@@ -194,11 +209,9 @@ class RvcRepository(
     }
 
     fun setWorld() {
-        headCache = null
+        clearCache()
         val mc = MinecraftClient.getInstance()
-        val info =
-            PlacementInfo(mc.getWorldInfo(), placementInfo?.origin ?: headCache?.detectOrigin() ?: BlockPos.ORIGIN)
-        placementInfo = info
+        placementInfo = PlacementInfo(mc.getWorldInfo())
     }
 
     fun delete() {
