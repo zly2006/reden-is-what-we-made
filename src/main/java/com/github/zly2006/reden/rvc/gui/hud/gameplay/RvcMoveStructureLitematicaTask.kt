@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.gui.hud.gameplay
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.rvc.IPlacement
 import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.task.taskStack
@@ -80,7 +81,12 @@ class RvcMoveStructureLitematicaTask(
 
     fun pasteChunk(chunk: WorldChunk) {
         // todo
-        placingStructure.createPlacement(chunk.world, currentOrigin ?: return).paste()
+        try {
+            placingStructure.createPlacement(chunk.world, currentOrigin ?: return).paste()
+        } catch (e: Exception) {
+            Reden.LOGGER.error("Failed to paste chunk ${chunk.pos} at ${chunk.world.registryKey.value}", e)
+            active = false
+        }
     }
 }
 
