@@ -52,7 +52,7 @@ private var ghCredential = Pair("RedenMC", "")
                 }
                 Json.decodeFromString<JsonObject>(it.body!!.string())
             }
-            if (obj["token"] is JsonNull) {
+            if ("token" !in obj || obj["token"] is JsonNull) {
                 MinecraftClient.getInstance().setScreen(LoginRedenScreen())
             }
             field = Pair(obj["name"]!!.jsonPrimitive.content, obj["token"]!!.jsonPrimitive.content)

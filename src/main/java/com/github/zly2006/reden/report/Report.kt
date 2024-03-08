@@ -35,7 +35,6 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.userAgent
 import okio.use
 import java.net.URI
-import java.util.*
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -128,31 +127,25 @@ fun doHeartHeat() {
 val featureUsageData = mutableListOf<FeatureUsageData>()
 var heartbeatThread: Thread? = null
 fun initHeartBeat() {
+    try {
+        heartbeatThread?.interrupt()
+    } catch (e: Exception) {
+        LOGGER.error("Failed to stop heartbeat", e)
+    }
     heartbeatThread = Thread("RedenMC HeartBeat") {
         while (true) {
             Thread.sleep(1000 * 60 * 5)
             try {
                 doHeartHeat()
-            } catch (e: Exception) { LOGGER.debug("", e) }
+            } catch (e: Exception) {
+                LOGGER.error("", e)
+            }
         }
     }
     heartbeatThread!!.start()
 }
 
 fun Thread(name: String, function: () -> Unit) = Thread(function, name)
-
-class ClientMetadataReq(
-    val online_mode: Boolean,
-    val uuid: UUID?,
-    val name: String,
-    val mcversion: String,
-    val servers: List<Server>
-) {
-    class Server(
-        val name: String,
-        val ip: String
-    )
-}
 
 private var usedTimes = 0
 
@@ -316,8 +309,22 @@ private class OnlineReq(
     val servers: List<Map<String, String>>
 )
 
-fun updateOnlineInfo(client: MinecraftClient) {
-    if (client.userApiService == UserApiService.OFFLINE) return
+@Serializable
+class OnlineRes(
+    val shutdown: Boolean = false,
+    val key: String? = null,
+    val ip: String = "",
+    val id: String? = null,
+    val status: String = "",
+    val username: String? = null,
+    val desc: String = "",
+)
+
+fun updateOnlineInfo(client: MinecraftClient): Boolean {
+    if (heartbeatThread == null || !heartbeatThread!!.isAlive) {
+        initHeartBeat()
+    }
+    if (client.userApiService == UserApiService.OFFLINE) return false
     try {
         client.sessionService.joinServer(
             client.session.uuidOrNull,
@@ -325,8 +332,7 @@ fun updateOnlineInfo(client: MinecraftClient) {
             "3cb49a79c3af1f1dba6c56eddd760ac7d50c518a"
         )
 
-        val serverList = ServerList(client)
-        serverList.loadFile()
+        val serverList = ServerList(client).also(ServerList::loadFile)
         val req = OnlineReq(
             name = client.session.username,
             early_access = false,
@@ -355,9 +361,13 @@ fun updateOnlineInfo(client: MinecraftClient) {
             json(req)
             ua()
         }.build()).execute().body!!.string()
-        LOGGER.info(res)
+        key = requireNotNull(jsonIgnoreUnknown.decodeFromString<OnlineRes>(res).apply {
+            if (shutdown) return false
+        }.key) { "Reden ApiKey is null" }
+        return true
     } catch (e: Exception) {
-        LOGGER.debug("", e)
+        LOGGER.error("Failed to login", e)
+        return false
     }
 }
 
@@ -398,21 +408,12 @@ fun redenSetup(client: MinecraftClient) {
                     "3cb49a79c3af1f1dba6c56eddd760ac7d50c518a"
                 )
             } catch (e: Exception) {
-                LOGGER.debug("", e)
+                LOGGER.error("", e)
                 req.online_mode = false
             }
-            @Serializable
-            class Res(
-                val shutdown: Boolean,
-                val key: String,
-                val ip: String,
-                val id: String? = null,
-                val status: String,
-                val username: String? = null,
-                val desc: String,
-            )
 
-            val res = jsonIgnoreUnknown.decodeFromString(Res.serializer(), httpClient.newCall(Request.Builder().apply {
+            val res =
+                jsonIgnoreUnknown.decodeFromString(OnlineRes.serializer(), httpClient.newCall(Request.Builder().apply {
                 url("$redenApiBaseUrl/mc/online")
                 json(req)
                 ua()
@@ -420,12 +421,12 @@ fun redenSetup(client: MinecraftClient) {
             if (res.shutdown) {
                 throw Error("Client closing due to copyright reasons, please go to https://www.redenmc.com/policy/copyright gor more information")
             }
-            key = res.key
+            key = requireNotNull(res.key) { "Reden ApiKey is null" }
             initHeartBeat()
             LOGGER.info("RedenMC: ${res.desc}")
             LOGGER.info("key=${res.key}, ip=${res.ip}, id=${res.id}, status=${res.status}, username=${res.username}")
         } catch (e: Exception) {
-            LOGGER.debug("", e)
+            LOGGER.error("", e)
         }
         updateOnlineInfo(client)
     }.start()
@@ -433,7 +434,7 @@ fun redenSetup(client: MinecraftClient) {
         try {
             if (featureUsageData.isNotEmpty()) doHeartHeat()
         } catch (e: Exception) {
-            LOGGER.debug("", e)
+            LOGGER.error("", e)
         }
         try {
             @Serializable
@@ -447,7 +448,7 @@ fun redenSetup(client: MinecraftClient) {
             }.build()).execute().use {
             }
         } catch (e: Exception) {
-            LOGGER.debug("", e)
+            LOGGER.error("", e)
         }
     })
     if (HiddenOption.iCHECK_UPDATES.booleanValue) {
@@ -455,7 +456,7 @@ fun redenSetup(client: MinecraftClient) {
             val updateInfo = try {
                 checkUpdateFromRedenApi() ?: checkUpdateFromModrinth()
             } catch (e: Exception) {
-                LOGGER.debug("", e)
+                LOGGER.error("", e)
                 null
             }
             if (updateInfo != null) {
