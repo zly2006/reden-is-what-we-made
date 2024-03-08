@@ -148,7 +148,8 @@ object RvcFileIO : StructureIO {
         // public final val trackPoints: MutableList<TrackedStructure.TrackPoint>
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.trackPoints.joinToString("\n") { trackPoint ->
-            "${trackPoint.pos.x},${trackPoint.pos.y},${trackPoint.pos.z},${trackPoint.predicate},${trackPoint.mode}"
+            val coordinate = structure.getRelativeCoordinate(trackPoint.pos)
+            "${coordinate.x},${coordinate.y},${coordinate.z},${trackPoint.predicate},${trackPoint.mode}"
         }.let { data -> writeRvcFile(path, "trackPoints", RVC_HEADER, data) }
 
         // ===================================== Save Block Events =====================================
