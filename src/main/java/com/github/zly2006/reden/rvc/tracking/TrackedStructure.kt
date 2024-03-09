@@ -294,7 +294,6 @@ class TrackedStructure(
     }
 
     fun refreshPositions() {
-        requireNotNull(networkWorker)
         if (!dirty) return
         cachedIgnoredPositions = hashMapOf()
         cachedPositions = hashMapOf()

@@ -159,35 +159,34 @@ class RvcRepository(
         return !git.status().call().isClean
     }
 
+    private fun configure(structure: TrackedStructure) {
+        if (placementInfo != null) {
+            structure.placementInfo = placementInfo
+            structure.networkWorker = when (side) {
+                NetworkSide.CLIENTBOUND -> LocalNetworkWorker(
+                    structure,
+                    placementInfo!!.worldInfo.getWorld() as ServerWorld,
+                    placementInfo!!.worldInfo.getClientWorld()!!
+                )
+
+                NetworkSide.SERVERBOUND -> ServerNetworkWorker(
+                    structure,
+                    placementInfo!!.worldInfo.getWorld() as ServerWorld
+                )
+            }
+        }
+    }
+
     fun head(): TrackedStructure {
         try {
             if (headCache == null) {
                 val refs = git.branchList().call()
-                headCache = if (refs.isEmpty()) {
-                    TrackedStructure(name, this)
-                }
-                else if (refs.any { it.name == RVC_BRANCH_REF }) {
-                    checkoutBranch(RVC_BRANCH)
-                }
-                else {
-                    checkout(refs.first().name)
-                }
+                headCache =
+                    if (refs.isEmpty()) TrackedStructure(name, this)
+                    else if (refs.any { it.name == RVC_BRANCH_REF }) checkoutBranch(RVC_BRANCH)
+                    else checkout(refs.first().name)
             }
-            if (placementInfo != null) {
-                headCache!!.placementInfo = placementInfo
-                headCache!!.networkWorker = when (side) {
-                    NetworkSide.CLIENTBOUND -> LocalNetworkWorker(
-                        headCache!!,
-                        placementInfo!!.worldInfo.getWorld() as ServerWorld,
-                        placementInfo!!.worldInfo.getClientWorld()!!
-                    )
-
-                    NetworkSide.SERVERBOUND -> ServerNetworkWorker(
-                        headCache!!,
-                        placementInfo!!.worldInfo.getWorld() as ServerWorld
-                    )
-                }
-            }
+            configure(headCache!!)
             return headCache!!
         } catch (e: Exception) {
             redenError("Failed to load RVC head structure from repository ${this.name}", e, log = true)
@@ -195,7 +194,7 @@ class RvcRepository(
     }
 
     fun checkout(tag: String) = TrackedStructure(name, this).apply {
-        this@RvcRepository.placementInfo?.let { this.placementInfo = it }
+        configure(this)
         git.checkout().setName(tag).setForced(true).call()
         RvcFileIO.load(git.repository.workTree.toPath(), this)
     }

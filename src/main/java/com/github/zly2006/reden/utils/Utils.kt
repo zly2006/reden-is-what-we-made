@@ -21,6 +21,7 @@ import net.minecraft.nbt.NbtHelper
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.ServerTask
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
@@ -253,3 +254,5 @@ fun Class<*>.shortenName(): String {
     val simple = this.name.substringAfterLast('.')
     return this.name.split('.').dropLast(1).joinToString(".") { it[0].toString() } + "." + simple
 }
+
+fun MinecraftServer.send(task: () -> Unit) = send(ServerTask(ticks, task))
