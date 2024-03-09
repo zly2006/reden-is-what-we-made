@@ -4,6 +4,7 @@ import com.github.zly2006.reden.rvc.CuboidStructure
 import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.rvc.blockPos
 import com.github.zly2006.reden.rvc.io.LitematicaIO
+import com.github.zly2006.reden.rvc.tracking.RvcFileIO
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.rvc.tracking.WorldInfo
@@ -39,7 +40,7 @@ class LitematicaIOTest {
         val repository = RvcRepository.create("test", WorldInfo(), NetworkSide.CLIENTBOUND)
         val structure = TrackedStructure("test", repository)
         LitematicaIO.load(file, structure)
-        repository.commit(structure, "import", null)
+        RvcFileIO.save(file, structure)
 
         assert(structure.blocks.size == litematica.metadata.totalBlocks) {
             "Expected ${litematica.metadata.totalBlocks} blocks, got ${structure.blocks.size}"
