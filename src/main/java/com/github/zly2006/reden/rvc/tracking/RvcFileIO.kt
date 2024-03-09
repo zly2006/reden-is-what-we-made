@@ -91,7 +91,6 @@ object RvcFileIO : StructureIO {
         if (path.notExists()) {
             path.toFile().mkdirs()
         }
-        structure.refreshPositions()
         val usePalette = palette ?: (structure.blocks.size > 1000)
 
         @Suppress("NAME_SHADOWING")

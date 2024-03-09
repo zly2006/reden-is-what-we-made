@@ -40,7 +40,7 @@ class LitematicaIOTest {
         val repository = RvcRepository.create("test", WorldInfo(), NetworkSide.CLIENTBOUND)
         val structure = TrackedStructure("test", repository)
         LitematicaIO.load(file, structure)
-        RvcFileIO.save(file, structure)
+        RvcFileIO.save(file.parent, structure)
 
         assert(structure.blocks.size == litematica.metadata.totalBlocks) {
             "Expected ${litematica.metadata.totalBlocks} blocks, got ${structure.blocks.size}"
