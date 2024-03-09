@@ -2,6 +2,7 @@ package com.github.zly2006.reden.mixin.otherMods.litematica.rvcRender;
 
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureLitematicaTask;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo;
+import fi.dy.masa.litematica.world.WorldSchematic;
 import fi.dy.masa.malilib.util.IntBoundingBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -24,6 +25,9 @@ public class MixinChunkRendererSchematicVbo {
     @Final
     protected BlockPos.Mutable position;
 
+    @Shadow
+    protected volatile WorldSchematic world;
+
     @Inject(
             method = "rebuildWorldView",
             at = @At(
@@ -33,7 +37,6 @@ public class MixinChunkRendererSchematicVbo {
             )
     )
     private void addRedenBox(CallbackInfo ci) {
-        // todo: is it working?
         RvcMoveStructureLitematicaTask litematicaTask = RvcMoveStructureLitematicaTask.stackTop();
         if (litematicaTask == null) return;
         BlockPos startPos = new ChunkPos(position).getStartPos();
@@ -41,7 +44,15 @@ public class MixinChunkRendererSchematicVbo {
         if (box == null) return;
         if (box.maxX >= startPos.getX() && box.minX < startPos.getX() + 16 &&
                 box.maxZ >= startPos.getZ() && box.minZ < startPos.getZ() + 16) {
-            boxes.add(box);
+            IntBoundingBox box1 = new IntBoundingBox(
+                    Math.max(box.minX, startPos.getX()),
+                    box.minY,
+                    Math.max(box.minZ, startPos.getZ()),
+                    Math.min(box.maxX, startPos.getX() + 15),
+                    box.maxY,
+                    Math.min(box.maxZ, startPos.getZ() + 15)
+            );
+            boxes.add(box1);
         }
     }
 }
