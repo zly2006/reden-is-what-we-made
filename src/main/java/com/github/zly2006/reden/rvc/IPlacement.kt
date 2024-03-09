@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.rvc
 
-import com.github.zly2006.reden.utils.setBlockNoPP
 import net.minecraft.block.Block
 import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
@@ -36,7 +35,11 @@ interface IPlacement {
                 for (z in 0 until structure.zSize) {
                     mutablePos.set(origin.x + x, origin.y + y, origin.z + z)
                     if (structure.isInArea(mutablePos.relative(origin))) {
-                        world.setBlockNoPP(mutablePos, structure.getBlockState(mutablePos.relative(origin)), Block.NOTIFY_LISTENERS)
+                        world.setBlockState(
+                            mutablePos,
+                            structure.getBlockState(mutablePos.relative(origin)),
+                            Block.NOTIFY_LISTENERS
+                        )
                     }
                 }
             }

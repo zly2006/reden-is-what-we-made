@@ -29,9 +29,7 @@ open class RvcMoveStructureTask(
             list.add(
                 Text.translatable(
                     "reden.widget.rvc.hud.move_machine.origin",
-                    currentOrigin?.x,
-                    currentOrigin?.y,
-                    currentOrigin?.z
+                    currentOrigin?.toShortString()
                 )
             )
             list += customTexts()

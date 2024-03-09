@@ -47,8 +47,7 @@ class TrackedStructure(
      */
     var placementInfo: PlacementInfo? = null
     override val world: World
-        get() = networkWorker?.world
-            ?: redenError("getting world but networkWorker not set for $name")
+        get() = networkWorker.world
 
     override val origin: BlockPos
         get() = placementInfo?.origin?.toImmutable()
@@ -56,6 +55,12 @@ class TrackedStructure(
 
     override fun createPlacement(world: World, origin: BlockPos) = apply {
         placementInfo = PlacementInfo(WorldInfo.of(world), origin)
+        networkWorker = object : NetworkWorker {
+            override fun debugRender() {}
+            override fun refreshPositions() {}
+            override val structure = this@TrackedStructure
+            override val world = world
+        }
     }
 
     var cachedPositions = HashMap<BlockPos, TrackPoint>()
@@ -322,7 +327,7 @@ class TrackedStructure(
 
     override fun paste() {
         blocks.forEach { (pos, state) ->
-            world.setBlockNoPP(pos.blockPos(origin), state, 0)
+            world.setBlockState(pos.blockPos(origin), state, Block.NOTIFY_LISTENERS)
         }
         blockEntities.forEach { (pos, nbt) ->
             world.getBlockEntity(pos.blockPos(origin))?.readNbt(nbt)

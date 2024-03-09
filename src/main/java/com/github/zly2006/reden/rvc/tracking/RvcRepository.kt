@@ -159,7 +159,7 @@ class RvcRepository(
         return !git.status().call().isClean
     }
 
-    private fun configure(structure: TrackedStructure) {
+    fun configure(structure: TrackedStructure) {
         if (placementInfo != null) {
             structure.placementInfo = placementInfo
             structure.networkWorker = when (side) {
@@ -177,29 +177,31 @@ class RvcRepository(
         }
     }
 
-    fun head(): TrackedStructure {
+    @JvmOverloads
+    fun head(configureCallback: (TrackedStructure) -> Unit = ::configure): TrackedStructure {
         try {
             if (headCache == null) {
                 val refs = git.branchList().call()
                 headCache =
                     if (refs.isEmpty()) TrackedStructure(name, this)
-                    else if (refs.any { it.name == RVC_BRANCH_REF }) checkoutBranch(RVC_BRANCH)
-                    else checkout(refs.first().name)
+                    else if (refs.any { it.name == RVC_BRANCH_REF }) checkoutBranch(RVC_BRANCH, configureCallback)
+                    else checkout(refs.first().name, configureCallback)
             }
-            configure(headCache!!)
+            configureCallback(headCache!!)
             return headCache!!
         } catch (e: Exception) {
             redenError("Failed to load RVC head structure from repository ${this.name}", e, log = true)
         }
     }
 
-    fun checkout(tag: String) = TrackedStructure(name, this).apply {
-        configure(this)
+    fun checkout(tag: String, configureCallback: (TrackedStructure) -> Unit) = TrackedStructure(name, this).apply {
+        configureCallback(this)
         git.checkout().setName(tag).setForced(true).call()
         RvcFileIO.load(git.repository.workTree.toPath(), this)
     }
 
-    fun checkoutBranch(branch: String) = checkout("refs/heads/$branch")
+    fun checkoutBranch(branch: String, configureCallback: (TrackedStructure) -> Unit) =
+        checkout("refs/heads/$branch", configureCallback)
 
     fun createReadmeIfNotExists() {
         git.repository.workTree.resolve("README.md").writeText(
@@ -244,8 +246,13 @@ class RvcRepository(
         clearCache()
         val world = MinecraftClient.getInstance().world!! // place locally may be fast? // todo
         Task.all<RvcMoveStructureTask>().forEach { it.onCancel() }
-        val structure = head()
-        structure.placementInfo = PlacementInfo(MinecraftClient.getInstance().getWorldInfo(), BlockPos.ORIGIN)
+
+        val structure = head {
+            configure(it)
+            // Use temporary placement info so that the structure does not move
+            it.placementInfo = PlacementInfo(MinecraftClient.getInstance().getWorldInfo(), BlockPos.ORIGIN)
+        }
+
         taskStack.add(
             if (litematicaInstalled)
                 RvcMoveStructureLitematicaTask(world, structure)

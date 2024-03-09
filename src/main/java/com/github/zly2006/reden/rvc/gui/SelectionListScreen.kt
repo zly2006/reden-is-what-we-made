@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.gui
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.tracking.PlacementInfo
@@ -15,6 +16,7 @@ import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer
 import io.wispforest.owo.ui.core.*
+import io.wispforest.owo.ui.util.UIErrorToast
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.NetworkSide
 import net.minecraft.text.Text
@@ -23,12 +25,19 @@ import java.io.File
 
 val selectedStructure: TrackedStructure?
     get() {
-        val structure = selectedRepository?.head()
-        if (structure != null) {
-            requireNotNull(structure.placementInfo) { "Structure ${structure.name} is not placed" }
-            requireNotNull(structure.networkWorker) { "Network worker is not initialized for ${structure.name}" }
+        try {
+            val structure = selectedRepository?.head()
+            if (structure != null) {
+                requireNotNull(structure.placementInfo) { "Structure ${structure.name} is not placed" }
+                requireNotNull(structure.networkWorker) { "Network worker is not initialized for ${structure.name}" }
+            }
+            return structure
+        } catch (e: Exception) {
+            UIErrorToast.report("Error while getting selected structure")
+            Reden.LOGGER.error("Error while getting selected structure", e)
+            selectedRepository = null
+            return null
         }
-        return structure
     }
 var selectedRepository: RvcRepository? = null
 
@@ -78,11 +87,6 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
             super.mount(parent, x, y)
         }
         private val sameWorld = repository.placementInfo?.worldInfo?.equals(worldInfo)
-        private var canPlace = repository.placementInfo == null
-            set(value) {
-                field = value
-                checkActive()
-            }
         val select: CheckboxComponent = Components.checkbox(Text.empty()).apply {
             onChanged {
                 selectedUIElement = if (it) this@RepositoryLine else null
@@ -118,6 +122,7 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
             repository.head().clearArea()
             repository.clearCache()
             repository.placementInfo = null
+            selectedUIElement = null
             close()
         }.apply {
             tooltip(Text.literal("Remove the structure from the current world, this does not delete the structure"))
@@ -125,12 +130,19 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
         val left = Containers.horizontalFlow(Sizing.content(), Sizing.content())
         val right = Containers.horizontalFlow(Sizing.content(), Sizing.content())
         private fun checkActive() {
-            placeButton.active(canPlace)
-            removeButton.active(sameWorld == true)
-            select.active = (sameWorld != false)
             if (sameWorld == false) {
-                select.checked(false)
                 this.tooltip(Text.literal("Not in the same world").red())
+            }
+            placeButton.active(sameWorld != true)
+            removeButton.active(sameWorld == true)
+            if (sameWorld != true) {
+                select.tooltip(Text.literal("Please place this structure in the current world first"))
+                select.checked(false)
+                select.active = false
+            }
+            else {
+                select.tooltip(Text.empty())
+                select.active = true
             }
         }
 

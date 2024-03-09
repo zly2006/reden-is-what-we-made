@@ -260,6 +260,5 @@ object RvcFileIO : StructureIO {
         loadRvcFile(path, "fluidScheduledTicks")?.let { rvcFile ->
             structure.fluidScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data, Registries.FLUID))
         }
-        structure.refreshPositions()
     }
 }

@@ -87,7 +87,7 @@ class SelectionInfoScreen(
         private val checkoutButton = Components.button(Text.literal("Checkout")) {
             onFunctionUsed("checkout_rvcStructure")
             structure.clearArea()
-            repository.checkout(commit.name)
+            repository.checkout(commit.name, repository::configure)
             structure.paste()
             client!!.setScreen(SelectionListScreen())
             // todo

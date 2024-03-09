@@ -47,7 +47,7 @@ class RvcMoveStructureLitematicaTask(
     }
 
     private val schematicWorld = SchematicWorldHandler.getSchematicWorld() ?: error("Failed to load litematica world")
-    override var currentOrigin: BlockPos? = BlockPos.ORIGIN
+    override var currentOrigin: BlockPos? = null
         set(value) {
             placementSchematicWorld?.clearArea()
             placementSchematicWorld?.blockBox()?.streamChunkPos()
@@ -65,7 +65,7 @@ class RvcMoveStructureLitematicaTask(
             }
         }
     var box: IntBoundingBox? = null
-    private var placementSchematicWorld: IPlacement? = placingStructure.createPlacement(schematicWorld, currentOrigin!!)
+    private var placementSchematicWorld: IPlacement? = null
 
     override fun onStopped() {
         try {
@@ -84,9 +84,9 @@ class RvcMoveStructureLitematicaTask(
         placementSchematicWorld?.blockBox()?.streamChunkPos()?.anyMatch { it == chunkPos } ?: false
 
     fun pasteChunk(chunk: WorldChunk) {
-        // todo
+        // fixme: perf: paste just one chunk
         try {
-//            placingStructure.createPlacement(chunk.world, currentOrigin ?: return).paste()
+            placingStructure.createPlacement(chunk.world, currentOrigin ?: return).paste()
         } catch (e: Exception) {
             Reden.LOGGER.error("Failed to paste chunk ${chunk.pos} at ${chunk.world.registryKey.value}", e)
             active = false
