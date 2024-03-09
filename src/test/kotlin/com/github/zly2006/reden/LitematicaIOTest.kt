@@ -37,7 +37,7 @@ class LitematicaIOTest {
         file.writeBytes(this.file)
         val litematica = LitematicaSchematic.createFromFile(file.parent.toFile(), file.name)!!
         val repository = RvcRepository.create("test", WorldInfo(), NetworkSide.CLIENTBOUND)
-        val structure = TrackedStructure("test", repository, NetworkSide.CLIENTBOUND)
+        val structure = TrackedStructure("test", repository)
         LitematicaIO.load(file, structure)
         repository.commit(structure, "import", null)
 

@@ -2,7 +2,9 @@ package com.github.zly2006.reden.rvc.gui
 
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.report.onFunctionUsed
+import com.github.zly2006.reden.rvc.tracking.PlacementInfo
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
+import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
@@ -19,7 +21,15 @@ import net.minecraft.text.Text
 import org.eclipse.jgit.api.Git
 import java.io.File
 
-val selectedStructure get() = selectedRepository?.head()
+val selectedStructure: TrackedStructure?
+    get() {
+        val structure = selectedRepository?.head()
+        if (structure != null) {
+            requireNotNull(structure.placementInfo) { "Structure ${structure.name} is not placed" }
+            requireNotNull(structure.networkWorker) { "Network worker is not initialized for ${structure.name}" }
+        }
+        return structure
+    }
 var selectedRepository: RvcRepository? = null
 
 class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
@@ -31,7 +41,12 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
                 _selectedUIElement?.select?.checked(false)
                 _selectedUIElement = value
             }
-            selectedRepository = value?.repository
+            selectedRepository = value?.repository?.apply {
+                if (placementInfo == null) {
+                    // initialize placement info
+                    placementInfo = PlacementInfo(client!!.getWorldInfo())
+                }
+            }
             infoBox = Containers.verticalFlow(Sizing.fill(100), Sizing.fill(100)).apply {
                 fun childTr(key: String, vararg args: Any) = child(Components.label(Text.translatable(key, *args)))
                 selectedStructure?.run {

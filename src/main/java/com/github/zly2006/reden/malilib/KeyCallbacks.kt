@@ -60,7 +60,6 @@ import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.GameMode
 import org.lwjgl.glfw.GLFW
-import java.util.zip.ZipInputStream
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sign
@@ -125,23 +124,22 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
     DEBUG_TAG_BLOCK_POS.callback {
         val pos = mc.crosshairTarget?.pos?.toBlockPos()
         if (pos != null) {
-            val new = BlockBorder.tags.compute(pos.asLong()) { _, old ->
-                when (old) {
-                    3 -> 0
-                    null -> 1
-                    else -> old + 1
-                }
+            val new = when (val old = BlockBorder[pos]) {
+                3 -> 0
+                else -> old + 1
             }
+            BlockBorder[pos] = new
             mc.player?.sendMessage("OK $pos=$new")
             true
-        } else false
+        }
+        else false
     }
     DEBUG_PREVIEW_UNDO.callback {
         if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
-            BlockBorder.tags.clear()
+            BlockBorder.tags = mutableMapOf()
             val view = mc.server!!.playerManager.playerList[0].data()
             view.undo.lastOrNull()?.data?.keys?.forEach {
-                BlockBorder.tags[it] = 1
+                (BlockBorder.tags as MutableMap)[it] = 1
             }
             return@callback true
         }
@@ -209,7 +207,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
     var selectedWormhole: Wormhole? = null
     WORMHOLE_SELECT.callback {
         selectedWormhole = null
-        BlockOutline.blocks.clear()
+        BlockOutline.blocks = mapOf()
         true
     }
     ClientTickEvents.START_CLIENT_TICK.register {
@@ -235,11 +233,13 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             }
             if (WORMHOLE_SELECT.keybind.isPressed) {
                 selectedWormhole = null
-                BlockOutline.blocks.clear()
+                BlockOutline.blocks = mapOf()
                 mc.data.wormholes.minByOrNull(::eval)?.let {
                     if (eval(it) > 0.4) return@let
                     selectedWormhole = it
-                    BlockOutline.blocks[it.destination] = Blocks.STONE.defaultState
+                    BlockOutline.blocks = mapOf(
+                        it.destination to Blocks.STONE.defaultState
+                    )
                 }
             }
         }
@@ -276,30 +276,6 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
     })
     OPEN_SELECTION_LIST.callback {
         mc.setScreen(SelectionListScreen())
-        true
-    }
-    DEBUG_RVC_REQUEST_SYNC_DATA.callback {
-        ClientPlayNetworking.send(RvcTrackpointsC2SRequest(1, selectedStructure!!))
-        RvcDataS2CPacket.consumer = {
-            val rootFile = mc.runDirectory.resolve("DEBUG_RVC_REQUEST_SYNC_DATA").normalize()
-            ZipInputStream(it.inputStream()).use { zip ->
-                var entry = zip.nextEntry
-                while (entry != null) {
-                    val name = entry.name
-                    print(name)
-                    val file = rootFile.resolve(name).normalize()
-                    if (!file.startsWith(rootFile)) {
-                        Reden.LOGGER.error("Zip entry $name is outside of root directory")
-                        continue
-                    }
-                    file.parentFile.mkdirs()
-                    file.writeBytes(zip.readAllBytes())
-                    entry = zip.nextEntry
-                    print(file.absolutePath)
-                }
-            }
-        }
-        mc.messageHandler.onGameMessage(Text.literal("DEBUG_RVC_REQUEST_SYNC_DATA"), false)
         true
     }
     SPONSOR_SCREEN_KEY.callback {

@@ -2,7 +2,6 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.utils.isClient
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
@@ -40,9 +39,8 @@ class TagBlockPos(
 
         fun register() {
             if (!isClient) return
-            ClientPlayConnectionEvents.DISCONNECT.register { _, _ -> BlockBorder.tags.clear()}
             ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->
-                BlockBorder.tags[packet.pos.asLong()] = packet.status
+                BlockBorder[packet.pos] = packet.status
             }
         }
     }

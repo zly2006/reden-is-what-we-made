@@ -86,7 +86,7 @@ class RvcMoveStructureLitematicaTask(
     fun pasteChunk(chunk: WorldChunk) {
         // todo
         try {
-            placingStructure.createPlacement(chunk.world, currentOrigin ?: return).paste()
+//            placingStructure.createPlacement(chunk.world, currentOrigin ?: return).paste()
         } catch (e: Exception) {
             Reden.LOGGER.error("Failed to paste chunk ${chunk.pos} at ${chunk.world.registryKey.value}", e)
             active = false

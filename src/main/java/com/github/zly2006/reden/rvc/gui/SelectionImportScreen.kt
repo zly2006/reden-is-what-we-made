@@ -176,7 +176,7 @@ class SelectionImportScreen(
             override fun import(file: File): RvcRepository {
                 val mc = MinecraftClient.getInstance()
                 val repository = RvcRepository.create(file.nameWithoutExtension, mc.getWorldInfo(), NetworkSide.CLIENTBOUND)
-                val structure = TrackedStructure(file.nameWithoutExtension, repository, NetworkSide.CLIENTBOUND)
+                val structure = TrackedStructure(file.nameWithoutExtension, repository)
                 LitematicaIO.load(file.toPath(), structure)
                 repository.commit(structure, "Import from $file", mc.player)
                 return repository
@@ -254,7 +254,7 @@ class SelectionImportScreen(
             try {
                 val mc = MinecraftClient.getInstance()
                 val repository = RvcRepository.create(file.nameWithoutExtension, mc.getWorldInfo(), NetworkSide.CLIENTBOUND)
-                val structure = TrackedStructure(file.nameWithoutExtension, repository, NetworkSide.CLIENTBOUND)
+                val structure = TrackedStructure(file.nameWithoutExtension, repository)
                 val nbt = NbtIo.readCompressed(file.toPath(), NbtSizeTracker.ofUnlimitedBytes())
                 structure.assign(SchematicStructure().readFromNBT(nbt))
                 repository.commit(structure, "Import from $file", mc.player)

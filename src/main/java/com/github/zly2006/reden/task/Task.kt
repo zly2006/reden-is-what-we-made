@@ -117,12 +117,13 @@ abstract class Task(val name: String) {
      * By default, the escape key pressed
      */
     open fun onCancel(): Boolean {
+        active = false
         return false
     }
 
     @StateChanged
     open fun onClientSideWorldChanged(newWorld: ClientWorld?) {
-
+        onCancel()
     }
 
     override fun toString(): String {

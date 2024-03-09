@@ -11,6 +11,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Collections;
+
 @Mixin(MinecraftClient.class)
 public class MixinMinecraftClient {
     @Shadow
@@ -23,7 +25,7 @@ public class MixinMinecraftClient {
     )
     private void onWorldChange(ClientWorld world, CallbackInfo ci) {
         // clear all renderers
-        BlockBorder.INSTANCE.getTags$reden_is_what_we_made().clear();
-        BlockOutline.INSTANCE.getBlocks().clear();
+        BlockBorder.INSTANCE.setTags$reden_is_what_we_made(Collections.emptyMap());
+        BlockOutline.INSTANCE.setBlocks(Collections.emptyMap());
     }
 }

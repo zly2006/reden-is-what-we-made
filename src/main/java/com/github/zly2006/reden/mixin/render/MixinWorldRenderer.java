@@ -6,11 +6,8 @@ import com.github.zly2006.reden.render.BlockOutline;
 import com.github.zly2006.reden.render.SolidFaceRenderer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,12 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(WorldRenderer.class)
 public abstract class MixinWorldRenderer {
     @Shadow @Final private BufferBuilderStorage bufferBuilders;
-    @Shadow private @Nullable Framebuffer entityOutlinesFramebuffer;
-    @Shadow @Final private MinecraftClient client;
-
-    @Shadow public abstract void drawEntityOutlinesFramebuffer();
-
-    @Shadow public abstract void scheduleBlockRender(int x, int y, int z);
 
     @Unique
     SolidFaceRenderer solidFaceRenderer = new SolidFaceRenderer();

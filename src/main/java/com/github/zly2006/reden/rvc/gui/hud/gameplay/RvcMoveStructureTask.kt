@@ -5,7 +5,6 @@ import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.gui.RvcHudRenderer
 import com.github.zly2006.reden.task.Task
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.world.ClientWorld
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
@@ -57,9 +56,5 @@ open class RvcMoveStructureTask(
         }
         active = false
         return true
-    }
-
-    override fun onClientSideWorldChanged(newWorld: ClientWorld?) {
-        onCancel()
     }
 }

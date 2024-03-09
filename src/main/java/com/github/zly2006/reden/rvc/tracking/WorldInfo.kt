@@ -44,7 +44,6 @@ data class WorldInfo(
             worldKey = world.registryKey.value,
         ).apply {
             worldCache = world
-            getClientWorld()
         }
 
         private fun ofRemote(mc: MinecraftClient): WorldInfo? {
@@ -128,12 +127,8 @@ data class WorldInfo(
 
     fun getClientWorld(): World? {
         if (worldCache !is ServerWorld) return worldCache // allows: schematic world, client world
-        val client = MinecraftClient.getInstance()
-        if (client.world?.registryKey?.value == worldKey) {
-            worldCache = client.world
-            return worldCache
-        }
-        else return null
+        val mc = MinecraftClient.getInstance()
+        return mc.world?.takeIf { it.registryKey.value == worldKey }
     }
 }
 

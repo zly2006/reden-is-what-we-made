@@ -24,7 +24,6 @@ fun register() {
     TntSyncPacket.register()
     GlobalStatus.register()
     WorldStatus.register()
-    RvcTrackpointsC2SRequest.register()
     RvcDataS2CPacket.register()
     HopperCDSync.register()
     StageTreeS2CPacket.register()

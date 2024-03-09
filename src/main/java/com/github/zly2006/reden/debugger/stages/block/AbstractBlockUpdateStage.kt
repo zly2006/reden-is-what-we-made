@@ -63,7 +63,9 @@ abstract class AbstractBlockUpdateStage<T: Updater119.Entry>(
 
     override fun unfocused(mc: MinecraftClient) {
         super.unfocused(mc)
-        BlockBorder.tags.remove(sourcePos.asLong())
-        if (targetPos != null) BlockBorder.tags.remove(targetPos!!.asLong())
+        BlockBorder[sourcePos] = null
+        if (targetPos != null) {
+            BlockBorder[targetPos!!] = null
+        }
     }
 }

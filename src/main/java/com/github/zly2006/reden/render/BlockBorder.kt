@@ -16,13 +16,13 @@ import net.minecraft.util.math.Vec3d
 
 @Environment(EnvType.CLIENT)
 object BlockBorder {
-    internal val tags = mutableMapOf<Long, Int>()
+    internal var tags = mapOf<Long, Int>()
 
     @JvmStatic operator fun set(pos: BlockPos, status: Int?) {
-        if (status == null) {
-            tags.remove(pos.asLong())
+        tags = if (status == null) {
+            tags - pos.asLong()
         } else {
-            tags[pos.asLong()] = status
+            tags + (pos.asLong() to status)
         }
     }
 
@@ -35,7 +35,6 @@ object BlockBorder {
             tags.filter { context.camera().pos.distanceTo(BlockPos.fromLong(it.key).toCenterPos()) < MAX_RENDER_DISTANCE.integerValue }
                 .forEach { (_pos, status) ->
                     if (status == 0) {
-                        tags.remove(_pos)
                         return@register
                     }
                     val pos = BlockPos.fromLong(_pos)

@@ -1,10 +1,8 @@
 package com.github.zly2006.reden.rvc.tracking.client
 
 import com.github.zly2006.reden.rvc.gui.selectedStructure
-import com.github.zly2006.reden.rvc.tracking.PlacementInfo
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
-import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.utils.holdingToolItem
 import fi.dy.masa.malilib.event.InputEventHandler
 import fi.dy.masa.malilib.hotkeys.IMouseInputHandler
@@ -27,9 +25,6 @@ fun registerSelectionTool() {
                 val blockResult = raycast as BlockHitResult
                 if (selectedStructure != null && selectedStructure!!.placementInfo != null) {
                     val structure = selectedStructure!!
-                    if (structure.placementInfo == null) {
-                        structure.placementInfo = PlacementInfo(mc.getWorldInfo())
-                    }
                     if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
                         structure.addTrackPoint(
                             TrackedStructure.TrackPoint(

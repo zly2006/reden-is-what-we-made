@@ -8,6 +8,8 @@ import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureLitematicaT
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureTask
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
+import com.github.zly2006.reden.rvc.tracking.network.LocalNetworkWorker
+import com.github.zly2006.reden.rvc.tracking.network.ServerNetworkWorker
 import com.github.zly2006.reden.task.Task
 import com.github.zly2006.reden.task.taskStack
 import com.github.zly2006.reden.utils.ResourceLoader
@@ -21,6 +23,7 @@ import net.minecraft.SharedConstants
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.network.NetworkSide
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 import okhttp3.Request
 import org.eclipse.jgit.api.CloneCommand
@@ -161,7 +164,7 @@ class RvcRepository(
             if (headCache == null) {
                 val refs = git.branchList().call()
                 headCache = if (refs.isEmpty()) {
-                    TrackedStructure(name, this, side)
+                    TrackedStructure(name, this)
                 }
                 else if (refs.any { it.name == RVC_BRANCH_REF }) {
                     checkoutBranch(RVC_BRANCH)
@@ -170,14 +173,28 @@ class RvcRepository(
                     checkout(refs.first().name)
                 }
             }
-            headCache!!.placementInfo = this.placementInfo
+            if (placementInfo != null) {
+                headCache!!.placementInfo = placementInfo
+                headCache!!.networkWorker = when (side) {
+                    NetworkSide.CLIENTBOUND -> LocalNetworkWorker(
+                        headCache!!,
+                        placementInfo!!.worldInfo.getWorld() as ServerWorld,
+                        placementInfo!!.worldInfo.getClientWorld()!!
+                    )
+
+                    NetworkSide.SERVERBOUND -> ServerNetworkWorker(
+                        headCache!!,
+                        placementInfo!!.worldInfo.getWorld() as ServerWorld
+                    )
+                }
+            }
             return headCache!!
         } catch (e: Exception) {
             redenError("Failed to load RVC head structure from repository ${this.name}", e, log = true)
         }
     }
 
-    fun checkout(tag: String) = TrackedStructure(name, this, side).apply {
+    fun checkout(tag: String) = TrackedStructure(name, this).apply {
         this@RvcRepository.placementInfo?.let { this.placementInfo = it }
         git.checkout().setName(tag).setForced(true).call()
         RvcFileIO.load(git.repository.workTree.toPath(), this)
@@ -225,14 +242,16 @@ class RvcRepository(
     }
 
     fun startPlacing() {
-        setWorld()
+        clearCache()
         val world = MinecraftClient.getInstance().world!! // place locally may be fast? // todo
         Task.all<RvcMoveStructureTask>().forEach { it.onCancel() }
+        val structure = head()
+        structure.placementInfo = PlacementInfo(MinecraftClient.getInstance().getWorldInfo(), BlockPos.ORIGIN)
         taskStack.add(
             if (litematicaInstalled)
-                RvcMoveStructureLitematicaTask(world, this.head())
+                RvcMoveStructureLitematicaTask(world, structure)
             else
-                RvcMoveStructureTask(world, this.head())
+                RvcMoveStructureTask(world, structure)
         )
     }
 

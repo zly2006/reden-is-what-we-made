@@ -1,9 +1,7 @@
 package com.github.zly2006.reden.rvc.tracking
 
-import com.github.zly2006.reden.Reden
-import com.github.zly2006.reden.render.BlockBorder
-import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.rvc.*
+import com.github.zly2006.reden.rvc.tracking.network.NetworkWorker
 import com.github.zly2006.reden.utils.redenError
 import com.github.zly2006.reden.utils.setBlockNoPP
 import net.minecraft.block.Block
@@ -17,10 +15,8 @@ import net.minecraft.entity.mob.MobEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.fluid.Fluid
 import net.minecraft.nbt.NbtCompound
-import net.minecraft.network.NetworkSide
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
-import net.minecraft.server.world.ServerChunkManager
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.*
 import net.minecraft.world.World
@@ -37,8 +33,8 @@ import java.util.*
 class TrackedStructure(
     name: String,
     val repository: RvcRepository?,
-    var side: NetworkSide
 ) : ReadWriteStructure(name), IPlacement, PositionIterable {
+    lateinit var networkWorker: NetworkWorker
     override var enabled: Boolean = true
     override val structure = this
 
@@ -51,10 +47,8 @@ class TrackedStructure(
      */
     var placementInfo: PlacementInfo? = null
     override val world: World
-        get() = (if (side == NetworkSide.SERVERBOUND)
-            placementInfo?.worldInfo?.getWorld()
-        else placementInfo?.worldInfo?.getClientWorld())
-            ?: redenError("getting world but PlacementInfo not set for $name")
+        get() = networkWorker?.world
+            ?: redenError("getting world but networkWorker not set for $name")
 
     override val origin: BlockPos
         get() = placementInfo?.origin?.toImmutable()
@@ -114,19 +108,6 @@ class TrackedStructure(
         }
     }
 
-    fun debugRender() {
-        if (side == NetworkSide.SERVERBOUND) return
-        BlockOutline.blocks.clear()
-        BlockBorder.tags.clear()
-        cachedPositions.forEach {
-            if (!world.isAir(it.key))
-                BlockOutline.blocks[it.key] = world.getBlockState(it.key)
-        }
-        trackPoints.forEach {
-            if (!world.isAir(it.pos))
-                BlockBorder[it.pos] = if (it.mode.isTrack()) 1 else 2
-        }
-    }
 
     fun splitCuboids(
         includeUntracked: Boolean = true,
@@ -261,6 +242,16 @@ class TrackedStructure(
         mode: TrackPredicate.TrackMode,
         structure: TrackedStructure,
     ) : SpreadEntry(pos.blockPos(structure.origin), predicate, mode, structure) {
+        val maxElements: Int
+            get() = when (mode) {
+                TrackPredicate.TrackMode.IGNORE -> 5000
+                TrackPredicate.TrackMode.TRACK -> 8000
+                TrackPredicate.TrackMode.NOOP -> 0
+            }
+
+        override fun toString(): String {
+            return "TrackPoint(${pos.toShortString()}, $predicate, $mode)"
+        }
     }
 
     fun onBlockAdded(pos: BlockPos) {
@@ -303,80 +294,13 @@ class TrackedStructure(
     }
 
     fun refreshPositions() {
+        requireNotNull(networkWorker)
         if (!dirty) return
-        val timeStart = System.currentTimeMillis()
-        cachedIgnoredPositions.clear()
-        cachedPositions.clear()
-        val readPos = hashSetOf<BlockPos>()
-
-        val airCache = hashSetOf<BlockPos>()
-        fun World.air(pos: BlockPos): Boolean {
-            val chunkPos = ChunkPos(pos)
-            return airCache.contains(pos) || if (isClient) {
-                isAir(pos)
-            }
-            else {
-                (chunkManager as ServerChunkManager).threadedAnvilChunkStorage.currentChunkHolders[chunkPos.toLong()]?.let {
-                    it.worldChunk?.getBlockState(pos)?.isAir ?: true
-                } ?: true
-            }
-        }
-
-        trackPoints.asSequence().filter { it.mode == TrackPredicate.TrackMode.IGNORE }.forEach { trackPoint ->
-            // first, add all blocks recursively
-            val queue = LinkedList<SpreadEntry>()
-            queue.add(trackPoint)
-            var maxElements = 1000
-            while (queue.isNotEmpty() && maxElements > 0) {
-                maxElements--
-                val entry = queue.removeFirst()
-                if (entry.pos in cachedIgnoredPositions) continue
-                if (world.air(entry.pos)) {
-                    airCache.add(entry.pos)
-                    continue
-                }
-                cachedIgnoredPositions[entry.pos] = trackPoint
-                entry.spreadAround(world, { newPos ->
-                    if (readPos.add(newPos)) {
-                        queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, this))
-                    }
-                })
-            }
-        }
-
-        trackPoints.asSequence().filter { it.mode == TrackPredicate.TrackMode.TRACK }.forEach { trackPoint ->
-            // first, add all blocks recursively
-            val queue = LinkedList<SpreadEntry>()
-            queue.add(trackPoint)
-            var maxElements = 8000
-            while (queue.isNotEmpty() && maxElements > 0) {
-                maxElements--
-                val entry = queue.removeFirst()
-                if (entry.pos in cachedIgnoredPositions) continue
-                if (world.air(entry.pos)) {
-                    airCache.add(entry.pos)
-                    continue
-                }
-                if (!trackPoint.pos.isWithinDistance(entry.pos, 200.0)) {
-                    Reden.LOGGER.error("Track point ${trackPoint.pos} is too far away from ${entry.pos}")
-                    continue
-                }
-                entry.spreadAround(world, { newPos ->
-                    if (readPos.add(newPos)) {
-                        if (newPos in cachedPositions) return@spreadAround
-                        if (!world.air(newPos)) {
-                            cachedPositions[newPos] = trackPoint
-                        }
-                        queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, this))
-                    }
-                })
-            }
-        }
-        val timeEnd = System.currentTimeMillis()
-        // todo:debug
-        println("refreshPositions: ${timeEnd - timeStart}ms")
-        debugRender()
+        cachedIgnoredPositions = hashMapOf()
+        cachedPositions = hashMapOf()
+        networkWorker.refreshPositions()
         dirty = false
+        networkWorker.debugRender()
     }
 
     override val blockIterator: Iterator<RelativeCoordinate>
@@ -554,19 +478,6 @@ class TrackedStructure(
                     it.pitch
                 )
             }
-    }
-
-    fun detectOrigin(): BlockPos? {
-        var minX = Int.MAX_VALUE
-        var minY = Int.MAX_VALUE
-        var minZ = Int.MAX_VALUE
-        cachedPositions.keys.forEach {
-            if (it.x < minX) minX = it.x
-            if (it.y < minY) minY = it.y
-            if (it.z < minZ) minZ = it.z
-        }
-        if (minX == Int.MAX_VALUE || minY == Int.MAX_VALUE || minZ == Int.MAX_VALUE) return null
-        return BlockPos(minX, minY, minZ)
     }
 
     fun removeTrackpoint(pos: BlockPos) {

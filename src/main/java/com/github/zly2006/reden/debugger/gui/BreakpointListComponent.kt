@@ -88,8 +88,7 @@ class BreakpointListComponent(
                     if (mouseY in y..y + height) {
                         // Note: we only check y-axis, because this hover is for the whole row
                         if (breakpoint.pos != null) {
-                            BlockBorder.tags.clear()
-                            BlockBorder[breakpoint.pos!!] = TagBlockPos.green
+                            BlockBorder.tags = mapOf(breakpoint.pos!!.asLong() to TagBlockPos.green)
                         }
                     }
                 }
