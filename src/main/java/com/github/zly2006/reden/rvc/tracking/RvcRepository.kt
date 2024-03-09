@@ -244,10 +244,15 @@ class RvcRepository(
 
     fun startPlacing() {
         clearCache()
-        val world = MinecraftClient.getInstance().world!! // place locally may be fast? // todo
+        val mc = MinecraftClient.getInstance()
+        // todo singleplayer only
+        val world = mc.server!!.getWorld(mc.world!!.registryKey)!!
         Task.all<RvcMoveStructureTask>().forEach { it.onCancel() }
 
         val structure = head {
+            require(placementInfo == null) {
+                "The structure is already placed in this world"
+            }
             configure(it)
             // Use temporary placement info so that the structure does not move
             it.placementInfo = PlacementInfo(MinecraftClient.getInstance().getWorldInfo(), BlockPos.ORIGIN)

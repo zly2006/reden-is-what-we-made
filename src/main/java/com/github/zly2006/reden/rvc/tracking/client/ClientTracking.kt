@@ -30,8 +30,7 @@ fun registerSelectionTool() {
                             TrackedStructure.TrackPoint(
                                 structure.getRelativeCoordinate(blockResult.blockPos),
                                 TrackPredicate.QC,
-                                TrackPredicate.TrackMode.TRACK,
-                                structure
+                                TrackPredicate.TrackMode.TRACK
                             )
                         )
                     }
@@ -41,7 +40,6 @@ fun registerSelectionTool() {
                                 structure.getRelativeCoordinate(blockResult.blockPos),
                                 TrackPredicate.Same,
                                 TrackPredicate.TrackMode.IGNORE,
-                                structure
                             )
                         )
                     }

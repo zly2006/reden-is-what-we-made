@@ -234,7 +234,7 @@ object RvcFileIO : StructureIO {
         // com.github.zly2006.reden.rvc.tracking.TrackedStructure
         structure.trackPoints.clear()
         loadRvcFile(path, "trackPoints")?.let { rvcFile ->
-            structure.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data, structure))
+            structure.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data))
         }
 
         // ===================================== Load Block Events =====================================

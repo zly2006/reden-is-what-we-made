@@ -34,7 +34,7 @@ class TrackedStructure(
     name: String,
     val repository: RvcRepository?,
 ) : ReadWriteStructure(name), IPlacement, PositionIterable {
-    lateinit var networkWorker: NetworkWorker
+    var networkWorker: NetworkWorker? = null
     override var enabled: Boolean = true
     override val structure = this
 
@@ -47,7 +47,7 @@ class TrackedStructure(
      */
     var placementInfo: PlacementInfo? = null
     override val world: World
-        get() = networkWorker.world
+        get() = requireNotNull(networkWorker).world
 
     override val origin: BlockPos
         get() = placementInfo?.origin?.toImmutable()
@@ -55,12 +55,16 @@ class TrackedStructure(
 
     override fun createPlacement(world: World, origin: BlockPos) = apply {
         placementInfo = PlacementInfo(WorldInfo.of(world), origin)
-        networkWorker = object : NetworkWorker {
-            override fun debugRender() {}
-            override fun refreshPositions() {}
-            override val structure = this@TrackedStructure
-            override val world = world
+        if (networkWorker == null || networkWorker is FakeNetworkWorker) {
+            networkWorker = FakeNetworkWorker(world)
         }
+        trackPoints.forEach { it.updateOrigin(this) }
+    }
+
+    private inner class FakeNetworkWorker(override val world: World) : NetworkWorker {
+        override fun debugRender() {}
+        override fun refreshPositions() {}
+        override val structure = this@TrackedStructure
     }
 
     var cachedPositions = HashMap<BlockPos, TrackPoint>()
@@ -210,7 +214,7 @@ class TrackedStructure(
     }
 
     open class SpreadEntry(
-        val pos: BlockPos,
+        var pos: BlockPos,
         val predicate: TrackPredicate,
         val mode: TrackPredicate.TrackMode,
         var structure: TrackedStructure?
@@ -242,17 +246,21 @@ class TrackedStructure(
     }
 
     class TrackPoint(
-        pos: RelativeCoordinate,
+        private val relativeCoordinate: RelativeCoordinate,
         predicate: TrackPredicate,
-        mode: TrackPredicate.TrackMode,
-        structure: TrackedStructure,
-    ) : SpreadEntry(pos.blockPos(structure.origin), predicate, mode, structure) {
+        mode: TrackPredicate.TrackMode
+    ) : SpreadEntry(BlockPos.ORIGIN, predicate, mode, null) {
         val maxElements: Int
             get() = when (mode) {
                 TrackPredicate.TrackMode.IGNORE -> 5000
                 TrackPredicate.TrackMode.TRACK -> 8000
                 TrackPredicate.TrackMode.NOOP -> 0
             }
+
+        fun updateOrigin(structure: TrackedStructure) {
+            this.structure = structure
+            pos = relativeCoordinate.blockPos(structure.origin)
+        }
 
         override fun toString(): String {
             return "TrackPoint(${pos.toShortString()}, $predicate, $mode)"
@@ -299,12 +307,17 @@ class TrackedStructure(
     }
 
     fun refreshPositions() {
-        if (!dirty) return
-        cachedIgnoredPositions = hashMapOf()
-        cachedPositions = hashMapOf()
-        networkWorker.refreshPositions()
-        dirty = false
-        networkWorker.debugRender()
+        trackPoints.filter { it.structure != this }.forEach {
+            it.updateOrigin(this)
+            dirty = true
+        }
+        if (dirty) {
+            cachedIgnoredPositions = hashMapOf()
+            cachedPositions = hashMapOf()
+            requireNotNull(networkWorker).refreshPositions()
+            dirty = false
+        }
+        requireNotNull(networkWorker).debugRender()
     }
 
     override val blockIterator: Iterator<RelativeCoordinate>

@@ -20,10 +20,6 @@ import java.util.*
 class RvcReaderV1(
     override val header: IRvcFileReader.RvcHeader
 ) : IRvcFileReader {
-    abstract class FuckKotlin : Comparable<FuckKotlin> {
-
-    }
-
     override fun readBlocksData(data: List<String>, palette: Palette): Map<RelativeCoordinate, BlockState> {
         val usePalette = header.metadata["Palette"]?.toBoolean() ?: false
         val blocks = mutableMapOf<RelativeCoordinate, BlockState>()
@@ -68,8 +64,7 @@ class RvcReaderV1(
     }
 
     override fun readTrackPointData(
-        data: List<String>,
-        structure: TrackedStructure
+        data: List<String>
     ): List<TrackedStructure.TrackPoint> {
         val trackPoints = mutableListOf<TrackedStructure.TrackPoint>()
         data.forEach {
@@ -79,10 +74,9 @@ class RvcReaderV1(
             val mode = rvcData.next()
             trackPoints.add(
                 TrackedStructure.TrackPoint(
-                    pos = blockPos,
+                    relativeCoordinate = blockPos,
                     predicate = TrackPredicate.valueOf(predicate),
-                    mode = TrackPredicate.TrackMode.valueOf(mode),
-                    structure = structure
+                    mode = TrackPredicate.TrackMode.valueOf(mode)
                 )
             )
         }

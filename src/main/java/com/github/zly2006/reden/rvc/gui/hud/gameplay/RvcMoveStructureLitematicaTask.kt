@@ -17,11 +17,6 @@ import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.World
 import net.minecraft.world.chunk.WorldChunk
 
-/**
- * Note: Hey i know this class needs to be rewritten for litematica compatibility
- * but is too hard to do it, litematica does not have a highly abstracted API e.g.
- * [IStructure]
- */
 class RvcMoveStructureLitematicaTask(
     world: World, placingStructure: IStructure
 ) : RvcMoveStructureTask(world, placingStructure, "move_structure_litematica") {

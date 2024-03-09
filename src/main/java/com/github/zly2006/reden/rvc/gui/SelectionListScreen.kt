@@ -2,6 +2,8 @@ package com.github.zly2006.reden.rvc.gui
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
+import com.github.zly2006.reden.render.BlockBorder
+import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.tracking.PlacementInfo
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
@@ -49,12 +51,15 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
             if (value != _selectedUIElement) {
                 _selectedUIElement?.select?.checked(false)
                 _selectedUIElement = value
+                BlockOutline.blocks = mapOf()
+                BlockBorder.tags = mapOf()
             }
             selectedRepository = value?.repository?.apply {
                 if (placementInfo == null) {
                     // initialize placement info
                     placementInfo = PlacementInfo(client!!.getWorldInfo())
                 }
+                head().refreshPositions()
             }
             infoBox = Containers.verticalFlow(Sizing.fill(100), Sizing.fill(100)).apply {
                 fun childTr(key: String, vararg args: Any) = child(Components.label(Text.translatable(key, *args)))

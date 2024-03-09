@@ -17,6 +17,7 @@ object RvcHudRenderer: IRenderer {
     val lines = mutableMapOf<String, List<Text>>()
 
     fun updateLines() {
+        lines.clear()
         supplierMap.forEach { (name, supplier) ->
             lines[name] = supplier()
         }
