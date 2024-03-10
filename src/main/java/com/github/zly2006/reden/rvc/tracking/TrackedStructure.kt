@@ -4,6 +4,8 @@ import com.github.zly2006.reden.rvc.*
 import com.github.zly2006.reden.rvc.tracking.network.NetworkWorker
 import com.github.zly2006.reden.utils.redenError
 import com.github.zly2006.reden.utils.setBlockNoPP
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
@@ -47,7 +49,9 @@ class TrackedStructure(
      */
     var placementInfo: PlacementInfo? = null
     override val world: World
-        get() = requireNotNull(networkWorker).world
+        get() = if (networkWorker?.world?.info == placementInfo?.worldInfo)
+            networkWorker?.world ?: redenError("World is not set for $name")
+        else placementInfo?.worldInfo?.getWorld() ?: redenError("World is not found: $name")
 
     override val origin: BlockPos
         get() = placementInfo?.origin?.toImmutable()
@@ -55,16 +59,7 @@ class TrackedStructure(
 
     override fun createPlacement(world: World, origin: BlockPos) = apply {
         placementInfo = PlacementInfo(WorldInfo.of(world), origin)
-        if (networkWorker == null || networkWorker is FakeNetworkWorker) {
-            networkWorker = FakeNetworkWorker(world)
-        }
         trackPoints.forEach { it.updateOrigin(this) }
-    }
-
-    private inner class FakeNetworkWorker(override val world: World) : NetworkWorker {
-        override fun debugRender() {}
-        override fun refreshPositions() {}
-        override val structure = this@TrackedStructure
     }
 
     var cachedPositions = HashMap<BlockPos, TrackPoint>()
@@ -306,7 +301,11 @@ class TrackedStructure(
         return cachedPositions.contains(pos.blockPos(origin))
     }
 
-    fun refreshPositions() {
+    fun refreshPositionsAsync() = GlobalScope.launch {
+        refreshPositions()
+    }
+
+    suspend fun refreshPositions() {
         trackPoints.filter { it.structure != this }.forEach {
             it.updateOrigin(this)
             dirty = true
@@ -327,10 +326,10 @@ class TrackedStructure(
     override fun clearArea() {
         clearSchedules()
         blockIterator.forEach {
-            world.setBlockNoPP(it.blockPos(origin), Blocks.AIR.defaultState, 0)
+            world.setBlockState(it.blockPos(origin), Blocks.AIR.defaultState, Block.NOTIFY_LISTENERS)
         }
         blocks.keys.forEach {
-            world.setBlockNoPP(it.blockPos(origin), Blocks.AIR.defaultState, 0)
+            world.setBlockState(it.blockPos(origin), Blocks.AIR.defaultState, Block.NOTIFY_LISTENERS)
         }
         entities.forEach {
             (world as? ClientWorld)?.entityLookup?.get(it.key)?.discard()
@@ -340,10 +339,13 @@ class TrackedStructure(
 
     override fun paste() {
         blocks.forEach { (pos, state) ->
-            world.setBlockState(pos.blockPos(origin), state, Block.NOTIFY_LISTENERS)
+            world.setBlockNoPP(pos.blockPos(origin), state, Block.NOTIFY_LISTENERS)
         }
         blockEntities.forEach { (pos, nbt) ->
-            world.getBlockEntity(pos.blockPos(origin))?.readNbt(nbt)
+            world.getBlockEntity(pos.blockPos(origin))?.run {
+                readNbt(nbt)
+                markDirty()
+            }
         }
         blocks.keys.forEach {
             world.markDirty(it.blockPos(origin))
@@ -376,7 +378,7 @@ class TrackedStructure(
         // todo
     }
 
-    override fun setPlaced() {
+    fun setPlaced() {
         require(repository != null) { "Repository is null" }
         repository.placed = true
         repository.placementInfo = this.placementInfo
@@ -385,6 +387,20 @@ class TrackedStructure(
     override fun startMoving() {
         require(repository != null) { "Repository is null" }
         repository.placed = false
+    }
+
+    override fun blockBox(): BlockBox {
+        if (blocks.isEmpty()) {
+            return BlockBox(BlockPos.ORIGIN)
+        }
+        return BlockBox(
+            blocks.keys.minOf { it.x },
+            blocks.keys.minOf { it.y },
+            blocks.keys.minOf { it.z },
+            blocks.keys.maxOf { it.x },
+            blocks.keys.maxOf { it.y },
+            blocks.keys.maxOf { it.z }
+        ).offset(origin.x, origin.y, origin.z)
     }
 
     /**
@@ -452,7 +468,7 @@ class TrackedStructure(
         return RelativeCoordinate(pos.x - origin.x, pos.y - origin.y, pos.z - origin.z)
     }
 
-    fun collectAllFromWorld() {
+    suspend fun collectAllFromWorld() {
         blocks.clear()
         blockEntities.clear()
         entities.clear()

@@ -10,6 +10,7 @@ import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.core.*
 import io.wispforest.owo.ui.util.UIErrorToast
+import kotlinx.coroutines.runBlocking
 import net.minecraft.text.Text
 
 class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStructure) : BaseOwoScreen<FlowLayout>() {
@@ -26,8 +27,9 @@ class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStruc
             UIErrorToast.report("Commit message cannot be empty")
             return@button
         }
-
-        repository.commit(structure, message, client!!.player)
+        runBlocking {
+            repository.commit(structure, message, client!!.player)
+        }
         client!!.setScreen(SelectionInfoScreen(repository, structure))
     }!!
     val commitAndPushButton = Components.button(Text.literal("Commit and Push")) {
@@ -36,15 +38,17 @@ class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStruc
             UIErrorToast.report("Commit message cannot be empty")
             return@button
         }
-        repository.commit(structure, message, client!!.player)
-        val remote = object : IRemoteRepository {
-            override fun deleteRepo() {
-                TODO("Not yet implemented")
-            }
+        runBlocking {
+            repository.commit(structure, message, client!!.player)
+            val remote = object : IRemoteRepository {
+                override fun deleteRepo() {
+                    TODO("Not yet implemented")
+                }
 
-            override val gitUrl = repository.git.repository.config.getString("remote", "origin", "url")
+                override val gitUrl = repository.git.repository.config.getString("remote", "origin", "url")
+            }
+            repository.push(remote, false)
         }
-        repository.push(remote, false)
         client!!.setScreen(SelectionInfoScreen(repository, structure))
     }!!
 

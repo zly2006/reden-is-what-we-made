@@ -20,6 +20,7 @@ class ServerData(val version: Version, mcServer: MinecraftServer?) : StatusAcces
             server = mcServer
         }
     }
+
     @JvmField var realTicks = 0
     override var status: Long = 0
     var uuid: UUID? = null
@@ -34,12 +35,14 @@ class ServerData(val version: Version, mcServer: MinecraftServer?) : StatusAcces
         set(value) {
             if (value) addStatus(GlobalStatus.FROZEN) else removeStatus(GlobalStatus.FROZEN)
         }
+
     fun freeze(reason: String) {
         frozen = true
         GlobalStatus(server.data.status, NbtCompound().apply {
             putString("reason", reason)
         }).let(server::sendToAll)
     }
+
     val featureSet = mutableSetOf<String>()
 
     val breakpoints = BreakpointsManager(false)
@@ -63,10 +66,12 @@ class ServerData(val version: Version, mcServer: MinecraftServer?) : StatusAcces
             get() = (this as ServerDataAccess).serverData
         val MinecraftClient.serverData: ServerData?
             get() = (this as ClientSideServerDataAccess).serverData
+
         @JvmStatic
         fun getServerData() = if (!isClient) {
             server.data
-        } else {
+        }
+        else {
             val mc = MinecraftClient.getInstance()
             if (mc.isInSingleplayer) mc.server?.data
             else mc.serverData

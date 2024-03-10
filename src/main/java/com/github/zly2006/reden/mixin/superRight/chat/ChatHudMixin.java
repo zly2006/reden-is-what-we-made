@@ -21,7 +21,7 @@ public class ChatHudMixin {
         method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;ILnet/minecraft/client/gui/hud/MessageIndicator;Z)V",
         at = @At("HEAD")
     )
-    private void ct$addMessage(Text message, MessageSignatureData signature, int ticks, MessageIndicator indicator, boolean refresh, CallbackInfo ci) {
+    private void addMessage(Text message, MessageSignatureData signature, int ticks, MessageIndicator indicator, boolean refresh, CallbackInfo ci) {
         currentMessage = message;
     }
 
@@ -30,9 +30,9 @@ public class ChatHudMixin {
         at = @At(value = "INVOKE", target = "Ljava/util/List;add(ILjava/lang/Object;)V", ordinal = 0),
         index = 1
     )
-    private Object ct$addVisibleMessage(Object element) {
+    private Object addVisibleMessage(Object element) {
         ChatHudLine.Visible visible = (ChatHudLine.Visible) element;
-        ((VisibleChatHudLineAccess) element).reden$setText(currentMessage);
+        ((VisibleChatHudLineAccess) element).setText$reden(currentMessage);
         return visible;
     }
 }

@@ -5,6 +5,7 @@ import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.malilib.UNDO_CHEATING_ONLY
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.isSinglePlayerAndCheating
+import com.github.zly2006.reden.utils.redenError
 import com.github.zly2006.reden.utils.server
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
@@ -19,7 +20,6 @@ import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import java.util.*
-
 
 class PlayerData(
     val player: ServerPlayerEntity,
@@ -86,7 +86,7 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
             val be = world.getBlockEntity(pos)
             val state = world.getBlockState(pos)
             if (isClient && MinecraftClient.getInstance().server?.isOnThread == false) {
-                error("Cannot call undo stuff off main thread.")
+                redenError("Cannot call undo stuff off main thread.")
             }
             return Entry(state, be?.lastSavedNbt(), server.ticks).apply {
                 if (state.hasBlockEntity() && blockEntity == null) {

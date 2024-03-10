@@ -4,11 +4,13 @@ import com.github.zly2006.reden.ModNames
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.report.onFunctionUsed
+import com.github.zly2006.reden.rvc.blockPos
 import com.github.zly2006.reden.rvc.io.LitematicaIO
 import com.github.zly2006.reden.rvc.io.SchematicStructure
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
+import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
-import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
+import com.github.zly2006.reden.utils.red
 import com.github.zly2006.reden.utils.server
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
@@ -18,6 +20,9 @@ import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer.Scrollbar
 import io.wispforest.owo.ui.core.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.minecraft.client.MinecraftClient
@@ -175,14 +180,38 @@ class SelectionImportScreen(
 
             override fun import(file: File): RvcRepository {
                 val mc = MinecraftClient.getInstance()
-                val repository = RvcRepository.create(file.nameWithoutExtension, mc.getWorldInfo(), NetworkSide.CLIENTBOUND)
+                val repository = RvcRepository.create(file.nameWithoutExtension, null, NetworkSide.CLIENTBOUND)
                 val structure = TrackedStructure(file.nameWithoutExtension, repository)
                 LitematicaIO.load(file.toPath(), structure)
-                repository.commit(structure, "Import from $file", mc.player)
+                val blocksBefore = structure.blocks.size
+                repository.startPlacing(structure) {
+                    val center = structure.blockBox().center
+                    val centerBlock =
+                        structure.blocks.keys.minBy { it.blockPos(structure.origin).getSquaredDistance(center) }
+                    structure.trackPoints.add(
+                        TrackedStructure.TrackPoint(
+                            centerBlock,
+                            TrackPredicate.QC,
+                            TrackPredicate.TrackMode.TRACK,
+                        )
+                    )
+                    GlobalScope.launch {
+                        structure.collectAllFromWorld()
+                        if (structure.blocks.size != blocksBefore) {
+                            mc.player?.sendMessage(
+                                Text.literal(
+                                    "Failed to automatically set trackpoints, please fix it and commit " +
+                                            "(expected=$blocksBefore, got=${structure.blocks.size})"
+                                ).red()
+                            )
+                        }
+                        repository.commit(structure, "Import from $file", mc.player)
+                    }
+                }
                 return repository
             }
         },
-        RVCArchive(Text.literal("RVC Archive")){
+        RVCArchive(Text.literal("RVC Archive")) {
             override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
                 File(FOLDER_SCHEMATICS).mkdirs()
                 File(FOLDER_SCHEMATICS).listFiles()!!.asSequence()
@@ -253,11 +282,15 @@ class SelectionImportScreen(
         open fun import(file: File): RvcRepository? {
             try {
                 val mc = MinecraftClient.getInstance()
-                val repository = RvcRepository.create(file.nameWithoutExtension, mc.getWorldInfo(), NetworkSide.CLIENTBOUND)
+                val repository = RvcRepository.create(file.nameWithoutExtension, null, NetworkSide.CLIENTBOUND)
                 val structure = TrackedStructure(file.nameWithoutExtension, repository)
                 val nbt = NbtIo.readCompressed(file.toPath(), NbtSizeTracker.ofUnlimitedBytes())
                 structure.assign(SchematicStructure().readFromNBT(nbt))
-                repository.commit(structure, "Import from $file", mc.player)
+                repository.startPlacing(structure) {
+                    runBlocking {
+                        repository.commit(structure, "Import from $file", mc.player)
+                    }
+                }
                 return repository
             } catch (e: Exception) {
                 Reden.LOGGER.error("Failed to import structure from $file", e)

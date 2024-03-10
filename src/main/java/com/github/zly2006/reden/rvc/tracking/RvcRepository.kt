@@ -8,7 +8,9 @@ import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureLitematicaT
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureTask
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
+import com.github.zly2006.reden.rvc.tracking.network.ClientNetworkWorker
 import com.github.zly2006.reden.rvc.tracking.network.LocalNetworkWorker
+import com.github.zly2006.reden.rvc.tracking.network.NetworkWorker
 import com.github.zly2006.reden.rvc.tracking.network.ServerNetworkWorker
 import com.github.zly2006.reden.task.Task
 import com.github.zly2006.reden.task.taskStack
@@ -23,6 +25,7 @@ import net.minecraft.SharedConstants
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.network.NetworkSide
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 import okhttp3.Request
@@ -69,7 +72,8 @@ private var tokenUpdated = 0L
 class RvcRepository(
     internal val git: Git,
     val name: String = git.repository.workTree.name,
-    val side: NetworkSide
+    val side: NetworkSide,
+    val owner: ServerPlayerEntity? = null
 ) {
     var headCache: TrackedStructure? = null
         private set
@@ -98,7 +102,12 @@ class RvcRepository(
         }
     var placed = false
 
-    fun commit(structure: TrackedStructure, message: String, committer: PlayerEntity?, author: PersonIdent? = null) {
+    suspend fun commit(
+        structure: TrackedStructure,
+        message: String,
+        committer: PlayerEntity?,
+        author: PersonIdent? = null
+    ) {
         require(structure.repository == this) { "The structure is not from this repository" }
         require(structure.placementInfo != null) { "The structure is not placed in this world" }
         headCache = structure
@@ -159,21 +168,28 @@ class RvcRepository(
         return !git.status().call().isClean
     }
 
+    fun getNetworkWorker(worldInfo: WorldInfo, structure: TrackedStructure): NetworkWorker? {
+        return when (side) {
+            NetworkSide.CLIENTBOUND -> MinecraftClient.getInstance().run {
+                if (getWorldInfo() == worldInfo) {
+                    if (server != null) LocalNetworkWorker(
+                        structure,
+                        server!!.getWorld(world!!.registryKey)!!,
+                        world!!
+                    )
+                    else ClientNetworkWorker(structure, world!!)
+                }
+                else null
+            }
+
+            NetworkSide.SERVERBOUND -> ServerNetworkWorker(structure, worldInfo.getWorld() as ServerWorld, owner!!)
+        }
+    }
+
     fun configure(structure: TrackedStructure) {
         if (placementInfo != null) {
             structure.placementInfo = placementInfo
-            structure.networkWorker = when (side) {
-                NetworkSide.CLIENTBOUND -> LocalNetworkWorker(
-                    structure,
-                    placementInfo!!.worldInfo.getWorld() as ServerWorld,
-                    placementInfo!!.worldInfo.getClientWorld()!!
-                )
-
-                NetworkSide.SERVERBOUND -> ServerNetworkWorker(
-                    structure,
-                    placementInfo!!.worldInfo.getWorld() as ServerWorld
-                )
-            }
+            structure.networkWorker = getNetworkWorker(placementInfo!!.worldInfo, structure)
         }
     }
 
@@ -219,7 +235,7 @@ class RvcRepository(
             .replace("\${author}", author ?: "")
 
         if (git.repository.workTree.resolve("LICENSE").exists()) {
-            error("LICENSE already exists")
+            redenError("LICENSE already exists")
         }
         git.repository.workTree.resolve("LICENSE").writeText(content)
 
@@ -242,27 +258,23 @@ class RvcRepository(
         }
     }
 
-    fun startPlacing() {
+    fun startPlacing(structure: TrackedStructure, successCallback: (Task) -> Unit = {}) {
         clearCache()
         val mc = MinecraftClient.getInstance()
         // todo singleplayer only
         val world = mc.server!!.getWorld(mc.world!!.registryKey)!!
         Task.all<RvcMoveStructureTask>().forEach { it.onCancel() }
 
-        val structure = head {
-            require(placementInfo == null) {
-                "The structure is already placed in this world"
-            }
-            configure(it)
-            // Use temporary placement info so that the structure does not move
-            it.placementInfo = PlacementInfo(MinecraftClient.getInstance().getWorldInfo(), BlockPos.ORIGIN)
-        }
+        // Use temporary placement info to initialize the structure and its network worker
+        placementInfo = PlacementInfo(world.info, BlockPos.ORIGIN)
+        configure(structure)
+        placementInfo = null
 
         taskStack.add(
             if (litematicaInstalled)
-                RvcMoveStructureLitematicaTask(world, structure)
+                RvcMoveStructureLitematicaTask(world, structure, successCallback)
             else
-                RvcMoveStructureTask(world, structure)
+                RvcMoveStructureTask(world, structure, successCallback = successCallback)
         )
     }
 
@@ -273,13 +285,15 @@ class RvcRepository(
         val path = Path("rvc")
         const val RVC_BRANCH = "rvc"
         const val RVC_BRANCH_REF = "refs/heads/$RVC_BRANCH"
-        fun create(name: String, worldInfo: WorldInfo, side: NetworkSide): RvcRepository {
+        fun create(name: String, worldInfo: WorldInfo?, side: NetworkSide): RvcRepository {
             val git = Git.init()
                 .setDirectory(path / name)
                 .setInitialBranch(RVC_BRANCH)
                 .call()
             return RvcRepository(git, side = side).apply {
-                placementInfo = PlacementInfo(worldInfo, BlockPos.ORIGIN)
+                placementInfo = worldInfo?.let {
+                    PlacementInfo(it, BlockPos.ORIGIN)
+                }
                 createReadmeIfNotExists()
             }
         }

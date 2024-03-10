@@ -3,6 +3,7 @@ package com.github.zly2006.reden.rvc.gui.hud.gameplay
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.rvc.IPlacement
 import com.github.zly2006.reden.rvc.IStructure
+import com.github.zly2006.reden.task.Task
 import com.github.zly2006.reden.task.taskStack
 import com.github.zly2006.reden.utils.litematicaInstalled
 import com.github.zly2006.reden.utils.redenError
@@ -18,8 +19,8 @@ import net.minecraft.world.World
 import net.minecraft.world.chunk.WorldChunk
 
 class RvcMoveStructureLitematicaTask(
-    world: World, placingStructure: IStructure
-) : RvcMoveStructureTask(world, placingStructure, "move_structure_litematica") {
+    world: World, placingStructure: IStructure, successCallback: (Task) -> Unit = {}
+) : RvcMoveStructureTask(world, placingStructure, "move_structure_litematica", successCallback) {
     companion object {
         @JvmStatic
         fun stackTop() = taskStack.lastOrNull() as? RvcMoveStructureLitematicaTask?
@@ -41,7 +42,8 @@ class RvcMoveStructureLitematicaTask(
         currentOrigin = MinecraftClient.getInstance().player?.blockPos
     }
 
-    private val schematicWorld = SchematicWorldHandler.getSchematicWorld() ?: error("Failed to load litematica world")
+    private val schematicWorld =
+        SchematicWorldHandler.getSchematicWorld() ?: redenError("Failed to load litematica world")
     override var currentOrigin: BlockPos? = null
         set(value) {
             placementSchematicWorld?.clearArea()

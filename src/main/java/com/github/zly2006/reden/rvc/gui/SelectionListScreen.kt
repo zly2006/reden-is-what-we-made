@@ -19,6 +19,7 @@ import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer
 import io.wispforest.owo.ui.core.*
 import io.wispforest.owo.ui.util.UIErrorToast
+import kotlinx.coroutines.runBlocking
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.NetworkSide
 import net.minecraft.text.Text
@@ -59,7 +60,9 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
                     // initialize placement info
                     placementInfo = PlacementInfo(client!!.getWorldInfo())
                 }
-                head().refreshPositions()
+                runBlocking {
+                    head().refreshPositions()
+                }
             }
             infoBox = Containers.verticalFlow(Sizing.fill(100), Sizing.fill(100)).apply {
                 fun childTr(key: String, vararg args: Any) = child(Components.label(Text.translatable(key, *args)))
@@ -100,16 +103,16 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
 
         private val placeButton: ButtonComponent = Components.button(Text.literal("Place")) {
             onFunctionUsed("place_rvcStructure")
-            repository.startPlacing()
+            repository.startPlacing(repository.head())
             it.active(false)
         }.apply {
             if (sameWorld == false) {
                 tooltip(
                     Text.literal(
                         """
-                Note: We have detected that this machine has been placed in a different world.
-                It is recommended to remove it first and then place it again.
-                """.trimIndent()
+                        Note: We have detected that this machine has been placed in a different world.
+                        It is recommended to remove it first and then place it again.
+                        """.trimIndent()
                     )
                 )
             }

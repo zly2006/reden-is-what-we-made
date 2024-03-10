@@ -54,8 +54,6 @@ interface IPlacement {
         origin.y + structure.ySize,
         origin.z + structure.zSize,
     )
-
-    fun setPlaced() {}
 }
 
 // This is a private function

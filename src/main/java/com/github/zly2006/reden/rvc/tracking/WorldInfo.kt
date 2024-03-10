@@ -136,6 +136,9 @@ private infix fun <T> T?.eqNotNull(other: T?): Boolean {
     return this != null && other != null && this == other
 }
 
+val World.info: WorldInfo
+    get() = WorldInfo.of(this)
+
 @Serializable
 data class PlacementInfo(
     val worldInfo: WorldInfo,

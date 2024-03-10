@@ -10,6 +10,9 @@ class WorldData(
     val serverWorld: ServerWorld
 ): StatusAccess {
     override var status: Long = 0
+
+    @JvmField
+    var updatesDisabled = false
     val worldId = buildString {
         append(serverWorld.server.session.directory.path.hashCode().toHexString())
         append('-')

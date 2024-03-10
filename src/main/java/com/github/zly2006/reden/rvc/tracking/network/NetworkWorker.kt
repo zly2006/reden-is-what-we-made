@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.rvc.tracking.network
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import net.minecraft.util.math.BlockPos
@@ -8,10 +9,10 @@ import net.minecraft.world.World
 import java.util.*
 
 interface NetworkWorker {
-    fun debugRender()
+    suspend fun debugRender()
     val structure: TrackedStructure
     val world: World
-    fun refreshPositions() {
+    suspend fun refreshPositions() {
         val timeStart = System.currentTimeMillis()
         val readPos = hashSetOf<BlockPos>()
         structure.trackPoints.asSequence().filter { it.mode == TrackPredicate.TrackMode.IGNORE }.forEach { trackPoint ->
@@ -64,4 +65,9 @@ interface NetworkWorker {
         val timeEnd = System.currentTimeMillis()
         println("${this::class.java.simpleName}#refreshPositions: ${timeEnd - timeStart}ms")
     }
+
+    suspend fun startUndoRecord(cause: PlayerData.UndoRecord.Cause)
+    suspend fun stopUndoRecord()
+    suspend fun paste()
+    suspend fun <T> execute(function: () -> T): T
 }

@@ -1,8 +1,12 @@
-package com.github.zly2006.reden.access;
+package com.github.zly2006.reden.access
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos
 
-public interface ChunkSectionInterface {
-    int getModifyTime$reden(BlockPos pos);
-    void setModifyTime$reden(BlockPos pos, int time);
+@Suppress("INAPPLICABLE_JVM_NAME")
+interface ChunkSectionInterface {
+    @JvmName("getModifyTime\$reden")
+    fun getModifyTime(pos: BlockPos): Int
+
+    @JvmName("setModifyTime\$reden")
+    fun setModifyTime(pos: BlockPos, time: Int)
 }

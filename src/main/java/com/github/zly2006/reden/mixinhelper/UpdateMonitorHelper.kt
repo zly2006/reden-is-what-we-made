@@ -165,7 +165,7 @@ object UpdateMonitorHelper {
     fun ServerWorld.modified(pos: BlockPos, time: Int = server.ticks) = getChunk(pos).run {
         setNeedsSaving(true)
         getSection(getSectionIndex(pos.y)) as ChunkSectionInterface
-    }.`setModifyTime$reden`(pos, time)
+    }.setModifyTime(pos, time)
 
     /**
      * @param beChangeOnly if only block entities changed, we have not recorded this change in [monitorSetBlock],

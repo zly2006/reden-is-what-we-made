@@ -4,7 +4,10 @@ import com.github.zly2006.reden.access.ItemStackAccess;
 import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.itemShadow.ItemStackOwner;
 import com.github.zly2006.reden.utils.UtilsKt;
-import net.minecraft.block.entity.*;
+import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.block.entity.BrewingStandBlockEntity;
+import net.minecraft.block.entity.ChiseledBookshelfBlockEntity;
+import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.vehicle.ChestBoatEntity;
 import net.minecraft.entity.vehicle.StorageMinecartEntity;
@@ -59,7 +62,6 @@ public class MixinAllInventories implements ItemStackOwner {
         if (RedenCarpetSettings.Debugger.debuggerItemShadow()) {
             List<ItemStackOwner> stackOwners = ((ItemStackAccess) stack).getStackOwners$reden();
             // I am an Inventory, of course!
-            //noinspection SuspiciousMethodCalls
             if (!stackOwners.contains(this)) {
                 stackOwners.add(this);
             }
@@ -99,12 +101,7 @@ public class MixinAllInventories implements ItemStackOwner {
 
     @NotNull
     @Override
-    public Type getType() {
+    public Type getType$reden() {
         return Type.Inventory;
-    }
-
-    @Override
-    public boolean checkContains(@NotNull ItemStack stack) {
-        return ItemStackOwner.DefaultImpls.checkContains(this, stack);
     }
 }

@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.common;
 
+import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.WorldData;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
@@ -31,6 +32,8 @@ import java.util.function.Supplier;
 public abstract class MixinServerWorld extends World implements WorldData.WorldDataAccess {
     @Unique
     WorldData worldData;
+    @Unique
+    int skippedUpdates = 0;
 
     protected MixinServerWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
@@ -46,6 +49,31 @@ public abstract class MixinServerWorld extends World implements WorldData.WorldD
     @Override
     public WorldData getRedenWorldData() {
         return worldData;
+    }
+
+    @Inject(method = "updateNeighbors", at = @At("HEAD"), cancellable = true)
+    private void disableUpdates01(CallbackInfo ci) {
+        if (worldData.updatesDisabled) {
+            skippedUpdates++;
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "updateNeighbor*", at = @At("HEAD"), cancellable = true)
+    private void disableUpdates02(CallbackInfo ci) {
+        if (worldData.updatesDisabled) {
+            skippedUpdates++;
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void beforeTick(CallbackInfo ci) {
+        if (worldData.updatesDisabled) {
+            Reden.LOGGER.warn("Did you forget to re-enable updates? Skipped " + skippedUpdates + " updates in " + getRegistryKey().getValue());
+            skippedUpdates = 0;
+            worldData.updatesDisabled = false;
+        }
     }
 }
 

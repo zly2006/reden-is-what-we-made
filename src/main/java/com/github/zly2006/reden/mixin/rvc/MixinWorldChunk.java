@@ -51,6 +51,6 @@ public abstract class MixinWorldChunk {
         } else if (Arrays.stream(Direction.values()).anyMatch(dir -> structure.isInArea(structure.getRelativeCoordinate(pos.offset(dir))))) {
             structure.onBlockAdded(pos);
         }
-        structure.refreshPositions();
+        structure.refreshPositionsAsync();
     }
 }

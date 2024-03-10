@@ -1,14 +1,15 @@
-package com.github.zly2006.reden.access;
+package com.github.zly2006.reden.access
 
-import com.github.zly2006.reden.itemShadow.ItemStackOwner;
-import net.minecraft.item.ItemStack;
+import com.github.zly2006.reden.itemShadow.ItemStackOwner
+import net.minecraft.item.ItemStack
 
-import java.util.List;
-
-public interface ItemStackAccess {
-    default void checkStackOwners() {
-        getStackOwners$reden().removeIf(it -> !it.checkContains((ItemStack) this));
+@Suppress("INAPPLICABLE_JVM_NAME")
+@JvmDefaultWithoutCompatibility
+interface ItemStackAccess {
+    fun checkStackOwners() {
+        stackOwners.removeIf { this as ItemStack !in it }
     }
 
-    List<ItemStackOwner> getStackOwners$reden();
+    @get:JvmName("getStackOwners\$reden")
+    val stackOwners: MutableList<ItemStackOwner>
 }

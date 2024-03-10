@@ -2,6 +2,7 @@ package com.github.zly2006.reden.mixin.common;
 
 import com.github.zly2006.reden.access.ClientData;
 import com.github.zly2006.reden.access.ServerData;
+import com.github.zly2006.reden.rvc.gui.SelectionListScreenKt;
 import com.github.zly2006.reden.rvc.tracking.RvcRepository;
 import com.github.zly2006.reden.task.TaskKt;
 import net.minecraft.client.MinecraftClient;
@@ -60,6 +61,7 @@ public abstract class MixinClient implements ClientData.ClientDataAccess, Server
     )
     private void onWorldChange(ClientWorld world, CallbackInfo ci) {
         getClientData$reden().getRvcStructures().values().forEach(RvcRepository::clearCache);
+        SelectionListScreenKt.setSelectedRepository(null);
         TaskKt.getTaskStack().forEach(it -> it.onClientSideWorldChanged(world));
     }
 }

@@ -2,7 +2,6 @@ package com.github.zly2006.reden.mixin.superRight.chat;
 
 import com.github.zly2006.reden.access.VisibleChatHudLineAccess;
 import com.github.zly2006.reden.gui.QuickMenuWidget;
-import com.github.zly2006.reden.intro.SuperRightIntro;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
@@ -42,7 +41,7 @@ public abstract class ChatScreenMixin extends Screen {
     @Shadow @Nullable protected abstract Style getTextStyleAt(double x, double y);
 
     @Redirect(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setScreen(Lnet/minecraft/client/gui/screen/Screen;)V"))
-    private void ct$keyPressed(MinecraftClient client, Screen screen) {
+    private void keyPressed(MinecraftClient client, Screen screen) {
         if (screen == null) {
             if (client.currentScreen == ct$getThis()) {
                 client.setScreen(null);
@@ -53,7 +52,7 @@ public abstract class ChatScreenMixin extends Screen {
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void ct$mouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+    private void mouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         if (quickMenuWidget != null) {
             // highest priority
             if (quickMenuWidget.mouseClicked(mouseX, mouseY, button)) {
@@ -65,7 +64,7 @@ public abstract class ChatScreenMixin extends Screen {
             MinecraftClient client = MinecraftClient.getInstance();
             ChatHudLine.Visible visible = ct$geMessageAt(mouseX, mouseY);
             if (visible != null && CHAT_RIGHT_CLICK_MENU.getBooleanValue()) {
-                Text text = ((VisibleChatHudLineAccess) (Object) visible).reden$getText();
+                Text text = ((VisibleChatHudLineAccess) (Object) visible).getText$reden();
                 if (text != null) {
                     rightClickMenu((int) mouseX, (int) mouseY, client, text);
                     cir.setReturnValue(true);
@@ -79,8 +78,8 @@ public abstract class ChatScreenMixin extends Screen {
             quickMenuWidget.remove();
         }
         quickMenuWidget = new QuickMenuWidget(this, mouseX + 1, mouseY + 1);
-        quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.about"), (e, b) ->
-                client.setScreen(new SuperRightIntro()));
+//        quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.about"), (e, b) ->
+//                client.setScreen(new SuperRightIntro()));
         String message = text.getString();
         Matcher matcher = urlPattern.matcher(message);
         Style style = getTextStyleAt(mouseX, mouseY);

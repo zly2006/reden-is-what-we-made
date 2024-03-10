@@ -1,8 +1,11 @@
-package com.github.zly2006.reden.access;
+package com.github.zly2006.reden.access
 
-import net.minecraft.text.Text;
+import net.minecraft.text.Text
 
-public interface VisibleChatHudLineAccess {
-    Text reden$getText();
-    void reden$setText(Text text);
+interface VisibleChatHudLineAccess {
+
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @get:JvmName("getText\$reden")
+    @set:JvmName("setText\$reden")
+    var text: Text?
 }

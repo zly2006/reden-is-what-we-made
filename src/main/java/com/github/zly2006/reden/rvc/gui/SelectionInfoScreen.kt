@@ -79,7 +79,10 @@ class SelectionInfoScreen(
     ) : FlowLayout(Sizing.fill(), Sizing.content(), Algorithm.HORIZONTAL) {
         private val shortHash = Components.label(Text.literal(commit.name.substring(0, 7)))
         private val message = Components.label(Text.literal(commit.shortMessage))!!.apply {
-            sizing(Sizing.fill(70), Sizing.fixed(20))
+            sizing(Sizing.fill(70), Sizing.content())
+            allowOverflow(false)
+            maxWidth((this@SelectionInfoScreen.width * 0.7).toInt())
+            horizontalTextAlignment(HorizontalAlignment.LEFT)
             verticalTextAlignment(VerticalAlignment.CENTER)
         }
         private val time = Components.label(Text.literal(commit.commitTime.toString()))!!

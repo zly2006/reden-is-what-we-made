@@ -10,12 +10,12 @@ import org.spongepowered.asm.mixin.Unique;
 public class VisibleChatHudLineMixin implements VisibleChatHudLineAccess {
     @Unique private Text text;
     @Override
-    public Text reden$getText() {
+    public Text getText$reden() {
         return this.text;
     }
 
     @Override
-    public void reden$setText(Text text) {
+    public void setText$reden(Text text) {
         this.text = text;
     }
 }

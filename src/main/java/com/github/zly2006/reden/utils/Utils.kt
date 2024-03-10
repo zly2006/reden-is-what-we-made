@@ -76,7 +76,7 @@ fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int) {
         chunkManager.markForUpdate(pos)
     }
     if (flags and Block.NOTIFY_LISTENERS != 0) {
-        updateListeners(pos, getBlockState(pos), state, flags)
+        updateListeners(pos, stateBefore, state, flags)
     }
 }
 
@@ -236,14 +236,16 @@ val redenApiBaseUrl: String
 
 infix fun Int.has(flag: Int) = (this and flag) == flag
 
-fun redenError(message: String, throwable: Throwable? = null, log: Boolean = false): Nothing {
+@Suppress("NOTHING_TO_INLINE")
+inline fun redenError(message: String, throwable: Throwable? = null, log: Boolean = false): Nothing {
     if (log) {
         Reden.LOGGER.error(message, throwable)
     }
     throw if (throwable != null) RedenException(message, throwable) else RedenException(message)
 }
 
-fun redenError(message: Text, throwable: Throwable? = null, log: Boolean = false): Nothing {
+@Suppress("NOTHING_TO_INLINE")
+inline fun redenError(message: Text, throwable: Throwable? = null, log: Boolean = false): Nothing {
     if (log) {
         Reden.LOGGER.error(message.string, throwable)
     }

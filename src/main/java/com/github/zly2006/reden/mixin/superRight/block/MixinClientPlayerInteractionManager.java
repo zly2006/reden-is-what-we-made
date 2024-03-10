@@ -22,7 +22,8 @@ public class MixinClientPlayerInteractionManager {
     private void onUse(ClientPlayerEntity player, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (ChatScreen.hasControlDown()) {
-            cir.setReturnValue(ActionResult.SUCCESS);
+            // todo
+//            cir.setReturnValue(ActionResult.SUCCESS);
         }
     }
 }

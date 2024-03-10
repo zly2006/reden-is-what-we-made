@@ -44,8 +44,8 @@ class Undo(
                 debugLogger("undo ${pos}, ${entry.state}")
                 // set block
                 val sec = world.getChunk(pos).run { getSection(getSectionIndex(pos.y)) } as ChunkSectionInterface
-                if (sec.`getModifyTime$reden`(pos) < entry.time && isUndo) {
-                    debugLogger("undo $pos skipped (${sec.`getModifyTime$reden`(pos)} < ${entry.time})")
+                if (sec.getModifyTime(pos) < entry.time && isUndo) {
+                    debugLogger("undo $pos skipped (${sec.getModifyTime(pos)} < ${entry.time})")
                     return@forEach
                 }
                 world.modified(pos, entry.time)
