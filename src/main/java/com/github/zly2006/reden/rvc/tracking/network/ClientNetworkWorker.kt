@@ -4,11 +4,10 @@ import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import net.minecraft.client.MinecraftClient
 import net.minecraft.world.World
-import java.util.concurrent.CompletableFuture
 
 open class ClientNetworkWorker(
     override val structure: TrackedStructure,
@@ -40,13 +39,6 @@ open class ClientNetworkWorker(
         TODO("Not yet implemented")
     }
 
-    override suspend fun <T> execute(function: () -> T): T {
-        val future = CompletableFuture<T>()
-        MinecraftClient.getInstance().execute {
-            future.complete(function())
-        }
-        return withContext(Dispatchers.IO) {
-            future.get()
-        }
-    }
+    override suspend fun <T> execute(function: suspend () -> T): T =
+        withContext(MinecraftClient.getInstance().asCoroutineDispatcher()) { function() }
 }

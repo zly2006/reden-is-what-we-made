@@ -2,7 +2,6 @@ package com.github.zly2006.reden.rvc.tracking.network
 
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
-import kotlinx.coroutines.runBlocking
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.World
 
@@ -15,35 +14,27 @@ class LocalNetworkWorker(
     private val player = world.server.playerManager.getPlayer(world.server.hostProfile!!.id)!!
     private val serverWorker = ServerNetworkWorker(structure, world, player)
 
-    override suspend fun refreshPositions() = executeBlocking {
+    override suspend fun refreshPositions() = execute {
         serverWorker.refreshPositions()
     }
 
-    override suspend fun debugRender() = executeBlocking {
+    override suspend fun debugRender() = execute {
         clientWorker.debugRender()
     }
 
-    override suspend fun startUndoRecord(cause: PlayerData.UndoRecord.Cause) = executeBlocking {
+    override suspend fun startUndoRecord(cause: PlayerData.UndoRecord.Cause) = execute {
         serverWorker.startUndoRecord(cause)
     }
 
-    override suspend fun stopUndoRecord() = executeBlocking {
+    override suspend fun stopUndoRecord() = execute {
         serverWorker.stopUndoRecord()
     }
 
-    override suspend fun paste() = executeBlocking {
+    override suspend fun paste() = execute {
         serverWorker.paste()
     }
 
-    override suspend fun <T> execute(function: () -> T): T {
+    override suspend fun <T> execute(function: suspend () -> T): T {
         return serverWorker.execute(function)
-    }
-
-    private suspend fun <T> executeBlocking(function: suspend () -> T): T {
-        return serverWorker.execute {
-            runBlocking {
-                function()
-            }
-        }
     }
 }

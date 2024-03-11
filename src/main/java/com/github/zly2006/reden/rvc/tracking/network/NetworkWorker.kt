@@ -69,5 +69,5 @@ interface NetworkWorker {
     suspend fun startUndoRecord(cause: PlayerData.UndoRecord.Cause)
     suspend fun stopUndoRecord()
     suspend fun paste()
-    suspend fun <T> execute(function: () -> T): T
+    suspend fun <T> execute(function: suspend () -> T): T
 }
