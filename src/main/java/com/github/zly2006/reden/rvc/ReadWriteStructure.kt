@@ -20,9 +20,9 @@ abstract class ReadWriteStructure(override var name: String) : IWritableStructur
         if (pos.x < minX) minX = pos.x
         if (pos.y < minY) minY = pos.y
         if (pos.z < minZ) minZ = pos.z
-        if (xSize < pos.x + 1) xSize = pos.x + 1
-        if (ySize < pos.y + 1) ySize = pos.y + 1
-        if (zSize < pos.z + 1) zSize = pos.z + 1
+        if (xSize <= pos.x) xSize = pos.x + 1
+        if (ySize <= pos.y) ySize = pos.y + 1
+        if (zSize <= pos.z) zSize = pos.z + 1
     }
     protected var io: StructureIO? = null
     val blocks = RelativeCoordinateBlockHashMap()

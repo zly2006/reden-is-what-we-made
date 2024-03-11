@@ -38,7 +38,7 @@ class TrackedStructure(
 ) : ReadWriteStructure(name), IPlacement, PositionIterable {
     var networkWorker: NetworkWorker? = null
     override var enabled: Boolean = true
-    override val structure = this
+    override val structure get() = this
 
     /**
      * This is stored in the file `.git/placement_info.json`.
@@ -394,13 +394,13 @@ class TrackedStructure(
             return BlockBox(BlockPos.ORIGIN)
         }
         return BlockBox(
-            blocks.keys.minOf { it.x },
-            blocks.keys.minOf { it.y },
-            blocks.keys.minOf { it.z },
-            blocks.keys.maxOf { it.x },
-            blocks.keys.maxOf { it.y },
-            blocks.keys.maxOf { it.z }
-        ).offset(origin.x, origin.y, origin.z)
+            origin.x + minX,
+            origin.y + minY,
+            origin.z + minZ,
+            origin.x + minX + xSize,
+            origin.y + minY + ySize,
+            origin.z + minZ + zSize
+        )
     }
 
     /**
