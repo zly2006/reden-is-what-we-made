@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         # Use thses Java versions:
-        java: [17, 20] # Current Java LTS and current latest Java version
+        java: [ 17, 21 ] # Current Java LTS and current latest Java version
         # Use these operating systems:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
@@ -126,6 +126,7 @@ jobs:
             18
             19
             20
+            21
           retry-attempts: 2
           retry-delay: 10000
           changelog: ${{ env.COMMIT_MESSAGE_ALL }}
