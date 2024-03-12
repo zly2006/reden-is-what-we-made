@@ -4,8 +4,7 @@ import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.WorldData.Companion.data
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 
@@ -36,7 +35,10 @@ class ServerNetworkWorker(
         structure.world.data!!.updatesDisabled = false
     }
 
-    override suspend fun <T> execute(function: suspend () -> T): T = withContext(world.server.asCoroutineDispatcher()) {
-        function()
-    }
+    override suspend fun <T> execute(function: suspend () -> T): T =
+        withContext(world.server.asCoroutineDispatcher()) { function() }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    override fun <T> async(function: suspend () -> T) =
+        GlobalScope.async(world.server.asCoroutineDispatcher()) { function() }
 }

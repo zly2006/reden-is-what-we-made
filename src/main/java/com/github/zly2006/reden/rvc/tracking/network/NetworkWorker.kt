@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import kotlinx.coroutines.Deferred
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import java.util.*
@@ -70,4 +71,5 @@ interface NetworkWorker {
     suspend fun stopUndoRecord()
     suspend fun paste()
     suspend fun <T> execute(function: suspend () -> T): T
+    fun <T> async(function: suspend () -> T): Deferred<T>
 }

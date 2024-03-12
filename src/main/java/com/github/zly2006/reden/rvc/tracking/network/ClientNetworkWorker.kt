@@ -4,8 +4,7 @@ import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import net.minecraft.client.MinecraftClient
 import net.minecraft.world.World
 
@@ -41,4 +40,8 @@ open class ClientNetworkWorker(
 
     override suspend fun <T> execute(function: suspend () -> T): T =
         withContext(MinecraftClient.getInstance().asCoroutineDispatcher()) { function() }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    override fun <T> async(function: suspend () -> T) =
+        GlobalScope.async(MinecraftClient.getInstance().asCoroutineDispatcher()) { function() }
 }

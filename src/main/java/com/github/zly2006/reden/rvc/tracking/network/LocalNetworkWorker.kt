@@ -34,7 +34,7 @@ class LocalNetworkWorker(
         serverWorker.paste()
     }
 
-    override suspend fun <T> execute(function: suspend () -> T): T {
-        return serverWorker.execute(function)
-    }
+    override suspend fun <T> execute(function: suspend () -> T) = serverWorker.execute(function)
+
+    override fun <T> async(function: suspend () -> T) = serverWorker.async(function)
 }

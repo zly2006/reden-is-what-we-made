@@ -20,10 +20,6 @@ import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer.Scrollbar
 import io.wispforest.owo.ui.core.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.minecraft.client.MinecraftClient
@@ -180,35 +176,12 @@ class SelectionImportScreen(
             }
 
             override fun import(file: File): RvcRepository {
-                val mc = MinecraftClient.getInstance()
                 val repository = RvcRepository.create(file.nameWithoutExtension, null, NetworkSide.CLIENTBOUND)
                 val structure = TrackedStructure(file.nameWithoutExtension, repository)
                 LitematicaIO.load(file.toPath(), structure)
                 val blocksBefore = structure.blocks.size
                 repository.startPlacing(structure) {
-                    val center = structure.blockBox().center
-                    val centerBlock =
-                        structure.blocks.keys.minBy { it.blockPos(structure.origin).getSquaredDistance(center) }
-                    structure.trackPoints.add(
-                        TrackedStructure.TrackPoint(
-                            centerBlock,
-                            TrackPredicate.QC,
-                            TrackPredicate.TrackMode.TRACK,
-                        )
-                    )
-                    // todo multi player
-                    GlobalScope.launch(server.asCoroutineDispatcher()) {
-                        structure.collectAllFromWorld()
-                        if (structure.blocks.size != blocksBefore) {
-                            mc.player?.sendMessage(
-                                Text.literal(
-                                    "Failed to automatically set trackpoints, please fix it and commit " +
-                                            "(expected=$blocksBefore, got=${structure.blocks.size})"
-                                ).red()
-                            )
-                        }
-                        repository.commit(structure, "Import from $file", mc.player)
-                    }
+                    afterPlaced(structure, file, blocksBefore)
                 }
                 return repository
             }
@@ -278,20 +251,44 @@ class SelectionImportScreen(
 
         abstract fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout)
 
+        protected fun afterPlaced(structure: TrackedStructure, file: File, blocksBefore: Int) {
+            val center = structure.blockBox().center
+            val centerBlock =
+                structure.blocks.keys.minBy { it.blockPos(structure.origin).getSquaredDistance(center) }
+            structure.trackPoints.add(
+                TrackedStructure.TrackPoint(
+                    centerBlock,
+                    TrackPredicate.QC,
+                    TrackPredicate.TrackMode.TRACK,
+                )
+            )
+            @Suppress("DeferredResultUnused")
+            structure.networkWorker?.async {
+                structure.collectAllFromWorld()
+                if (structure.blocks.size != blocksBefore) {
+                    MinecraftClient.getInstance().player?.sendMessage(
+                        Text.literal(
+                            "Failed to automatically set trackpoints, please fix it and commit " +
+                                    "(expected=$blocksBefore, got=${structure.blocks.size})"
+                        ).red()
+                    )
+                }
+                structure.repository!!.commit(structure, "Import from $file", MinecraftClient.getInstance().player)
+            }
+        }
+
         /**
          * logic for structure template nbt files
          */
         open fun import(file: File): RvcRepository? {
             try {
-                val mc = MinecraftClient.getInstance()
                 val repository = RvcRepository.create(file.nameWithoutExtension, null, NetworkSide.CLIENTBOUND)
                 val structure = TrackedStructure(file.nameWithoutExtension, repository)
                 val nbt = NbtIo.readCompressed(file.toPath(), NbtSizeTracker.ofUnlimitedBytes())
                 structure.assign(SchematicStructure().readFromNBT(nbt))
+                val blocksBefore = structure.blocks.size
                 repository.startPlacing(structure) {
-                    runBlocking {
-                        repository.commit(structure, "Import from $file", mc.player)
-                    }
+                    afterPlaced(structure, file, blocksBefore)
                 }
                 return repository
             } catch (e: Exception) {
