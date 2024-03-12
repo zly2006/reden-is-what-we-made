@@ -1,12 +1,12 @@
 package com.github.zly2006.reden.mixin.render;
 
-import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.render.BlockOutline;
 import com.github.zly2006.reden.render.SolidFaceRenderer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.render.*;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
@@ -78,9 +78,9 @@ public abstract class MixinWorldRenderer {
         int color = BlockOutline.INSTANCE.getColor();
         vertexConsumers.setColor(color >> 16 & 255, color >> 8 & 255, color & 255, 255);
         // only render to outline frame buffer
-        VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getOutline(Reden.identifier("icon.png")));
+        VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getOutline(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE));
         RenderSystem.disableCull();
-        BlockOutline.INSTANCE.render(buffer, matrices, camera);
+        BlockOutline.INSTANCE.render(buffer, matrices, camera, vertexConsumers);
         RenderSystem.enableCull();
     }
 }

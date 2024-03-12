@@ -4,14 +4,12 @@ import com.github.zly2006.reden.malilib.FANCY_BLOCK_OUTLINE
 import io.netty.util.concurrent.CompleteFuture
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
+import net.minecraft.block.BlockEntityProvider
 import net.minecraft.block.BlockRenderType
 import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.render.*
 import net.minecraft.client.render.BufferBuilder.BuiltBuffer
-import net.minecraft.client.render.Camera
-import net.minecraft.client.render.RenderLayer
-import net.minecraft.client.render.RenderLayers
-import net.minecraft.client.render.VertexConsumer
 import net.minecraft.client.render.chunk.BlockBufferBuilderStorage
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.BlockPos
@@ -83,18 +81,14 @@ object BlockOutline {
         }
     }
 
-    fun render(buffer: VertexConsumer, matrices: MatrixStack, camera: Camera) {
+    fun render(buffer: VertexConsumer, matrices: MatrixStack, camera: Camera, vertexConsumers: VertexConsumerProvider) {
         val mc = MinecraftClient.getInstance()
+        require(mc.isOnThread) {
+            "BlockOutline.render must be called on the client thread"
+        }
         val renderManager = mc.blockRenderManager
         val random = Random.create()
-//        WorldSchematic(
-//            mc.world!!.levelProperties,
-//            mc.world!!.dimensionEntry,
-//            { DummyProfiler.INSTANCE },
-//            null
-//        )
         synchronized(blocks) {
-            // Note: ConcurrentModificationException
             blocks.toList()
         }.forEach { (pos, state) ->
             if (state.fluidState != null) {
@@ -110,15 +104,27 @@ object BlockOutline {
             matrices.translate(-camera.pos.x, -camera.pos.y, -camera.pos.z)
             matrices.translate(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
             if (FANCY_BLOCK_OUTLINE.booleanValue) {
-                renderManager.renderBlock(
-                    state,
-                    pos,
-                    mc.world,
-                    matrices,
-                    buffer,
-                    false,
-                    random
-                )
+                when (state.renderType) {
+                    BlockRenderType.MODEL -> renderManager.renderBlock(
+                        state,
+                        pos,
+                        mc.world,
+                        matrices,
+                        buffer,
+                        false,
+                        random
+                    )
+
+                    BlockRenderType.ENTITYBLOCK_ANIMATED -> {
+                        mc.blockEntityRenderDispatcher.render(
+                            (state as BlockEntityProvider).createBlockEntity(pos, state),
+                            mc.tickDelta,
+                            matrices
+                        ) { buffer }
+                    }
+
+                    else -> {}
+                }
             } else {
                 val matrix4f = matrices.peek().positionMatrix
 

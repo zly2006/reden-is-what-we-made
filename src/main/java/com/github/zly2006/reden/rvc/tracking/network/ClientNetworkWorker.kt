@@ -12,7 +12,7 @@ open class ClientNetworkWorker(
     override val structure: TrackedStructure,
     override val world: World
 ) : NetworkWorker {
-    override suspend fun debugRender() {
+    override suspend fun debugRender() = execute {
         BlockOutline.blocks = mapOf()
         BlockBorder.tags = mapOf()
         BlockOutline.blocks = structure.cachedPositions.mapNotNull {

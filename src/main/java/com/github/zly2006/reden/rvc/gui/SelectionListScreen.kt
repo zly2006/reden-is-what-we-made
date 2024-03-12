@@ -19,7 +19,6 @@ import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer
 import io.wispforest.owo.ui.core.*
 import io.wispforest.owo.ui.util.UIErrorToast
-import kotlinx.coroutines.runBlocking
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.NetworkSide
 import net.minecraft.text.Text
@@ -60,8 +59,10 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
                     // initialize placement info
                     placementInfo = PlacementInfo(client!!.getWorldInfo())
                 }
-                runBlocking {
-                    head().refreshPositions()
+                value.repository.head().run {
+                    networkWorker?.async {
+                        refreshPositions()
+                    }
                 }
             }
             infoBox = Containers.verticalFlow(Sizing.fill(100), Sizing.fill(100)).apply {

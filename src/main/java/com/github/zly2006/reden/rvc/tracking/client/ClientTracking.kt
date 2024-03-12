@@ -6,7 +6,6 @@ import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.holdingToolItem
 import fi.dy.masa.malilib.event.InputEventHandler
 import fi.dy.masa.malilib.hotkeys.IMouseInputHandler
-import kotlinx.coroutines.runBlocking
 import net.minecraft.client.MinecraftClient
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.HitResult
@@ -44,7 +43,7 @@ fun registerSelectionTool() {
                             )
                         )
                     }
-                    runBlocking {
+                    structure.networkWorker?.async {
                         structure.refreshPositions()
                     }
                 }
