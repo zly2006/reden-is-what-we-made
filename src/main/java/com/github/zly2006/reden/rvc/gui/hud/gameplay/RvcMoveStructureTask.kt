@@ -6,7 +6,9 @@ import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.gui.RvcHudRenderer
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.task.Task
+import com.github.zly2006.reden.utils.server
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
@@ -55,7 +57,8 @@ open class RvcMoveStructureTask(
         currentOrigin = null
         placingStructure.createPlacement(world, pos).apply {
             if (placingStructure is TrackedStructure) {
-                GlobalScope.launch {
+                // todo multiple player
+                GlobalScope.launch(server.asCoroutineDispatcher()) {
                     placingStructure.networkWorker!!.startUndoRecord(PlayerData.UndoRecord.Cause.RVC_MOVE)
                     placingStructure.networkWorker!!.paste()
                     placingStructure.networkWorker!!.stopUndoRecord()

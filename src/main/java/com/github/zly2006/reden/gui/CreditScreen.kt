@@ -16,10 +16,7 @@ import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.sound.AbstractSoundInstance
 import net.minecraft.sound.SoundCategory
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.Text
-import net.minecraft.text.TextColor
+import net.minecraft.text.*
 import net.minecraft.util.Formatting
 import net.minecraft.util.Util
 import net.minecraft.util.math.random.Random
@@ -84,18 +81,13 @@ private fun Screen.creditsScreenContent(): FlowLayout {
         Text.literal("Reden is an open source project under LGPL-3.0 license.").styled {
             it.withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("Click to view Source and License.")))
         }
-    ).configure {
-        it.mouseDown().subscribe { _, _, _ ->
-            Util.getOperatingSystem().open(URI("https://github.com/zly2006/reden-is-what-we-made"))
-            true
-        }
-    })
+    ).openLink("https://github.com/zly2006/reden-is-what-we-made"))
 
     content.child(center(Components.label(Text.literal("Contributors"))
         .margins(Insets.vertical(15))))
 
     content.child(labelComponent(Text.literal("zly2006").append(
-        Text.literal(" - Project Owner, Developer\nFollow me on: ").formatted(Formatting.GRAY)
+        Text.literal(" - Project Owner, Developer\nFollow me on: ").gray()
     ).append(
         Text.literal("Youtube ").styled {
             it.withColor(TextColor.fromRgb(0xff2401))
@@ -108,20 +100,20 @@ private fun Screen.creditsScreenContent(): FlowLayout {
         }
     )).margins(Insets.vertical(3)))
     content.child(labelComponent(Text.literal("Cubik65536").append(
-        Text.literal(" - Developer, Moderator").formatted(Formatting.GRAY)
+        Text.literal(" - Developer, Moderator").gray()
     )).margins(Insets.vertical(3)))
     content.child(labelComponent(Text.literal("Wafarm").append(
-        Text.literal(" - Developer").formatted(Formatting.GRAY)
+        Text.literal(" - Developer").gray()
     )).margins(Insets.vertical(3)))
     content.child(labelComponent(Text.literal("Kikugie").append(
-        Text.literal(" - Designed our icon, and provided many great ideas.").formatted(Formatting.GRAY)
+        Text.literal(" - Designed our icon, and provided many great ideas.").gray()
     )).margins(Insets.vertical(3)))
-    content.child(labelComponent(Text.literal("View all contributors on Github").formatted(Formatting.GRAY).formatted(Formatting.UNDERLINE)).configure {
-        it.mouseDown().subscribe { _, _, _ ->
-            Util.getOperatingSystem().open(URI("https://github.com/zly2006/reden-is-what-we-made/graphs/contributors"))
-            true
-        }
-    }).margins(Insets.vertical(3))
+    content.child(
+        labelComponent(Text.literal("View all contributors on Github").gray().formatted(Formatting.UNDERLINE)).openLink(
+            "https://github.com/zly2006/reden-is-what-we-made/graphs/contributors"
+        )
+            .margins(Insets.vertical(3))
+    )
 
     content.child(center(Components.label(Text.literal("Sponsors"))
         .margins(Insets.vertical(15))))
@@ -137,7 +129,7 @@ private fun Screen.creditsScreenContent(): FlowLayout {
     content.child(labelComponent(Text.literal("Hatsune Miku & Producers").styled {
         it.withColor(0x39C5BB)
     }.append(
-        Text.literal(" - For signing songs that accompany me through the development of Reden.").formatted(Formatting.GRAY)
+        Text.literal(" - For signing songs that accompany me through the development of Reden.").gray()
     )).apply {
         margins(Insets.vertical(3))
         mouseEnter().subscribe {
@@ -149,25 +141,23 @@ private fun Screen.creditsScreenContent(): FlowLayout {
     })
 
     content.child(labelComponent(Text.literal("JetBrains")
-        .append(Text.literal(" - For providing free licenses of IntelliJ IDEA and other awesome developing tools.").formatted(Formatting.GRAY))
+        .append(
+            Text.literal(" - For providing free licenses of IntelliJ IDEA and other awesome developing tools.").gray()
+        )
     ).apply {
         margins(Insets.vertical(3))
-        cursorStyle(CursorStyle.HAND)
-        mouseDown().subscribe { _, _, _ ->
-            Util.getOperatingSystem().open(URI("https://www.jetbrains.com/?from=Reden"))
-            true
-        }
+        openLink("https://www.jetbrains.com/?from=Reden")
     })
 
     content.child(center(Components.label(Text.literal("Open Source Projects used by Reden"))
         .margins(Insets.vertical(15))))
 
-    class OpenSourceProject(val name: String, val url: String, val license: String)
+    data class OpenSourceProject(val name: String, val url: String, val license: String)
     val openSourceProjects = listOf(
         OpenSourceProject("malilib", "https://github.com/maruohon/malilib", "LGPL-3.0"),
         OpenSourceProject("carpet", "https://github.com/gnembon/fabric-carpet", "MIT"),
         OpenSourceProject("fabric-api", "https://github.com/FabricMC/fabric", "Apache-2.0"),
-        OpenSourceProject("kotlin-stdlib", "https://github.com/JetBrains/kotlin/tree/master/license", "Other"),
+        OpenSourceProject("kotlin", "https://github.com/JetBrains/kotlin/tree/master/license", "Other"),
         OpenSourceProject("okio", "https://github.com/square/okio", "Apache-2.0"),
         OpenSourceProject("okhttp", "https://github.com/square/okhttp", "Apache-2.0"),
         OpenSourceProject("jgit", "https://www.eclipse.org/org/documents/edl-v10.php", "Eclipse Distribution License"),
@@ -183,13 +173,9 @@ private fun Screen.creditsScreenContent(): FlowLayout {
         openSourceProjects.forEachIndexed { index, project ->
             this.child(labelComponent(Text.literal(project.name))
                 .margins(Insets.vertical(3)), index + 1, 0)
-            this.child(labelComponent(Text.literal(project.license).styled {
-                it.withUnderline(true)
-            }).margins(Insets.vertical(3)).configure {
-                it.mouseDown().subscribe { _, _, _ ->
-                    Util.getOperatingSystem().open(URI(project.url))
-                    true
-                }
+            this.child(labelComponent(Text.literal(project.license).formatted(Formatting.UNDERLINE)).apply {
+                margins(Insets.vertical(3))
+                openLink(project.url)
             }, index + 1, 1)
         }
     })
@@ -214,3 +200,13 @@ private fun Screen.creditsScreenContent(): FlowLayout {
     }))
     return content
 }
+
+fun <T : Component> T.openLink(url: String) = apply {
+    mouseDown().subscribe { _, _, _ ->
+        Util.getOperatingSystem().open(URI(url))
+        true
+    }
+    cursorStyle(CursorStyle.HAND)
+}
+
+private fun MutableText.gray() = formatted(Formatting.GRAY)

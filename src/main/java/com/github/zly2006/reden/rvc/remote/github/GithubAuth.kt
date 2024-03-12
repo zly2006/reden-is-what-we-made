@@ -1,10 +1,7 @@
 package com.github.zly2006.reden.rvc.remote.github
 
 import com.github.zly2006.reden.malilib.GITHUB_TOKEN
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -105,7 +102,7 @@ class GithubAuth {
             throw IllegalStateException("Cannot start polling without a code")
         }
         authState = AuthState.POLLING
-        GlobalScope.launch {
+        val authJob = GlobalScope.async(Dispatchers.IO) {
             while (authState == AuthState.POLLING) {
                 val result = poll()
                 delay(getCodeResponse!!.interval * 1000L)
@@ -116,6 +113,7 @@ class GithubAuth {
                     authState = AuthState.EXPIRED
                 }
             }
+            return@async authState
         }
     }
 }

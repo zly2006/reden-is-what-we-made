@@ -21,6 +21,7 @@ import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer.Scrollbar
 import io.wispforest.owo.ui.core.*
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
@@ -195,7 +196,8 @@ class SelectionImportScreen(
                             TrackPredicate.TrackMode.TRACK,
                         )
                     )
-                    GlobalScope.launch {
+                    // todo multi player
+                    GlobalScope.launch(server.asCoroutineDispatcher()) {
                         structure.collectAllFromWorld()
                         if (structure.blocks.size != blocksBefore) {
                             mc.player?.sendMessage(
