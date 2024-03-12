@@ -145,13 +145,14 @@ open class LitematicaIO: StructureIO {
                             continue
                         }
                         structure.setBlockState(pos, subRegionContainer.get(x, y, z))
-                        val be = blockEntityMap[pos.blockPos(BlockPos.ORIGIN)]
+                        val be = blockEntityMap[BlockPos(x, y, z)]
                         if (be != null) {
                             // Note: litematica may add some unnecessary data
                             be.remove("x")
                             be.remove("y")
                             be.remove("z")
-                            be.remove("id")
+                            // keep the id, some contraptions may need it such as the CCE suppressor
+                            // be.remove("id")
                             structure.setBlockEntityData(pos, be)
                         }
                     }

@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.tracking
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.rvc.*
 import com.github.zly2006.reden.rvc.tracking.network.NetworkWorker
 import com.github.zly2006.reden.utils.redenError
@@ -342,6 +343,16 @@ class TrackedStructure(
             world.setBlockNoPP(pos.blockPos(origin), state, Block.NOTIFY_LISTENERS)
         }
         blockEntities.forEach { (pos, nbt) ->
+            // fixme debug
+            if (world.getBlockEntity(pos.blockPos(origin)) == null) {
+                if (blocks[pos]?.hasBlockEntity() == true) {
+                    Reden.LOGGER.error("Block entity is null at ${pos.blockPos(origin)}, but the block is ${blocks[pos]} and has block entity")
+                }
+                else {
+                    Reden.LOGGER.error("Block entity is null at ${pos.blockPos(origin)}, because the block is ${blocks[pos]} and has no block entity")
+                }
+            }
+            // end debug
             world.getBlockEntity(pos.blockPos(origin))?.run {
                 readNbt(nbt)
                 markDirty()
