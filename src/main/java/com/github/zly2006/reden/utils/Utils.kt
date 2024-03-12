@@ -33,6 +33,7 @@ import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.Heightmap
 import net.minecraft.world.World
+import net.minecraft.world.chunk.light.ChunkLightProvider
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
@@ -56,9 +57,7 @@ val ClientPlayerEntity.holdingToolItem: Boolean get() {
 }
 
 fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int) {
-    if (isClient) {
-
-    }
+    profiler.push("reden_setBlockState_noPP")
     val stateBefore = getBlockState(pos)
     if (stateBefore.hasBlockEntity()) {
         removeBlockEntity(pos)
@@ -71,6 +70,14 @@ fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int) {
         this.heightmaps[Heightmap.Type.OCEAN_FLOOR]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
         this.heightmaps[Heightmap.Type.WORLD_SURFACE]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
         setNeedsSaving(true)
+
+        if (ChunkLightProvider.needsLightUpdate(this, pos, stateBefore, state)) {
+            profiler.push("updateSkyLightSources")
+            chunkSkyLight.isSkyLightAccessible(this, pos.x and 15, pos.y and 15, pos.z and 15)
+            profiler.swap("queueCheckLight")
+            chunkManager.lightingProvider.checkBlock(pos)
+            profiler.pop()
+        }
     }
     if (this is ServerWorld) {
         chunkManager.markForUpdate(pos)
@@ -78,6 +85,7 @@ fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int) {
     if (flags and Block.NOTIFY_LISTENERS != 0) {
         updateListeners(pos, stateBefore, state, flags)
     }
+    profiler.pop()
 }
 
 val isClient: Boolean get() = FabricLoader.getInstance().environmentType == EnvType.CLIENT
