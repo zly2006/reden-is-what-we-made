@@ -10,7 +10,6 @@ import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.core.*
 import io.wispforest.owo.ui.util.UIErrorToast
-import kotlinx.coroutines.runBlocking
 import net.minecraft.text.Text
 
 class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStructure) : BaseOwoScreen<FlowLayout>() {
@@ -27,7 +26,7 @@ class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStruc
             UIErrorToast.report("Commit message cannot be empty")
             return@button
         }
-        runBlocking {
+        structure.networkWorker?.async {
             repository.commit(structure, message, client!!.player)
         }
         client!!.setScreen(SelectionInfoScreen(repository, structure))
@@ -38,7 +37,7 @@ class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStruc
             UIErrorToast.report("Commit message cannot be empty")
             return@button
         }
-        runBlocking {
+        structure.networkWorker?.async {
             repository.commit(structure, message, client!!.player)
             val remote = object : IRemoteRepository {
                 override fun deleteRepo() {
