@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.rvc.tracking
 
-import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.rvc.*
 import com.github.zly2006.reden.rvc.tracking.network.NetworkWorker
 import com.github.zly2006.reden.utils.redenError
@@ -8,6 +7,7 @@ import com.github.zly2006.reden.utils.setBlockNoPP
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.minecraft.block.Block
+import net.minecraft.block.BlockEntityProvider
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.client.world.ClientWorld
@@ -327,10 +327,10 @@ class TrackedStructure(
     override fun clearArea() {
         clearSchedules()
         blockIterator.forEach {
-            world.setBlockState(it.blockPos(origin), Blocks.AIR.defaultState, Block.NOTIFY_LISTENERS)
+            world.setBlockNoPP(it.blockPos(origin), Blocks.AIR.defaultState, Block.NOTIFY_LISTENERS)
         }
         blocks.keys.forEach {
-            world.setBlockState(it.blockPos(origin), Blocks.AIR.defaultState, Block.NOTIFY_LISTENERS)
+            world.setBlockNoPP(it.blockPos(origin), Blocks.AIR.defaultState, Block.NOTIFY_LISTENERS)
         }
         entities.forEach {
             (world as? ClientWorld)?.entityLookup?.get(it.key)?.discard()
@@ -343,20 +343,12 @@ class TrackedStructure(
             world.setBlockNoPP(pos.blockPos(origin), state, Block.NOTIFY_LISTENERS)
         }
         blockEntities.forEach { (pos, nbt) ->
-            // fixme debug
-            if (world.getBlockEntity(pos.blockPos(origin)) == null) {
-                if (blocks[pos]?.hasBlockEntity() == true) {
-                    Reden.LOGGER.error("Block entity is null at ${pos.blockPos(origin)}, but the block is ${blocks[pos]} and has block entity")
-                }
-                else {
-                    Reden.LOGGER.error("Block entity is null at ${pos.blockPos(origin)}, because the block is ${blocks[pos]} and has no block entity")
-                }
-            }
-            // end debug
-            world.getBlockEntity(pos.blockPos(origin))?.run {
+            val be = (blocks[pos]?.block as? BlockEntityProvider)?.createBlockEntity(pos.blockPos(origin), blocks[pos])
+                ?.apply {
                 readNbt(nbt)
                 markDirty()
-            }
+                } ?: redenError("Failed to load block entity")
+            world.addBlockEntity(be)
         }
         blocks.keys.forEach {
             world.markDirty(it.blockPos(origin))

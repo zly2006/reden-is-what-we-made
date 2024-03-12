@@ -252,6 +252,7 @@ class SelectionImportScreen(
         abstract fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout)
 
         protected fun afterPlaced(structure: TrackedStructure, file: File, blocksBefore: Int) {
+            val mc = MinecraftClient.getInstance()
             val center = structure.blockBox().center
             val centerBlock =
                 structure.blocks.keys.minBy { it.blockPos(structure.origin).getSquaredDistance(center) }
@@ -266,14 +267,24 @@ class SelectionImportScreen(
             structure.networkWorker?.async {
                 structure.collectAllFromWorld()
                 if (structure.blocks.size != blocksBefore) {
-                    MinecraftClient.getInstance().player?.sendMessage(
+                    mc.player?.sendMessage(
                         Text.literal(
                             "Failed to automatically set trackpoints, please fix it and commit " +
                                     "(expected=$blocksBefore, got=${structure.blocks.size})"
                         ).red()
                     )
                 }
-                structure.repository!!.commit(structure, "Import from $file", MinecraftClient.getInstance().player)
+                val result =
+                    structure.repository!!.commit(structure, "Import from $file", mc.player)
+                if (result.totalBlocks != blocksBefore) {
+                    mc.player?.sendMessage(
+                        Text.literal(
+                            "Failed to commit, please fix it and commit " +
+                                    "(expected=$blocksBefore, got=${result.totalBlocks})"
+                        ).red()
+                    )
+                }
+                mc.player?.sendMessage(Text.literal("Committed: ${result.commitHash}"))
             }
         }
 

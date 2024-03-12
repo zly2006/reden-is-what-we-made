@@ -18,6 +18,7 @@ import io.wispforest.owo.ui.util.UIErrorToast
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.text.Text
 import org.eclipse.jgit.revwalk.RevCommit
+import java.text.SimpleDateFormat
 
 /**
  * Edit trackpoints
@@ -74,37 +75,8 @@ class SelectionInfoScreen(
         TODO()
     }!!
 
-    inner class ReversionLine(
-        val commit: RevCommit
-    ) : FlowLayout(Sizing.fill(), Sizing.content(), Algorithm.HORIZONTAL) {
-        private val shortHash = Components.label(Text.literal(commit.name.substring(0, 7)))
-        private val message = Components.label(Text.literal(commit.shortMessage))!!.apply {
-            sizing(Sizing.fill(70), Sizing.content())
-            allowOverflow(false)
-            maxWidth((this@SelectionInfoScreen.width * 0.7).toInt())
-            horizontalTextAlignment(HorizontalAlignment.LEFT)
-            verticalTextAlignment(VerticalAlignment.CENTER)
-        }
-        private val time = Components.label(Text.literal(commit.commitTime.toString()))!!
-        private val author = Components.label(Text.literal(commit.authorIdent.name))!!
-        private val checkoutButton = Components.button(Text.literal("Checkout")) {
-            onFunctionUsed("checkout_rvcStructure")
-            structure.clearArea()
-            repository.checkout(commit.name, repository::configure)
-            structure.paste()
-            client!!.setScreen(SelectionListScreen())
-            // todo
-        }!!
-
-        init {
-            verticalAlignment(VerticalAlignment.CENTER)
-            gap(5)
-            child(shortHash)
-            child(message)
-            child(time)
-            child(author)
-            child(checkoutButton)
-        }
+    override fun close() {
+        client!!.setScreen(SelectionListScreen())
     }
 
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
@@ -115,9 +87,37 @@ class SelectionInfoScreen(
                 child(Components.label(Text.literal("No commits").red()))
             }
             else {
+                gap(2)
+                fun label(text: Text, size: Int) = Components.label(text).apply {
+                    verticalTextAlignment(VerticalAlignment.CENTER)
+                    horizontalSizing(Sizing.fill(size))
+                }
+
+                val dateFormat = SimpleDateFormat("yyyy/MM/dd hh:mm")
                 val allCommits = repository.git.log().call().filterIsInstance<RevCommit>()
-                allCommits.forEach {
-                    child(ReversionLine(it))
+                child(Containers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
+                    gap(2)
+                    child(label(Text.literal("Hash"), 15))
+                    child(label(Text.literal("Message"), 40))
+                    child(label(Text.literal("Time"), 15))
+                    child(label(Text.literal("Author"), 15))
+                    child(label(Text.literal("Operation"), 15))
+                })
+                allCommits.forEach { commit ->
+                    child(Containers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
+                        gap(2)
+                        child(label(Text.literal(commit.name.substring(0, 7)), 15))
+                        child(label(Text.literal(commit.shortMessage), 40))
+                        child(label(Text.literal(dateFormat.format(commit.commitTime * 1000L)), 15))
+                        child(label(Text.literal(commit.authorIdent.name), 15))
+                        child(Components.button(Text.literal("Checkout")) {
+                            onFunctionUsed("checkout_rvcStructure")
+                            structure.clearArea()
+                            repository.checkout(commit.name, repository::configure)
+                            structure.paste()
+                            client!!.setScreen(SelectionListScreen())
+                        })
+                    })
                 }
             }
         }
@@ -142,12 +142,7 @@ class SelectionInfoScreen(
                 Components.label(
                     if (repository.git.branchList().call().isNotEmpty())
                         Text.literal(
-                            "Head: ${
-                                repository.headHash.substring(
-                                    0,
-                                    7
-                                )
-                            } on ${repository.headBranch}"
+                            "Head: ${repository.headHash.substring(0, 7)} on ${repository.headBranch}"
                         )
                     else Text.literal("No commits").red()
                 )

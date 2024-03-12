@@ -102,12 +102,16 @@ class RvcRepository(
         }
     var placed = false
 
+    class CommitResult(
+        val totalBlocks: Int,
+        val commitHash: String,
+    )
     suspend fun commit(
         structure: TrackedStructure,
         message: String,
         committer: PlayerEntity?,
         author: PersonIdent? = null
-    ) {
+    ): CommitResult {
         require(structure.repository == this) { "The structure is not from this repository" }
         require(structure.placementInfo != null) { "The structure is not placed in this world" }
         headCache = structure
@@ -140,6 +144,7 @@ class RvcRepository(
         cmd.setMessage("$message\n\nUser-Agent: Reden-RVC/${Reden.MOD_VERSION} Minecraft/${SharedConstants.getGameVersion().name}")
         cmd.setSign(false)
         val commit = cmd.call()
+        return CommitResult(structure.blocks.size, commit.name)
     }
 
     fun push(remote: IRemoteRepository, force: Boolean = false) {
