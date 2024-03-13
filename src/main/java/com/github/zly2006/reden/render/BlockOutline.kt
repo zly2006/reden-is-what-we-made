@@ -117,7 +117,7 @@ object BlockOutline {
 
                     BlockRenderType.ENTITYBLOCK_ANIMATED -> {
                         mc.blockEntityRenderDispatcher.render(
-                            (state as BlockEntityProvider).createBlockEntity(pos, state),
+                            (state.block as BlockEntityProvider).createBlockEntity(pos, state),
                             mc.tickDelta,
                             matrices
                         ) { buffer }
