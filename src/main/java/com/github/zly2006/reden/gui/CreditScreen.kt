@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.gui
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.Sounds
 import com.github.zly2006.reden.report.key
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.sponsor.SponsorScreen
@@ -24,7 +25,7 @@ import java.net.URI
 
 class CreditScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
     object MikuSinging: AbstractSoundInstance(
-        Reden.identifier("miku_miku"),
+        Sounds.MIKU_MIKU.id,
         SoundCategory.VOICE,
         Random.create()
     )

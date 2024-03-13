@@ -175,7 +175,6 @@ public class Reden implements ModInitializer, CarpetExtension {
                 LOGGER.info("This is Reden!");
             }
         });
-        Sounds.init();
         ServerTickEvents.END_SERVER_TICK.register(TaskScheduler.INSTANCE);
 
         new Thread(() -> {
