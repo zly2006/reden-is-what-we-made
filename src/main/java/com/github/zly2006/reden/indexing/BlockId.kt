@@ -13,10 +13,10 @@ import java.io.File
 import java.net.URI
 
 @OptIn(ExperimentalSerializationApi::class)
-class BlockId(definition: URI = URI("$redenApiBaseUrl/data/block_ids.json")) {
+class BlockId(definition: URI = URI("$redenApiBaseUrl/data/block_ids.json")) : Index<Identifier> {
     val index = Json.decodeFromStream<Map<String, Int>>(definition.toURL().openStreamRetrying())
 
-    fun of(identifier: Identifier): Int {
+    override fun of(identifier: Identifier): Int {
         return index[identifier.toString()] ?: 0
     }
 
@@ -24,7 +24,7 @@ class BlockId(definition: URI = URI("$redenApiBaseUrl/data/block_ids.json")) {
         return of(Registries.BLOCK.getId(block))
     }
 
-    fun checkExtra(output: File?): List<Identifier> {
+    override fun checkExtra(output: File?): List<Identifier> {
         val extra = Registries.BLOCK.ids.filter { it.toString() !in index }
         output?.let {
             val copy = index.toMutableMap()

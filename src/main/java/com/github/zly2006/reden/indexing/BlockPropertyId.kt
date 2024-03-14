@@ -19,7 +19,7 @@ private val Field.static: Boolean
 
 typealias BlockProperty = net.minecraft.state.property.Property<*>
 
-class BlockPropertyId(definition: URI = URI("$redenApiBaseUrl/data/property_ids.json")) {
+class BlockPropertyId(definition: URI = URI("$redenApiBaseUrl/data/property_ids.json")) : Index<BlockProperty> {
     @Serializable
     data class Property(
         val values: List<String>,
@@ -37,11 +37,11 @@ class BlockPropertyId(definition: URI = URI("$redenApiBaseUrl/data/property_ids.
         checkExtra(null)
     }
     val index = properties.mapNotNull { it.instance?.to(it) }.toMap()
-    fun of(property: BlockProperty): Int {
-        return index[property]?.id ?: 0
+    override fun of(identifier: BlockProperty): Int {
+        return index[identifier]?.id ?: 0
     }
 
-    fun checkExtra(output: File?): List<BlockProperty> {
+    override fun checkExtra(output: File?): List<BlockProperty> {
         val clazz = net.minecraft.state.property.Property::class.java
         val ret = mutableListOf<BlockProperty>()
         val blockProperties = Properties::class.java.fields.asSequence()
