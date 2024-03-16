@@ -6,6 +6,8 @@ import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.holdingToolItem
 import fi.dy.masa.malilib.event.InputEventHandler
 import fi.dy.masa.malilib.hotkeys.IMouseInputHandler
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
 import net.minecraft.client.MinecraftClient
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.HitResult
@@ -25,30 +27,32 @@ fun registerSelectionTool() {
                 val blockResult = raycast as BlockHitResult
                 if (selectedStructure != null && selectedStructure!!.placementInfo != null) {
                     val structure = selectedStructure!!
-                    if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                        structure.addTrackPoint(
-                            TrackedStructure.TrackPoint(
-                                structure.getRelativeCoordinate(blockResult.blockPos),
-                                TrackPredicate.QC,
-                                TrackPredicate.TrackMode.TRACK
-                            )
-                        )
-                    }
-                    else {
-                        structure.addTrackPoint(
-                            TrackedStructure.TrackPoint(
-                                structure.getRelativeCoordinate(blockResult.blockPos),
-                                TrackPredicate.Same,
-                                TrackPredicate.TrackMode.IGNORE,
-                            )
-                        )
-                    }
                     structure.networkWorker?.async {
+                        if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+                            structure.addTrackPoint(
+                                TrackedStructure.TrackPoint(
+                                    structure.getRelativeCoordinate(blockResult.blockPos),
+                                    TrackPredicate.QC,
+                                    TrackPredicate.TrackMode.TRACK
+                                )
+                            )
+                        }
+                        else {
+                            structure.addTrackPoint(
+                                TrackedStructure.TrackPoint(
+                                    structure.getRelativeCoordinate(blockResult.blockPos),
+                                    TrackPredicate.Same,
+                                    TrackPredicate.TrackMode.IGNORE,
+                                )
+                            )
+                        }
                         structure.refreshPositions()
-                    }
+                    }?.ignore()
                 }
             }
             return true
         }
     })
 }
+
+private fun <T> Deferred<T>.ignore(): Job = this

@@ -16,6 +16,7 @@ class LocalNetworkWorker(
 
     override suspend fun refreshPositions() = execute {
         serverWorker.refreshPositions()
+        clientWorker.renderPositions = structure.cachedPositions.keys.toList()
     }
 
     override suspend fun debugRender() = execute {

@@ -6,18 +6,20 @@ import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import kotlinx.coroutines.*
 import net.minecraft.client.MinecraftClient
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 open class ClientNetworkWorker(
     override val structure: TrackedStructure,
     override val world: World
 ) : NetworkWorker {
+    var renderPositions = listOf<BlockPos>()
     override suspend fun debugRender() = execute {
         BlockOutline.blocks = mapOf()
         BlockBorder.tags = mapOf()
-        BlockOutline.blocks = structure.cachedPositions.mapNotNull {
-            if (!world.isAir(it.key))
-                it.key to world.getBlockState(it.key)
+        BlockOutline.blocks = renderPositions.mapNotNull {
+            if (!world.isAir(it))
+                it to world.getBlockState(it)
             else null
         }.toMap()
         structure.trackPoints.forEach {

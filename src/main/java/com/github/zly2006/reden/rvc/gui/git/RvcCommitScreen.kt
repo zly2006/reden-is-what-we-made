@@ -20,7 +20,7 @@ class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStruc
 
     val commitMessage = Components.textArea(Sizing.fill(), Sizing.fill(70))
 
-    val commitButton = Components.button(Text.literal("Commit")) {
+    private val commitButton = Components.button(Text.literal("Commit")) {
         val message = commitMessage.text
         if (message.isBlank()) {
             UIErrorToast.report("Commit message cannot be empty")
@@ -28,10 +28,12 @@ class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStruc
         }
         structure.networkWorker?.async {
             repository.commit(structure, message, client!!.player)
+            client!!.execute {
+                client!!.setScreen(SelectionInfoScreen(repository, structure))
+            }
         }
-        client!!.setScreen(SelectionInfoScreen(repository, structure))
     }!!
-    val commitAndPushButton = Components.button(Text.literal("Commit and Push")) {
+    private val commitAndPushButton = Components.button(Text.literal("Commit and Push")) {
         val message = commitMessage.text
         if (message.isBlank()) {
             UIErrorToast.report("Commit message cannot be empty")
@@ -47,8 +49,10 @@ class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStruc
                 override val gitUrl = repository.git.repository.config.getString("remote", "origin", "url")
             }
             repository.push(remote, false)
+            client!!.execute {
+                client!!.setScreen(SelectionInfoScreen(repository, structure))
+            }
         }
-        client!!.setScreen(SelectionInfoScreen(repository, structure))
     }!!
 
     override fun build(rootComponent: FlowLayout) {

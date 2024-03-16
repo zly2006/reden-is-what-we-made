@@ -16,7 +16,7 @@ interface NetworkWorker {
     suspend fun refreshPositions() {
         val timeStart = System.currentTimeMillis()
         val readPos = hashSetOf<BlockPos>()
-        structure.trackPoints.asSequence().filter { it.mode == TrackPredicate.TrackMode.IGNORE }.forEach { trackPoint ->
+        structure.trackPoints.filter { it.mode == TrackPredicate.TrackMode.IGNORE }.forEach { trackPoint ->
             // first, add all blocks recursively
             val queue = LinkedList<TrackedStructure.SpreadEntry>()
             queue.add(trackPoint)
@@ -36,7 +36,7 @@ interface NetworkWorker {
                 })
             }
         }
-        structure.trackPoints.asSequence().filter { it.mode == TrackPredicate.TrackMode.TRACK }.forEach { trackPoint ->
+        structure.trackPoints.filter { it.mode == TrackPredicate.TrackMode.TRACK }.forEach { trackPoint ->
             // first, add all blocks recursively
             val queue = LinkedList<TrackedStructure.SpreadEntry>()
             queue.add(trackPoint)

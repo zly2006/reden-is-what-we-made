@@ -4,8 +4,6 @@ import com.github.zly2006.reden.rvc.*
 import com.github.zly2006.reden.rvc.tracking.network.NetworkWorker
 import com.github.zly2006.reden.utils.redenError
 import com.github.zly2006.reden.utils.setBlockNoPP
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.minecraft.block.Block
 import net.minecraft.block.BlockEntityProvider
 import net.minecraft.block.BlockState
@@ -302,7 +300,7 @@ class TrackedStructure(
         return cachedPositions.contains(pos.blockPos(origin))
     }
 
-    fun refreshPositionsAsync() = GlobalScope.launch {
+    fun refreshPositionsAsync() = networkWorker?.async {
         refreshPositions()
     }
 
