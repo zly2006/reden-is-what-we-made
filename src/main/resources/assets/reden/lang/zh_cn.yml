@@ -93,7 +93,7 @@ reden:
       "no": 先不了吧…
       title: Reden B站账号
       desc: |
-        您已经使用Reden的功能%s次了!
+        您已经使用 Reden 的功能%s次了!
         要去关注一下我的B站账号吗?
 
   config:
@@ -107,7 +107,7 @@ reden:
       comment: |-
 
     hudPosition:
-      .: HUD位置
+      .: HUD 位置
       comment: |-
 
     allowCopyrightCheck:
@@ -159,17 +159,17 @@ reden:
 
     # ===== Micro Tick =====
     toggleNcBreakpoint:
-      .: 添加/移除NC断点
+      .: 添加/移除 NC 断点
       comment: |-
-        NC更新
+        NC 更新
 
     togglePpBreakpoint:
-      .: 添加/移除PP断点
+      .: 添加/移除 PP 断点
       comment: |-
-        PP更新
+        PP 更新
 
     toggleCuBreakpoint:
-      .: 添加/移除CU断点
+      .: 添加/移除 CU 断点
       comment: |-
         比较器更新
 
@@ -258,11 +258,17 @@ reden:
     githubToken:
       .: GithubToken
       comment: |-
-        Github的密钥，请不要向其他人泄露你的的密钥！
+        Github 的密钥，请不要向其他人泄露你的的密钥！
 
     allowSocialFollow:
-      .: 允许社交媒体关注tips
+      .: 允许社交媒体关注 tips
       comment: |-
+
+  Carpet:
+    warning: 警告
+    rule: 规则
+    redenDebuggerEnabled: reden 调试器启用
+    TextTip:  并未启用，因此此选项将不起作用。
 
 
 

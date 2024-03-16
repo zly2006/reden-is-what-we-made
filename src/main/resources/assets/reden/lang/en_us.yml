@@ -293,6 +293,12 @@ reden:
       .: allowSocialFollow
       comment: |-
 
+  Carpet:
+    warning: Warning
+    rule: The rule
+    redenDebuggerEnabled: redenDebuggerEnabled
+    TextTip:  is not enabled, so this option will not work.
+
 
 
 carpet:
