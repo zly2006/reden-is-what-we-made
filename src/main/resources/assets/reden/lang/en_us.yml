@@ -126,6 +126,21 @@ reden:
         You have used Reden for %s times!
         Do you want to subscribe to our channel?
 
+    carpet:
+      warning_debugger_not_enabled:
+        - text: "Warning: "
+          color: red
+        - text: "The rule "
+        - text: redenDebuggerEnabled
+          color: gold
+          clickEvent:
+            action: run_command
+            value: "/carpet redenDebuggerEnabled"
+          hoverEvent:
+            action: show_text
+            contents:
+              - text: "Click to show the config"
+        - text: " is not enabled, so this option will not work."
   config:
     # ===== Generic =====
     redenConfigKey:
@@ -292,14 +307,6 @@ reden:
     allowSocialFollow:
       .: allowSocialFollow
       comment: |-
-
-  Carpet:
-    warning: { "text": "Warning", "color": "red"}
-    rule: The rule
-    redenDebuggerEnabled: redenDebuggerEnabled
-    TextTip: { "text": " is not enabled, so this option will not work.", "color": "red"}
-
-
 
 carpet:
   rule:
