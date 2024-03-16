@@ -96,6 +96,22 @@ reden:
         您已经使用 Reden 的功能%s次了!
         要去关注一下我的B站账号吗?
 
+    carpet:
+      warning_debugger_not_enabled:
+        - text: "警告: "
+          color: red
+        - text: "规则 "
+        - text: redenDebuggerEnabled
+          color: gold
+          clickEvent:
+            action: run_command
+            value: "/carpet redenDebuggerEnabled"
+          hoverEvent:
+            action: show_text
+            contents:
+              - text: "点击显示规则"
+        - text: " 未启用，因此此选项将不会起作用。"
+
   config:
     # ===== Generic =====
     redenConfigKey:

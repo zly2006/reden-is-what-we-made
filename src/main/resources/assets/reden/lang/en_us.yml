@@ -141,6 +141,7 @@ reden:
             contents:
               - text: "Click to show the config"
         - text: " is not enabled, so this option will not work."
+
   config:
     # ===== Generic =====
     redenConfigKey:
