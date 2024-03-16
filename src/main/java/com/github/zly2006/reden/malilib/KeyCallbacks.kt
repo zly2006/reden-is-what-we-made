@@ -42,6 +42,10 @@ import io.wispforest.owo.ui.core.Positioning
 import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.Surface
 import io.wispforest.owo.ui.hud.Hud
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
@@ -105,11 +109,11 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
                     )
                 )
             }
-            Thread {
-                Thread.sleep(2000)
+            GlobalScope.launch(mc.asCoroutineDispatcher()) {
+                delay(2000)
                 undoEasterEggLock = false
                 ClientPlayNetworking.send(Undo(0))
-            }.start()
+            }
         }
         else
             ClientPlayNetworking.send(Undo(0))
