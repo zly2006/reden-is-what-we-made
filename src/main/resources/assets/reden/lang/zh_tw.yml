@@ -1,0 +1,308 @@
+reden:
+  debugger:
+    tick_stage:
+      nc_update_6: "NC 六向更新"
+      pp_update: "PP 更新"
+      nc_update: "NC 更新"
+      nc_update_with_source: "NC 使用源更新"
+
+  widget:
+    privacy:
+      desc: |
+        歡迎使用 Reden！
+        
+        Reden 需要收集一些數據以提升用戶體驗。您可以在此頁面中禁用它。
+        以下是我們收集的數據概述：
+        1. 您計算機和系統的基本信息
+          用於幫助我們瞭解用戶群體並改進用戶體驗。這些數據是匿名的。
+        2. 使用數據
+          此數據包括您使用功能的次數或您玩 Minecraft 的時長等信息。
+          它有助於我們瞭解哪些功能受歡迎，哪些功能不太受歡迎，以便我們決定應該重點關注哪些功能。這些數據是匿名的。
+        3. 身份數據
+          此數據包括您的 Minecraft 用戶名和 UUID 等數據。它用於幫助我們識別您並提供更好的支持。
+          這些數據不是匿名的，但我們不會與第三方分享此信息。
+    config:
+      debug: 調試
+      generic: 通用
+      micro_tick: 微時序
+      rvc: RVC
+      super_right: SuperRight
+      title: Reden 配置
+      sponsor: 贊助者
+
+    button:
+      commandHotkeyListEdit: 編輯
+
+    title:
+      commandHotkeyListEdit: 編輯命令列表
+
+    rvc:
+      hud:
+        selected: "已選擇：%s"
+        selected_nothing: "已選擇：無"
+        trackpoints:
+          .: "追蹤點數："
+          tracking: "%s 追蹤中"
+          ignoring: "%s 忽略中"
+      structure:
+        export:
+          litematica: 導出至 Litematica
+        name: "名稱：%s"
+        block_count: "%s 個方塊"
+        entity_count: "%s 個實體"
+        scheduled_tick_unstable: |
+          該結構包含計劃刻 或方塊事件，可能會導致遊戲不穩定。
+
+  chat:
+    about: 關於 SuperRight
+    copy: 複製文本
+    copy_click_command: 複製點擊時執行的命令
+    copy_click_file: 複製文件路徑
+    copy_hover_raw: 複製懸停的原始文本
+    copy_hover_uuid: 複製懸停的 UUID
+    copy_raw: 複製原始文本
+    copy_url: 複製URL
+    give_hover_item: 給予懸停的物品
+    copied: 已複製
+    done: 完成
+
+  feature:
+    undo:
+      cause:
+        break_block: 破壞方塊
+        use_block: 使用方塊
+        use_item: 使用物品
+        use_entity: 使用實體
+        attack_entity: 攻擊實體
+        command: 命令
+        litematica_task: Litematica 任務
+        unknown: 未知
+
+  message:
+    undo:
+      base: "[Reden/Undo] %s"
+      rollback_success: 撤銷成功
+      restore_success: 重做成功
+      no_blocks_info: 沒有方塊信息
+      no_permission: 無權限
+      not_recording: 未錄製
+      unknown_error: 未知錯誤
+      unknown_status: 未知狀態
+    youtube:
+      "yes": 好噠!
+      "no": 先不了吧…
+      title: Reden B站賬號
+      desc: |
+        您已經使用 Reden 的功能%s次了!
+        要去關注一下我的B站賬號嗎?
+
+  config:
+    # ===== Generic =====
+    redenConfigKey:
+      .: Reden 設置快捷鍵
+      comment: |-
+
+    selectionTool:
+      .: 選擇工具
+      comment: |-
+
+    hudPosition:
+      .: HUD 位置
+      comment: |-
+
+    allowCopyrightCheck:
+      .: 允許版權檢查
+      comment: |-
+
+    securityCommit:
+      .: 安全提交
+      comment: |-
+
+    noTimeOut:
+      .: 無超時
+      comment: |-
+
+    undoKey:
+      .: 撤銷快捷鍵
+      comment: |-
+
+    blockBorderAlpha:
+      .: 方塊邊界透明度
+      comment: |-
+
+    redoKey:
+      .: 重做快捷鍵
+      comment: |-
+
+    undoSupportLitematicaOperation:
+      .: 支持 Litematica 操作的撤銷
+      comment: |-
+
+    undoCheatingOnly:
+      .: 僅在作弊時啟用撤銷功能
+      comment: |-
+        僅在作弊時啟用撤銷功能
+
+    solidFaceRenderer:
+      .: 實體面渲染器
+      comment: |-
+        在目標實心面上繪製標記
+
+    solidFaceShapePredicate:
+      .: 實心面渲染選項
+      comment: |-
+        實心面渲染的判定謂詞。可以是 "full"（完整）、"center"（中心）或者 "rigid"（剛性）。
+
+    maxRenderDistance:
+      .: 最大渲染距離
+      comment: |-
+
+    # ===== Micro Tick =====
+    toggleNcBreakpoint:
+      .: 添加/移除 NC 斷點
+      comment: |-
+        NC 更新
+
+    togglePpBreakpoint:
+      .: 添加/移除 PP 斷點
+      comment: |-
+        PP 更新
+
+    toggleCuBreakpoint:
+      .: 添加/移除 CU 斷點
+      comment: |-
+        比較器更新
+
+    toggleForceEntityPosSync:
+      .: ForceEntityPosSync
+      comment: |-
+        強制實體位置同步
+
+
+    # ===== RVC =====
+    openRvcScreen:
+      .: 打開 RVC 屏幕
+      comment: |-
+        打開 RVC 屏幕
+
+    openSelectionList:
+      .: 打開 RVC 選區列表
+      comment: |-
+        打開 RVC 選區列表
+
+    rvcRecordMultiplayer:
+      .: 在多人遊戲中啟用 RVC
+      comment: |-
+        在多人遊戲中啟用 RVC
+
+    rvcForceLocally:
+      .: 強制本地運行 RVC
+      comment: |-
+        強制 RVC 在本地運行，即使遠程服務器啟用了 RVC
+
+    # ===== Super Right =====
+    chatRightClickMenu:
+      .: 在聊天中啟用右鍵菜單
+      comment: |-
+        在聊天中啟用右鍵菜單
+
+    structureBlockLoad:
+      .: 結構方塊加載快捷鍵
+      comment: |-
+
+    structureBlockSave:
+      .: 結構方塊保存快捷鍵
+      comment: |-
+
+    runCommand:
+      .: 運行命令快捷鍵
+      comment: |-
+
+    # ===== Debug =====
+    debugLogger:
+      .: debug：啟用日誌記錄器
+      comment: |-
+        啟用日誌記錄器
+
+    debugPacketLogger:
+      .: debug：啟用網絡包記錄器
+      comment: |-
+
+    debugTagBlockPos:
+      .: debug：標記方塊位置
+      comment: |-
+        標記方塊位置
+
+    debugPreviewUndo:
+      .: debug：預覽撤銷
+      comment: |-
+        預覽撤銷
+
+    maxChainUpdates:
+      .: 最大鏈更新數
+      comment: |-
+        最大鏈更新數，更改將會在重新打開後生效
+
+    doAssertionChecks:
+      .: 執行斷言檢查
+      comment: |-
+
+    undoReportUnTrackedTnt:
+      .: 撤銷未追蹤TNT
+      comment: |-
+
+    openGithubAuthScreen:
+      .: 打開 Github 認證屏幕
+      comment: |-
+
+    githubToken:
+      .: GithubToken
+      comment: |-
+        Github 的密鑰，請不要向其他人洩露你的的密鑰！
+
+    allowSocialFollow:
+      .: 允許社交媒體關注 tips
+      comment: |-
+
+  Carpet:
+    warning: 警告
+    rule: 規則
+    redenDebuggerEnabled: reden 調試器啟用
+    TextTip:  並未啟用，因此此選項將不起作用。
+
+
+
+carpet:
+  rule:
+    redenDebuggerItemShadow:
+      desc: 啟用 Reden 調試器的物品分身調試功能，這可以為物品分身提供一些必要的信息。
+    fixInvisibleShadowingItems:
+      desc: Igna
+    redenDebuggerEnabled:
+      desc: 啟用 Reden 調試器
+    redenDebuggerBlockUpdates:
+      desc: debug：啟用方塊更新
+    stackOverflowUpdates:
+      desc: |-
+        TODO
+
+    allowedUndoSizeInBytes:
+      desc: |-
+        單個玩家可以用於撤銷的內存大小。默認為 5MB，設為 0 禁用撤銷功能，-1 不限制。
+
+    tickBackMaxTicks:
+      desc: |-
+        回退 ticks 的最大數量。默認為 100，0 禁用。
+
+    undoEntities:
+      desc: 允許撤銷記錄實體。默認為 true。
+    undoApplyingClearScheduledTicks:
+      desc: 如果該方塊位置被撤銷，則清除所有計劃刻。
+    undoScheduledTicks:
+      desc: 允許撤銷計劃刻造成的更新。默認為 true。
+    redenDebuggerUpdater:
+      desc: TODO
+
+    redenDebug:
+      desc: |-
+        啟用 Reden 調試模式。默認為 false。用於錯誤報告等。
