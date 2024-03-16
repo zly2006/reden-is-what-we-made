@@ -164,14 +164,14 @@ public class RedenCarpetSettings {
             public Boolean validate(@Nullable ServerCommandSource source, CarpetRule<Boolean> changingRule, Boolean newValue, String userInput) {
                 if (newValue && !Options.redenDebuggerEnabled) {
                     if (source != null) {
-                        source.sendMessage(Text.translatable("reden.Carpet.warning" + ": ").formatted(Formatting.RED)
-                                .append(Text.translatable("reden.Carpet.rule"))
-                                .append(Text.translatable("reden.Carpet.redenDebuggerEnabled").styled(style ->
+                        source.sendMessage(Text.translatable("reden.carpet.warning" + ": ").formatted(Formatting.RED)
+                                .append(Text.translatable("reden.carpet.rule"))
+                                .append(Text.translatable("reden.carpet.redendebuggerenabled").styled(style ->
                                         style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/carpet redenDebuggerEnabled"))
                                                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("show the rule")))
                                                 .withBold(true)
                                                 .withColor(Formatting.GOLD)))
-                                .append(Text.translatable("reden.Carpet.TextTip").formatted(Formatting.RED)));
+                                .append(Text.translatable("reden.carpet.textTip").formatted(Formatting.RED)));
                     }
                 }
                 return newValue;

@@ -265,10 +265,10 @@ reden:
       comment: |-
 
   Carpet:
-    warning: 警告
+    warning: { "text": "警告", "color": "red"}
     rule: 规则
     redenDebuggerEnabled: reden 调试器启用
-    TextTip:  并未启用，因此此选项将不起作用。
+    TextTip: { "text": " 并未启用，因此此选项将不起作用。", "color": "red"}
 
 
 

@@ -294,10 +294,10 @@ reden:
       comment: |-
 
   Carpet:
-    warning: Warning
+    warning: { "text": "Warning", "color": "red"}
     rule: The rule
     redenDebuggerEnabled: redenDebuggerEnabled
-    TextTip:  is not enabled, so this option will not work.
+    TextTip: { "text": " is not enabled, so this option will not work.", "color": "red"}
 
 
 
