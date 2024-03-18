@@ -7,6 +7,8 @@ import com.github.zly2006.reden.malilib.HiddenOption
 import com.github.zly2006.reden.malilib.HiddenOption.data_BASIC
 import com.github.zly2006.reden.malilib.HiddenOption.data_IDENTIFICATION
 import com.github.zly2006.reden.malilib.HiddenOption.data_USAGE
+import com.github.zly2006.reden.sponsor.Sponsor
+import com.github.zly2006.reden.sponsor.SponsorScreen
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.isDevVersion
 import com.github.zly2006.reden.utils.redenApiBaseUrl
@@ -28,13 +30,15 @@ import net.minecraft.text.Text
 import net.minecraft.util.Util
 import net.minecraft.util.crash.CrashMemoryReserve
 import net.minecraft.util.crash.CrashReport
+import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.userAgent
 import okio.use
+import java.io.IOException
 import java.net.URI
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -472,4 +476,47 @@ fun redenSetup(client: MinecraftClient) {
             }
         }.start()
     }
+}
+
+var sponsors: List<Sponsor>? = null
+    get() = if (time + 1000 * 60 < System.currentTimeMillis()) null else field
+    private set
+private var time = 0L
+
+fun updateSponsors() {
+    Logger.getLogger(OkHttpClient::class.java.getName()).setLevel(Level.FINE)
+    OkHttpClient.Builder().build().newCall(Request.Builder().apply {
+        url("$redenApiBaseUrl/sponsors")
+    }.build()).enqueue(object : Callback {
+        fun updateClient() {
+            if (isClient) {
+                val mc = MinecraftClient.getInstance()
+                val screen = mc.currentScreen
+                mc.execute {
+                    if (screen is SponsorScreen) {
+                        mc.setScreen(SponsorScreen(screen.parent, false))
+                    }
+                }
+            }
+        }
+
+        override fun onFailure(call: Call, e: IOException) {
+            LOGGER.info("Failed to update sponsors.", e)
+            updateClient()
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            if (response.code == 200) {
+                sponsors = jsonIgnoreUnknown.decodeFromString<List<Sponsor>>(response.body!!.string())
+                    .sortedBy { -it.amount }
+                LOGGER.info("Updated sponsors.")
+                time = System.currentTimeMillis()
+            }
+            else {
+                LOGGER.info("Failed to update sponsors. Status Code = ${response.code}")
+                response.close()
+            }
+            updateClient()
+        }
+    })
 }

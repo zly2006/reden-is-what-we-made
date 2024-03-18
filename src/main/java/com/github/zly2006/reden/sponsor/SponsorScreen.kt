@@ -1,6 +1,8 @@
 package com.github.zly2006.reden.sponsor
 
 import com.github.zly2006.reden.report.onFunctionUsed
+import com.github.zly2006.reden.report.sponsors
+import com.github.zly2006.reden.report.updateSponsors
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.component.LabelComponent
@@ -10,10 +12,21 @@ import io.wispforest.owo.ui.core.HorizontalAlignment
 import io.wispforest.owo.ui.core.Insets
 import io.wispforest.owo.ui.core.OwoUIAdapter
 import io.wispforest.owo.ui.core.Sizing
+import kotlinx.serialization.Serializable
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
+
+@Serializable
+class Sponsor(
+    val name: String,
+    val avatar: String? = null,
+    val detail: String? = null,
+    val message: String? = null,
+    val amount: Double,
+    val unit: String,
+)
 
 class SponsorScreen(val parent: Screen? = null, private val loadIfNull: Boolean = true): BaseOwoScreen<FlowLayout>() {
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
@@ -36,8 +49,8 @@ class SponsorScreen(val parent: Screen? = null, private val loadIfNull: Boolean 
             val list = Containers.verticalFlow(Sizing.fill(100), Sizing.content())
             sponsors!!.forEach {
                 list.child(labelComponent(Text.literal(it.name)).shadow(true).margins(Insets.of(10, 5, 0, 0)))
-                val display = (if (it.detail.isNullOrEmpty()) "¥${it.amount}" else it.detail) +
-                        (if (it.message.isEmpty()) "" else "\n${it.message}")
+                val display = (if (it.detail.isNullOrEmpty()) "${it.amount} ${it.unit}" else it.detail) +
+                        (if (it.message.isNullOrEmpty()) "" else "\n${it.message}")
                 list.child(labelComponent(Text.literal(display).formatted(Formatting.GRAY)))
             }
             rootComponent.child(Containers.verticalScroll(Sizing.fill(70), Sizing.fill(80), list))

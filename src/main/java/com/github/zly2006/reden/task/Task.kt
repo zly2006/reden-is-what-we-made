@@ -8,7 +8,7 @@ import net.minecraft.client.world.ClientWorld
 import org.slf4j.LoggerFactory
 
 val taskStack = mutableListOf<Task>()
-private var nextId = 0
+private var nextId = 45510
 
 abstract class Task(val name: String) {
     val id: Int = nextId++
