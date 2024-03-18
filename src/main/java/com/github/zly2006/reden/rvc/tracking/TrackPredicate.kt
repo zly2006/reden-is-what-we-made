@@ -12,7 +12,7 @@ enum class TrackPredicate(val distance: Int, val same: Boolean) {
             pos1: BlockPos,
             pos2: BlockPos,
             mode: TrackMode,
-            structure: TrackedStructure
+            structure: TrackedStructurePart
         ): Boolean {
             if (!super.match(world, pos1, pos2, mode, structure)) return false
             if (mode == TrackMode.TRACK && pos1.getManhattanDistance(pos2) == 2) {
@@ -35,7 +35,7 @@ enum class TrackPredicate(val distance: Int, val same: Boolean) {
         pos1: BlockPos,
         pos2: BlockPos,
         mode: TrackMode,
-        structure: TrackedStructure
+        structure: TrackedStructurePart
     ): Boolean {
         // Note: we have checked this condition in [spreadAround]
         if (pos1.getManhattanDistance(pos2) > this.distance) {
