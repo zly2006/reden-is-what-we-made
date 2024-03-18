@@ -1,7 +1,6 @@
 package com.github.zly2006.reden.rvc.gui.git
 
 import com.github.zly2006.reden.rvc.gui.SelectionInfoScreen
-import com.github.zly2006.reden.rvc.remote.IRemoteRepository
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import io.wispforest.owo.ui.base.BaseOwoScreen
@@ -41,14 +40,7 @@ class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStruc
         }
         structure.networkWorker?.async {
             repository.commit(structure, message, client!!.player)
-            val remote = object : IRemoteRepository {
-                override fun deleteRepo() {
-                    TODO("Not yet implemented")
-                }
-
-                override val gitUrl = repository.git.repository.config.getString("remote", "origin", "url")
-            }
-            repository.push(remote, false)
+            repository.push(repository.remote, false)
             client!!.execute {
                 client!!.setScreen(SelectionInfoScreen(repository, structure))
             }

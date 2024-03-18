@@ -102,13 +102,13 @@ class TrackedStructure(
     }
 
     override fun isInArea(pos: RelativeCoordinate) = regions.any { it.value.isInArea(pos) }
-    override fun createPlacement(world: World, origin: BlockPos): IPlacement {
+    override fun createPlacement(placementInfo: PlacementInfo) = apply {
         val oldOffsets = regions.mapValues { it.value.placementInfo?.origin?.subtract(this.origin) }
+        this.placementInfo = placementInfo
         regions.forEach { (k, v) ->
-            val partOrigin = oldOffsets[k]?.add(origin)
-            v.createPlacement(world, partOrigin ?: origin)
+            val partOrigin = oldOffsets[k]?.add(origin) ?: origin
+            v.createPlacement(placementInfo.copy(origin = partOrigin))
         }
-        return this
     }
 
     override fun save(path: Path) = RvcFileIO.save(path, this)

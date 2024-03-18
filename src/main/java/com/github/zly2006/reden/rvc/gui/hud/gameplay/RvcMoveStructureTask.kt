@@ -4,7 +4,9 @@ import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.malilib.RVC_CONFIRM_KEY
 import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.gui.RvcHudRenderer
+import com.github.zly2006.reden.rvc.tracking.PlacementInfo
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.WorldInfo
 import com.github.zly2006.reden.task.Task
 import com.github.zly2006.reden.utils.server
 import kotlinx.coroutines.GlobalScope
@@ -13,10 +15,9 @@ import kotlinx.coroutines.launch
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
 
 open class RvcMoveStructureTask(
-    private val world: World,
+    private val world: WorldInfo,
     val placingStructure: IStructure,
     id: String = "move_structure",
     val successCallback: (Task) -> Unit = {}
@@ -55,12 +56,14 @@ open class RvcMoveStructureTask(
     override fun onConfirm(): Boolean {
         val pos = currentOrigin ?: return false
         currentOrigin = null
-        placingStructure.createPlacement(world, pos).apply {
+        placingStructure.createPlacement(PlacementInfo(world, pos)).apply {
             if (placingStructure is TrackedStructure) {
                 // todo multiple player
                 GlobalScope.launch(server.asCoroutineDispatcher()) {
                     placingStructure.networkWorker!!.startUndoRecord(PlayerData.UndoRecord.Cause.RVC_MOVE)
-                    placingStructure.networkWorker!!.paste()
+                    placingStructure.regions.values.forEach {
+                        placingStructure.networkWorker!!.paste(it)
+                    }
                     placingStructure.networkWorker!!.stopUndoRecord()
                     placingStructure.networkWorker!!.execute {
                         placingStructure.setPlaced()

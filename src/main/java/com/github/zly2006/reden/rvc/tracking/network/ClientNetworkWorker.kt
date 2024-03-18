@@ -29,14 +29,8 @@ open class ClientNetworkWorker(
         }
     }
 
-    override suspend fun startUndoRecord(cause: PlayerData.UndoRecord.Cause) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun stopUndoRecord() {
-        TODO("Not yet implemented")
-    }
-
+    override suspend fun startUndoRecord(cause: PlayerData.UndoRecord.Cause) {}
+    override suspend fun stopUndoRecord() {}
     override suspend fun paste(part: TrackedStructurePart) {
         TODO("Not yet implemented")
     }

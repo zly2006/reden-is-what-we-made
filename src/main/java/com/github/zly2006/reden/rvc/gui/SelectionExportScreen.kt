@@ -17,6 +17,7 @@ import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer
 import io.wispforest.owo.ui.core.*
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.structure.StructureTemplate
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
@@ -239,6 +240,7 @@ class SelectionExportScreen(
         StructureBlock(Text.literal("Structure Block"), Text.empty(), SelectionImportScreen.EXTENSION_NBT) {
             override fun export(path: Path, head: TrackedStructure) {
                 val identifier = Identifier(head.name)
+                StructureTemplate()
                 TODO()
             }
         },

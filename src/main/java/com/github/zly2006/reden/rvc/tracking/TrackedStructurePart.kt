@@ -47,8 +47,8 @@ class TrackedStructurePart(
         get() = placementInfo?.origin?.toImmutable()
             ?: redenError("getting origin but PlacementInfo not set for $name")
 
-    override fun createPlacement(world: World, origin: BlockPos) = apply {
-        placementInfo = PlacementInfo(WorldInfo.of(world), origin)
+    override fun createPlacement(placementInfo: PlacementInfo) = apply {
+        this.placementInfo = placementInfo
         trackPoints.forEach { it.updateOrigin(this) }
     }
 
@@ -459,9 +459,7 @@ class TrackedStructurePart(
                 )
             }
 
-            override fun createPlacement(world: World, origin: BlockPos): IPlacement {
-                return this@TrackedStructurePart
-            }
+            override fun createPlacement(placementInfo: PlacementInfo) = this@TrackedStructurePart
 
             override fun getBlockEntityData(pos: RelativeCoordinate): NbtCompound? {
                 return this@TrackedStructurePart.getBlockEntityData(

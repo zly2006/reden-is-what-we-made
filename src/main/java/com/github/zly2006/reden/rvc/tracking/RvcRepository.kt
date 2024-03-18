@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.gui.LoginRedenScreen
 import com.github.zly2006.reden.report.httpClient
 import com.github.zly2006.reden.report.ua
+import com.github.zly2006.reden.rvc.gui.SelectionInfoScreen
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureLitematicaTask
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureTask
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
@@ -77,6 +78,13 @@ class RvcRepository(
 ) {
     var headCache: TrackedStructure? = null
         private set
+    var remote = object : IRemoteRepository {
+        override fun deleteRepo() {
+            TODO("Not yet implemented")
+        }
+
+        override val gitUrl = git.repository.config.getString("remote", "origin", "url")
+    }
     fun clearCache() {
         headCache = null
     }
@@ -156,7 +164,10 @@ class RvcRepository(
     fun fetch() {
         headCache = null
         git.fetch().call()
-        TODO() // Note: currently we have no gui for this
+        val screen = MinecraftClient.getInstance().currentScreen
+        if (screen is SelectionInfoScreen) {
+            screen.refresh()
+        }
     }
 
     @Contract(pure = true)
@@ -229,7 +240,7 @@ class RvcRepository(
 
     fun createLicense(license: String, author: String? = null) {
         val year = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy"))
-        val content = ResourceLoader.loadString("assets/rvc/licenses/$license.txt")
+        val content = ResourceLoader.loadString(license)
             .replace("\${year}", year)
             .replace("\${year-start}", year)
             .replace("\${author}", author ?: "")
@@ -238,8 +249,6 @@ class RvcRepository(
             redenError("LICENSE already exists")
         }
         git.repository.workTree.resolve("LICENSE").writeText(content)
-
-        TODO()
     }
 
     fun setWorld() {
@@ -261,20 +270,18 @@ class RvcRepository(
     fun startPlacing(structure: TrackedStructure, successCallback: (Task) -> Unit = {}) {
         clearCache()
         val mc = MinecraftClient.getInstance()
-        // todo singleplayer only
-        val world = mc.server!!.getWorld(mc.world!!.registryKey)!!
         Task.all<RvcMoveStructureTask>().forEach { it.onCancel() }
 
         // Use temporary placement info to initialize the structure and its network worker
-        placementInfo = PlacementInfo(world.info, BlockPos.ORIGIN)
+        placementInfo = PlacementInfo(mc.getWorldInfo(), BlockPos.ORIGIN)
         configure(structure)
         placementInfo = null
 
         taskStack.add(
             if (litematicaInstalled)
-                RvcMoveStructureLitematicaTask(world, structure, successCallback)
+                RvcMoveStructureLitematicaTask(mc.getWorldInfo(), structure, successCallback)
             else
-                RvcMoveStructureTask(world, structure, successCallback = successCallback)
+                RvcMoveStructureTask(mc.getWorldInfo(), structure, successCallback = successCallback)
         )
     }
 

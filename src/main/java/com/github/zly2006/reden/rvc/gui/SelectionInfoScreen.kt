@@ -2,10 +2,10 @@ package com.github.zly2006.reden.rvc.gui
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
+import com.github.zly2006.reden.exceptions.RedenException
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.gui.git.RvcCommitScreen
 import com.github.zly2006.reden.rvc.gui.git.RvcManageRemotesScreen
-import com.github.zly2006.reden.rvc.remote.IRemoteRepository
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.red
@@ -54,15 +54,8 @@ class SelectionInfoScreen(
     }!!
     private val pushButton = Components.button(Text.literal("Push")) {
         onFunctionUsed("push_rvcStructure")
-        val remote = object : IRemoteRepository {
-            override fun deleteRepo() {
-                TODO("Not yet implemented")
-            }
-
-            override val gitUrl = repository.git.repository.config.getString("remote", "origin", "url")
-        }
         try {
-            repository.push(remote, ChatScreen.hasShiftDown())
+            repository.push(repository.remote, ChatScreen.hasShiftDown())
         } catch (e: Exception) {
             Reden.LOGGER.error("Failed to push ${repository.name}", e)
             UIErrorToast.report(e)
@@ -74,6 +67,31 @@ class SelectionInfoScreen(
         onFunctionUsed("pull_rvcStructure")
         TODO()
     }!!
+    private val createLicenseMenu = Components.dropdown(Sizing.content()).apply {
+        listOf(
+            "All rights reserved",
+            "CC 0",
+            "CC 4.0 BY",
+            "CC 4.0 BY SA",
+            "CC 4.0 BY NC",
+            "CC 4.0 BY NC SA",
+            "CC 4.0 BY NC ND",
+        ).map { it to it.replace(" ", "-").lowercase() }.forEach { pair ->
+            button(Text.literal(pair.first)) {
+                try {
+                    repository.createLicense(
+                        "assets/rvc/licenses/${pair.second}.txt",
+                        client!!.player!!.nameForScoreboard
+                    )
+                } catch (e: RedenException) {
+                    UIErrorToast.report(e)
+                }
+            }
+        }
+    }
+    private val createLicenseButton = Components.button(Text.literal("Create License")) {
+
+    }
 
     override fun close() {
         client!!.setScreen(SelectionListScreen())
@@ -148,5 +166,9 @@ class SelectionInfoScreen(
                 )
             )
             .child(Containers.verticalScroll(Sizing.fill(), Sizing.fill(80), commits))
+    }
+
+    fun refresh() {
+
     }
 }

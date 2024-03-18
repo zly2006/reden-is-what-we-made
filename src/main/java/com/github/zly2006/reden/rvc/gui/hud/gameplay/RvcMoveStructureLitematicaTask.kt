@@ -3,6 +3,7 @@ package com.github.zly2006.reden.rvc.gui.hud.gameplay
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.rvc.IPlacement
 import com.github.zly2006.reden.rvc.IStructure
+import com.github.zly2006.reden.rvc.tracking.WorldInfo
 import com.github.zly2006.reden.task.Task
 import com.github.zly2006.reden.task.taskStack
 import com.github.zly2006.reden.utils.litematicaInstalled
@@ -15,11 +16,10 @@ import net.minecraft.text.Text
 import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
-import net.minecraft.world.World
 import net.minecraft.world.chunk.WorldChunk
 
 class RvcMoveStructureLitematicaTask(
-    world: World, placingStructure: IStructure, successCallback: (Task) -> Unit = {}
+    world: WorldInfo, placingStructure: IStructure, successCallback: (Task) -> Unit = {}
 ) : RvcMoveStructureTask(world, placingStructure, "move_structure_litematica", successCallback) {
     companion object {
         @JvmStatic
