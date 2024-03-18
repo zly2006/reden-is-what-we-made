@@ -2,49 +2,51 @@ package com.github.zly2006.reden.rvc.tracking.network
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.PlayerData
+import com.github.zly2006.reden.rvc.tracking.SpreadEntry
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
 import kotlinx.coroutines.Deferred
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import java.util.*
 
 interface NetworkWorker {
-    suspend fun debugRender()
+    suspend fun debugRender(part: TrackedStructurePart)
     val structure: TrackedStructure
     val world: World
-    suspend fun refreshPositions() {
+    suspend fun refreshPositions(part: TrackedStructurePart) {
         val timeStart = System.currentTimeMillis()
         val readPos = hashSetOf<BlockPos>()
-        structure.trackPoints.filter { it.mode == TrackPredicate.TrackMode.IGNORE }.forEach { trackPoint ->
+        part.trackPoints.filter { it.mode == TrackPredicate.TrackMode.IGNORE }.forEach { trackPoint ->
             // first, add all blocks recursively
-            val queue = LinkedList<TrackedStructure.SpreadEntry>()
+            val queue = LinkedList<SpreadEntry>()
             queue.add(trackPoint)
             var maxElements = trackPoint.maxElements
             while (queue.isNotEmpty() && maxElements > 0) {
                 maxElements--
                 val entry = queue.removeFirst()
-                if (entry.pos in structure.cachedIgnoredPositions) continue
+                if (entry.pos in part.cachedIgnoredPositions) continue
                 if (world.isAir(entry.pos)) {
                     continue
                 }
-                structure.cachedIgnoredPositions[entry.pos] = trackPoint
+                part.cachedIgnoredPositions[entry.pos] = trackPoint
                 entry.spreadAround(world, { newPos ->
                     if (readPos.add(newPos)) {
-                        queue.add(TrackedStructure.SpreadEntry(newPos, entry.predicate, trackPoint.mode, structure))
+                        queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, part))
                     }
                 })
             }
         }
-        structure.trackPoints.filter { it.mode == TrackPredicate.TrackMode.TRACK }.forEach { trackPoint ->
+        part.trackPoints.filter { it.mode == TrackPredicate.TrackMode.TRACK }.forEach { trackPoint ->
             // first, add all blocks recursively
-            val queue = LinkedList<TrackedStructure.SpreadEntry>()
+            val queue = LinkedList<SpreadEntry>()
             queue.add(trackPoint)
             var maxElements = trackPoint.maxElements
             while (queue.isNotEmpty() && maxElements > 0) {
                 maxElements--
                 val entry = queue.removeFirst()
-                if (entry.pos in structure.cachedIgnoredPositions) continue
+                if (entry.pos in part.cachedIgnoredPositions) continue
                 if (world.isAir(entry.pos)) {
                     continue
                 }
@@ -54,11 +56,11 @@ interface NetworkWorker {
                 }
                 entry.spreadAround(world, { newPos ->
                     if (readPos.add(newPos)) {
-                        if (newPos in structure.cachedPositions) return@spreadAround
+                        if (newPos in part.cachedPositions) return@spreadAround
                         if (!world.isAir(newPos)) {
-                            structure.cachedPositions[newPos] = trackPoint
+                            part.cachedPositions[newPos] = trackPoint
                         }
-                        queue.add(TrackedStructure.SpreadEntry(newPos, entry.predicate, trackPoint.mode, structure))
+                        queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, part))
                     }
                 })
             }
@@ -69,7 +71,7 @@ interface NetworkWorker {
 
     suspend fun startUndoRecord(cause: PlayerData.UndoRecord.Cause)
     suspend fun stopUndoRecord()
-    suspend fun paste()
+    suspend fun paste(part: TrackedStructurePart)
     suspend fun <T> execute(function: suspend () -> T): T
     fun <T> async(function: suspend () -> T): Deferred<T>
 }

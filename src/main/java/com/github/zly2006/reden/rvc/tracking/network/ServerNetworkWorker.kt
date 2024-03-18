@@ -4,6 +4,7 @@ import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.WorldData.Companion.data
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
 import kotlinx.coroutines.*
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
@@ -15,7 +16,7 @@ class ServerNetworkWorker(
     override val world: ServerWorld,
     val owner: ServerPlayerEntity
 ) : NetworkWorker {
-    override suspend fun debugRender() { /* NOOP */
+    override suspend fun debugRender(part: TrackedStructurePart) { /* NOOP */
     }
 
     override suspend fun startUndoRecord(cause: PlayerData.UndoRecord.Cause) {
@@ -28,7 +29,7 @@ class ServerNetworkWorker(
         UpdateMonitorHelper.playerStopRecording(owner)
     }
 
-    override suspend fun paste() {
+    override suspend fun paste(part: TrackedStructurePart) {
         require(world.server.isOnThread) { OFF_THREAD_MESSAGE }
         structure.world.data!!.updatesDisabled = true
         structure.paste()

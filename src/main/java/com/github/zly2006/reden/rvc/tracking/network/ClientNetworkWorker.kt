@@ -4,6 +4,7 @@ import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
 import kotlinx.coroutines.*
 import net.minecraft.client.MinecraftClient
 import net.minecraft.util.math.BlockPos
@@ -14,7 +15,7 @@ open class ClientNetworkWorker(
     override val world: World
 ) : NetworkWorker {
     var renderPositions = listOf<BlockPos>()
-    override suspend fun debugRender() = execute {
+    override suspend fun debugRender(part: TrackedStructurePart) = execute {
         BlockOutline.blocks = mapOf()
         BlockBorder.tags = mapOf()
         BlockOutline.blocks = renderPositions.mapNotNull {
@@ -22,7 +23,7 @@ open class ClientNetworkWorker(
                 it to world.getBlockState(it)
             else null
         }.toMap()
-        structure.trackPoints.forEach {
+        part.trackPoints.forEach {
             if (!world.isAir(it.pos))
                 BlockBorder[it.pos] = if (it.mode.isTrack()) 1 else 2
         }
@@ -36,7 +37,7 @@ open class ClientNetworkWorker(
         TODO("Not yet implemented")
     }
 
-    override suspend fun paste() {
+    override suspend fun paste(part: TrackedStructurePart) {
         TODO("Not yet implemented")
     }
 
