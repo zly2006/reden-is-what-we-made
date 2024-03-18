@@ -1,8 +1,8 @@
 package com.github.zly2006.reden.rvc.tracking.client
 
 import com.github.zly2006.reden.rvc.gui.selectedStructure
+import com.github.zly2006.reden.rvc.tracking.TrackPoint
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
-import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.holdingToolItem
 import fi.dy.masa.malilib.event.InputEventHandler
 import fi.dy.masa.malilib.hotkeys.IMouseInputHandler
@@ -30,7 +30,7 @@ fun registerSelectionTool() {
                     structure.networkWorker?.async {
                         if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
                             structure.addTrackPoint(
-                                TrackedStructure.TrackPoint(
+                                TrackPoint(
                                     structure.getRelativeCoordinate(blockResult.blockPos),
                                     TrackPredicate.QC,
                                     TrackPredicate.TrackMode.TRACK
@@ -39,7 +39,7 @@ fun registerSelectionTool() {
                         }
                         else {
                             structure.addTrackPoint(
-                                TrackedStructure.TrackPoint(
+                                TrackPoint(
                                     structure.getRelativeCoordinate(blockResult.blockPos),
                                     TrackPredicate.Same,
                                     TrackPredicate.TrackMode.IGNORE,

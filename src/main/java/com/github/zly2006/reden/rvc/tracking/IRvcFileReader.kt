@@ -42,7 +42,7 @@ interface IRvcFileReader {
      * @param data Lines contains data read form RVC files
      * @return [List]<[TrackedStructurePart.TrackPoint]> data that can be saved to a [TrackedStructurePart]
      */
-    fun readTrackPointData(data: List<String>): List<TrackedStructurePart.TrackPoint>
+    fun readTrackPointData(data: List<String>): List<TrackPoint>
 
     /**
      * Read block events data from RVC files to list for structure

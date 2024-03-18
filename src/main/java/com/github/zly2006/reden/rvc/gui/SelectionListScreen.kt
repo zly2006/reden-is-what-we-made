@@ -69,11 +69,12 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
                 fun childTr(key: String, vararg args: Any) = child(Components.label(Text.translatable(key, *args)))
                 selectedStructure?.run {
                     childTr("reden.widget.rvc.structure.name", name)
-                    childTr("reden.widget.rvc.structure.block_count", blocks.count())
+                    childTr("reden.widget.rvc.structure.block_count", totalBlocks)
                     childTr("reden.widget.rvc.structure.entity_count", entities.count())
-                    if (fluidScheduledTicks.isNotEmpty() || blockScheduledTicks.isNotEmpty() || blockEvents.isNotEmpty()) {
-                        childTr("reden.widget.rvc.structure.scheduled_tick_unstable")
-                    }
+                    // todo
+//                    if (fluidScheduledTicks.isNotEmpty() || blockScheduledTicks.isNotEmpty() || blockEvents.isNotEmpty()) {
+//                        childTr("reden.widget.rvc.structure.scheduled_tick_unstable")
+//                    }
                 }
             }
         }

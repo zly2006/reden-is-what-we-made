@@ -118,14 +118,9 @@ class RvcRepository(
         this.createReadmeIfNotExists()
         val path = git.repository.workTree.toPath()
         structure.refreshPositions()
-        val minPos = BlockPos(
-            structure.cachedPositions.keys.minOfOrNull { it.x } ?: 0,
-            structure.cachedPositions.keys.minOfOrNull { it.y } ?: 0,
-            structure.cachedPositions.keys.minOfOrNull { it.z } ?: 0
-        )
         if (git.branchList().call().isEmpty()) {
             // if this is the first commit, reset the origin
-            structure.placementInfo = structure.placementInfo!!.copy(origin = minPos)
+            structure.placementInfo = structure.placementInfo!!.copy(origin = structure.minPos)
             structure.repository.placementInfo = structure.placementInfo
         }
         structure.collectAllFromWorld()
@@ -144,7 +139,7 @@ class RvcRepository(
         cmd.setMessage("$message\n\nUser-Agent: Reden-RVC/${Reden.MOD_VERSION} Minecraft/${SharedConstants.getGameVersion().name}")
         cmd.setSign(false)
         val commit = cmd.call()
-        return CommitResult(structure.blocks.size, commit.name)
+        return CommitResult(structure.totalBlocks, commit.name)
     }
 
     fun push(remote: IRemoteRepository, force: Boolean = false) {

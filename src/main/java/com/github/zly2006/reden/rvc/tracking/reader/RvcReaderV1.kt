@@ -3,10 +3,7 @@ package com.github.zly2006.reden.rvc.tracking.reader
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.rvc.io.Palette
-import com.github.zly2006.reden.rvc.tracking.IRvcFileReader
-import com.github.zly2006.reden.rvc.tracking.RvcDataReader
-import com.github.zly2006.reden.rvc.tracking.TrackPredicate
-import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
+import com.github.zly2006.reden.rvc.tracking.*
 import net.minecraft.block.BlockState
 import net.minecraft.command.argument.BlockArgumentParser
 import net.minecraft.nbt.NbtCompound
@@ -65,15 +62,15 @@ class RvcReaderV1(
 
     override fun readTrackPointData(
         data: List<String>
-    ): List<TrackedStructurePart.TrackPoint> {
-        val trackPoints = mutableListOf<TrackedStructurePart.TrackPoint>()
+    ): List<TrackPoint> {
+        val trackPoints = mutableListOf<TrackPoint>()
         data.forEach {
             val rvcData = RvcDataReader(it, ",")
             val blockPos = RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
             val predicate = rvcData.next()
             val mode = rvcData.next()
             trackPoints.add(
-                TrackedStructurePart.TrackPoint(
+                TrackPoint(
                     relativeCoordinate = blockPos,
                     predicate = TrackPredicate.valueOf(predicate),
                     mode = TrackPredicate.TrackMode.valueOf(mode)

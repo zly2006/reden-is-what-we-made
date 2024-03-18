@@ -41,10 +41,7 @@ class TrackedStructurePart(
      * @see RvcRepository.placementInfo
      */
     var placementInfo: PlacementInfo? = null
-    override val world: World
-        get() = if (networkWorker?.world?.info == placementInfo?.worldInfo)
-            networkWorker?.world ?: redenError("World is not set for $name")
-        else placementInfo?.worldInfo?.getWorld() ?: redenError("World is not found: $name")
+    override val world get() = structure.world
 
     override val origin: BlockPos
         get() = placementInfo?.origin?.toImmutable()
@@ -201,60 +198,6 @@ class TrackedStructurePart(
         return result.mapNotNull { it.cuboid }
     }
 
-    open class SpreadEntry(
-        var pos: BlockPos,
-        val predicate: TrackPredicate,
-        val mode: TrackPredicate.TrackMode,
-        var structure: TrackedStructurePart?
-    ) {
-        fun spreadAround(
-            world: World,
-            successConsumer: (BlockPos) -> Unit,
-            failConsumer: ((BlockPos) -> Unit)? = null
-        ) {
-            val x = pos.x
-            val y = pos.y
-            val z = pos.z
-            val deltaRange = -predicate.distance..predicate.distance
-            for (dx in deltaRange) {
-                for (dy in deltaRange) {
-                    for (dz in deltaRange) {
-                        val pos = BlockPos(x + dx, y + dy, z + dz)
-                        if (pos.getManhattanDistance(this.pos) > predicate.distance) continue
-                        if (predicate.match(world, this.pos, pos, mode, structure!!)) {
-                            successConsumer(pos)
-                        }
-                        else {
-                            failConsumer?.invoke(pos)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    class TrackPoint(
-        private val relativeCoordinate: RelativeCoordinate,
-        predicate: TrackPredicate,
-        mode: TrackPredicate.TrackMode
-    ) : SpreadEntry(BlockPos.ORIGIN, predicate, mode, null) {
-        val maxElements: Int
-            get() = when (mode) {
-                TrackPredicate.TrackMode.IGNORE -> 5000
-                TrackPredicate.TrackMode.TRACK -> 8000
-                TrackPredicate.TrackMode.NOOP -> 0
-            }
-
-        fun updateOrigin(structure: TrackedStructurePart) {
-            this.structure = structure
-            pos = relativeCoordinate.blockPos(structure.origin)
-        }
-
-        override fun toString(): String {
-            return "TrackPoint(${pos.toShortString()}, $predicate, $mode)"
-        }
-    }
-
     fun onBlockAdded(pos: BlockPos) {
         dirty = true
         val trackPoint = Direction.entries.map(pos::offset).map { cachedIgnoredPositions[it] }.firstOrNull()
@@ -294,10 +237,6 @@ class TrackedStructurePart(
         return cachedPositions.contains(pos.blockPos(origin))
     }
 
-    fun refreshPositionsAsync() = networkWorker?.async {
-        refreshPositions()
-    }
-
     suspend fun refreshPositions() {
         trackPoints.filter { it.structure != this }.forEach {
             it.updateOrigin(this)
@@ -306,10 +245,10 @@ class TrackedStructurePart(
         if (dirty) {
             cachedIgnoredPositions = hashMapOf()
             cachedPositions = hashMapOf()
-            requireNotNull(networkWorker).refreshPositions()
+            requireNotNull(structure.networkWorker).refreshPositions(this)
             dirty = false
         }
-        requireNotNull(networkWorker).debugRender()
+        requireNotNull(structure.networkWorker).debugRender(this)
     }
 
     override val blockIterator: Iterator<RelativeCoordinate>
@@ -373,17 +312,6 @@ class TrackedStructurePart(
         // todo
     }
 
-    fun setPlaced() {
-        require(repository != null) { "Repository is null" }
-        repository.placed = true
-        repository.placementInfo = this.placementInfo
-    }
-
-    override fun startMoving() {
-        require(repository != null) { "Repository is null" }
-        repository.placed = false
-    }
-
     override fun blockBox(): BlockBox {
         if (blocks.isEmpty()) {
             return BlockBox(BlockPos.ORIGIN)
@@ -396,16 +324,6 @@ class TrackedStructurePart(
             origin.y + minY + ySize,
             origin.z + minZ + zSize
         )
-    }
-
-    /**
-     * Remove this structure from the world, including all blocks
-     */
-    fun remove() {
-        require(repository != null) { "Repository is null" }
-        repository.placementInfo = null
-        repository.placed = false
-        clearArea()
     }
 
     fun clearSchedules() {

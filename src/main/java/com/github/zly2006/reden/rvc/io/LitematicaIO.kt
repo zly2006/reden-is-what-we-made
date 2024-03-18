@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.rvc.io
 
 import com.github.zly2006.reden.rvc.*
-import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
 import fi.dy.masa.litematica.schematic.LitematicaSchematic
 import fi.dy.masa.litematica.selection.AreaSelection
 import fi.dy.masa.litematica.selection.Box
@@ -23,7 +23,7 @@ open class LitematicaIO: StructureIO {
         if (!path.exists()) {
             path.createDirectories()
         }
-        if (structure is TrackedStructure && multiBox) {
+        if (structure is TrackedStructurePart && multiBox) {
             val boxes = structure.splitCuboids()
             litematica = LitematicaSchematic.createEmptySchematic(
                 AreaSelection().apply {
@@ -45,8 +45,18 @@ open class LitematicaIO: StructureIO {
                 val blockEntityMap = litematica.getBlockEntityMapForRegion(index.toString())!!
                 val blockTicks = litematica.getScheduledBlockTicksForRegion(index.toString())!!
                 val fluidTicks = litematica.getScheduledFluidTicksForRegion(index.toString())!!
-                structure.blockScheduledTicks.addAll(blockTicks.map { TrackedStructure.TickInfo.wrap(it.value, structure.world) })
-                structure.fluidScheduledTicks.addAll(fluidTicks.map { TrackedStructure.TickInfo.wrap(it.value, structure.world) })
+                structure.blockScheduledTicks.addAll(blockTicks.map {
+                    TrackedStructurePart.TickInfo.wrap(
+                        it.value,
+                        structure.world
+                    )
+                })
+                structure.fluidScheduledTicks.addAll(fluidTicks.map {
+                    TrackedStructurePart.TickInfo.wrap(
+                        it.value,
+                        structure.world
+                    )
+                })
                 val entityInfos = litematica.getEntityListForRegion(index.toString())!!
                 structure.blocks.filter { it.key.blockPos(BlockPos.ORIGIN) in box }.forEach {
                     subRegionContainer.set(
@@ -71,7 +81,7 @@ open class LitematicaIO: StructureIO {
             }
         }
         else {
-            val structure = if (structure is TrackedStructure) {
+            val structure = if (structure is TrackedStructurePart) {
                 structure.asCuboid()
             } else structure
             val boxName = "RVC Structure"
