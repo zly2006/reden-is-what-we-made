@@ -71,9 +71,11 @@ reden:
         selected: "Selected: %s"
         selected_nothing: [ { text: "Selected: Nothing", color: red } ]
         trackpoints:
-          .: "Trackpoints: "
-          tracking: "%s Tracking"
-          ignoring: "%s Ignoring"
+          - text: "Trackpoints: "
+          - text: " "%s Tracking"
+            color: green
+          - text: " %s Ignoring"
+            color: red
       structure:
         export:
           litematica: Export to Litematica

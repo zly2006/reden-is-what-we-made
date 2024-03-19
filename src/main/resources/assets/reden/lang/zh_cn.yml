@@ -41,9 +41,11 @@ reden:
         selected: "已选择：%s"
         selected_nothing: "已选择：无"
         trackpoints:
-          .: "追踪点数："
-          tracking: "%s 追踪中"
-          ignoring: "%s 忽略中"
+          - text: "追踪点"
+          - text: " 追踪中: %s"
+            color: green
+          - text: " 忽略中: %s"
+            color: red
       structure:
         export:
           litematica: 导出至 Litematica
