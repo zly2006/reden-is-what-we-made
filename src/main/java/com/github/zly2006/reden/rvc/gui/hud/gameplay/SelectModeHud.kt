@@ -2,6 +2,7 @@ package com.github.zly2006.reden.rvc.gui.hud.gameplay
 
 import com.github.zly2006.reden.rvc.gui.RvcHudRenderer
 import com.github.zly2006.reden.rvc.gui.selectedStructure
+import com.github.zly2006.reden.rvc.tracking.StructureTracker
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.utils.holdingToolItem
 import com.github.zly2006.reden.utils.red
@@ -18,7 +19,9 @@ fun registerHud() {
             }
             else {
                 list.add(Text.translatable("reden.widget.rvc.hud.selected", selectedStructure!!.name))
-                val allTrackpoint = selectedStructure!!.regions.values.flatMap { it.trackPoints }
+                val allTrackpoint = selectedStructure!!.regions.values.map { it.tracker }
+                    .filterIsInstance<StructureTracker.Trackpoint>()
+                    .flatMap { it.trackpoints }
                 val trackCount = allTrackpoint.count { it.mode == TrackPredicate.TrackMode.TRACK }
                 val ignoreCount = allTrackpoint.count { it.mode == TrackPredicate.TrackMode.IGNORE }
                 list.add(Text.translatable("reden.widget.rvc.hud.trackpoints", trackCount, ignoreCount))

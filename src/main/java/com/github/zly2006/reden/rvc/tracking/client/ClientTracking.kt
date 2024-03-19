@@ -28,19 +28,21 @@ fun registerSelectionTool() {
                 if (selectedStructure != null && selectedStructure!!.placementInfo != null) {
                     val structure = selectedStructure!!
                     structure.networkWorker?.async {
+                        // todo
+                        val region = structure.regions.values.first()
                         if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                            structure.addTrackPoint(
+                            region.addTrackPoint(
                                 TrackPoint(
-                                    structure.getRelativeCoordinate(blockResult.blockPos),
+                                    region.getRelativeCoordinate(blockResult.blockPos),
                                     TrackPredicate.QC,
                                     TrackPredicate.TrackMode.TRACK
                                 )
                             )
                         }
                         else {
-                            structure.addTrackPoint(
+                            region.addTrackPoint(
                                 TrackPoint(
-                                    structure.getRelativeCoordinate(blockResult.blockPos),
+                                    region.getRelativeCoordinate(blockResult.blockPos),
                                     TrackPredicate.Same,
                                     TrackPredicate.TrackMode.IGNORE,
                                 )

@@ -44,6 +44,7 @@
     "realFakePlayer.MixinCarpetFakePlayer",
     "realFakePlayer.MixinEntityPlayerActionPack",
     "realFakePlayer.MixinServerNetworkIo",
+    "richTranslation.MixinTranslatable",
     "sctuctureBlock.MixinStructureBlock",
     "sctuctureBlock.MixinStructureBlockEntity",
     "undo.MixinBlockEntity",
@@ -65,7 +66,7 @@
     "undo.MixinServerWorld",
     "undo.MixinServerWorldChunk",
     "undo.MixinTntEntity",
-    "undo.data.MixinChunkSection",
+    "undo.data.MixinChunkSection"
   ],
   "client": [
     "MixinClientMain",
@@ -92,6 +93,7 @@
     "render.MixinBlockModelRenderer",
     "render.MixinMinecraftClient",
     "render.MixinWorldRenderer",
+    "richTranslation.MixinTranslationStorage",
     "rvc.MixinWorldChunk",
     "superRight.block.MixinClientPlayerInteractionManager",
     "superRight.chat.ChatHudMixin",

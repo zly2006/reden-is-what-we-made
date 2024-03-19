@@ -41,10 +41,10 @@ reden:
         selected: "已选择：%s"
         selected_nothing: "已选择：无"
         trackpoints:
-          - text: "追踪点"
-          - text: " 追踪中: %s"
+          - text: "追踪点 "
+          - text: "追踪中: %s "
             color: green
-          - text: " 忽略中: %s"
+          - text: "忽略中: %s "
             color: red
       structure:
         export:

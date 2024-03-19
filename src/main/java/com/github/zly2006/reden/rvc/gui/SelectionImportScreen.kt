@@ -4,11 +4,9 @@ import com.github.zly2006.reden.ModNames
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.report.onFunctionUsed
-import com.github.zly2006.reden.rvc.blockPos
 import com.github.zly2006.reden.rvc.io.LitematicaIO
 import com.github.zly2006.reden.rvc.io.SchematicStructure
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
-import com.github.zly2006.reden.rvc.tracking.TrackPredicate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.red
 import com.github.zly2006.reden.utils.server
@@ -179,7 +177,7 @@ class SelectionImportScreen(
                 val repository = RvcRepository.create(file.nameWithoutExtension, null, NetworkSide.CLIENTBOUND)
                 val structure = TrackedStructure(file.nameWithoutExtension, repository)
                 LitematicaIO.load(file.toPath(), structure)
-                val blocksBefore = structure.blocks.size
+                val blocksBefore = structure.totalBlocks
                 repository.startPlacing(structure) {
                     afterPlaced(structure, file, blocksBefore)
                 }
@@ -254,23 +252,16 @@ class SelectionImportScreen(
         protected fun afterPlaced(structure: TrackedStructure, file: File, blocksBefore: Int) {
             val mc = MinecraftClient.getInstance()
             val center = structure.blockBox().center
-            val centerBlock =
-                structure.blocks.keys.minBy { it.blockPos(structure.origin).getSquaredDistance(center) }
-            structure.trackPoints.add(
-                TrackedStructure.TrackPoint(
-                    centerBlock,
-                    TrackPredicate.QC,
-                    TrackPredicate.TrackMode.TRACK,
-                )
-            )
+            TODO()
             @Suppress("DeferredResultUnused")
             structure.networkWorker?.async {
+                structure.autoTrack()
                 structure.collectAllFromWorld()
-                if (structure.blocks.size != blocksBefore) {
+                if (structure.totalBlocks != blocksBefore) {
                     mc.player?.sendMessage(
                         Text.literal(
                             "Failed to automatically set trackpoints, please fix it and commit " +
-                                    "(expected=$blocksBefore, got=${structure.blocks.size})"
+                                    "(expected=$blocksBefore, got=${structure.totalBlocks})"
                         ).red()
                     )
                 }
@@ -297,7 +288,7 @@ class SelectionImportScreen(
                 val structure = TrackedStructure(file.nameWithoutExtension, repository)
                 val nbt = NbtIo.readCompressed(file.toPath(), NbtSizeTracker.ofUnlimitedBytes())
                 structure.assign(SchematicStructure().readFromNBT(nbt))
-                val blocksBefore = structure.blocks.size
+                val blocksBefore = structure.totalBlocks
                 repository.startPlacing(structure) {
                     afterPlaced(structure, file, blocksBefore)
                 }

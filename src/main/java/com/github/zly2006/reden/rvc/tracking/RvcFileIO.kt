@@ -150,10 +150,12 @@ object RvcFileIO : StructureIO {
             // ===================================== Save Track Points =====================================
             // public final val trackPoints: MutableList<TrackedStructure.TrackPoint>
             // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-            part.trackPoints.joinToString("\n") { trackPoint ->
-                val coordinate = part.getRelativeCoordinate(trackPoint.pos)
-                "${coordinate.x},${coordinate.y},${coordinate.z},${trackPoint.predicate},${trackPoint.mode}"
-            }.let { data -> writeRvcFile(path, "trackPoints", RVC_HEADER, data) }
+            // todo
+            part.tracker
+//            part.trackPoints.joinToString("\n") { trackPoint ->
+//                val coordinate = part.getRelativeCoordinate(trackPoint.pos)
+//                "${coordinate.x},${coordinate.y},${coordinate.z},${trackPoint.predicate},${trackPoint.mode}"
+//            }.let { data -> writeRvcFile(path, "trackPoints", RVC_HEADER, data) }
 
             // ===================================== Save Block Events =====================================
             // public final val blockEvents: MutableList<BlockEvent>
@@ -229,7 +231,9 @@ object RvcFileIO : StructureIO {
                 part.entities.putAll(rvcFile.reader.readEntitiesData(rvcFile.data))
             }
             loadRvcFile(path, "trackPoints")?.let { rvcFile ->
-                part.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data))
+//                part.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data))
+                // todo
+                part.tracker // .load()
             }
             loadRvcFile(path, "blockEvents")?.let { rvcFile ->
                 part.blockEvents.addAll(rvcFile.reader.readBlockEventsData(rvcFile.data))

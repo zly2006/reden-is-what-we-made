@@ -72,9 +72,9 @@ reden:
         selected_nothing: [ { text: "Selected: Nothing", color: red } ]
         trackpoints:
           - text: "Trackpoints: "
-          - text: " "%s Tracking"
+          - text: "%s Tracking "
             color: green
-          - text: " %s Ignoring"
+          - text: "%s Ignoring "
             color: red
       structure:
         export:

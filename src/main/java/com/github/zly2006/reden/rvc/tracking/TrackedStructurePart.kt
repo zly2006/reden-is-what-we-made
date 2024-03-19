@@ -49,12 +49,12 @@ class TrackedStructurePart(
 
     override fun createPlacement(placementInfo: PlacementInfo) = apply {
         this.placementInfo = placementInfo
-        trackPoints.forEach { it.updateOrigin(this) }
+        tracker.update(this)
     }
 
     var cachedPositions = HashMap<BlockPos, TrackPoint>()
     var cachedIgnoredPositions = HashMap<BlockPos, TrackPoint>()
-    val trackPoints = mutableListOf<TrackPoint>()
+    val tracker: StructureTracker = StructureTracker.Trackpoint()
     val blockEvents = mutableListOf<BlockEventInfo>() // order sensitive
     val blockScheduledTicks = mutableListOf<TickInfo<Block>>() // order sensitive
     val fluidScheduledTicks = mutableListOf<TickInfo<Fluid>>() // order sensitive
@@ -238,10 +238,7 @@ class TrackedStructurePart(
     }
 
     suspend fun refreshPositions() {
-        trackPoints.filter { it.structure != this }.forEach {
-            it.updateOrigin(this)
-            dirty = true
-        }
+        tracker.update(this)
         if (dirty) {
             cachedIgnoredPositions = hashMapOf()
             cachedPositions = hashMapOf()
@@ -428,17 +425,20 @@ class TrackedStructurePart(
 
     fun removeTrackpoint(pos: BlockPos) {
         dirty = true
-        val existing = trackPoints.find { it.pos == pos }
+        val trackpoints = (tracker as StructureTracker.Trackpoint).trackpoints
+        val existing = trackpoints.find { it.pos == pos }
         if (existing != null) {
             cachedPositions.entries.removeIf { it.value == existing }
-            trackPoints -= existing
+            trackpoints -= existing
         }
     }
 
+    // todo
     fun addTrackPoint(trackPoint: TrackPoint) {
         dirty = true
+        val trackpoints = (tracker as StructureTracker.Trackpoint).trackpoints
         removeTrackpoint(trackPoint.pos)
-        trackPoints.add(trackPoint)
+        trackpoints.add(trackPoint)
     }
 
     fun asCuboid(): IStructure {

@@ -2,10 +2,7 @@ package com.github.zly2006.reden.rvc.tracking.network
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.PlayerData
-import com.github.zly2006.reden.rvc.tracking.SpreadEntry
-import com.github.zly2006.reden.rvc.tracking.TrackPredicate
-import com.github.zly2006.reden.rvc.tracking.TrackedStructure
-import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
+import com.github.zly2006.reden.rvc.tracking.*
 import kotlinx.coroutines.Deferred
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
@@ -18,51 +15,54 @@ interface NetworkWorker {
     suspend fun refreshPositions(part: TrackedStructurePart) {
         val timeStart = System.currentTimeMillis()
         val readPos = hashSetOf<BlockPos>()
-        part.trackPoints.filter { it.mode == TrackPredicate.TrackMode.IGNORE }.forEach { trackPoint ->
-            // first, add all blocks recursively
-            val queue = LinkedList<SpreadEntry>()
-            queue.add(trackPoint)
-            var maxElements = trackPoint.maxElements
-            while (queue.isNotEmpty() && maxElements > 0) {
-                maxElements--
-                val entry = queue.removeFirst()
-                if (entry.pos in part.cachedIgnoredPositions) continue
-                if (world.isAir(entry.pos)) {
-                    continue
-                }
-                part.cachedIgnoredPositions[entry.pos] = trackPoint
-                entry.spreadAround(world, { newPos ->
-                    if (readPos.add(newPos)) {
-                        queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, part))
+        if (part.tracker is StructureTracker.Cuboid) return
+        if (part.tracker is StructureTracker.Trackpoint) {
+            part.tracker.trackpoints.filter { it.mode == TrackPredicate.TrackMode.IGNORE }.forEach { trackPoint ->
+                // first, add all blocks recursively
+                val queue = LinkedList<SpreadEntry>()
+                queue.add(trackPoint)
+                var maxElements = trackPoint.maxElements
+                while (queue.isNotEmpty() && maxElements > 0) {
+                    maxElements--
+                    val entry = queue.removeFirst()
+                    if (entry.pos in part.cachedIgnoredPositions) continue
+                    if (world.isAir(entry.pos)) {
+                        continue
                     }
-                })
-            }
-        }
-        part.trackPoints.filter { it.mode == TrackPredicate.TrackMode.TRACK }.forEach { trackPoint ->
-            // first, add all blocks recursively
-            val queue = LinkedList<SpreadEntry>()
-            queue.add(trackPoint)
-            var maxElements = trackPoint.maxElements
-            while (queue.isNotEmpty() && maxElements > 0) {
-                maxElements--
-                val entry = queue.removeFirst()
-                if (entry.pos in part.cachedIgnoredPositions) continue
-                if (world.isAir(entry.pos)) {
-                    continue
-                }
-                if (!trackPoint.pos.isWithinDistance(entry.pos, 200.0)) {
-                    Reden.LOGGER.error("Track point ${trackPoint.pos} is too far away from ${entry.pos}")
-                    continue
-                }
-                entry.spreadAround(world, { newPos ->
-                    if (readPos.add(newPos)) {
-                        if (newPos in part.cachedPositions) return@spreadAround
-                        if (!world.isAir(newPos)) {
-                            part.cachedPositions[newPos] = trackPoint
+                    part.cachedIgnoredPositions[entry.pos] = trackPoint
+                    entry.spreadAround(world, { newPos ->
+                        if (readPos.add(newPos)) {
+                            queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, part))
                         }
-                        queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, part))
+                    })
+                }
+            }
+            part.tracker.trackpoints.filter { it.mode == TrackPredicate.TrackMode.TRACK }.forEach { trackPoint ->
+                // first, add all blocks recursively
+                val queue = LinkedList<SpreadEntry>()
+                queue.add(trackPoint)
+                var maxElements = trackPoint.maxElements
+                while (queue.isNotEmpty() && maxElements > 0) {
+                    maxElements--
+                    val entry = queue.removeFirst()
+                    if (entry.pos in part.cachedIgnoredPositions) continue
+                    if (world.isAir(entry.pos)) {
+                        continue
                     }
-                })
+                    if (!trackPoint.pos.isWithinDistance(entry.pos, 200.0)) {
+                        Reden.LOGGER.error("Track point ${trackPoint.pos} is too far away from ${entry.pos}")
+                        continue
+                    }
+                    entry.spreadAround(world, { newPos ->
+                        if (readPos.add(newPos)) {
+                            if (newPos in part.cachedPositions) return@spreadAround
+                            if (!world.isAir(newPos)) {
+                                part.cachedPositions[newPos] = trackPoint
+                            }
+                            queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, part))
+                        }
+                    })
+                }
             }
         }
         val timeEnd = System.currentTimeMillis()

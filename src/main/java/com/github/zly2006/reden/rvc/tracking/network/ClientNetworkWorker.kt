@@ -3,6 +3,7 @@ package com.github.zly2006.reden.rvc.tracking.network
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.render.BlockOutline
+import com.github.zly2006.reden.rvc.tracking.StructureTracker
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
 import kotlinx.coroutines.*
@@ -23,9 +24,11 @@ open class ClientNetworkWorker(
                 it to world.getBlockState(it)
             else null
         }.toMap()
-        part.trackPoints.forEach {
-            if (!world.isAir(it.pos))
-                BlockBorder[it.pos] = if (it.mode.isTrack()) 1 else 2
+        if (part.tracker is StructureTracker.Trackpoint) {
+            part.tracker.trackpoints.forEach {
+                if (!world.isAir(it.pos))
+                    BlockBorder[it.pos] = if (it.mode.isTrack()) 1 else 2
+            }
         }
     }
 
