@@ -22,6 +22,10 @@ class TrackedStructure(
     override var enabled: Boolean = true
     override val structure get() = this
     val regions = mutableMapOf<String, TrackedStructurePart>()
+
+    init {
+        regions[""] = TrackedStructurePart("", this)
+    }
     override val xSize: Int
         get() = TODO("Not yet implemented")
     override val ySize: Int

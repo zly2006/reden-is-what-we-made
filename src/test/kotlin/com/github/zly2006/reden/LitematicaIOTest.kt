@@ -6,7 +6,7 @@ import com.github.zly2006.reden.rvc.blockPos
 import com.github.zly2006.reden.rvc.io.LitematicaIO
 import com.github.zly2006.reden.rvc.tracking.RvcFileIO
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
-import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
+import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.rvc.tracking.WorldInfo
 import com.github.zly2006.reden.utils.ResourceLoader
 import fi.dy.masa.litematica.schematic.LitematicaSchematic
@@ -38,17 +38,17 @@ class LitematicaIOTest {
         file.writeBytes(this.file)
         val litematica = LitematicaSchematic.createFromFile(file.parent.toFile(), file.name)!!
         val repository = RvcRepository.create("test", WorldInfo(), NetworkSide.CLIENTBOUND)
-        val structure = TrackedStructurePart("test", repository)
+        val structure = TrackedStructure("test", repository)
         LitematicaIO.load(file, structure)
         RvcFileIO.save(file.parent, structure)
-        structure.blockEntities.keys.map { structure.blocks[it] }.forEach {
+        structure.regions[""]!!.blockEntities.keys.map { structure.regions[""]!!.blocks[it] }.forEach {
             assert(it!!.hasBlockEntity()) {
                 "Expected block with entity, got $it"
             }
         }
 
-        assert(structure.blocks.size == litematica.metadata.totalBlocks) {
-            "Expected ${litematica.metadata.totalBlocks} blocks, got ${structure.blocks.size}"
+        assert(structure.totalBlocks == litematica.metadata.totalBlocks) {
+            "Expected ${litematica.metadata.totalBlocks} blocks, got ${structure.totalBlocks}"
         }
     }
 
