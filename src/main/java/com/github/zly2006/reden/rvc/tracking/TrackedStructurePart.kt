@@ -31,6 +31,9 @@ class TrackedStructurePart(
     name: String,
     override val structure: TrackedStructure,
 ) : ReadWriteStructure(name), IPlacement, PositionIterable {
+    public override var minX: Int = super.minX
+    public override var minY: Int = super.minY
+    public override var minZ: Int = super.minZ
     override var enabled: Boolean = true
 
     /**

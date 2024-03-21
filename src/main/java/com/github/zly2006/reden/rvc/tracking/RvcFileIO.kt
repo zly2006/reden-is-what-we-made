@@ -214,9 +214,10 @@ object RvcFileIO : StructureIO {
             throw IllegalArgumentException("Structure is not a TrackedStructure")
         }
         structure.regions.clear()
-        path.toFile().listFiles(FileFilter { it.isDirectory && it.resolve("index.rvc").exists() }).map {
+        val paths = path.toFile().listFiles(FileFilter { it.isDirectory && it.resolve("index.rvc").exists() })?.map {
             it.toPath()
-        }.forEach {
+        }.orEmpty()
+        (paths + path).forEach {
             val part = TrackedStructurePart(it.name, structure)
             structure.regions[it.name] = part
             part.dirty = true // mark it as dirty caz we have no cache of positions

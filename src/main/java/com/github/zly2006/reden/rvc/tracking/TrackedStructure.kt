@@ -26,12 +26,13 @@ class TrackedStructure(
     init {
         regions[""] = TrackedStructurePart("", this)
     }
-    override val xSize: Int
-        get() = TODO("Not yet implemented")
-    override val ySize: Int
-        get() = TODO("Not yet implemented")
-    override val zSize: Int
-        get() = TODO("Not yet implemented")
+
+    val minX get() = regions.values.minOf { it.minX }
+    val minY get() = regions.values.minOf { it.minY }
+    val minZ get() = regions.values.minOf { it.minZ }
+    override val xSize get() = regions.values.maxOf { it.minX + it.xSize } - minX
+    override val ySize get() = regions.values.maxOf { it.minY + it.ySize } - minY
+    override val zSize get() = regions.values.maxOf { it.minZ + it.zSize } - minZ
 
     /**
      * This is stored in the file `.git/placement_info.json`.
@@ -84,26 +85,24 @@ class TrackedStructure(
     }
 
     val totalBlocks: Int get() = regions.values.sumOf { it.blocks.size }
-    val minPos: BlockPos = TODO()
+    val minPos get() = BlockPos(minX, minY, minZ)
     override fun setBlockEntityData(pos: RelativeCoordinate, nbt: NbtCompound) {
-        TODO("Not yet implemented")
+        val count = regions.values.filter { it.isInArea(pos) }.onEach { it.setBlockEntityData(pos, nbt) }.count()
+        require(count > 0) { "No region contains $pos" }
     }
 
     override fun setBlockState(pos: RelativeCoordinate, state: BlockState) {
-        TODO("Not yet implemented")
+        val count = regions.values.filter { it.isInArea(pos) }.onEach { it.setBlockState(pos, state) }.count()
+        require(count > 0) { "No region contains $pos" }
     }
 
-    override fun getBlockEntityData(pos: RelativeCoordinate): NbtCompound? {
-        TODO("Not yet implemented")
-    }
+    override fun getBlockEntityData(pos: RelativeCoordinate) =
+        regions.values.firstNotNullOfOrNull { it.getBlockEntityData(pos) }
 
-    override fun getBlockState(pos: RelativeCoordinate): BlockState {
-        TODO("Not yet implemented")
-    }
-
-    override fun getOrCreateBlockEntityData(pos: RelativeCoordinate): NbtCompound {
-        TODO("Not yet implemented")
-    }
+    override fun getBlockState(pos: RelativeCoordinate) =
+        regions.values.firstNotNullOf {
+            it.getBlockState(pos).takeIf { state -> !state.isAir }
+        }
 
     override fun isInArea(pos: RelativeCoordinate) = regions.any { it.value.isInArea(pos) }
     override fun createPlacement(placementInfo: PlacementInfo) = apply {
@@ -122,14 +121,17 @@ class TrackedStructure(
     }
 
     fun getRelativeCoordinate(pos: BlockPos): RelativeCoordinate {
-        TODO("Not yet implemented")
+        require(regions.isNotEmpty()) {
+            "No region in this structure"
+        }
+        return RelativeCoordinate(pos.x - minX, pos.y - minY, pos.z - minZ)
     }
 
     fun onBlockRemoved(pos: BlockPos) {
-
+        regions.values.forEach { it.onBlockRemoved(pos) }
     }
 
     fun onBlockAdded(pos: BlockPos) {
-
+        regions.values.forEach { it.onBlockAdded(pos) }
     }
 }
