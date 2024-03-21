@@ -55,6 +55,7 @@ import net.minecraft.block.Blocks
 import net.minecraft.block.entity.StructureBlockBlockEntity
 import net.minecraft.block.enums.StructureBlockMode
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.sound.AbstractSoundInstance
 import net.minecraft.network.packet.c2s.play.UpdateStructureBlockC2SPacket
 import net.minecraft.sound.SoundCategory
 import net.minecraft.text.Text
@@ -76,6 +77,11 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         true
     }
     var undoEasterEggLock = false
+    val zawaludo = object : AbstractSoundInstance(
+        Sounds.THE_WORLD.id,
+        SoundCategory.VOICE,
+        net.minecraft.util.math.random.Random.create()
+    ) {}
     UNDO_KEY.callback {
         if (undoEasterEggLock) {
             mc.player?.sendMessage(translateMessage("undo", "busy"))
@@ -90,12 +96,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             return@callback false
         val playSound = Random.nextInt(100) < EASTER_EGG_RATE.integerValue
         if (playSound) {
-            mc.world!!.playSound(
-                mc.player,
-                mc.player!!.blockPos,
-                Sounds.THE_WORLD,
-                SoundCategory.BLOCKS
-            )
+            mc.soundManager.play(zawaludo)
             undoEasterEggLock = true
             if (!EASTER_EGG_RATE.isModified) {
                 val key = "reden:easter_egg/the_world"
