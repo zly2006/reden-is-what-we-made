@@ -15,7 +15,12 @@ open class ClientNetworkWorker(
     override val structure: TrackedStructure,
     override val world: World
 ) : NetworkWorker {
-    var renderPositions = listOf<BlockPos>()
+    private var renderPositions = listOf<BlockPos>()
+    override fun trackpointUpdated(part: TrackedStructurePart) {
+        if (part.tracker is StructureTracker.Trackpoint) {
+            renderPositions = part.tracker.cachedPositions.keys.toList()
+        }
+    }
     override suspend fun debugRender(part: TrackedStructurePart) = execute {
         BlockOutline.blocks = mapOf()
         BlockBorder.tags = mapOf()

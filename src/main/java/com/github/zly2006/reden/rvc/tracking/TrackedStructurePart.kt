@@ -5,7 +5,6 @@ import com.github.zly2006.reden.utils.redenError
 import com.github.zly2006.reden.utils.setBlockNoPP
 import net.minecraft.block.Block
 import net.minecraft.block.BlockEntityProvider
-import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.Entity
@@ -18,14 +17,15 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.util.math.*
+import net.minecraft.util.math.BlockBox
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Box
+import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.World
 import net.minecraft.world.tick.ChunkTickScheduler
 import net.minecraft.world.tick.OrderedTick
 import net.minecraft.world.tick.TickPriority
 import org.jetbrains.annotations.Contract
-import java.nio.file.Path
-import java.util.*
 
 class TrackedStructurePart(
     name: String,
@@ -52,11 +52,9 @@ class TrackedStructurePart(
 
     override fun createPlacement(placementInfo: PlacementInfo) = apply {
         this.placementInfo = placementInfo
-        tracker.update(this)
+        tracker.updateOrigin(this)
     }
 
-    var cachedPositions = HashMap<BlockPos, TrackPoint>()
-    var cachedIgnoredPositions = HashMap<BlockPos, TrackPoint>()
     val tracker: StructureTracker = StructureTracker.Trackpoint()
     val blockEvents = mutableListOf<BlockEventInfo>() // order sensitive
     val blockScheduledTicks = mutableListOf<TickInfo<Block>>() // order sensitive
@@ -106,154 +104,123 @@ class TrackedStructurePart(
     }
 
 
-    fun splitCuboids(
-        includeUntracked: Boolean = true,
-    ): List<BlockBox> {
-        class SplitingContext(
-            var cuboid: BlockBox?,
-            val points: SortedSet<BlockPos> = sortedSetOf()
-        ) {
-            constructor(points: Collection<BlockPos>) : this(
-                null,
-                points.toSortedSet()
-            ) {
-                shrinkCuboid()
-            }
+//    fun splitCuboids(
+//        includeUntracked: Boolean = true,
+//    ): List<BlockBox> {
+//        class SplitingContext(
+//            var cuboid: BlockBox?,
+//            val points: SortedSet<BlockPos> = sortedSetOf()
+//        ) {
+//            constructor(points: Collection<BlockPos>) : this(
+//                null,
+//                points.toSortedSet()
+//            ) {
+//                shrinkCuboid()
+//            }
+//
+//            fun shrinkCuboid() {
+//                if (points.isEmpty()) return
+//                val minX = points.minOf { it.x }
+//                val minY = points.minOf { it.y }
+//                val minZ = points.minOf { it.z }
+//                val maxX = points.maxOf { it.x }
+//                val maxY = points.maxOf { it.y }
+//                val maxZ = points.maxOf { it.z }
+//                cuboid = BlockBox(minX, minY, minZ, maxX, maxY, maxZ)
+//            }
+//        }
+//
+//        val result: MutableList<SplitingContext>
+//
+//        if (includeUntracked) {
+//            result = mutableListOf(SplitingContext(cachedPositions.keys))
+//            cachedIgnoredPositions.forEach { ignoredPos ->
+//                val iter = result.listIterator()
+//                while (iter.hasNext()) {
+//                    val entry = iter.next()
+//                    fun splitByAxis(
+//                        entry: SplitingContext,
+//                        axis: BlockPos.() -> Int
+//                    ) {
+//                        iter.add(
+//                            SplitingContext(
+//                                entry.points.filter { it.axis() < ignoredPos.key.axis() }
+//                            )
+//                        )
+//                        iter.add(
+//                            SplitingContext(
+//                                entry.points.filter { it.axis() > ignoredPos.key.axis() }
+//                            )
+//                        )
+//                    }
+//                    if (entry.cuboid?.contains(ignoredPos.key) == true) {
+//                        // Note: in this block element[i] is always removing
+//                        // select if we can split by an axis without add more cuboids
+//                        if (entry.points.none { it.x == ignoredPos.key.x }) {
+//                            iter.remove()
+//                            splitByAxis(entry) { x }
+//                        }
+//                        else if (entry.points.none { it.y == ignoredPos.key.y }) {
+//                            iter.remove()
+//                            splitByAxis(entry) { y }
+//                        }
+//                        else if (entry.points.none { it.z == ignoredPos.key.z }) {
+//                            iter.remove()
+//                            splitByAxis(entry) { z }
+//                        }
+//                        else {
+//                            var entryToSplit = entry
+//                            iter.remove()
+//                            // first, split by x
+//                            splitByAxis(entryToSplit) { x }
+//                            // then add same x points to the new cuboids
+//                            entryToSplit = SplitingContext(entryToSplit.points.filter { it.x == ignoredPos.key.x })
+//                            if (entryToSplit.cuboid?.contains(ignoredPos.key) != true) {
+//                                iter.add(entryToSplit)
+//                            }
+//                            // second, split by z
+//                            splitByAxis(entryToSplit) { z }
+//                            // then add same z points to the new cuboids
+//                            entryToSplit = SplitingContext(entryToSplit.points.filter { it.y == ignoredPos.key.y })
+//                            if (entryToSplit.cuboid?.contains(ignoredPos.key) != true) {
+//                                iter.add(entryToSplit)
+//                            }
+//                            // third, split by y
+//                            splitByAxis(entryToSplit) { y }
+//                        }
+//                    }
+//                }
+//                result.removeIf { it.points.isEmpty() || it.cuboid == null }
+//            }
+//        }
+//        else
+//            result = (cachedPositions.keys).map { SplitingContext(listOf(it)) }.toMutableList()
+//
+//        return result.mapNotNull { it.cuboid }
+//    }
 
-            fun shrinkCuboid() {
-                if (points.isEmpty()) return
-                val minX = points.minOf { it.x }
-                val minY = points.minOf { it.y }
-                val minZ = points.minOf { it.z }
-                val maxX = points.maxOf { it.x }
-                val maxY = points.maxOf { it.y }
-                val maxZ = points.maxOf { it.z }
-                cuboid = BlockBox(minX, minY, minZ, maxX, maxY, maxZ)
-            }
-        }
+    fun onBlockAdded(pos: BlockPos) = tracker.onBlockAdded(this, pos)
 
-        val result: MutableList<SplitingContext>
-
-        if (includeUntracked) {
-            result = mutableListOf(SplitingContext(cachedPositions.keys))
-            cachedIgnoredPositions.forEach { ignoredPos ->
-                val iter = result.listIterator()
-                while (iter.hasNext()) {
-                    val entry = iter.next()
-                    fun splitByAxis(
-                        entry: SplitingContext,
-                        axis: BlockPos.() -> Int
-                    ) {
-                        iter.add(
-                            SplitingContext(
-                                entry.points.filter { it.axis() < ignoredPos.key.axis() }
-                            )
-                        )
-                        iter.add(
-                            SplitingContext(
-                                entry.points.filter { it.axis() > ignoredPos.key.axis() }
-                            )
-                        )
-                    }
-                    if (entry.cuboid?.contains(ignoredPos.key) == true) {
-                        // Note: in this block element[i] is always removing
-                        // select if we can split by an axis without add more cuboids
-                        if (entry.points.none { it.x == ignoredPos.key.x }) {
-                            iter.remove()
-                            splitByAxis(entry) { x }
-                        }
-                        else if (entry.points.none { it.y == ignoredPos.key.y }) {
-                            iter.remove()
-                            splitByAxis(entry) { y }
-                        }
-                        else if (entry.points.none { it.z == ignoredPos.key.z }) {
-                            iter.remove()
-                            splitByAxis(entry) { z }
-                        }
-                        else {
-                            var entryToSplit = entry
-                            iter.remove()
-                            // first, split by x
-                            splitByAxis(entryToSplit) { x }
-                            // then add same x points to the new cuboids
-                            entryToSplit = SplitingContext(entryToSplit.points.filter { it.x == ignoredPos.key.x })
-                            if (entryToSplit.cuboid?.contains(ignoredPos.key) != true) {
-                                iter.add(entryToSplit)
-                            }
-                            // second, split by z
-                            splitByAxis(entryToSplit) { z }
-                            // then add same z points to the new cuboids
-                            entryToSplit = SplitingContext(entryToSplit.points.filter { it.y == ignoredPos.key.y })
-                            if (entryToSplit.cuboid?.contains(ignoredPos.key) != true) {
-                                iter.add(entryToSplit)
-                            }
-                            // third, split by y
-                            splitByAxis(entryToSplit) { y }
-                        }
-                    }
-                }
-                result.removeIf { it.points.isEmpty() || it.cuboid == null }
-            }
-        }
-        else
-            result = (cachedPositions.keys).map { SplitingContext(listOf(it)) }.toMutableList()
-
-        return result.mapNotNull { it.cuboid }
-    }
-
-    fun onBlockAdded(pos: BlockPos) {
-        dirty = true
-        val trackPoint = Direction.entries.map(pos::offset).map { cachedIgnoredPositions[it] }.firstOrNull()
-        if (trackPoint != null) {
-            val readPos = mutableSetOf<BlockPos>()
-            val queue = LinkedList<SpreadEntry>()
-            queue.add(SpreadEntry(pos, trackPoint.predicate, trackPoint.mode, this))
-            var maxElements = 8000
-            while (queue.isNotEmpty() && maxElements > 0) {
-                maxElements--
-                val entry = queue.removeFirst()
-                if (entry.pos in cachedIgnoredPositions || world.isAir(entry.pos)) continue
-                entry.spreadAround(world, { newPos ->
-                    if (readPos.add(newPos)) {
-                        if (newPos in cachedPositions) return@spreadAround
-                        if (!world.isAir(newPos)) {
-                            cachedPositions[newPos] = trackPoint
-                        }
-                        queue.add(SpreadEntry(newPos, entry.predicate, trackPoint.mode, this))
-                    }
-                })
-            }
-        }
-    }
-
-    fun onBlockRemoved(pos: BlockPos) {
-        dirty = true
-        removeTrackpoint(pos)
-        cachedPositions -= pos
-    }
+    fun onBlockRemoved(pos: BlockPos) = tracker.onBlockRemoved(this, pos)
 
     init {
         io = RvcFileIO
     }
 
     override fun isInArea(pos: RelativeCoordinate): Boolean {
-        return cachedPositions.contains(pos.blockPos(origin))
+        return tracker.isInArea(this, pos)
     }
 
     suspend fun refreshPositions() {
-        tracker.update(this)
         if (dirty) {
-            cachedIgnoredPositions = hashMapOf()
-            cachedPositions = hashMapOf()
-            requireNotNull(structure.networkWorker).refreshPositions(this)
+            tracker.refreshPositions(this)
             dirty = false
         }
         requireNotNull(structure.networkWorker).debugRender(this)
     }
 
     override val blockIterator: Iterator<RelativeCoordinate>
-        get() =
-            cachedPositions.keys.asSequence().map { getRelativeCoordinate(it) }.iterator()
+        get() = tracker.blockIterator
 
     override fun clearArea() {
         clearSchedules()
@@ -353,7 +320,7 @@ class TrackedStructurePart(
                     data = it.data
                 )
             })
-            val chunks = cachedPositions.keys.asSequence()
+            val chunks = blockIterator.asSequence().map { it.blockPos(origin) }
                 .map(ChunkPos::toLong)
                 .toList().distinct()
                 .map { getChunk(ChunkPos.getPackedX(it), ChunkPos.getPackedZ(it)) }
@@ -424,77 +391,5 @@ class TrackedStructurePart(
                     it.pitch
                 )
             }
-    }
-
-    fun removeTrackpoint(pos: BlockPos) {
-        dirty = true
-        val trackpoints = (tracker as StructureTracker.Trackpoint).trackpoints
-        val existing = trackpoints.find { it.pos == pos }
-        if (existing != null) {
-            cachedPositions.entries.removeIf { it.value == existing }
-            trackpoints -= existing
-        }
-    }
-
-    // todo
-    fun addTrackPoint(trackPoint: TrackPoint) {
-        dirty = true
-        val trackpoints = (tracker as StructureTracker.Trackpoint).trackpoints
-        removeTrackpoint(trackPoint.pos)
-        trackpoints.add(trackPoint)
-    }
-
-    fun asCuboid(): IStructure {
-        return object : IStructure {
-            override var name = this@TrackedStructurePart.name
-            override val xSize: Int get() = this@TrackedStructurePart.xSize
-            override val ySize: Int get() = this@TrackedStructurePart.ySize
-            override val zSize: Int get() = this@TrackedStructurePart.zSize
-            override fun save(path: Path) {}
-            override fun load(path: Path) {}
-            override fun isInArea(pos: RelativeCoordinate): Boolean {
-                return this@TrackedStructurePart.isInArea(
-                    RelativeCoordinate(
-                        pos.x + minX,
-                        pos.y + minY,
-                        pos.z + minZ
-                    )
-                )
-            }
-
-            override fun createPlacement(placementInfo: PlacementInfo) = this@TrackedStructurePart
-
-            override fun getBlockEntityData(pos: RelativeCoordinate): NbtCompound? {
-                return this@TrackedStructurePart.getBlockEntityData(
-                    RelativeCoordinate(
-                        pos.x + minX,
-                        pos.y + minY,
-                        pos.z + minZ
-                    )
-                )
-            }
-
-            override fun getBlockState(pos: RelativeCoordinate): BlockState {
-                return this@TrackedStructurePart.getBlockState(
-                    RelativeCoordinate(
-                        pos.x + minX,
-                        pos.y + minY,
-                        pos.z + minZ
-                    )
-                )
-            }
-
-            override fun getOrCreateBlockEntityData(pos: RelativeCoordinate): NbtCompound {
-                return this@TrackedStructurePart.getOrCreateBlockEntityData(
-                    RelativeCoordinate(
-                        pos.x + minX,
-                        pos.y + minY,
-                        pos.z + minZ
-                    )
-                )
-            }
-
-            override val entities = this@TrackedStructurePart.entities
-        }
     }
 }

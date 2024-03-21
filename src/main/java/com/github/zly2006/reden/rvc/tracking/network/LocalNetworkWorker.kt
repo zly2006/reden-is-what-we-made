@@ -16,10 +16,7 @@ class LocalNetworkWorker(
     private val player = world.server.playerManager.getPlayer(world.server.hostProfile!!.id)!!
     private val serverWorker = ServerNetworkWorker(structure, world, player)
 
-    override suspend fun refreshPositions(part: TrackedStructurePart) = execute {
-        serverWorker.refreshPositions(part)
-        clientWorker.renderPositions = part.cachedPositions.keys.toList()
-    }
+    override fun trackpointUpdated(part: TrackedStructurePart) = clientWorker.trackpointUpdated(part)
 
     override suspend fun debugRender(part: TrackedStructurePart) = execute {
         clientWorker.debugRender(part)

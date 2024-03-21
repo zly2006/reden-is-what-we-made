@@ -9,9 +9,7 @@ import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.red
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
-import io.wispforest.owo.ui.component.CheckboxComponent
 import io.wispforest.owo.ui.component.Components
-import io.wispforest.owo.ui.component.TextureComponent
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer
@@ -20,8 +18,6 @@ import net.minecraft.client.gui.screen.Screen
 import net.minecraft.structure.StructureTemplate
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
-import net.minecraft.util.Util
-import org.lwjgl.glfw.GLFW
 import java.awt.Color
 import java.io.File
 import java.nio.file.Path
@@ -87,30 +83,6 @@ class SelectionExportScreen(
 
     lateinit var selectedButton: ButtonComponent
     var selectedLine: FileLine? = null
-    private val multiBoxCheckBox: CheckboxComponent =
-        Components.checkbox(ExportType.LitematicaMultiBox.displayName).apply {
-        checked(false)
-        onChanged {
-            selectedType = if (it) {
-//                statusLabel.text(Text.literal("Export to ${ExportType.LitematicaMultiBox.displayName.string} type"))
-                ExportType.LitematicaMultiBox
-            } else {
-//                statusLabel.text(Text.literal("Export to ${ExportType.Litematica.displayName.string} type"))
-                ExportType.Litematica
-            }
-            onNameFieldChanged()
-        }
-    }
-    val multiBoxHelp: TextureComponent =
-        Components.texture(Reden.identifier("help_icon.png"), 0, 0, 16, 16, 16, 16).apply {
-            mouseDown().subscribe { _: Double, _: Double, b: Int ->
-                if (b == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                Util.getOperatingSystem().open(WIKI)
-                    true
-                } else false
-        }
-            cursorStyle(CursorStyle.HAND)
-    }
 
     private fun refreshOptions() {
         optionsPanel = (Containers.verticalFlow(Sizing.fill(50), Sizing.fill()).apply {
@@ -124,13 +96,6 @@ class SelectionExportScreen(
             })
             child(exportButton)
             child(statusLabel)
-            if (selectedType == ExportType.LitematicaMultiBox || selectedType == ExportType.Litematica) {
-                child(Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
-                    gap(5)
-                    child(multiBoxCheckBox)
-                    child(multiBoxHelp)
-                })
-            }
         })
     }
 
@@ -149,9 +114,7 @@ class SelectionExportScreen(
                 gap(5)
                 alignment(HorizontalAlignment.LEFT, VerticalAlignment.CENTER)
                 child(Components.label(Text.literal("Export RVC Structure to:")))
-                ExportType.entries
-                    // Note: it is the same format as [Litematica] mode
-                    .filterNot { it == ExportType.LitematicaMultiBox }.forEach { type: ExportType ->
+                ExportType.entries.forEach { type: ExportType ->
                         child(Components.button(type.displayName) {
                             it.active(false)
                             selectedButton.active(true)
@@ -251,16 +214,7 @@ class SelectionExportScreen(
         },
         Litematica(ModNames.litematicaName, Text.empty(), SelectionImportScreen.EXTENSION_LITEMATICA) {
             override fun export(path: Path, head: TrackedStructure) {
-                LitematicaIO.save(path, head, false)
-            }
-        },
-        LitematicaMultiBox(
-            Text.literal("Litematica Multi-Box"),
-            Text.empty(),
-            SelectionImportScreen.EXTENSION_LITEMATICA
-        ) {
-            override fun export(path: Path, head: TrackedStructure) {
-                LitematicaIO.save(path, head, true)
+                LitematicaIO.save(path, head)
             }
         },
         RVCArchive(Text.literal("RVC Archive"), Text.empty(), SelectionImportScreen.EXTENSION_RVC_ARCHIVE) {
