@@ -154,18 +154,20 @@ fun initHeartBeat() {
 fun Thread(name: String, function: () -> Unit) = Thread(function, name)
 
 private var usedTimes = 0
+private var activeUseTimes = 0
 
 private fun requestFollow() {
     val mc = MinecraftClient.getInstance()
     val key = "reden:youtube"
     val buttonList = mutableListOf<ClientMessageQueue.Button>()
-    val id = ClientMessageQueue.addNotification(
-        key,
-        Reden.LOGO,
-        Text.translatable("reden.message.youtube.title"),
-        Text.translatable("reden.message.youtube.desc", usedTimes),
-        buttonList
-    )
+//    val id = ClientMessageQueue.addNotification(
+//        key,
+//        Reden.LOGO,
+//        Text.translatable("reden.message.youtube.title"),
+//        Text.translatable("reden.message.youtube.desc", usedTimes),
+//        buttonList
+//    )
+    val id = 0
     buttonList.add(
         ClientMessageQueue.Button(Text.translatable("reden.message.youtube.yes")) {
             Util.getOperatingSystem().open(
@@ -191,17 +193,18 @@ private fun requestFollow() {
 private fun requestDonate() {
 }
 
-fun onFunctionUsed(name: String) {
+fun onFunctionUsed(name: String, active: Boolean = false) {
     featureUsageData.add(FeatureUsageData(if (isClient) MinecraftClient.getInstance().session.username else "Server", name, System.currentTimeMillis()))
     if (heartbeatThread == null || !heartbeatThread!!.isAlive) {
         initHeartBeat()
     }
     usedTimes++
+    activeUseTimes++
     if (isClient) {
-        if (usedTimes % 50 == 0 || usedTimes == 10) {
+        if (activeUseTimes % 50 == 0 || activeUseTimes == 10) {
             requestFollow()
         }
-        if (usedTimes % 100 == 0 || usedTimes == 20) {
+        if (activeUseTimes % 100 == 0 || activeUseTimes == 20) {
             requestDonate()
         }
     }

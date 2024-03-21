@@ -49,12 +49,12 @@ public abstract class MixinClient implements ServerData.ClientSideServerDataAcce
     )
     private void onDisconnect(ClientWorld world, CallbackInfo ci) {
         if (world == null) {
-            ReportKt.onFunctionUsed("disconnect");
+            ReportKt.onFunctionUsed("disconnect", false);
             new Thread(ReportKt::doHeartHeat).start();
         } else if (server != null) {
-            ReportKt.onFunctionUsed("joinServer_local");
+            ReportKt.onFunctionUsed("joinServer_local", false);
         } else {
-            ReportKt.onFunctionUsed("joinServer_remote");
+            ReportKt.onFunctionUsed("joinServer_remote", false);
         }
     }
 }

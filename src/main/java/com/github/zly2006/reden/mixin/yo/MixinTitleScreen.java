@@ -31,7 +31,7 @@ public abstract class MixinTitleScreen extends Screen {
         icon = new TextureButtonComponent(
                 Reden.identifier("reden_16.png"),
                 button -> {
-                    ReportKt.onFunctionUsed("openCredits_mcTitleScreen");
+                    ReportKt.onFunctionUsed("openCredits_mcTitleScreen", false);
                     client.setScreen(new CreditScreen(this));
                 },
                 20,
