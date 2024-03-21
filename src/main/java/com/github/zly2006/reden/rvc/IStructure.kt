@@ -1,6 +1,8 @@
 package com.github.zly2006.reden.rvc
 
 import com.github.zly2006.reden.rvc.io.StructureIO
+import com.github.zly2006.reden.rvc.tracking.PlacementInfo
+import com.github.zly2006.reden.rvc.tracking.WorldInfo
 import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.math.BlockPos
@@ -30,7 +32,10 @@ interface IStructure {
      */
     fun load(path: Path)
     fun isInArea(pos: RelativeCoordinate): Boolean
-    fun createPlacement(world: World, origin: BlockPos): IPlacement
+    fun createPlacement(world: World, origin: BlockPos) =
+        createPlacement(PlacementInfo(WorldInfo.of(world), origin))
+
+    fun createPlacement(placementInfo: PlacementInfo): IPlacement
     fun getBlockState(pos: RelativeCoordinate): BlockState
     fun getBlockEntityData(pos: RelativeCoordinate): NbtCompound?
     fun getOrCreateBlockEntityData(pos: RelativeCoordinate): NbtCompound

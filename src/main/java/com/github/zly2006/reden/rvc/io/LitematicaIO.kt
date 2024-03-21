@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.rvc.io
 
 import com.github.zly2006.reden.rvc.*
-import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.*
 import fi.dy.masa.litematica.schematic.LitematicaSchematic
 import fi.dy.masa.litematica.selection.AreaSelection
 import fi.dy.masa.litematica.selection.Box
@@ -13,105 +13,49 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.name
 
-open class LitematicaIO: StructureIO {
+open class LitematicaIO : StructureIO {
     override fun save(path: Path, structure: IStructure) {
-        save(path, structure, false)
-    }
-
-    fun save(path: Path, structure: IStructure, multiBox: Boolean) {
         val litematica: LitematicaSchematic
         if (!path.exists()) {
             path.createDirectories()
         }
-        if (structure is TrackedStructure && multiBox) {
-            val boxes = structure.splitCuboids()
-            litematica = LitematicaSchematic.createEmptySchematic(
-                AreaSelection().apply {
-                    boxes.mapIndexed { index, blockBox ->
-                        addSubRegionBox(
-                            Box(
-                                blockBox.minPos,
-                                blockBox.maxPos,
-                                index.toString()
-                            ),
-                            false
-                        )
+        val boxName = "RVC Structure"
+        litematica = LitematicaSchematic.createEmptySchematic(
+            AreaSelection().apply {
+                addSubRegionBox(
+                    Box(
+                        BlockPos.ORIGIN,
+                        BlockPos(structure.xSize, structure.ySize, structure.zSize),
+                        boxName
+                    ),
+                    false
+                )
+            },
+            "RVC"
+        )
+        val subRegionContainer = litematica.getSubRegionContainer(boxName)!!
+        val blockEntityMap = litematica.getBlockEntityMapForRegion(boxName)!!
+        val entityInfos = litematica.getEntityListForRegion(boxName)!!
+        for (x in 0 until structure.xSize) {
+            for (y in 0 until structure.ySize) {
+                for (z in 0 until structure.zSize) {
+                    val pos = RelativeCoordinate(x, y, z)
+                    val state = structure.getBlockState(pos)
+                    subRegionContainer.set(x, y, z, state)
+                    val be = structure.getBlockEntityData(pos)
+                    if (be != null) {
+                        blockEntityMap[pos.blockPos(BlockPos.ORIGIN)] = be
                     }
-                },
-                "RVC"
-            ) ?: return
-            boxes.mapIndexed { index, box ->
-                val subRegionContainer = litematica.getSubRegionContainer(index.toString())!!
-                val blockEntityMap = litematica.getBlockEntityMapForRegion(index.toString())!!
-                val blockTicks = litematica.getScheduledBlockTicksForRegion(index.toString())!!
-                val fluidTicks = litematica.getScheduledFluidTicksForRegion(index.toString())!!
-                structure.blockScheduledTicks.addAll(blockTicks.map { TrackedStructure.TickInfo.wrap(it.value, structure.world) })
-                structure.fluidScheduledTicks.addAll(fluidTicks.map { TrackedStructure.TickInfo.wrap(it.value, structure.world) })
-                val entityInfos = litematica.getEntityListForRegion(index.toString())!!
-                structure.blocks.filter { it.key.blockPos(BlockPos.ORIGIN) in box }.forEach {
-                    subRegionContainer.set(
-                        it.key.x - box.minX,
-                        it.key.y - box.minY,
-                        it.key.z - box.minZ,
-                        it.value
-                    )
                 }
-                structure.blockEntities.keys.filter { it.blockPos(BlockPos.ORIGIN) in box }.forEach { pos ->
-                    blockEntityMap[pos.blockPos(BlockPos.ORIGIN)] = structure.blockEntities[pos]
-                }
-                structure.entities.forEach {
-                    entityInfos.add(
-                        LitematicaSchematic.EntityInfo(
-                            Vec3d.ZERO,
-                            it.value
-                        )
-                    )
-                }
-                subRegionContainer
             }
         }
-        else {
-            val structure = if (structure is TrackedStructure) {
-                structure.asCuboid()
-            } else structure
-            val boxName = "RVC Structure"
-            litematica = LitematicaSchematic.createEmptySchematic(
-                AreaSelection().apply {
-                    addSubRegionBox(
-                        Box(
-                            BlockPos.ORIGIN,
-                            BlockPos(structure.xSize, structure.ySize, structure.zSize),
-                            boxName
-                        ),
-                        false
-                    )
-                },
-                "RVC"
-            )
-            val subRegionContainer = litematica.getSubRegionContainer(boxName)!!
-            val blockEntityMap = litematica.getBlockEntityMapForRegion(boxName)!!
-            val entityInfos = litematica.getEntityListForRegion(boxName)!!
-            for (x in 0 until structure.xSize) {
-                for (y in 0 until structure.ySize) {
-                    for (z in 0 until structure.zSize) {
-                        val pos = RelativeCoordinate(x, y, z)
-                        val state = structure.getBlockState(pos)
-                        subRegionContainer.set(x, y, z, state)
-                        val be = structure.getBlockEntityData(pos)
-                        if (be != null) {
-                            blockEntityMap[pos.blockPos(BlockPos.ORIGIN)] = be
-                        }
-                    }
-                }
-            }
-            structure.entities.forEach {
-                entityInfos.add(
-                    LitematicaSchematic.EntityInfo(
-                        Vec3d.ZERO,
-                        it.value
-                    )
+        structure.entities.forEach {
+            entityInfos.add(
+                LitematicaSchematic.EntityInfo(
+                    Vec3d.ZERO,
+                    it.value
                 )
-            }
+            )
         }
         litematica.metadata.description = "Reden Exported to Litematica"
         litematica.metadata.name = structure.name
@@ -137,6 +81,19 @@ open class LitematicaIO: StructureIO {
             val blockEntityMap = schematic.getBlockEntityMapForRegion(regionName)!!
             val entityInfos = schematic.getEntityListForRegion(regionName)!!
             val basePos = schematic.getSubRegionPosition(regionName)!!
+            if (structure is TrackedStructure) {
+                structure.placementInfo = PlacementInfo(WorldInfo())
+                structure.regions[regionName] = TrackedStructurePart(
+                    regionName,
+                    structure,
+                    StructureTracker.Cuboid(
+                        basePos,
+                        basePos.toImmutable().add(subRegionContainer.size)
+                    )
+                ).apply {
+                    createPlacement(structure.placementInfo!!.copy(origin = basePos))
+                }
+            }
             for (x in 0 until subRegionContainer.size.x) {
                 for (y in 0 until subRegionContainer.size.y) {
                     for (z in 0 until subRegionContainer.size.z) {
@@ -164,7 +121,7 @@ open class LitematicaIO: StructureIO {
         }
     }
 
-    companion object Default: LitematicaIO() {
+    companion object Default : LitematicaIO() {
     }
 }
 

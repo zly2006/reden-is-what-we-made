@@ -13,9 +13,9 @@ abstract class ReadWriteStructure(override var name: String) : IWritableStructur
     override var xSize: Int = 0; protected set
     override var ySize: Int = 0; protected set
     override var zSize: Int = 0; protected set
-    protected var minX: Int = Int.MAX_VALUE
-    protected var minY: Int = Int.MAX_VALUE
-    protected var minZ: Int = Int.MAX_VALUE
+    protected open var minX: Int = Int.MAX_VALUE
+    protected open var minY: Int = Int.MAX_VALUE
+    protected open var minZ: Int = Int.MAX_VALUE
     private fun checkSize(pos: RelativeCoordinate) {
         if (pos.x < minX) minX = pos.x
         if (pos.y < minY) minY = pos.y

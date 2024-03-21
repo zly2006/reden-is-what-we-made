@@ -2,6 +2,8 @@ package com.github.zly2006.reden.rvc.tracking.network
 
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
+import kotlinx.coroutines.CoroutineDispatcher
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.World
 
@@ -14,13 +16,10 @@ class LocalNetworkWorker(
     private val player = world.server.playerManager.getPlayer(world.server.hostProfile!!.id)!!
     private val serverWorker = ServerNetworkWorker(structure, world, player)
 
-    override suspend fun refreshPositions() = execute {
-        serverWorker.refreshPositions()
-        clientWorker.renderPositions = structure.cachedPositions.keys.toList()
-    }
+    override fun trackpointUpdated(part: TrackedStructurePart) = clientWorker.trackpointUpdated(part)
 
-    override suspend fun debugRender() = execute {
-        clientWorker.debugRender()
+    override suspend fun debugRender(part: TrackedStructurePart) = execute {
+        clientWorker.debugRender(part)
     }
 
     override suspend fun startUndoRecord(cause: PlayerData.UndoRecord.Cause) = execute {
@@ -31,11 +30,9 @@ class LocalNetworkWorker(
         serverWorker.stopUndoRecord()
     }
 
-    override suspend fun paste() = execute {
-        serverWorker.paste()
+    override suspend fun paste(part: TrackedStructurePart) = execute {
+        serverWorker.paste(part)
     }
 
-    override suspend fun <T> execute(function: suspend () -> T) = serverWorker.execute(function)
-
-    override fun <T> async(function: suspend () -> T) = serverWorker.async(function)
+    override val coroutineDispatcher: CoroutineDispatcher get() = serverWorker.coroutineDispatcher
 }

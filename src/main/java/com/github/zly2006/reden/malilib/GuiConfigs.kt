@@ -32,7 +32,13 @@ class GuiConfigs(parent: Screen? = null): GuiConfigsBase(
             button.width + x + 2
         }
         val creditsButton = ButtonGeneric(finalX, 26, -1, 20, "Credits")
-        val sponsorsButton = ButtonGeneric(finalX, 26, -1, 20, StringUtils.translate("reden.widget.config.sponsor"))
+        val sponsorsButton = ButtonGeneric(
+            finalX + creditsButton.width + 2,
+            26,
+            -1,
+            20,
+            StringUtils.translate("reden.widget.config.sponsor")
+        )
         addButton(creditsButton) { _, _ ->
             onFunctionUsed("credits_malilibConfigScreen")
             client!!.setScreen(CreditScreen(this))

@@ -11,7 +11,7 @@ import java.util.*
 
 /**
  * Interface that defines the data reading methods for
- * reading RVC data and transform to [TrackedStructure] structures.
+ * reading RVC data and transform to [TrackedStructurePart] structures.
  */
 interface IRvcFileReader {
     val header: RvcHeader
@@ -19,48 +19,32 @@ interface IRvcFileReader {
     /**
      * Read blocks data from RVC files to maps for structure
      * @param data Lines contains data read form RVC files
-     * @return [Map]<[BlockPos], [BlockState]> data that can be saved to a [TrackedStructure]
+     * @return [Map]<[BlockPos], [BlockState]> data that can be saved to a [TrackedStructurePart]
      */
     fun readBlocksData(data: List<String>, palette: Palette): Map<RelativeCoordinate, BlockState>
 
     /**
      * Read blocks entities data from RVC files to maps for structure
      * @param data Lines contains data read form RVC files
-     * @return [Map]<[BlockPos], [NbtCompound]> data that can be saved to a [TrackedStructure]
+     * @return [Map]<[BlockPos], [NbtCompound]> data that can be saved to a [TrackedStructurePart]
      */
     fun readBlockEntitiesData(data: List<String>, palette: Palette): Map<RelativeCoordinate, NbtCompound>
 
     /**
      * Read entities data from RVC files to maps for structure
      * @param data Lines contains data read form RVC files
-     * @return [Map]<[UUID], [NbtCompound]> data that can be saved to a [TrackedStructure]
+     * @return [Map]<[UUID], [NbtCompound]> data that can be saved to a [TrackedStructurePart]
      */
     fun readEntitiesData(data: List<String>): Map<UUID, NbtCompound>
 
     /**
-     * Read track point data from RVC files to list for structure
-     * @param data Lines contains data read form RVC files
-     * @return [List]<[TrackedStructure.TrackPoint]> data that can be saved to a [TrackedStructure]
-     */
-    fun readTrackPointData(data: List<String>): List<TrackedStructure.TrackPoint>
-
-    /**
      * Read block events data from RVC files to list for structure
      * @param data Lines contains data read form RVC files
-     * @return [List]<[BlockEvent]> data that can be saved to a [TrackedStructure]
+     * @return [List]<[BlockEvent]> data that can be saved to a [TrackedStructurePart]
      */
-    fun readBlockEventsData(data: List<String>): List<TrackedStructure.BlockEventInfo>
+    fun readBlockEventsData(data: List<String>): List<TrackedStructurePart.BlockEventInfo>
 
-    /**
-     * Read scheduled ticks data from RVC files to list for structure.
-     * (This is used for both block scheduled ticks and fluid scheduled ticks.)
-     * @param data Lines contains data read form RVC files
-     * @return [List]<[NbtCompound]> data that can be saved to a [TrackedStructure]
-     */
-    @Deprecated("Scheduled ticks data is not supported yet.")
-    fun readScheduledTicksData(data: List<String>): List<NbtCompound>
-
-    fun <T> readScheduledTicksData(data: List<String>, registry: Registry<T>): List<TrackedStructure.TickInfo<T>>
+    fun <T> readScheduledTicksData(data: List<String>, registry: Registry<T>): List<TrackedStructurePart.TickInfo<T>>
 
     /**
      * RVC File with a [IRvcFileReader] (for the corresponding data version)

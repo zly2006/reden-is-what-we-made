@@ -4,7 +4,9 @@ import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.WorldData.Companion.data
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
-import kotlinx.coroutines.*
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 
@@ -15,7 +17,7 @@ class ServerNetworkWorker(
     override val world: ServerWorld,
     val owner: ServerPlayerEntity
 ) : NetworkWorker {
-    override suspend fun debugRender() { /* NOOP */
+    override suspend fun debugRender(part: TrackedStructurePart) { /* NOOP */
     }
 
     override suspend fun startUndoRecord(cause: PlayerData.UndoRecord.Cause) {
@@ -28,17 +30,12 @@ class ServerNetworkWorker(
         UpdateMonitorHelper.playerStopRecording(owner)
     }
 
-    override suspend fun paste() {
+    override suspend fun paste(part: TrackedStructurePart) {
         require(world.server.isOnThread) { OFF_THREAD_MESSAGE }
         structure.world.data!!.updatesDisabled = true
         structure.paste()
         structure.world.data!!.updatesDisabled = false
     }
 
-    override suspend fun <T> execute(function: suspend () -> T): T =
-        withContext(world.server.asCoroutineDispatcher()) { function() }
-
-    @OptIn(DelicateCoroutinesApi::class)
-    override fun <T> async(function: suspend () -> T) =
-        GlobalScope.async(world.server.asCoroutineDispatcher()) { function() }
+    override val coroutineDispatcher: CoroutineDispatcher = world.server.asCoroutineDispatcher()
 }

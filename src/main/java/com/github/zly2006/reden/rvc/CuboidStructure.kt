@@ -1,7 +1,6 @@
 package com.github.zly2006.reden.rvc
 
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import com.github.zly2006.reden.rvc.tracking.PlacementInfo
 
 class CuboidStructure(
     name: String,
@@ -34,8 +33,7 @@ class CuboidStructure(
                 && pos.y in 0 until ySize
                 && pos.z in 0 until zSize
     }
-
-    override fun createPlacement(world: World, origin: BlockPos): IPlacement {
+    override fun createPlacement(placementInfo: PlacementInfo): IPlacement {
         TODO()
     }
 }

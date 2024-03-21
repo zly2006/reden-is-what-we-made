@@ -6,11 +6,15 @@ import com.github.zly2006.reden.rvc.io.Palette
 import com.github.zly2006.reden.rvc.io.StructureIO
 import com.github.zly2006.reden.rvc.tracking.reader.RvcReaderV1
 import com.github.zly2006.reden.utils.Utils
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.visitor.StringNbtWriter
 import net.minecraft.registry.Registries
+import java.io.FileFilter
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.notExists
 
 /**
@@ -91,85 +95,89 @@ object RvcFileIO : StructureIO {
         if (path.notExists()) {
             path.toFile().mkdirs()
         }
-        val usePalette = palette ?: (structure.blocks.size > 1000)
+        structure.regions.values.forEach { part ->
+            val path = path.resolve(part.name)
+            path.createDirectories()
+            val usePalette = palette ?: (part.blocks.size > 4096)
 
-        @Suppress("NAME_SHADOWING")
-        val palette = Palette()
+            @Suppress("NAME_SHADOWING")
+            val palette = Palette()
 
-        // ======================================== Save Blocks ========================================
-        // public final val blocks: MutableMap<BlockPos, BlockState>
-        // com.github.zly2006.reden.rvc.ReadWriteStructure
-        structure.blocks.entries.joinToString("\n") { (pos, state) ->
-            if (usePalette)
-                "${pos.x},${pos.y},${pos.z},${palette.getId(toNbtString(state))}"
-            else
-                "${pos.x},${pos.y},${pos.z},${toNbtString(state)}"
-        }.let { data ->
-            writeRvcFile(
-                path, "blocks", IRvcFileReader.RvcHeader(
-                    mutableMapOf(
-                        "Version" to CURRENT_VERSION,
-                        "Platform" to "MCMod/Reden",
-                        "Palette" to usePalette.toString()
-                    )
-                ), data
+            writeRvcFile(path, "index", RVC_HEADER, Json.encodeToString(part.tracker))
+
+            // ======================================== Save Blocks ========================================
+            // public final val blocks: MutableMap<BlockPos, BlockState>
+            // com.github.zly2006.reden.rvc.ReadWriteStructure
+            part.blocks.entries.joinToString("\n") { (pos, state) ->
+                if (usePalette)
+                    "${pos.x},${pos.y},${pos.z},${palette.getId(toNbtString(state))}"
+                else
+                    "${pos.x},${pos.y},${pos.z},${toNbtString(state)}"
+            }.let { data ->
+                writeRvcFile(
+                    path, "blocks", IRvcFileReader.RvcHeader(
+                        mutableMapOf(
+                            "Version" to CURRENT_VERSION,
+                            "Platform" to "MCMod/Reden",
+                            "Palette" to usePalette.toString()
+                        )
+                    ), data
+                )
+            }
+
+            // ==================================== Save Block Entities ====================================
+            // public final val blockEntities: MutableMap<BlockPos, NbtCompound>
+            // com.github.zly2006.reden.rvc.ReadWriteStructure
+            part.blockEntities.entries.joinToString("\n") { (pos, nbt) ->
+                if (usePalette)
+                    "${pos.x},${pos.y},${pos.z},${palette.getId(toNbtString(nbt))}"
+                else
+                    "${pos.x},${pos.y},${pos.z},${toNbtString(nbt)}"
+            }.let { data ->
+                writeRvcFile(
+                    path, "blockEntities", IRvcFileReader.RvcHeader(
+                        mutableMapOf(
+                            "Version" to CURRENT_VERSION,
+                            "Platform" to "MCMod/Reden",
+                            "Palette" to usePalette.toString()
+                        )
+                    ), data
+                )
+            }
+
+            // ======================================= Save Entities =======================================
+            // public open val entities: MutableMap<UUID, NbtCompound>
+            // com.github.zly2006.reden.rvc.ReadWriteStructure
+            part.entities.entries.joinToString("\n") { (uuid, nbt) ->
+                "$uuid,${toNbtString(nbt)}"
+            }.let { data -> writeRvcFile(path, "entities", RVC_HEADER, data) }
+
+            // ===================================== Save Block Events =====================================
+            // public final val blockEvents: MutableList<BlockEvent>
+            // com.github.zly2006.reden.rvc.tracking.TrackedStructure
+            part.blockEvents.joinToString("\n") { blockEvent ->
+                blockEvent.toRvcDataString()
+            }.let { data -> writeRvcFile(path, "blockEvents", RVC_HEADER, data) }
+
+            // ================================ Save Block Scheduled Ticks =================================
+            part.blockScheduledTicks.joinToString(
+                "\n",
+                transform = TrackedStructurePart.TickInfo<*>::toRvcDataString
             )
-        }
+                .let { data -> writeRvcFile(path, "blockScheduledTicks", RVC_HEADER, data) }
 
-        // ==================================== Save Block Entities ====================================
-        // public final val blockEntities: MutableMap<BlockPos, NbtCompound>
-        // com.github.zly2006.reden.rvc.ReadWriteStructure
-        structure.blockEntities.entries.joinToString("\n") { (pos, nbt) ->
-            if (usePalette)
-                "${pos.x},${pos.y},${pos.z},${palette.getId(toNbtString(nbt))}"
-            else
-                "${pos.x},${pos.y},${pos.z},${toNbtString(nbt)}"
-        }.let { data ->
-            writeRvcFile(
-                path, "blockEntities", IRvcFileReader.RvcHeader(
-                    mutableMapOf(
-                        "Version" to CURRENT_VERSION,
-                        "Platform" to "MCMod/Reden",
-                        "Palette" to usePalette.toString()
-                    )
-                ), data
+            // ================================ Save Fluid Scheduled Ticks =================================
+            part.fluidScheduledTicks.joinToString(
+                "\n",
+                transform = TrackedStructurePart.TickInfo<*>::toRvcDataString
             )
-        }
+                .let { data -> writeRvcFile(path, "fluidScheduledTicks", RVC_HEADER, data) }
 
-        // ======================================= Save Entities =======================================
-        // public open val entities: MutableMap<UUID, NbtCompound>
-        // com.github.zly2006.reden.rvc.ReadWriteStructure
-        structure.entities.entries.joinToString("\n") { (uuid, nbt) ->
-            "$uuid,${toNbtString(nbt)}"
-        }.let { data -> writeRvcFile(path, "entities", RVC_HEADER, data) }
-
-        // ===================================== Save Track Points =====================================
-        // public final val trackPoints: MutableList<TrackedStructure.TrackPoint>
-        // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        structure.trackPoints.joinToString("\n") { trackPoint ->
-            val coordinate = structure.getRelativeCoordinate(trackPoint.pos)
-            "${coordinate.x},${coordinate.y},${coordinate.z},${trackPoint.predicate},${trackPoint.mode}"
-        }.let { data -> writeRvcFile(path, "trackPoints", RVC_HEADER, data) }
-
-        // ===================================== Save Block Events =====================================
-        // public final val blockEvents: MutableList<BlockEvent>
-        // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        structure.blockEvents.joinToString("\n") { blockEvent ->
-            blockEvent.toRvcDataString()
-        }.let { data -> writeRvcFile(path, "blockEvents", RVC_HEADER, data) }
-
-        // ================================ Save Block Scheduled Ticks =================================
-        structure.blockScheduledTicks.joinToString("\n", transform = TrackedStructure.TickInfo<*>::toRvcDataString)
-            .let { data -> writeRvcFile(path, "blockScheduledTicks", RVC_HEADER, data) }
-
-        // ================================ Save Fluid Scheduled Ticks =================================
-        structure.fluidScheduledTicks.joinToString("\n", transform = TrackedStructure.TickInfo<*>::toRvcDataString)
-            .let { data -> writeRvcFile(path, "fluidScheduledTicks", RVC_HEADER, data) }
-
-        if (usePalette) {
-            palette.idToName.entries.joinToString("\n") { (id, name) ->
-                "$id,$name"
-            }.let { data -> writeRvcFile(path, "palette", RVC_HEADER, data) }
+            if (usePalette) {
+                palette.idToName.entries.joinToString("\n") { (id, name) ->
+                    "$id,$name"
+                }.let { data -> writeRvcFile(path, "palette", RVC_HEADER, data) }
+            }
         }
     }
 
@@ -197,67 +205,40 @@ object RvcFileIO : StructureIO {
      *                        please let me know or make a pull request.
      */
     override fun load(path: Path, structure: IWritableStructure) {
-        // =============================== Check Loading Structure Type ================================
-        if (structure !is TrackedStructure) {
-            throw IllegalArgumentException("Structure is not a TrackedStructure")
-        }
-        structure.dirty = true // mark it as dirty caz we have no cache of positions
+        require(structure is TrackedStructure) { "Structure is not a TrackedStructure" }
+        structure.regions.clear()
+        val paths = path.toFile().listFiles(FileFilter { it.isDirectory && it.resolve("index.rvc").exists() })?.toList()
+            .orEmpty()
+        (paths + path.toFile()).forEach {
+            val partPath = it.toPath()
 
-        // ======================================== Load Blocks ========================================
-        // public final val blocks: MutableMap<BlockPos, BlockState>
-        // com.github.zly2006.reden.rvc.ReadWriteStructure
-        structure.blocks.clear()
-        val palette = Palette.load(loadRvcFile(path, "palette"))
-        loadRvcFile(path, "blocks")?.let { rvcFile ->
-            structure.blocks.putAll(rvcFile.reader.readBlocksData(rvcFile.data, palette))
-        }
+            val tracker = loadRvcFile(partPath, "index")?.let { rvcFile ->
+                Json.decodeFromString<StructureTracker>(rvcFile.data[0])
+            } ?: StructureTracker.Trackpoint()
 
-        // ==================================== Load Block Entities ====================================
-        // public final val blockEntities: MutableMap<BlockPos, NbtCompound>
-        // com.github.zly2006.reden.rvc.ReadWriteStructure
-        structure.blockEntities.clear()
-        loadRvcFile(path, "blockEntities")?.let { rvcFile ->
-            structure.blockEntities.putAll(rvcFile.reader.readBlockEntitiesData(rvcFile.data, palette))
-        }
-
-        // ======================================= Load Entities =======================================
-        // public open val entities: MutableMap<UUID, NbtCompound>
-        // com.github.zly2006.reden.rvc.ReadWriteStructure
-        structure.entities.clear()
-        loadRvcFile(path, "entities")?.let { rvcFile ->
-            structure.entities.putAll(rvcFile.reader.readEntitiesData(rvcFile.data))
-        }
-
-        // ===================================== Load Track Points =====================================
-        // public final val trackPoints: MutableList<TrackedStructure.TrackPoint>
-        // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        structure.trackPoints.clear()
-        loadRvcFile(path, "trackPoints")?.let { rvcFile ->
-            structure.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data))
-        }
-
-        // ===================================== Load Block Events =====================================
-        // public final val blockEvents: MutableList<BlockEvent>
-        // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        structure.blockEvents.clear()
-        loadRvcFile(path, "blockEvents")?.let { rvcFile ->
-            structure.blockEvents.addAll(rvcFile.reader.readBlockEventsData(rvcFile.data))
-        }
-
-        // ================================ Load Block Scheduled Ticks =================================
-        // public final val blockScheduledTicks: MutableList<NbtCompound>
-        // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        structure.blockScheduledTicks.clear()
-        loadRvcFile(path, "blockScheduledTicks")?.let { rvcFile ->
-            structure.blockScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data, Registries.BLOCK))
-        }
-
-        // ================================ Load Fluid Scheduled Ticks =================================
-        // public final val fluidScheduledTicks: MutableList<NbtCompound>
-        // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-        structure.fluidScheduledTicks.clear()
-        loadRvcFile(path, "fluidScheduledTicks")?.let { rvcFile ->
-            structure.fluidScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data, Registries.FLUID))
+            val partName = if (partPath == path) "" else it.name
+            val part = TrackedStructurePart(partName, structure, tracker)
+            structure.regions[partName] = part
+            part.dirty = true // mark it as dirty caz we have no cache of positions
+            val palette = Palette.load(loadRvcFile(partPath, "palette"))
+            loadRvcFile(partPath, "blocks")?.let { rvcFile ->
+                part.blocks.putAll(rvcFile.reader.readBlocksData(rvcFile.data, palette))
+            }
+            loadRvcFile(partPath, "blockEntities")?.let { rvcFile ->
+                part.blockEntities.putAll(rvcFile.reader.readBlockEntitiesData(rvcFile.data, palette))
+            }
+            loadRvcFile(partPath, "entities")?.let { rvcFile ->
+                part.entities.putAll(rvcFile.reader.readEntitiesData(rvcFile.data))
+            }
+            loadRvcFile(partPath, "blockEvents")?.let { rvcFile ->
+                part.blockEvents.addAll(rvcFile.reader.readBlockEventsData(rvcFile.data))
+            }
+            loadRvcFile(partPath, "blockScheduledTicks")?.let { rvcFile ->
+                part.blockScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data, Registries.BLOCK))
+            }
+            loadRvcFile(partPath, "fluidScheduledTicks")?.let { rvcFile ->
+                part.fluidScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data, Registries.FLUID))
+            }
         }
     }
 }

@@ -1,75 +1,34 @@
 package com.github.zly2006.reden.rvc.tracking.network
 
-import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.PlayerData
-import com.github.zly2006.reden.rvc.tracking.TrackPredicate
+import com.github.zly2006.reden.rvc.tracking.StructureTracker
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
-import kotlinx.coroutines.Deferred
-import net.minecraft.util.math.BlockPos
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
+import kotlinx.coroutines.*
 import net.minecraft.world.World
-import java.util.*
 
 interface NetworkWorker {
-    suspend fun debugRender()
+    suspend fun debugRender(part: TrackedStructurePart)
     val structure: TrackedStructure
     val world: World
-    suspend fun refreshPositions() {
+    suspend fun refreshPositions(part: TrackedStructurePart) {
+        if (part.tracker !is StructureTracker.Trackpoint) return
         val timeStart = System.currentTimeMillis()
-        val readPos = hashSetOf<BlockPos>()
-        structure.trackPoints.filter { it.mode == TrackPredicate.TrackMode.IGNORE }.forEach { trackPoint ->
-            // first, add all blocks recursively
-            val queue = LinkedList<TrackedStructure.SpreadEntry>()
-            queue.add(trackPoint)
-            var maxElements = trackPoint.maxElements
-            while (queue.isNotEmpty() && maxElements > 0) {
-                maxElements--
-                val entry = queue.removeFirst()
-                if (entry.pos in structure.cachedIgnoredPositions) continue
-                if (world.isAir(entry.pos)) {
-                    continue
-                }
-                structure.cachedIgnoredPositions[entry.pos] = trackPoint
-                entry.spreadAround(world, { newPos ->
-                    if (readPos.add(newPos)) {
-                        queue.add(TrackedStructure.SpreadEntry(newPos, entry.predicate, trackPoint.mode, structure))
-                    }
-                })
-            }
-        }
-        structure.trackPoints.filter { it.mode == TrackPredicate.TrackMode.TRACK }.forEach { trackPoint ->
-            // first, add all blocks recursively
-            val queue = LinkedList<TrackedStructure.SpreadEntry>()
-            queue.add(trackPoint)
-            var maxElements = trackPoint.maxElements
-            while (queue.isNotEmpty() && maxElements > 0) {
-                maxElements--
-                val entry = queue.removeFirst()
-                if (entry.pos in structure.cachedIgnoredPositions) continue
-                if (world.isAir(entry.pos)) {
-                    continue
-                }
-                if (!trackPoint.pos.isWithinDistance(entry.pos, 200.0)) {
-                    Reden.LOGGER.error("Track point ${trackPoint.pos} is too far away from ${entry.pos}")
-                    continue
-                }
-                entry.spreadAround(world, { newPos ->
-                    if (readPos.add(newPos)) {
-                        if (newPos in structure.cachedPositions) return@spreadAround
-                        if (!world.isAir(newPos)) {
-                            structure.cachedPositions[newPos] = trackPoint
-                        }
-                        queue.add(TrackedStructure.SpreadEntry(newPos, entry.predicate, trackPoint.mode, structure))
-                    }
-                })
-            }
-        }
         val timeEnd = System.currentTimeMillis()
         println("${this::class.java.simpleName}#refreshPositions: ${timeEnd - timeStart}ms")
     }
 
     suspend fun startUndoRecord(cause: PlayerData.UndoRecord.Cause)
     suspend fun stopUndoRecord()
-    suspend fun paste()
-    suspend fun <T> execute(function: suspend () -> T): T
-    fun <T> async(function: suspend () -> T): Deferred<T>
+    suspend fun paste(part: TrackedStructurePart)
+    val coroutineDispatcher: CoroutineDispatcher
+    suspend fun <T> execute(function: suspend CoroutineScope.() -> T): T =
+        withContext(coroutineDispatcher, block = function)
+
+    @OptIn(DelicateCoroutinesApi::class)
+    fun <T> async(function: suspend CoroutineScope.() -> T) = GlobalScope.async(coroutineDispatcher, block = function)
+
+    @OptIn(DelicateCoroutinesApi::class)
+    fun launch(function: suspend CoroutineScope.() -> Unit) = GlobalScope.launch(coroutineDispatcher, block = function)
+    fun trackpointUpdated(part: TrackedStructurePart) {}
 }

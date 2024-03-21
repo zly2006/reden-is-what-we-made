@@ -1,14 +1,16 @@
 package com.github.zly2006.reden.rvc.tracking.client
 
 import com.github.zly2006.reden.rvc.gui.selectedStructure
+import com.github.zly2006.reden.rvc.tracking.StructureTracker
+import com.github.zly2006.reden.rvc.tracking.TrackPoint
 import com.github.zly2006.reden.rvc.tracking.TrackPredicate
-import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.holdingToolItem
 import fi.dy.masa.malilib.event.InputEventHandler
 import fi.dy.masa.malilib.hotkeys.IMouseInputHandler
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import net.minecraft.client.MinecraftClient
+import net.minecraft.text.Text
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.HitResult
 import org.lwjgl.glfw.GLFW
@@ -27,27 +29,45 @@ fun registerSelectionTool() {
                 val blockResult = raycast as BlockHitResult
                 if (selectedStructure != null && selectedStructure!!.placementInfo != null) {
                     val structure = selectedStructure!!
-                    structure.networkWorker?.async {
-                        if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                            structure.addTrackPoint(
-                                TrackedStructure.TrackPoint(
-                                    structure.getRelativeCoordinate(blockResult.blockPos),
-                                    TrackPredicate.QC,
-                                    TrackPredicate.TrackMode.TRACK
-                                )
-                            )
-                        }
-                        else {
-                            structure.addTrackPoint(
-                                TrackedStructure.TrackPoint(
-                                    structure.getRelativeCoordinate(blockResult.blockPos),
-                                    TrackPredicate.Same,
-                                    TrackPredicate.TrackMode.IGNORE,
-                                )
-                            )
+                    structure.networkWorker?.launch {
+                        val region = structure.regions.values.first()
+                        when (val tracker = region.tracker) {
+                            is StructureTracker.Trackpoint -> {
+                                if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+                                    tracker.addTrackPoint(
+                                        TrackPoint(
+                                            region.getRelativeCoordinate(blockResult.blockPos),
+                                            TrackPredicate.QC,
+                                            TrackPredicate.TrackMode.TRACK
+                                        )
+                                    )
+                                }
+                                else {
+                                    tracker.addTrackPoint(
+                                        TrackPoint(
+                                            region.getRelativeCoordinate(blockResult.blockPos),
+                                            TrackPredicate.Same,
+                                            TrackPredicate.TrackMode.IGNORE,
+                                        )
+                                    )
+                                }
+                            }
+
+                            is StructureTracker.Cuboid -> {
+                                if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+                                    tracker.first = blockResult.blockPos
+                                    mc.player?.sendMessage(Text.literal("First point set"), true)
+                                }
+                                else {
+                                    tracker.second = blockResult.blockPos
+                                    mc.player?.sendMessage(Text.literal("Second point set"), true)
+                                }
+                            }
+
+                            is StructureTracker.Entire -> {}
                         }
                         structure.refreshPositions()
-                    }?.ignore()
+                    }
                 }
             }
             return true

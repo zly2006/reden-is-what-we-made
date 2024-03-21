@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.rvc.io
 
 import com.github.zly2006.reden.rvc.*
+import com.github.zly2006.reden.rvc.tracking.PlacementInfo
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtElement
 import net.minecraft.nbt.NbtIo
@@ -10,7 +11,6 @@ import net.minecraft.structure.StructureTemplate
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
-import net.minecraft.world.World
 import java.nio.file.Path
 import kotlin.io.path.extension
 
@@ -41,8 +41,8 @@ class SchematicImpl(
                 && pos.z in 0 until zSize
     }
 
-    override fun createPlacement(world: World, origin: BlockPos): IPlacement {
-        return DefaultPlacement(this, world, origin)
+    override fun createPlacement(placementInfo: PlacementInfo): IPlacement {
+        return DefaultPlacement(this, placementInfo.worldInfo.getWorld()!!, placementInfo.origin)
     }
 }
 
