@@ -22,7 +22,6 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.ServerTask
-import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
@@ -31,9 +30,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
-import net.minecraft.world.Heightmap
 import net.minecraft.world.World
-import net.minecraft.world.chunk.light.ChunkLightProvider
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
@@ -56,36 +53,8 @@ val ClientPlayerEntity.holdingToolItem: Boolean get() {
     return Registries.ITEM.getId(stack.item) == Identifier.tryParse(SELECTION_TOOL.stringValue)
 }
 
-fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int) {
-    profiler.push("reden_setBlockState_noPP")
-    val stateBefore = getBlockState(pos)
-    if (stateBefore.hasBlockEntity()) {
-        removeBlockEntity(pos)
-    }
-    getChunk(pos).run { getSection(getSectionIndex(pos.y)) }
-        .setBlockState(pos.x and 15, pos.y and 15, pos.z and 15, state, false)
-    getChunk(pos).run {
-        this.heightmaps[Heightmap.Type.MOTION_BLOCKING]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
-        this.heightmaps[Heightmap.Type.MOTION_BLOCKING_NO_LEAVES]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
-        this.heightmaps[Heightmap.Type.OCEAN_FLOOR]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
-        this.heightmaps[Heightmap.Type.WORLD_SURFACE]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
-        setNeedsSaving(true)
-
-        if (ChunkLightProvider.needsLightUpdate(this, pos, stateBefore, state)) {
-            profiler.push("updateSkyLightSources")
-            chunkSkyLight.isSkyLightAccessible(this, pos.x and 15, pos.y and 15, pos.z and 15)
-            profiler.swap("queueCheckLight")
-            chunkManager.lightingProvider.checkBlock(pos)
-            profiler.pop()
-        }
-    }
-    if (this is ServerWorld) {
-        chunkManager.markForUpdate(pos)
-    }
-    if (flags and Block.NOTIFY_LISTENERS != 0) {
-        updateListeners(pos, stateBefore, state, flags)
-    }
-    profiler.pop()
+fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.NOTIFY_LISTENERS) {
+    setBlockState(pos, state, flags and Block.NOTIFY_NEIGHBORS.inv() or Block.FORCE_STATE or Block.SKIP_DROPS)
 }
 
 val isClient: Boolean get() = FabricLoader.getInstance().environmentType == EnvType.CLIENT

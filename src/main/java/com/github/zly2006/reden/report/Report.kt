@@ -13,6 +13,7 @@ import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.isDevVersion
 import com.github.zly2006.reden.utils.redenApiBaseUrl
 import com.github.zly2006.reden.utils.server
+import com.mojang.authlib.exceptions.InvalidCredentialsException
 import com.mojang.authlib.minecraft.UserApiService
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -374,6 +375,9 @@ fun updateOnlineInfo(client: MinecraftClient): Boolean {
             if (shutdown) return false
         }.key) { "Reden ApiKey is null" }
         return true
+    } catch (_: InvalidCredentialsException) {
+        LOGGER.error("Cannot log you in, are you using an online minecraft account?")
+        return false
     } catch (e: Exception) {
         LOGGER.error("Failed to login", e)
         return false
@@ -416,6 +420,9 @@ fun redenSetup(client: MinecraftClient) {
                     client.session.accessToken,
                     "3cb49a79c3af1f1dba6c56eddd760ac7d50c518a"
                 )
+            } catch (_: InvalidCredentialsException) {
+                req.online_mode = false
+                LOGGER.warn("Failed to login to minecraft, using offline mode.")
             } catch (e: Exception) {
                 LOGGER.error("", e)
                 req.online_mode = false
