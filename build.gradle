@@ -119,6 +119,7 @@ dependencies {
     include(implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:${project.jgit_version}"))
     include(implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.apache:${project.jgit_version}"))
     include(implementation("com.squareup.okio:okio-jvm:3.2.0"))
+    include(implementation("com.jcraft:jsch:0.1.55"))
 
     // Optional dependencies
     modImplementation("fi.dy.masa.litematica:litematica:0.17.1")
