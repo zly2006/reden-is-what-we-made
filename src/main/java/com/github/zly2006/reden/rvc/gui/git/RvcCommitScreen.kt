@@ -25,7 +25,7 @@ class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStruc
             UIErrorToast.report("Commit message cannot be empty")
             return@button
         }
-        structure.networkWorker?.async {
+        structure.networkWorker?.launch {
             repository.commit(structure, message, client!!.player)
             client!!.execute {
                 client!!.setScreen(SelectionInfoScreen(repository, structure))
@@ -38,7 +38,7 @@ class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStruc
             UIErrorToast.report("Commit message cannot be empty")
             return@button
         }
-        structure.networkWorker?.async {
+        structure.networkWorker?.launch {
             repository.commit(structure, message, client!!.player)
             repository.push(repository.remote, false)
             client!!.execute {

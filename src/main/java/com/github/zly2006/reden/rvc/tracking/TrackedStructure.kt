@@ -61,7 +61,7 @@ class TrackedStructure(
         repository.placed = false
     }
 
-    fun refreshPositionsAsync() = networkWorker?.async { refreshPositions() }
+    fun refreshPositionsAsync() = networkWorker?.launch { refreshPositions() }
     suspend fun refreshPositions() {
         regions.values.forEach {
             it.refreshPositions()

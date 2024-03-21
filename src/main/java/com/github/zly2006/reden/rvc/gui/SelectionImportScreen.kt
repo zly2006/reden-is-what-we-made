@@ -253,8 +253,7 @@ class SelectionImportScreen(
             val mc = MinecraftClient.getInstance()
             val center = structure.blockBox().center
             TODO()
-            @Suppress("DeferredResultUnused")
-            structure.networkWorker?.async {
+            structure.networkWorker?.launch {
                 structure.autoTrack()
                 structure.collectAllFromWorld()
                 if (structure.totalBlocks != blocksBefore) {

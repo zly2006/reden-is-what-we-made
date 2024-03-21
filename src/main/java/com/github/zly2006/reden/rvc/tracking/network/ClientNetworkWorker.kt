@@ -6,7 +6,7 @@ import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.rvc.tracking.StructureTracker
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
-import kotlinx.coroutines.*
+import kotlinx.coroutines.asCoroutineDispatcher
 import net.minecraft.client.MinecraftClient
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
@@ -38,10 +38,5 @@ open class ClientNetworkWorker(
         TODO("Not yet implemented")
     }
 
-    override suspend fun <T> execute(function: suspend () -> T): T =
-        withContext(MinecraftClient.getInstance().asCoroutineDispatcher()) { function() }
-
-    @OptIn(DelicateCoroutinesApi::class)
-    override fun <T> async(function: suspend () -> T) =
-        GlobalScope.async(MinecraftClient.getInstance().asCoroutineDispatcher()) { function() }
+    override val coroutineDispatcher = MinecraftClient.getInstance().asCoroutineDispatcher()
 }

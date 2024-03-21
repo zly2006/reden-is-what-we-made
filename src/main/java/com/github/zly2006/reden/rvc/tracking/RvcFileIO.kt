@@ -12,7 +12,6 @@ import net.minecraft.nbt.visitor.StringNbtWriter
 import net.minecraft.registry.Registries
 import java.io.FileFilter
 import java.nio.file.Path
-import kotlin.io.path.name
 import kotlin.io.path.notExists
 
 /**
@@ -214,32 +213,32 @@ object RvcFileIO : StructureIO {
             throw IllegalArgumentException("Structure is not a TrackedStructure")
         }
         structure.regions.clear()
-        val paths = path.toFile().listFiles(FileFilter { it.isDirectory && it.resolve("index.rvc").exists() })?.map {
-            it.toPath()
-        }.orEmpty()
-        (paths + path).forEach {
-            val part = TrackedStructurePart(it.name, structure)
+        val paths = path.toFile().listFiles(FileFilter { it.isDirectory && it.resolve("index.rvc").exists() })?.toList()
+            .orEmpty()
+        (paths + path.toFile()).forEach {
+            val partPath = it.toPath()
+            val part = TrackedStructurePart(if (partPath == path) "" else it.name, structure)
             structure.regions[it.name] = part
             part.dirty = true // mark it as dirty caz we have no cache of positions
-            val palette = Palette.load(loadRvcFile(path, "palette"))
-            loadRvcFile(path, "blocks")?.let { rvcFile ->
+            val palette = Palette.load(loadRvcFile(partPath, "palette"))
+            loadRvcFile(partPath, "blocks")?.let { rvcFile ->
                 part.blocks.putAll(rvcFile.reader.readBlocksData(rvcFile.data, palette))
             }
-            loadRvcFile(path, "blockEntities")?.let { rvcFile ->
+            loadRvcFile(partPath, "blockEntities")?.let { rvcFile ->
                 part.blockEntities.putAll(rvcFile.reader.readBlockEntitiesData(rvcFile.data, palette))
             }
-            loadRvcFile(path, "entities")?.let { rvcFile ->
+            loadRvcFile(partPath, "entities")?.let { rvcFile ->
                 part.entities.putAll(rvcFile.reader.readEntitiesData(rvcFile.data))
             }
-            loadRvcFile(path, "trackPoints")?.let { rvcFile ->
+            loadRvcFile(partPath, "trackPoints")?.let { rvcFile ->
 //                part.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data))
                 // todo
                 part.tracker // .load()
             }
-            loadRvcFile(path, "blockEvents")?.let { rvcFile ->
+            loadRvcFile(partPath, "blockEvents")?.let { rvcFile ->
                 part.blockEvents.addAll(rvcFile.reader.readBlockEventsData(rvcFile.data))
             }
-            loadRvcFile(path, "blockScheduledTicks")?.let { rvcFile ->
+            loadRvcFile(partPath, "blockScheduledTicks")?.let { rvcFile ->
                 part.blockScheduledTicks.addAll(
                     rvcFile.reader.readScheduledTicksData(
                         rvcFile.data,
@@ -247,7 +246,7 @@ object RvcFileIO : StructureIO {
                     )
                 )
             }
-            loadRvcFile(path, "fluidScheduledTicks")?.let { rvcFile ->
+            loadRvcFile(partPath, "fluidScheduledTicks")?.let { rvcFile ->
                 part.fluidScheduledTicks.addAll(
                     rvcFile.reader.readScheduledTicksData(
                         rvcFile.data,

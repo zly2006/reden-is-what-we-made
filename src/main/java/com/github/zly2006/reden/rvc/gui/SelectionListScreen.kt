@@ -60,7 +60,7 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
                     placementInfo = PlacementInfo(client!!.getWorldInfo())
                 }
                 value.repository.head().run {
-                    networkWorker?.async {
+                    networkWorker?.launch {
                         refreshPositions()
                     }
                 }

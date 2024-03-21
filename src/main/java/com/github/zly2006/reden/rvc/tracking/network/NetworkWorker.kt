@@ -3,7 +3,7 @@ package com.github.zly2006.reden.rvc.tracking.network
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.rvc.tracking.*
-import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.*
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import java.util.*
@@ -72,6 +72,13 @@ interface NetworkWorker {
     suspend fun startUndoRecord(cause: PlayerData.UndoRecord.Cause)
     suspend fun stopUndoRecord()
     suspend fun paste(part: TrackedStructurePart)
-    suspend fun <T> execute(function: suspend () -> T): T
-    fun <T> async(function: suspend () -> T): Deferred<T>
+    val coroutineDispatcher: CoroutineDispatcher
+    suspend fun <T> execute(function: suspend CoroutineScope.() -> T): T =
+        withContext(coroutineDispatcher, block = function)
+
+    @OptIn(DelicateCoroutinesApi::class)
+    fun <T> async(function: suspend CoroutineScope.() -> T) = GlobalScope.async(coroutineDispatcher, block = function)
+
+    @OptIn(DelicateCoroutinesApi::class)
+    fun launch(function: suspend CoroutineScope.() -> Unit) = GlobalScope.launch(coroutineDispatcher, block = function)
 }

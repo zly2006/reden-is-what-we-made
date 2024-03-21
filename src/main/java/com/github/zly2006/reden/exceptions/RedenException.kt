@@ -23,4 +23,8 @@ class RedenException : Exception {
     constructor(message: Text, cause: Throwable) : super(message.string, cause) {
         this.displayMessage = message
     }
+
+    override fun toString(): String {
+        return displayMessage.string
+    }
 }

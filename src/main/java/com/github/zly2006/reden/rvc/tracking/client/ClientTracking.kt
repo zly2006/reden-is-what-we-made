@@ -27,7 +27,7 @@ fun registerSelectionTool() {
                 val blockResult = raycast as BlockHitResult
                 if (selectedStructure != null && selectedStructure!!.placementInfo != null) {
                     val structure = selectedStructure!!
-                    structure.networkWorker?.async {
+                    structure.networkWorker?.launch {
                         // todo
                         val region = structure.regions.values.first()
                         if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
@@ -49,7 +49,7 @@ fun registerSelectionTool() {
                             )
                         }
                         structure.refreshPositions()
-                    }?.ignore()
+                    }
                 }
             }
             return true
