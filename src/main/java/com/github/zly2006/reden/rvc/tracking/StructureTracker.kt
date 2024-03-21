@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.debugger.breakpoint.BlockPosSerializer
 import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.rvc.blockPos
 import kotlinx.serialization.Serializable
@@ -27,10 +28,14 @@ sealed class StructureTracker {
     @Transient
     protected var origin: BlockPos = BlockPos.ORIGIN
 
+    @Serializable
     class Cuboid(
+        @Serializable(BlockPosSerializer::class)
         var first: BlockPos,
+        @Serializable(BlockPosSerializer::class)
         var second: BlockPos
     ) : StructureTracker() {
+        @Transient
         override val blockIterator: Iterator<RelativeCoordinate> = BlockPos.iterate(first, second).asSequence().map {
             RelativeCoordinate.origin(origin).block(it)
         }.iterator()
@@ -65,6 +70,8 @@ sealed class StructureTracker {
 
         @Transient
         var cachedIgnoredPositions = HashMap<BlockPos, TrackPoint>()
+
+        @Transient
         override val blockIterator: Iterator<RelativeCoordinate> = cachedPositions.keys.asSequence().map {
             RelativeCoordinate.origin(origin).block(it)
         }.iterator()
@@ -192,6 +199,7 @@ sealed class StructureTracker {
             pos.blockPos(origin) in cachedPositions.keys
     }
 
+    @Serializable
     data object Entire : StructureTracker() {
         override val blockIterator: Iterator<RelativeCoordinate>
             get() = TODO("Not yet implemented")
