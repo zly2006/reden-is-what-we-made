@@ -205,9 +205,7 @@ object RvcFileIO : StructureIO {
      *                        please let me know or make a pull request.
      */
     override fun load(path: Path, structure: IWritableStructure) {
-        if (structure !is TrackedStructure) {
-            throw IllegalArgumentException("Structure is not a TrackedStructure")
-        }
+        require(structure is TrackedStructure) { "Structure is not a TrackedStructure" }
         structure.regions.clear()
         val paths = path.toFile().listFiles(FileFilter { it.isDirectory && it.resolve("index.rvc").exists() })?.toList()
             .orEmpty()
@@ -218,8 +216,9 @@ object RvcFileIO : StructureIO {
                 Json.decodeFromString<StructureTracker>(rvcFile.data[0])
             } ?: StructureTracker.Trackpoint()
 
-            val part = TrackedStructurePart(if (partPath == path) "" else it.name, structure, tracker)
-            structure.regions[it.name] = part
+            val partName = if (partPath == path) "" else it.name
+            val part = TrackedStructurePart(partName, structure, tracker)
+            structure.regions[partName] = part
             part.dirty = true // mark it as dirty caz we have no cache of positions
             val palette = Palette.load(loadRvcFile(partPath, "palette"))
             loadRvcFile(partPath, "blocks")?.let { rvcFile ->
@@ -235,20 +234,10 @@ object RvcFileIO : StructureIO {
                 part.blockEvents.addAll(rvcFile.reader.readBlockEventsData(rvcFile.data))
             }
             loadRvcFile(partPath, "blockScheduledTicks")?.let { rvcFile ->
-                part.blockScheduledTicks.addAll(
-                    rvcFile.reader.readScheduledTicksData(
-                        rvcFile.data,
-                        Registries.BLOCK
-                    )
-                )
+                part.blockScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data, Registries.BLOCK))
             }
             loadRvcFile(partPath, "fluidScheduledTicks")?.let { rvcFile ->
-                part.fluidScheduledTicks.addAll(
-                    rvcFile.reader.readScheduledTicksData(
-                        rvcFile.data,
-                        Registries.FLUID
-                    )
-                )
+                part.fluidScheduledTicks.addAll(rvcFile.reader.readScheduledTicksData(rvcFile.data, Registries.FLUID))
             }
         }
     }

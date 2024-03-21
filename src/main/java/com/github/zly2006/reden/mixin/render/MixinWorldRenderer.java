@@ -63,6 +63,7 @@ public abstract class MixinWorldRenderer {
         return x || !BlockOutline.INSTANCE.getBlocks().isEmpty();
     }
 
+    @SuppressWarnings("deprecation")
     @Inject(
             method = "render",
             at = @At(
