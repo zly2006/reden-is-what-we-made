@@ -4,6 +4,7 @@ import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.access.TransferCooldownAccess;
 import com.github.zly2006.reden.network.HopperCDSync;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.HopperScreen;
@@ -35,16 +36,19 @@ public abstract class MixinHopperScreen extends HandledScreen<HopperScreenHandle
         super(handler, inventory, title);
     }
 
+    @Unique
+    private boolean hopperCDEnabled() {
+        ServerData data = ServerData.Companion.getServerData(MinecraftClient.getInstance());
+        return data != null && data.getFeatureSet().contains("hopper-cd");
+    }
+
     @Inject(
             method = "<init>",
             at = @At("RETURN")
     )
     private void sendReqOnInit(HopperScreenHandler handler, PlayerInventory inventory, Text title, CallbackInfo ci) {
-        if (client != null) {
-            ServerData data = ServerData.Companion.getServerData(client);
-            if (data != null && data.getFeatureSet().contains("hopper-cd")) {
-                ClientPlayNetworking.send(HopperCDSync.clientQueryPacket());
-            }
+        if (hopperCDEnabled()) {
+            ClientPlayNetworking.send(HopperCDSync.clientQueryPacket());
         }
     }
 
@@ -58,7 +62,9 @@ public abstract class MixinHopperScreen extends HandledScreen<HopperScreenHandle
     )
     private void renderCD(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         originalTitle = title;
-        title = originalTitle.copy().append(" (CD: ").append(String.valueOf(transferCooldown)).append(")");
+        if (hopperCDEnabled()) {
+            title = originalTitle.copy().append(" (CD: ").append(String.valueOf(transferCooldown)).append(")");
+        }
     }
 
     @Inject(
