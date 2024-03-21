@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.rvc.io
 
 import com.github.zly2006.reden.rvc.*
+import com.github.zly2006.reden.rvc.tracking.*
 import fi.dy.masa.litematica.schematic.LitematicaSchematic
 import fi.dy.masa.litematica.selection.AreaSelection
 import fi.dy.masa.litematica.selection.Box
@@ -80,6 +81,19 @@ open class LitematicaIO : StructureIO {
             val blockEntityMap = schematic.getBlockEntityMapForRegion(regionName)!!
             val entityInfos = schematic.getEntityListForRegion(regionName)!!
             val basePos = schematic.getSubRegionPosition(regionName)!!
+            if (structure is TrackedStructure) {
+                structure.placementInfo = PlacementInfo(WorldInfo())
+                structure.regions[regionName] = TrackedStructurePart(
+                    regionName,
+                    structure,
+                    StructureTracker.Cuboid(
+                        basePos,
+                        basePos.toImmutable().add(subRegionContainer.size)
+                    )
+                ).apply {
+                    createPlacement(structure.placementInfo!!.copy(origin = basePos))
+                }
+            }
             for (x in 0 until subRegionContainer.size.x) {
                 for (y in 0 until subRegionContainer.size.y) {
                     for (z in 0 until subRegionContainer.size.z) {

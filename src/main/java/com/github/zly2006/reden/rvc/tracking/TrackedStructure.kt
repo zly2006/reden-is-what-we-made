@@ -86,13 +86,26 @@ class TrackedStructure(
 
     val totalBlocks: Int get() = regions.values.sumOf { it.blocks.size }
     val minPos get() = BlockPos(minX, minY, minZ)
+
+    private fun getPartsFor(pos: RelativeCoordinate) =
+        regions.values.filter {
+            it.placementInfo != null &&
+                    it.isInArea(
+                        RelativeCoordinate(
+                            pos.x + origin.x - it.origin.x,
+                            pos.y + origin.y - it.origin.y,
+                            pos.z + origin.z - it.origin.z
+                        )
+                    )
+        }
+
     override fun setBlockEntityData(pos: RelativeCoordinate, nbt: NbtCompound) {
-        val count = regions.values.filter { it.isInArea(pos) }.onEach { it.setBlockEntityData(pos, nbt) }.count()
+        val count = getPartsFor(pos).onEach { it.setBlockEntityData(pos, nbt) }.count()
         require(count > 0) { "No region contains $pos" }
     }
 
     override fun setBlockState(pos: RelativeCoordinate, state: BlockState) {
-        val count = regions.values.filter { it.isInArea(pos) }.onEach { it.setBlockState(pos, state) }.count()
+        val count = getPartsFor(pos).onEach { it.setBlockState(pos, state) }.count()
         require(count > 0) { "No region contains $pos" }
     }
 

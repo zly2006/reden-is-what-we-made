@@ -32,10 +32,10 @@ fun registerSelectionTool() {
                     structure.networkWorker?.launch {
                         // todo
                         val region = structure.regions.values.first()
-                        when (region.tracker) {
+                        when (val tracker = region.tracker) {
                             is StructureTracker.Trackpoint -> {
                                 if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                                    region.tracker.addTrackPoint(
+                                    tracker.addTrackPoint(
                                         TrackPoint(
                                             region.getRelativeCoordinate(blockResult.blockPos),
                                             TrackPredicate.QC,
@@ -44,7 +44,7 @@ fun registerSelectionTool() {
                                     )
                                 }
                                 else {
-                                    region.tracker.addTrackPoint(
+                                    tracker.addTrackPoint(
                                         TrackPoint(
                                             region.getRelativeCoordinate(blockResult.blockPos),
                                             TrackPredicate.Same,
@@ -56,11 +56,11 @@ fun registerSelectionTool() {
 
                             is StructureTracker.Cuboid -> {
                                 if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                                    region.tracker.first = blockResult.blockPos
+                                    tracker.first = blockResult.blockPos
                                     mc.player?.sendMessage(Text.literal("First point set"), true)
                                 }
                                 else {
-                                    region.tracker.second = blockResult.blockPos
+                                    tracker.second = blockResult.blockPos
                                     mc.player?.sendMessage(Text.literal("Second point set"), true)
                                 }
                             }

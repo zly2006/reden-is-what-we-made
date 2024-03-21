@@ -12,6 +12,7 @@ import net.minecraft.nbt.visitor.StringNbtWriter
 import net.minecraft.registry.Registries
 import java.io.FileFilter
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.notExists
 
 /**
@@ -94,7 +95,8 @@ object RvcFileIO : StructureIO {
         }
         structure.regions.values.forEach { part ->
             val path = path.resolve(part.name)
-            val usePalette = palette ?: (part.blocks.size > 1000)
+            path.createDirectories()
+            val usePalette = palette ?: (part.blocks.size > 4096)
 
             @Suppress("NAME_SHADOWING")
             val palette = Palette()

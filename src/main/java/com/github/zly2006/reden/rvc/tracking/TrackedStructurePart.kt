@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Contract
 class TrackedStructurePart(
     name: String,
     override val structure: TrackedStructure,
+    val tracker: StructureTracker = StructureTracker.Trackpoint()
 ) : ReadWriteStructure(name), IPlacement, PositionIterable {
     public override var minX: Int = super.minX
     public override var minY: Int = super.minY
@@ -48,14 +49,13 @@ class TrackedStructurePart(
 
     override val origin: BlockPos
         get() = placementInfo?.origin?.toImmutable()
-            ?: redenError("getting origin but PlacementInfo not set for $name")
+            ?: redenError("getting origin but PlacementInfo not set for subregion: ${structure.name}/$name")
 
     override fun createPlacement(placementInfo: PlacementInfo) = apply {
         this.placementInfo = placementInfo
         tracker.updateOrigin(this)
     }
 
-    val tracker: StructureTracker = StructureTracker.Trackpoint()
     val blockEvents = mutableListOf<BlockEventInfo>() // order sensitive
     val blockScheduledTicks = mutableListOf<TickInfo<Block>>() // order sensitive
     val fluidScheduledTicks = mutableListOf<TickInfo<Fluid>>() // order sensitive
