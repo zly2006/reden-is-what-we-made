@@ -30,7 +30,6 @@ fun registerSelectionTool() {
                 if (selectedStructure != null && selectedStructure!!.placementInfo != null) {
                     val structure = selectedStructure!!
                     structure.networkWorker?.launch {
-                        // todo
                         val region = structure.regions.values.first()
                         when (val tracker = region.tracker) {
                             is StructureTracker.Trackpoint -> {
@@ -65,7 +64,7 @@ fun registerSelectionTool() {
                                 }
                             }
 
-                            else -> TODO()
+                            is StructureTracker.Entire -> {}
                         }
                         structure.refreshPositions()
                     }

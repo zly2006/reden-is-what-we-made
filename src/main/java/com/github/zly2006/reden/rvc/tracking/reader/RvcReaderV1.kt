@@ -60,7 +60,8 @@ class RvcReaderV1(
         return entities
     }
 
-    override fun readTrackPointData(
+    @Deprecated("#101")
+    fun readTrackPointData(
         data: List<String>
     ): List<TrackPoint> {
         val trackPoints = mutableListOf<TrackPoint>()

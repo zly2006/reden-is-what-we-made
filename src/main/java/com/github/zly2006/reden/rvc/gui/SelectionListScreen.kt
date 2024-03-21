@@ -71,10 +71,11 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
                     childTr("reden.widget.rvc.structure.name", name)
                     childTr("reden.widget.rvc.structure.block_count", totalBlocks)
                     childTr("reden.widget.rvc.structure.entity_count", entities.count())
-                    // todo
-//                    if (fluidScheduledTicks.isNotEmpty() || blockScheduledTicks.isNotEmpty() || blockEvents.isNotEmpty()) {
-//                        childTr("reden.widget.rvc.structure.scheduled_tick_unstable")
-//                    }
+                    if (regions.values.any { it.fluidScheduledTicks.isNotEmpty() }
+                        || regions.values.any { it.blockScheduledTicks.isNotEmpty() }
+                        || regions.values.any { it.blockEvents.isNotEmpty() }) {
+                        childTr("reden.widget.rvc.structure.scheduled_tick_unstable")
+                    }
                 }
             }
         }

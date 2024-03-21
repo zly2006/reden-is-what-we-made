@@ -8,10 +8,22 @@ import kotlinx.serialization.Transient
 import net.minecraft.util.math.BlockPos
 import java.util.*
 
+/**
+ * track a structure's part, listen to block changes and update the positions of the tracked blocks.
+ * provide a way to iterate through the tracked blocks.
+ */
 @Serializable
 sealed class StructureTracker {
+    /**
+     * iterator of the tracked blocks
+     *
+     * if tracked was modified, this iterator should be updated by calling [refreshPositions]
+     */
     abstract val blockIterator: Iterator<RelativeCoordinate>
 
+    /**
+     * cached origin of the structure part
+     */
     @Transient
     protected var origin: BlockPos = BlockPos.ORIGIN
 
@@ -191,12 +203,27 @@ sealed class StructureTracker {
         override fun onBlockRemoved(part: TrackedStructurePart, pos: BlockPos) {}
     }
 
+    /**
+     * update the origin of the structure part
+     * usually called by [TrackedStructurePart.createPlacement]
+     */
     open fun updateOrigin(part: TrackedStructurePart) {
         origin = part.origin
     }
 
     abstract fun onBlockAdded(part: TrackedStructurePart, pos: BlockPos)
     abstract fun onBlockRemoved(part: TrackedStructurePart, pos: BlockPos)
+
+    /**
+     * check if the given position is in the area of the structure part
+     * @param part the structure part
+     * @param pos the position to check, relative to the structure part
+     */
     abstract fun isInArea(part: TrackedStructurePart, pos: RelativeCoordinate): Boolean
+
+    /**
+     * refresh the positions of the tracked blocks, after called this method,
+     * the [blockIterator] should return the correct positions
+     */
     abstract suspend fun refreshPositions(part: TrackedStructurePart)
 }

@@ -6,6 +6,8 @@ import com.github.zly2006.reden.rvc.io.Palette
 import com.github.zly2006.reden.rvc.io.StructureIO
 import com.github.zly2006.reden.rvc.tracking.reader.RvcReaderV1
 import com.github.zly2006.reden.utils.Utils
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.visitor.StringNbtWriter
@@ -101,6 +103,8 @@ object RvcFileIO : StructureIO {
             @Suppress("NAME_SHADOWING")
             val palette = Palette()
 
+            writeRvcFile(path, "index", RVC_HEADER, Json.encodeToString(part.tracker))
+
             // ======================================== Save Blocks ========================================
             // public final val blocks: MutableMap<BlockPos, BlockState>
             // com.github.zly2006.reden.rvc.ReadWriteStructure
@@ -147,16 +151,6 @@ object RvcFileIO : StructureIO {
             part.entities.entries.joinToString("\n") { (uuid, nbt) ->
                 "$uuid,${toNbtString(nbt)}"
             }.let { data -> writeRvcFile(path, "entities", RVC_HEADER, data) }
-
-            // ===================================== Save Track Points =====================================
-            // public final val trackPoints: MutableList<TrackedStructure.TrackPoint>
-            // com.github.zly2006.reden.rvc.tracking.TrackedStructure
-            // todo
-            part.tracker
-//            part.trackPoints.joinToString("\n") { trackPoint ->
-//                val coordinate = part.getRelativeCoordinate(trackPoint.pos)
-//                "${coordinate.x},${coordinate.y},${coordinate.z},${trackPoint.predicate},${trackPoint.mode}"
-//            }.let { data -> writeRvcFile(path, "trackPoints", RVC_HEADER, data) }
 
             // ===================================== Save Block Events =====================================
             // public final val blockEvents: MutableList<BlockEvent>
@@ -219,7 +213,12 @@ object RvcFileIO : StructureIO {
             .orEmpty()
         (paths + path.toFile()).forEach {
             val partPath = it.toPath()
-            val part = TrackedStructurePart(if (partPath == path) "" else it.name, structure)
+
+            val tracker = loadRvcFile(partPath, "index")?.let { rvcFile ->
+                Json.decodeFromString<StructureTracker>(rvcFile.data[0])
+            } ?: StructureTracker.Trackpoint()
+
+            val part = TrackedStructurePart(if (partPath == path) "" else it.name, structure, tracker)
             structure.regions[it.name] = part
             part.dirty = true // mark it as dirty caz we have no cache of positions
             val palette = Palette.load(loadRvcFile(partPath, "palette"))
@@ -231,11 +230,6 @@ object RvcFileIO : StructureIO {
             }
             loadRvcFile(partPath, "entities")?.let { rvcFile ->
                 part.entities.putAll(rvcFile.reader.readEntitiesData(rvcFile.data))
-            }
-            loadRvcFile(partPath, "trackPoints")?.let { rvcFile ->
-//                part.trackPoints.addAll(rvcFile.reader.readTrackPointData(rvcFile.data))
-                // todo
-                part.tracker // .load()
             }
             loadRvcFile(partPath, "blockEvents")?.let { rvcFile ->
                 part.blockEvents.addAll(rvcFile.reader.readBlockEventsData(rvcFile.data))

@@ -130,7 +130,7 @@ class TrackedStructure(
     override fun save(path: Path) = RvcFileIO.save(path, this)
     override fun load(path: Path) = RvcFileIO.load(path, this)
     suspend fun autoTrack() {
-        TODO("Not yet implemented")
+        // todo
     }
 
     fun getRelativeCoordinate(pos: BlockPos): RelativeCoordinate {

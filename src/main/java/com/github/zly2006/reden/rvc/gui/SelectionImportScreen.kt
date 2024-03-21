@@ -251,8 +251,6 @@ class SelectionImportScreen(
 
         protected fun afterPlaced(structure: TrackedStructure, file: File, blocksBefore: Int) {
             val mc = MinecraftClient.getInstance()
-            val center = structure.blockBox().center
-            TODO()
             structure.networkWorker?.launch {
                 structure.autoTrack()
                 structure.collectAllFromWorld()
