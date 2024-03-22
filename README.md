@@ -21,16 +21,51 @@ For more information, please check [our wiki page](https://wiki.redenmc.com/Undo
 All blocks, block entities and entities are undoable.
 Undo is available only if that change is caused by a player, for example, placing blocks and commands.
 
+
+## Control the game tick (tick)
+Reden provides the `/tick <function>` command to control game ticks conveniently and quickly.
+
+### Function (the `<function>` parameter)
+- `freeze` freeze the game tick
+- `query` display the current TPS information
+- `rate <tps>` adjust TPS (default is `20.0`)
+- `sprint <1d|3d|60s|stop>` speed up the game
+- `step` execute one game tick forward (only works when the game is frozen)
+- `unfreeze` unfreeze the game tick
+- `back` go back to the previous tick  ***Planning***
+
+
 ## RVC
-> Work in progress
+> Work in progress, functions listed below are implemented
 
-RVC(Redstone Version Control), provides change history and diff analysis for your machines based on git.
+![image](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/b2d5f6de-1860-496e-8980-b4a2cd3abe95)
 
-RVC can upload your machines to GitHub if you have bound your GitHub account at https://redenmc.com.
+RVC(Redstone Version Control), provides change history and diff analysis for your machines based on git. Press `R+L` to open RVC screen.
+
+### Update, commit and push
+***Notice: DO NOT use hotkey `R+G` to login to Github [Issue #103](https://github.com/zly2006/reden-is-what-we-made/issues/103)***
+
+If your Reden account has been linked with GitHub(You can link it [here](https://redenmc.com/home/edit)), RVC can upload your machines to GitHub. 
+
 RVC supports subregions and submodules, so you can use other people's work in your own creations.
 
+
+For the first-time use, you need to log in to your Reden account. After logging in, you will see the following:
+
+![image](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/f4bf3dee-9eca-4d0b-bada-82ced5fd6745)
+
+
+Then, just work with it like any other git repos:
+
+![image](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/de014ed2-e7b9-44d8-b100-9ab9d54523c4)
+
+### Block selection
 RVC brings a totally new way of selecting blocks that is much easier.
+
 You can hold a blaze rod in your hand, then left click to select a group of blocks, and right click to ignore.
+
+![image](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/bf1cca8a-e8e2-4c41-8ef3-a5e78b536935)
+
 
 ## RDebugger
 > Work in progress
