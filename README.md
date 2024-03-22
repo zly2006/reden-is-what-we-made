@@ -1,7 +1,7 @@
 # Reden is What We Made
 
-[![Modrinth Downloads](https://img.shields.io/modrinth/dt/reden?style=flat-square&label=Modrinth)](https://modrinth.com/mod/reden)
-[![Discord](https://img.shields.io/discord/1140304794976792707?logo=discord&label=discord)](https://discord.gg/fCxmEyFgAd)
+[![Modrinth](https://img.shields.io/modrinth/dt/reden?style=flat-square&label=Modrinth)](https://modrinth.com/mod/reden)
+[![Discord Server](https://img.shields.io/discord/1140304794976792707?logo=discord&label=discord)](https://discord.gg/fCxmEyFgAd)
 [Official Website](https://redenmc.com)
 
 Redstone EDEN
@@ -17,9 +17,9 @@ All blocks, block entities and entities are undoable.
 Undo is available only if that change is caused by a player, for example, placing blocks and commands.
 
 ## RVC
-> WIP
+> Work in progress
 
-RVC, Redstone Version Control, machine history and diff analysis based on git.
+RVC(Redstone Version Control), provides change history and diff analysis for your machines based on git.
 
 RVC can upload your machines to GitHub if you have bound your GitHub account at https://redenmc.com.
 RVC supports subregions and submodules, so you can use other people's work in your own creations.
@@ -28,7 +28,7 @@ RVC brings a totally new way of selecting blocks that is much easier.
 You can hold a blaze rod in your hand, then left click to select a group of blocks, and right click to ignore.
 
 ## RDebugger
-> WIP
+> Work in progress
 
 Micro-timing analysis and simulation: block update breakpoints (NC, PP, CU, BE), BED debugger, step-by-step update, step-by-step tick, update reset
 
