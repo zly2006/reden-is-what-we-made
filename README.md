@@ -8,6 +8,11 @@ Redstone EDEN
 
 **English** | [简体中文](./README.zh-CN.md)
 
+## Before you start
+Please read our [Privacy policy](./PRIVACY.md) first.
+
+This project is licensed under the ***GNU Lesser General Public License v3.0***
+
 ## Undo & Redo
 
 Press Ctrl+Z to immediately undo the previous operation, making it much more convenient to develop redstone machines!
