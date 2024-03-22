@@ -3,6 +3,7 @@ package com.github.zly2006.reden.rvc.tracking
 import com.github.zly2006.reden.rvc.IPlacement
 import com.github.zly2006.reden.rvc.IWritableStructure
 import com.github.zly2006.reden.rvc.RelativeCoordinate
+import com.github.zly2006.reden.rvc.tracking.io.RvcFileIO
 import com.github.zly2006.reden.rvc.tracking.network.NetworkWorker
 import com.github.zly2006.reden.utils.redenError
 import net.minecraft.block.BlockState

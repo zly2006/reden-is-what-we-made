@@ -2,8 +2,8 @@ package com.github.zly2006.reden.rvc.gui.hud.gameplay
 
 import com.github.zly2006.reden.rvc.gui.RvcHudRenderer
 import com.github.zly2006.reden.rvc.gui.selectedStructure
-import com.github.zly2006.reden.rvc.tracking.StructureTracker
-import com.github.zly2006.reden.rvc.tracking.TrackPredicate
+import com.github.zly2006.reden.rvc.tracking.tracker.StructureTracker
+import com.github.zly2006.reden.rvc.tracking.tracker.TrackPredicate
 import com.github.zly2006.reden.utils.holdingToolItem
 import com.github.zly2006.reden.utils.red
 import net.minecraft.client.MinecraftClient

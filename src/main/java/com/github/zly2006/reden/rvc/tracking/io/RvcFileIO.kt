@@ -1,10 +1,12 @@
-package com.github.zly2006.reden.rvc.tracking
+package com.github.zly2006.reden.rvc.tracking.io
 
 import com.github.zly2006.reden.rvc.IStructure
 import com.github.zly2006.reden.rvc.IWritableStructure
 import com.github.zly2006.reden.rvc.io.Palette
 import com.github.zly2006.reden.rvc.io.StructureIO
-import com.github.zly2006.reden.rvc.tracking.reader.RvcReaderV1
+import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
+import com.github.zly2006.reden.rvc.tracking.tracker.StructureTracker
 import com.github.zly2006.reden.utils.Utils
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -213,7 +215,7 @@ object RvcFileIO : StructureIO {
             val partPath = it.toPath()
 
             val tracker = loadRvcFile(partPath, "index")?.let { rvcFile ->
-                Json.decodeFromString<StructureTracker>(rvcFile.data[0])
+                Json.decodeFromString<StructureTracker>(rvcFile.data.joinToString(""))
             } ?: StructureTracker.Trackpoint()
 
             val partName = if (partPath == path) "" else it.name

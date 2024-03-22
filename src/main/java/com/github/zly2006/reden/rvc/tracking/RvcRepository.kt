@@ -9,6 +9,7 @@ import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureLitematicaT
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureTask
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
+import com.github.zly2006.reden.rvc.tracking.io.RvcFileIO
 import com.github.zly2006.reden.rvc.tracking.network.ClientNetworkWorker
 import com.github.zly2006.reden.rvc.tracking.network.LocalNetworkWorker
 import com.github.zly2006.reden.rvc.tracking.network.NetworkWorker
@@ -265,6 +266,11 @@ class RvcRepository(
             // use the java.io method instead
             path.toFile().deleteRecursively()
         }
+    }
+
+    fun updateModulus() {
+        val path = git.repository.workTree.toPath()
+        git.submoduleUpdate().call()
     }
 
     fun startPlacing(structure: TrackedStructure, successCallback: (Task) -> Unit = {}) {

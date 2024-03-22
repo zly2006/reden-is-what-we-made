@@ -1,9 +1,11 @@
-package com.github.zly2006.reden.rvc.tracking.reader
+package com.github.zly2006.reden.rvc.tracking.io
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.rvc.io.Palette
-import com.github.zly2006.reden.rvc.tracking.*
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
+import com.github.zly2006.reden.rvc.tracking.tracker.TrackPoint
+import com.github.zly2006.reden.rvc.tracking.tracker.TrackPredicate
 import net.minecraft.block.BlockState
 import net.minecraft.command.argument.BlockArgumentParser
 import net.minecraft.nbt.NbtCompound

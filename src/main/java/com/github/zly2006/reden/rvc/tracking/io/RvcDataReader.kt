@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.rvc.tracking
+package com.github.zly2006.reden.rvc.tracking.io
 
 /**
  * Separate and get delimiter separated data read from a RVC file using [RvcFileIO].

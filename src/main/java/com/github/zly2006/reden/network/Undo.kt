@@ -14,7 +14,6 @@ import com.github.zly2006.reden.utils.setBlockNoPP
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.block.Block
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.SpawnReason
 import net.minecraft.entity.mob.MobEntity
@@ -53,7 +52,7 @@ class Undo(
                 // if isUndo, the block is modified by the undo record, so we need to set the modify time to the undo record's time
                 // if isRedo, the block is modified by the player operations, so we need to set the modify time to the current time
                 //  luckily, the redo record's time is the current time
-                world.setBlockNoPP(pos, entry.state, Block.NOTIFY_LISTENERS)
+                world.setBlockNoPP(pos, entry.state)
                 // clear schedules
                 if (RedenCarpetSettings.Options.undoApplyingClearScheduledTicks) {
                     world.syncedBlockEventQueue.removeIf { it.pos == pos }

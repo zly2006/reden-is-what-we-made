@@ -1,6 +1,8 @@
 package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.rvc.*
+import com.github.zly2006.reden.rvc.tracking.io.RvcFileIO
+import com.github.zly2006.reden.rvc.tracking.tracker.StructureTracker
 import com.github.zly2006.reden.utils.redenError
 import com.github.zly2006.reden.utils.setBlockNoPP
 import net.minecraft.block.Block
@@ -225,10 +227,10 @@ class TrackedStructurePart(
     override fun clearArea() {
         clearSchedules()
         blockIterator.forEach {
-            world.setBlockNoPP(it.blockPos(origin), Blocks.AIR.defaultState, Block.NOTIFY_LISTENERS)
+            world.setBlockNoPP(it.blockPos(origin), Blocks.AIR.defaultState)
         }
         blocks.keys.forEach {
-            world.setBlockNoPP(it.blockPos(origin), Blocks.AIR.defaultState, Block.NOTIFY_LISTENERS)
+            world.setBlockNoPP(it.blockPos(origin), Blocks.AIR.defaultState)
         }
         entities.forEach {
             (world as? ClientWorld)?.entityLookup?.get(it.key)?.discard()
@@ -238,7 +240,7 @@ class TrackedStructurePart(
 
     override fun paste() {
         blocks.forEach { (pos, state) ->
-            world.setBlockNoPP(pos.blockPos(origin), state, Block.NOTIFY_LISTENERS)
+            world.setBlockNoPP(pos.blockPos(origin), state)
         }
         blockEntities.forEach { (pos, nbt) ->
             val be = (blocks[pos]?.block as? BlockEntityProvider)?.createBlockEntity(pos.blockPos(origin), blocks[pos])

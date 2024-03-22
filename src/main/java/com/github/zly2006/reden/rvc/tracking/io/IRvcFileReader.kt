@@ -1,7 +1,8 @@
-package com.github.zly2006.reden.rvc.tracking
+package com.github.zly2006.reden.rvc.tracking.io
 
 import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.rvc.io.Palette
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
 import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.registry.Registry

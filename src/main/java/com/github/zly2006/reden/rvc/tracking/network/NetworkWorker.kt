@@ -1,9 +1,9 @@
 package com.github.zly2006.reden.rvc.tracking.network
 
 import com.github.zly2006.reden.access.PlayerData
-import com.github.zly2006.reden.rvc.tracking.StructureTracker
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
+import com.github.zly2006.reden.rvc.tracking.tracker.StructureTracker
 import kotlinx.coroutines.*
 import net.minecraft.world.World
 

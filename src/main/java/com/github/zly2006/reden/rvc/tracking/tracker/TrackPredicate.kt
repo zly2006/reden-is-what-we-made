@@ -1,5 +1,6 @@
-package com.github.zly2006.reden.rvc.tracking
+package com.github.zly2006.reden.rvc.tracking.tracker
 
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
 import kotlinx.serialization.Serializable
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World

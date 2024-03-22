@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.rvc.io
 
-import com.github.zly2006.reden.rvc.tracking.IRvcFileReader
+import com.github.zly2006.reden.rvc.tracking.io.IRvcFileReader
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
 

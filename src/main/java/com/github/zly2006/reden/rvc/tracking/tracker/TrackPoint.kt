@@ -1,7 +1,8 @@
-package com.github.zly2006.reden.rvc.tracking
+package com.github.zly2006.reden.rvc.tracking.tracker
 
 import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.rvc.blockPos
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor

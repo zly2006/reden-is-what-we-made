@@ -1,7 +1,11 @@
 package com.github.zly2006.reden.rvc.io
 
 import com.github.zly2006.reden.rvc.*
-import com.github.zly2006.reden.rvc.tracking.*
+import com.github.zly2006.reden.rvc.tracking.PlacementInfo
+import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
+import com.github.zly2006.reden.rvc.tracking.WorldInfo
+import com.github.zly2006.reden.rvc.tracking.tracker.StructureTracker
 import fi.dy.masa.litematica.schematic.LitematicaSchematic
 import fi.dy.masa.litematica.selection.AreaSelection
 import fi.dy.masa.litematica.selection.Box
@@ -77,7 +81,7 @@ open class LitematicaIO : StructureIO {
             structure.zSize = size.z
         }
         schematic.areas.keys.forEach { regionName ->
-            val subRegionContainer = schematic.getSubRegionContainer(regionName)!!
+            val subRegion = schematic.getSubRegionContainer(regionName)!!
             val blockEntityMap = schematic.getBlockEntityMapForRegion(regionName)!!
             val entityInfos = schematic.getEntityListForRegion(regionName)!!
             val basePos = schematic.getSubRegionPosition(regionName)!!
@@ -87,21 +91,25 @@ open class LitematicaIO : StructureIO {
                     regionName,
                     structure,
                     StructureTracker.Cuboid(
-                        basePos,
-                        basePos.toImmutable().add(subRegionContainer.size)
+                        RelativeCoordinate(basePos.x, basePos.y, basePos.z),
+                        RelativeCoordinate(
+                            basePos.x + subRegion.size.x,
+                            basePos.y + subRegion.size.y,
+                            basePos.z + subRegion.size.z
+                        )
                     )
                 ).apply {
                     createPlacement(structure.placementInfo!!.copy(origin = basePos))
                 }
             }
-            for (x in 0 until subRegionContainer.size.x) {
-                for (y in 0 until subRegionContainer.size.y) {
-                    for (z in 0 until subRegionContainer.size.z) {
+            for (x in 0 until subRegion.size.x) {
+                for (y in 0 until subRegion.size.y) {
+                    for (z in 0 until subRegion.size.z) {
                         val pos = RelativeCoordinate(x + basePos.x, y + basePos.y, z + basePos.z)
-                        if (subRegionContainer.get(x, y, z).isAir) {
+                        if (subRegion.get(x, y, z).isAir) {
                             continue
                         }
-                        structure.setBlockState(pos, subRegionContainer.get(x, y, z))
+                        structure.setBlockState(pos, subRegion.get(x, y, z))
                         val be = blockEntityMap[BlockPos(x, y, z)]
                         if (be != null) {
                             // Note: litematica may add some unnecessary data

@@ -1,9 +1,9 @@
-package com.github.zly2006.reden.rvc.tracking
+package com.github.zly2006.reden.rvc.tracking.tracker
 
 import com.github.zly2006.reden.Reden
-import com.github.zly2006.reden.debugger.breakpoint.BlockPosSerializer
 import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.rvc.blockPos
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.minecraft.util.math.BlockPos
@@ -30,14 +30,24 @@ sealed class StructureTracker {
 
     @Serializable
     class Cuboid(
-        @Serializable(BlockPosSerializer::class)
-        var first: BlockPos,
-        @Serializable(BlockPosSerializer::class)
-        var second: BlockPos
+        var first: RelativeCoordinate,
+        var second: RelativeCoordinate
     ) : StructureTracker() {
-        @Transient
-        override val blockIterator: Iterator<RelativeCoordinate> = BlockPos.iterate(first, second).asSequence().map {
-            RelativeCoordinate.origin(origin).block(it)
+        override val blockIterator: Iterator<RelativeCoordinate>
+            get() = sequence {
+                val minX = kotlin.math.min(first.x, second.x)
+                val minY = kotlin.math.min(first.y, second.y)
+                val minZ = kotlin.math.min(first.z, second.z)
+                val maxX = kotlin.math.max(first.x, second.x)
+                val maxY = kotlin.math.max(first.y, second.y)
+                val maxZ = kotlin.math.max(first.z, second.z)
+                for (x in minX..maxX) {
+                    for (y in minY..maxY) {
+                        for (z in minZ..maxZ) {
+                            yield(RelativeCoordinate(x, y, z))
+                        }
+                    }
+                }
         }.iterator()
 
         override fun isInArea(part: TrackedStructurePart, pos: RelativeCoordinate) =
@@ -71,8 +81,8 @@ sealed class StructureTracker {
         @Transient
         var cachedIgnoredPositions = HashMap<BlockPos, TrackPoint>()
 
-        @Transient
-        override val blockIterator: Iterator<RelativeCoordinate> = cachedPositions.keys.asSequence().map {
+        override val blockIterator: Iterator<RelativeCoordinate>
+            get() = cachedPositions.keys.asSequence().map {
             RelativeCoordinate.origin(origin).block(it)
         }.iterator()
 

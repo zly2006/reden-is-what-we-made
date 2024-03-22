@@ -1,9 +1,9 @@
 package com.github.zly2006.reden.rvc.tracking.client
 
 import com.github.zly2006.reden.rvc.gui.selectedStructure
-import com.github.zly2006.reden.rvc.tracking.StructureTracker
-import com.github.zly2006.reden.rvc.tracking.TrackPoint
-import com.github.zly2006.reden.rvc.tracking.TrackPredicate
+import com.github.zly2006.reden.rvc.tracking.tracker.StructureTracker
+import com.github.zly2006.reden.rvc.tracking.tracker.TrackPoint
+import com.github.zly2006.reden.rvc.tracking.tracker.TrackPredicate
 import com.github.zly2006.reden.utils.holdingToolItem
 import fi.dy.masa.malilib.event.InputEventHandler
 import fi.dy.masa.malilib.hotkeys.IMouseInputHandler
@@ -30,7 +30,7 @@ fun registerSelectionTool() {
                 if (selectedStructure != null && selectedStructure!!.placementInfo != null) {
                     val structure = selectedStructure!!
                     structure.networkWorker?.launch {
-                        val region = structure.regions.values.first()
+                        val region = structure.regions.values.first() // todo: select region
                         when (val tracker = region.tracker) {
                             is StructureTracker.Trackpoint -> {
                                 if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
@@ -55,11 +55,11 @@ fun registerSelectionTool() {
 
                             is StructureTracker.Cuboid -> {
                                 if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                                    tracker.first = blockResult.blockPos
+                                    tracker.first = region.getRelativeCoordinate(blockResult.blockPos)
                                     mc.player?.sendMessage(Text.literal("First point set"), true)
                                 }
                                 else {
-                                    tracker.second = blockResult.blockPos
+                                    tracker.second = region.getRelativeCoordinate(blockResult.blockPos)
                                     mc.player?.sendMessage(Text.literal("Second point set"), true)
                                 }
                             }
