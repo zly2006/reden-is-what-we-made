@@ -2,6 +2,7 @@
 
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/reden?style=flat-square&label=Modrinth)](https://modrinth.com/mod/reden)
 [![Discord](https://img.shields.io/discord/1140304794976792707?logo=discord&label=discord)](https://discord.gg/fCxmEyFgAd)
+[Official Website](https://redenmc.com)
 
 Redstone EDEN
 
@@ -9,37 +10,29 @@ Redstone EDEN
 
 ## Undo & Redo
 
-Ctrl+Z immediately undo the previous operation, making it much more convenient to develop redstone machines!
+Press Ctrl+Z to immediately undo the previous operation, making it much more convenient to develop redstone machines!
 For more information, please check [our wiki page](https://wiki.redenmc.com/Undo-and-Redo).
 
-|  Hotkeys (malilib -> `General`) |    Default     |
-|---------------------------------|----------------|
-|                       `undoKey` |    `Ctrl+Z`    |
-|                       `redoKey` |    `Ctrl+Y`    |
-| (debug only) `debugPreviewUndo` | `Ctrl+Shift+Z` |
-
-## Tick Back
-> Planning
-
-If your game was frozen using `/tick freeze`, you can use `/tick back` to go back to the previous tick. This feature is implemented by making backups.
+All blocks, block entities and entities are undoable.
+Undo is available only if that change is caused by a player, for example, placing blocks and commands.
 
 ## RVC
 > WIP
 
-RVC, Redstone Version Control, machine history and diff analysis
+RVC, Redstone Version Control, machine history and diff analysis based on git.
 
-RVCHub, a universal machine sharing platform, and automatic recognition of whether the machine has been correctly marked with copyright
+RVC can upload your machines to GitHub if you have bound your GitHub account at https://redenmc.com.
+RVC supports subregions and submodules, so you can use other people's work in your own creations.
 
-### RVC Selection
-
-Hold a blaze rod in your hand, then left click to select a group of blocks, and right click to ignore.
+RVC brings a totally new way of selecting blocks that is much easier.
+You can hold a blaze rod in your hand, then left click to select a group of blocks, and right click to ignore.
 
 ## RDebugger
 > WIP
 
 Micro-timing analysis and simulation: block update breakpoints (NC, PP, CU, BE), BED debugger, step-by-step update, step-by-step tick, update reset
 
-## Original Intention
+## Our Wishes
 
 Provide a one-stop working environment for redstone machine developers and become the best redstone debugging and teaching tool.
 
