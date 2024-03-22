@@ -1,7 +1,7 @@
-# Reden
+# Reden is What We Made
 
-[![Modrinth 下载](https://img.shields.io/modrinth/dt/reden?style=flat-square&label=Modrinth)](https://modrinth.com/mod/reden)
-[![Discord](https://img.shields.io/discord/1140304794976792707?logo=discord&label=discord)](https://discord.gg/fCxmEyFgAd)
+[![从 Modrinth 下载](https://img.shields.io/modrinth/dt/reden?style=flat-square&label=Modrinth)](https://modrinth.com/mod/reden)
+[![加入 Discord 服务器](https://img.shields.io/discord/1140304794976792707?logo=discord&label=discord)](https://discord.gg/fCxmEyFgAd)
 
 红 石 天 堂
 
@@ -30,22 +30,20 @@ Ctrl+Z 可以立即撤销之前的操作，使得开发红石机器更加方便�
 ## 红石版本控制（RVC）
 > 开发中
 
-红石版本控制 RVC (Redstone Version Control)，管理机器的修改历史、分析历史记录。
+红石版本控制 RVC (Redstone Version Control)，基于 Git 开发，可以帮助您管理机器的修改历史，并分析历史记录之间的差异。
 
-RVCHub是一个通用的机器分享平台，其可以自动识别机器是否正确标记了版权
+如果您绑定了 GitHub 帐户（您可在[官网](https://redenmc.com)完成此操作），RVC 可以将您的机器上传到 GitHub。 RVC 支持子区域和子模块，因此您可以在自己的创作中使用其他人的作品。
 
-### RVC 选择
+RVC 带来了一种全新的、更简单的区域选择方式。你只需要手持一根烈焰棒，左键单击选择区域，右键单击忽略。
 
-手持烈焰棒, 左键以选中某些方块，右键以忽略。
 
 ## 红石调试 (RDebugger)
 > 开发中
 
-红石调试 RDebugger ，微时间分析和模拟：方块更新断点 (NC, PP, CU, BE)，BED 调试器，逐步更新，逐步刻，更新重置
+红石调试 RDebugger 提供了微时间分析和模拟功能，例如方块更新断点 (NC, PP, CU, BE)，BED 调试器，逐步更新，逐步刻，更新重置等
 
-让你的 MC 变成红石机器的 IDE！
 
-## 初心
+## 我们的目标
 
 为红石机器开发者提供一站式工作环境，成为最佳的红石调试和教学工具。
 
