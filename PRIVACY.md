@@ -10,22 +10,12 @@ This policy describes the types of information we may collect from you or that y
 
 This policy applies to information we collect:
 - On our website
-- In minecraft, if you are using our service by a minecraft mod.
+- In Minecraft, if you are using our service by a minecraft mod.
 - When you interact with our advertising and applications on third-party websites and services, if those applications or advertising include links to this policy.
 
 Please read this policy carefully to understand our policies and practices regarding your information and how we will treat it. If you do not agree with our policies and practices, your choice is not to use our website or service. By accessing or using this website or service, you agree to this privacy policy. This policy may change from time to time (see Changes to the Privacy Policy). Your continued use of this website or service after we make changes is deemed to be acceptance of those changes, so please check the policy periodically for updates.
 
 ## What data do we collect?
-
-### RVCHub User Data
-
-When you create an account on RVCHub, we collect:
-- Your name
-- Your email
-- Your profile picture
-- Your OAuth data, if you access your account through a 3rd-party account.
-- Your address, if applicable
-- Your timezone, if applicable
 
 ### MC Data
 
@@ -60,11 +50,11 @@ When you share or upload resources to our service, we collect:
 
 Data is retained indefinitely. We do not delete any data unless you request it.
 
-If you want to delete your data, please go to <https://example.com>. We will keep your data for 14 days after your request. You can cancel this request anytime. After 14 days, your data will be deleted automatically forever.
+If you want to delete your data, please go to <https://redenmc.com>. We will keep your data for 14 days after your request. You can cancel this request anytime. After 14 days, your data will be deleted automatically forever.
 
 ## Access, rectification, erasure, restriction, portability, and objection
 
-Please contact us at <https://example.com>
+Please contact us at <https://redenmc.com>
 
 ## Children
 
