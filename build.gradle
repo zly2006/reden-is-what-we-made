@@ -121,6 +121,10 @@ dependencies {
     include(implementation("com.squareup.okio:okio-jvm:3.2.0"))
     include(implementation("com.jcraft:jsch:0.1.55"))
 
+    include(implementation("com.labymedia:ultralight-java-base:0.4.12"))
+    include(implementation("com.labymedia:ultralight-java-databind:0.4.12"))
+    include(implementation("com.labymedia:ultralight-java-gpu:0.4.12"))
+
     // Optional dependencies
     modImplementation("fi.dy.masa.litematica:litematica:0.17.1")
     modImplementation("fi.dy.masa.tweakeroo:tweakeroo:0.19.2")
