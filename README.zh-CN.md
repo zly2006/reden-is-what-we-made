@@ -21,19 +21,6 @@ Ctrl+Z 可以立即撤销之前的操作，使得开发红石机器更加方便�
 |         (调试模式) `预览调试撤回` | `Ctrl+Shift+Z` |
 
 
-## 控制游戏刻 （tick）
-Reden 提供了 `/tick <function>` 指令，用于方便快捷地控制游戏刻。
-
-### 功能（`<function>` 参数）
-- `freeze` 冻结游戏刻
-- `query` 显示当前的TPS信息
-- `rate <tps>` 调整TPS（默认为`20.0`）
-- `sprint <1d|3d|60s|stop>` 加速游戏刻 
-- `step` 向前执行一个游戏刻（必须在游戏冻结时才能使用）
-- `unfreeze` 解冻游戏刻
-- `back` 回到上一个刻  ***规划中***
-
-
 ## 红石版本控制（RVC）
 > 开发中
 
@@ -44,11 +31,6 @@ Reden 提供了 `/tick <function>` 指令，用于方便快捷地控制游戏刻
 ### 提交或更新您的仓库
 ***注意：请不要直接使用`R+G`快捷键登录Github [Issue #103](https://github.com/zly2006/reden-is-what-we-made/issues/103)***
 如果您的 Reden 账户绑定了 GitHub（您可在[官网](https://redenmc.com/home/edit)完成此操作），RVC 可以将您的机器上传到 GitHub。 RVC 支持子区域和子模块，因此您可以在自己的创作中使用其他人的作品。
-
-首次使用需要登录 Reden 账号，登录完成后将会显示如下界面：
-
-![rvc_login_success](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/f4bf3dee-9eca-4d0b-bada-82ced5fd6745)
-
 
 随后，您可像使用git那样操作您的仓库
 
