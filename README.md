@@ -18,19 +18,6 @@ All blocks, block entities and entities are undoable.
 Undo is available only if that change is caused by a player, for example, placing blocks and commands.
 
 
-## Control the game tick (tick)
-Reden provides the `/tick <function>` command to control game ticks conveniently and quickly.
-
-### Function (the `<function>` parameter)
-- `freeze` freeze the game tick
-- `query` display the current TPS information
-- `rate <tps>` adjust TPS (default is `20.0`)
-- `sprint <1d|3d|60s|stop>` speed up the game
-- `step` execute one game tick forward (only works when the game is frozen)
-- `unfreeze` unfreeze the game tick
-- `back` go back to the previous tick  ***Planning***
-
-
 ## RVC
 > Work in progress
 
@@ -45,19 +32,12 @@ If your Reden account has been linked with GitHub(You can link it [here](https:/
 
 RVC supports subregions and submodules, so you can use other people's work in your own creations.
 
-
-For the first-time use, you need to log in to your Reden account. After logging in, you will see the following:
-
-![rvc_login_success](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/f4bf3dee-9eca-4d0b-bada-82ced5fd6745)
-
-
 Then, just work with it like any other git repos:
 
 ![rvc_git_funcs](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/de014ed2-e7b9-44d8-b100-9ab9d54523c4)
 
 ### Block selection
 RVC brings a totally new way of selecting blocks that is much easier.
-
 You can hold a blaze rod in your hand, then left click to select a group of blocks, and right click to ignore.
 
 ![rvc_area_selection](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/bf1cca8a-e8e2-4c41-8ef3-a5e78b536935)
