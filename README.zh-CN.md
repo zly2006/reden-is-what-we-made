@@ -1,4 +1,4 @@
-# Reden is What We Made
+# Reden
 
 [![从 Modrinth 下载](https://img.shields.io/modrinth/dt/reden?style=flat-square&label=Modrinth)](https://modrinth.com/mod/reden)
 [![加入 Discord 服务器](https://img.shields.io/discord/1140304794976792707?logo=discord&label=discord)](https://discord.gg/fCxmEyFgAd)
@@ -7,10 +7,6 @@
 
 [English](./README.md) | **简体中文**
 
-## 在您开始使用前
-请先阅读我们的[隐私政策](./PRIVACY.md)。
-
-此项目依照***LGPL v3.0***协议开源。
 
 ## 撤销&重做
 
@@ -39,9 +35,9 @@ Reden 提供了 `/tick <function>` 指令，用于方便快捷地控制游戏刻
 
 
 ## 红石版本控制（RVC）
-> 开发中，以下列出的功能已实现
+> 开发中
 
-![image](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/b2d5f6de-1860-496e-8980-b4a2cd3abe95)
+![rvc_list](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/dbab2f3a-0e5e-4103-8003-f283306d62f2)
 
 红石版本控制 RVC (Redstone Version Control)，基于 Git 开发，可以帮助您管理机器的修改历史，并分析历史记录之间的差异。按下`R+L`即可快速打开RVC界面。
 
@@ -51,17 +47,17 @@ Reden 提供了 `/tick <function>` 指令，用于方便快捷地控制游戏刻
 
 首次使用需要登录 Reden 账号，登录完成后将会显示如下界面：
 
-![image](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/f4bf3dee-9eca-4d0b-bada-82ced5fd6745)
+![rvc_login_success](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/f4bf3dee-9eca-4d0b-bada-82ced5fd6745)
 
 
 随后，您可像使用git那样操作您的仓库
 
-![image](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/de014ed2-e7b9-44d8-b100-9ab9d54523c4)
+![rvc_git_funcs](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/de014ed2-e7b9-44d8-b100-9ab9d54523c4)
 
 ### 选择区域
 RVC 带来了一种全新的、更简单的区域选择方式。你只需要手持一根烈焰棒，左键单击选择区域，右键单击忽略。
 
-![image](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/bf1cca8a-e8e2-4c41-8ef3-a5e78b536935)
+![rvc_area_selection](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/bf1cca8a-e8e2-4c41-8ef3-a5e78b536935)
 
 
 ## 红石调试 (RDebugger)
