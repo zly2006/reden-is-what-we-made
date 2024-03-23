@@ -1,4 +1,4 @@
-# Reden is What We Made
+# Reden
 
 [![Modrinth](https://img.shields.io/modrinth/dt/reden?style=flat-square&label=Modrinth)](https://modrinth.com/mod/reden)
 [![Discord Server](https://img.shields.io/discord/1140304794976792707?logo=discord&label=discord)](https://discord.gg/fCxmEyFgAd)
@@ -8,10 +8,6 @@ Redstone EDEN
 
 **English** | [简体中文](./README.zh-CN.md)
 
-## Before you start
-Please read our [Privacy policy](./PRIVACY.md) first.
-
-This project is licensed under the ***GNU Lesser General Public License v3.0***
 
 ## Undo & Redo
 
@@ -36,11 +32,11 @@ Reden provides the `/tick <function>` command to control game ticks conveniently
 
 
 ## RVC
-> Work in progress, functions listed below are implemented
+> Work in progress
 
-![image](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/b2d5f6de-1860-496e-8980-b4a2cd3abe95)
+![rvc_list](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/dbab2f3a-0e5e-4103-8003-f283306d62f2)
 
-RVC(Redstone Version Control), provides change history and diff analysis for your machines based on git. Press `R+L` to open RVC screen.
+RVC(Redstone Version Control), provides version history and diff analysis for your machines based on git. Press `R+L` to open RVC screen.
 
 ### Update, commit and push
 ***Notice: DO NOT use hotkey `R+G` to login to Github [Issue #103](https://github.com/zly2006/reden-is-what-we-made/issues/103)***
@@ -52,19 +48,19 @@ RVC supports subregions and submodules, so you can use other people's work in yo
 
 For the first-time use, you need to log in to your Reden account. After logging in, you will see the following:
 
-![image](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/f4bf3dee-9eca-4d0b-bada-82ced5fd6745)
+![rvc_login_success](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/f4bf3dee-9eca-4d0b-bada-82ced5fd6745)
 
 
 Then, just work with it like any other git repos:
 
-![image](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/de014ed2-e7b9-44d8-b100-9ab9d54523c4)
+![rvc_git_funcs](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/de014ed2-e7b9-44d8-b100-9ab9d54523c4)
 
 ### Block selection
 RVC brings a totally new way of selecting blocks that is much easier.
 
 You can hold a blaze rod in your hand, then left click to select a group of blocks, and right click to ignore.
 
-![image](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/bf1cca8a-e8e2-4c41-8ef3-a5e78b536935)
+![rvc_area_selection](https://github.com/ArthurZhou/reden-is-what-we-made/assets/89689293/bf1cca8a-e8e2-4c41-8ef3-a5e78b536935)
 
 
 ## RDebugger
