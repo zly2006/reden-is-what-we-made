@@ -91,12 +91,14 @@ allprojects {
         processResources {
             inputs.property("version", project.version)
             filesMatching("fabric.mod.json") {
-                mapOf(
-                    "version" to project.version,
-                    "is_main_branch" to is_main_branch,
-                    "build_timestamp" to System.currentTimeMillis(),
-                    "git_branch" to grgit.branch?.current()?.name,
-                    "git_commit" to grgit.head()?.id,
+                expand(
+                    mapOf(
+                        "version" to project.version,
+                        "is_main_branch" to is_main_branch,
+                        "build_timestamp" to System.currentTimeMillis(),
+                        "git_branch" to grgit.branch?.current()?.name,
+                        "git_commit" to grgit.head()?.id,
+                    )
                 )
             }
         }
