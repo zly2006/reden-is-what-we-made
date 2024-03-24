@@ -9,7 +9,7 @@ on:
         type: boolean
   push:
     branches:
-      - '**' # Pushes to any branch
+      - 1.20.4
 
 jobs:
   build-and-publish-pre-release:
@@ -104,6 +104,7 @@ jobs:
           files: |
             build/libs/*-@(beta).jar
             build/libs/*-@(beta)*@(ci)*[0123456789].jar
+            build/reports/tests/
 
           name: "${{ steps.get_mod_info.outputs.mod_name }} Pre-Release ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}.github.ci.${{ github.run_number }}"
           version: "${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}-beta+ghci.${{ github.run_number }}"
