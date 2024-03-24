@@ -12,8 +12,9 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
-val CLIENT_ID: String = TODO()
-val CONNECTION = "https://github.com/settings/connections/applications/:$CLIENT_ID"
+const val CLIENT_ID = "Iv1.7e75a8b9ef128aac"
+const val CONNECTION = "https://github.com/settings/connections/applications/:$CLIENT_ID"
+
 class GithubAuth {
     val canRelogin: Boolean
         get() = authState == AuthState.EXPIRED || authState == AuthState.FAILED || authState == AuthState.NONE || authState == AuthState.FINISHED
