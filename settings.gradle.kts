@@ -1,12 +1,12 @@
 pluginManagement {
     repositories {
         maven {
-            name = 'Fabric'
-            url = 'https://maven.fabricmc.net/'
+            name = "Fabric"
+            url = uri("https://maven.fabricmc.net/")
         }
         maven {
             name = "Reden"
-            url = "https://maven.starlight.cool/artifactory/reden"
+            url = uri("https://maven.starlight.cool/artifactory/reden")
         }
         mavenCentral()
         gradlePluginPortal()
