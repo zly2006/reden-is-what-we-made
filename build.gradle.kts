@@ -1,4 +1,5 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+@file:Suppress("PropertyName")
+
 import kotlin.io.path.absolutePathString
 import kotlin.math.floor
 
@@ -57,7 +58,7 @@ ext {
     })
 }
 
-setVersion(ext.get("mod_version")!!)
+version = ext.get("mod_version")!!
 group = maven_group
 
 allprojects {
@@ -110,6 +111,39 @@ allprojects {
         jar {
             from("LICENSE") {
                 rename { "${it}_${base.archivesName.get()}" }
+            }
+        }
+
+        shadowJar {
+            /**
+             * Note: use of this shadowJar task is on your own risk.
+             * It contains minecraft classes so make sure to not distribute it.
+             * See Mojang's EULA for more information.
+             */
+            isZip64 = true
+            exclude("META-INF/**")
+            exclude("kotlin/**")
+            exclude("kotlinx/**")
+            exclude("*.json")
+            exclude("*.properties")
+            exclude("*.accesswidener")
+            exclude("LICENSE*")
+            exclude("Log4j*")
+            exclude("mixin/**")
+            exclude("mappings/**")
+
+            doLast {
+                val jar = archiveFile.get().asFile
+                println("Jar size: " + floor(jar.length().toDouble() / 1024 / 1024) + "MB")
+
+                javaexec {
+                    classpath(files("classpath/public-jar-1.0-SNAPSHOT-all.jar"))
+                    mainClass.set("com.redenmc.publicizer.MainKt")
+                    args(
+                        jar.absolutePath,
+                        jar.toPath().parent.resolve("publiced-" + jar.name).absolutePathString()
+                    )
+                }
             }
         }
     }
@@ -186,44 +220,11 @@ publishing {
     // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
         maven {
-            url = uri("https://maven.starlight.cool/artifactory/reden")
+            url = uri(System.getenv()["MAVEN_URK"] ?: "https://maven.starlight.cool/artifactory/reden")
             credentials {
                 username = System.getenv()["MAVEN_USER"]
                 password = System.getenv()["MAVEN_PASSWORD"]
             }
-        }
-    }
-}
-
-tasks.withType<ShadowJar> {
-    /**
-     * Note: use of this shadowJar task is on your own risk.
-     * It contains minecraft classes so make sure to not distribute it.
-     * See Mojang's EULA for more information.
-     */
-    isZip64 = true
-    exclude("META-INF/**")
-    exclude("kotlin/**")
-    exclude("kotlinx/**")
-    exclude("*.json")
-    exclude("*.properties")
-    exclude("*.accesswidener")
-    exclude("LICENSE*")
-    exclude("Log4j*")
-    exclude("mixin/**")
-    exclude("mappings/**")
-
-    doLast {
-        val jar = archiveFile.get().asFile
-        println("Jar size: " + floor(jar.length().toDouble() / 1024 / 1024) + "MB")
-
-        javaexec {
-            classpath(files("classpath/public-jar-1.0-SNAPSHOT-all.jar"))
-            mainClass.set("com.redenmc.publicizer.MainKt")
-            args(
-                jar.absolutePath,
-                jar.toPath().parent.resolve("publiced-" + jar.name).absolutePathString()
-            )
         }
     }
 }
