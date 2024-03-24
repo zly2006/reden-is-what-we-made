@@ -74,6 +74,7 @@ jobs:
           echo "commit_count=$commit_count" >> $GITHUB_OUTPUT
 
       - name: Upload assets to GitHub Action
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: "[DEV-CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }} - Java ${{ matrix.java }}"
