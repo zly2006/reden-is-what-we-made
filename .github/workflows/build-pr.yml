@@ -27,7 +27,6 @@ jobs:
       - name: Show Gradle version
         run: gradle --version
 
-
       - name: Build with Gradle
         run: gradle build --stacktrace
 
@@ -52,4 +51,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: "[PR-CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }} - Java ${{ matrix.java }}"
-          path: build/libs/*.jar
+          path: |
+            build/libs/*.jar
+            build/reports/tests/
