@@ -32,7 +32,7 @@ fun register(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
                 1
             }
         }
-        literal("submodule").then {
+        literal("region").then {
             literal("import").then {
                 argument("url", greedyString()).executes {
                     selectedRepository ?: error("No repository selected")
@@ -83,6 +83,8 @@ fun register(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
                     1
                 }
             }
+            literal("new")
+            literal("update")
         }
         literal("commit").then {
             argument("message", greedyString()).executes {
@@ -115,6 +117,26 @@ fun register(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
                 status.untracked.forEach(it.source::sendMessage)
             }
             1
+        }
+        literal("log")
+        literal("checkout")
+        literal("branch").then {
+            literal("ls").executes { context ->
+                selectedRepository ?: error("No repository selected")
+                selectedRepository!!.git.branchList().call().forEach {
+                    it.name.let { name ->
+                        if (it.name == selectedRepository!!.git.repository.branch) {
+                            selectedRepository!!.git.log().add(it.objectId).call().first().let { commit ->
+                                context.source.sendMessage("* $name: ${commit.shortMessage}")
+                            }
+                        }
+                        else {
+                            context.source.sendMessage(name)
+                        }
+                    }
+                }
+                1
+            }
         }
     } as LiteralArgumentBuilder<FabricClientCommandSource>)
 }

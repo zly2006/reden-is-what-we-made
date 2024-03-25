@@ -3,6 +3,10 @@
 [![Modrinth 下载](https://img.shields.io/modrinth/dt/reden?style=flat-square&label=Modrinth)](https://modrinth.com/mod/reden)
 [![Discord](https://img.shields.io/discord/1140304794976792707?logo=discord&label=discord)](https://discord.gg/fCxmEyFgAd)
 
+> [!WARNING]
+>
+> 中文readme已经过时，建议查看英文版
+
 红 石 天 堂
 
 [English](./README.md) | **简体中文**
