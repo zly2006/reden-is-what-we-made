@@ -95,8 +95,24 @@ reden:
       "no": 先不了吧…
       title: Reden B站账号
       desc: |
-        您已经使用Reden的功能%s次了!
+        您已经使用 Reden 的功能%s次了!
         要去关注一下我的B站账号吗?
+
+    carpet:
+      warning_debugger_not_enabled:
+        - text: "警告: "
+          color: red
+        - text: "规则 "
+        - text: redenDebuggerEnabled
+          color: gold
+          clickEvent:
+            action: run_command
+            value: "/carpet redenDebuggerEnabled"
+          hoverEvent:
+            action: show_text
+            contents:
+              - text: "点击显示规则"
+        - text: " 未启用，因此此选项将不会起作用。"
 
   config:
     # ===== Generic =====
@@ -109,7 +125,7 @@ reden:
       comment: |-
 
     hudPosition:
-      .: HUD位置
+      .: HUD 位置
       comment: |-
 
     allowCopyrightCheck:
@@ -161,17 +177,17 @@ reden:
 
     # ===== Micro Tick =====
     toggleNcBreakpoint:
-      .: 添加/移除NC断点
+      .: 添加/移除 NC 断点
       comment: |-
-        NC更新
+        NC 更新
 
     togglePpBreakpoint:
-      .: 添加/移除PP断点
+      .: 添加/移除 PP 断点
       comment: |-
-        PP更新
+        PP 更新
 
     toggleCuBreakpoint:
-      .: 添加/移除CU断点
+      .: 添加/移除 CU 断点
       comment: |-
         比较器更新
 
@@ -260,11 +276,17 @@ reden:
     githubToken:
       .: GithubToken
       comment: |-
-        Github的密钥，请不要向其他人泄露你的的密钥！
+        Github 的密钥，请不要向其他人泄露你的的密钥！
 
     allowSocialFollow:
-      .: 允许社交媒体关注tips
+      .: 允许社交媒体关注 tips
       comment: |-
+
+  Carpet:
+    warning: { "text": "警告", "color": "red"}
+    rule: 规则
+    redenDebuggerEnabled: reden 调试器启用
+    TextTip: { "text": " 并未启用，因此此选项将不起作用。", "color": "red"}
 
 
 

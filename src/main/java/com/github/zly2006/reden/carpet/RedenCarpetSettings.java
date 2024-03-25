@@ -11,10 +11,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.TypeFilter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -164,14 +161,7 @@ public class RedenCarpetSettings {
             public Boolean validate(@Nullable ServerCommandSource source, CarpetRule<Boolean> changingRule, Boolean newValue, String userInput) {
                 if (newValue && !Options.redenDebuggerEnabled) {
                     if (source != null) {
-                        source.sendMessage(Text.literal("Warning: ").formatted(Formatting.RED)
-                                .append(Text.literal("The rule "))
-                                .append(Text.literal("redenDebuggerEnabled").styled(style ->
-                                        style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/carpet redenDebuggerEnabled"))
-                                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("show the rule")))
-                                                .withBold(true)
-                                                .withColor(Formatting.GOLD)))
-                                .append(Text.literal(" is not enabled, so this option will not work.").formatted(Formatting.RED)));
+                        source.sendMessage(Text.translatable("reden.message.carpet.warning_debugger_not_enabled"));
                     }
                 }
                 return newValue;
