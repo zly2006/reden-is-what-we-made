@@ -1,16 +1,15 @@
 package com.github.zly2006.reden.rvc
 
 import com.github.zly2006.reden.access.ClientData.Companion.data
+import com.github.zly2006.reden.api.dsl.then
 import com.github.zly2006.reden.rvc.gui.selectedRepository
+import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType.*
-import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import net.minecraft.client.MinecraftClient
@@ -18,17 +17,18 @@ import net.minecraft.text.Text
 import org.eclipse.jgit.api.Git
 import java.net.URI
 
-private fun CommandContext<*>.string(name: String) = getString(this, name)
-
-@Suppress("NOTHING_TO_INLINE")
-inline fun error(reason: String): Nothing =
-    throw SimpleCommandExceptionType(Text.literal(reason)).create()
+private fun CommandContext<*>.string(name: String) =
+    try {
+        getString(this, name)
+    } catch (e: IllegalArgumentException) {
+        null
+    }
 
 fun register(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
     val mc = MinecraftClient.getInstance()
     dispatcher.register(ClientCommandManager.literal("rvc-local").then {
         literal("use").then {
-            argument("name", string()).suggests(mc.data.rvcStructures.keys).executes {
+            argument("name", string()).suggest { mc.data.rvcStructures.keys }.executes {
                 val name = it.string("name")
                 selectedRepository = mc.data.rvcStructures[name] ?: error("No such repository: $name")
                 if (selectedRepository!!.placementInfo?.worldInfo != mc.getWorldInfo()) {
@@ -40,44 +40,41 @@ fun register(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
         }
         literal("region").then {
             literal("import").then {
-                argument("url", greedyString()).executes {
-                    selectedRepository ?: error("No repository selected")
-                    val url = it.string("url")
-                    val name = URI(url).path.split("/").last().let { name ->
-                        require(selectedRepository!!.head().regions[name] == null) {
-                            error("Submodule $name already exists")
-                        }
-                        name
-                    }
-                    selectedRepository!!.git.repository.workTree.resolve(name).deleteRecursively()
-                    selectedRepository!!.git.submoduleAdd()
-                        .setName(name)
-                        .setPath(name)
-                        .setURI(url)
-                        .call()
-                    selectedRepository!!.clearCache()
-                    requireNotNull(selectedRepository!!.head().regions[name]) {
-                        error("Submodule $name was not added successfully")
-                    }
-                    1
-                }.then {
-                    argument("name", string()).executes {
+                optional(argument("name", string())) {
+                    argument("url", greedyString()).executes {
                         selectedRepository ?: error("No repository selected")
-                        val url = it.string("url")
-                        val name = it.string("name")
+                        val url = it.string("url")!!
+                        val name = it.string("name") ?: URI(url).path.split("/").last().let { name ->
+                            require(selectedRepository!!.head().regions[name] == null) {
+                                error("Submodule $name already exists")
+                            }
+                            name
+                        }
+                        it.source.sendMessage("Importing $name from $url")
+                        selectedRepository!!.git.repository.workTree.resolve(name).deleteRecursively()
+                        selectedRepository!!.git.submoduleAdd()
+                            .setName(name)
+                            .setPath(name)
+                            .setURI(url)
+                            .call()
+                        selectedRepository!!.clearCache()
+                        requireNotNull(selectedRepository!!.head().regions[name]) {
+                            error("Submodule $name was not added successfully")
+                        }
+                        let { selectedStructure!!.regions[""]!!.blockIterator }.asSequence()
                         1
                     }
                 }
             }
             literal("list").executes {
                 selectedRepository ?: error("No repository selected")
-                selectedRepository!!.head().regions.keys.forEach(::println)
+                it.source.sendMessage(selectedRepository!!.head().regions.keys.joinToString(prefix = "Regions: "))
                 1
             }
             literal("remove").then {
-                argument("name", string()).suggests(selectedRepository!!.head().regions.keys).executes {
+                argument("name", string()).suggest { selectedRepository!!.head().regions.keys }.executes {
                     selectedRepository ?: error("No repository selected")
-                    val name = it.string("name")
+                    val name = it.string("name")!!
                     Git.open(selectedRepository!!.git.repository.workTree.resolve(name))
                         .submoduleDeinit()
                         .call()
@@ -110,7 +107,7 @@ fun register(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
             selectedRepository!!.git.pull().call()
             1
         }
-        literal("status").executes {
+        literal("git-status").executes {
             selectedRepository ?: error("No repository selected")
             selectedRepository!!.git.status().call().let { status ->
                 it.source.sendMessage("Added (${status.added.size}):")
@@ -136,7 +133,6 @@ fun register(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
                     }: ${it.shortMessage} at ${it.commitTime} by ${it.authorIdent.name}"
                 )
             }
-            literal("s")
             1
         }
         literal("checkout")
@@ -161,33 +157,11 @@ fun register(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
     } as LiteralArgumentBuilder<FabricClientCommandSource>)
 }
 
-private fun RequiredArgumentBuilder<*, *>.suggests(keys: Collection<String>) = suggests { _, builder ->
-    keys.forEach { builder.suggest(it) }
+private fun RequiredArgumentBuilder<*, *>.suggest(keys: () -> Collection<String>) = suggests { _, builder ->
+    keys().forEach { builder.suggest(it) }
     builder.buildFuture()
 }
 
 private fun FabricClientCommandSource.sendMessage(s: String) {
     sendFeedback(Text.literal(s))
-}
-
-@DslMarker
-annotation class CommandBuilder
-
-@CommandBuilder
-class BuilderScope<S>(
-    val node: ArgumentBuilder<S, *>,
-    val builders: MutableList<ArgumentBuilder<S, *>> = mutableListOf()
-) {
-    @CommandBuilder
-    fun literal(name: String) = LiteralArgumentBuilder.literal<S>(name)!!.also(builders::add)
-
-    @CommandBuilder
-    fun <T> argument(name: String, type: ArgumentType<T>) =
-        RequiredArgumentBuilder.argument<S, T>(name, type)!!.also(builders::add)
-}
-
-private fun <S> ArgumentBuilder<S, *>.then(function: BuilderScope<S>.() -> Unit) = apply {
-    val scope = BuilderScope(this)
-    function(scope)
-    scope.builders.forEach(this::then)
 }
