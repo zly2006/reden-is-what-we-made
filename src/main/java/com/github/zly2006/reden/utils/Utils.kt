@@ -7,6 +7,7 @@ import com.github.zly2006.reden.malilib.DEVELOPER_MODE
 import com.github.zly2006.reden.malilib.LOCAL_API_BASEURL
 import com.github.zly2006.reden.malilib.SELECTION_TOOL
 import com.google.gson.Gson
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import io.wispforest.owo.ui.core.Surface
 import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
@@ -235,3 +236,7 @@ fun Class<*>.shortenName(): String {
 }
 
 fun MinecraftServer.send(task: () -> Unit) = send(ServerTask(ticks, task))
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun error(reason: String): Nothing =
+    throw SimpleCommandExceptionType(Text.literal(reason)).create()

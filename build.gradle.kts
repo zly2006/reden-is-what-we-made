@@ -177,6 +177,7 @@ dependencies {
     // Game test
     modImplementation("net.fabricmc:fabric-loader-junit:${loader_version}")
     // Embedded dependencies
+    include(implementation("com.redenmc:brigadier-kotlin-dsl:1.0-SNAPSHOT")!!)
     include(implementation("com.squareup.okhttp3:okhttp:4.11.0")!!)
     include(implementation("org.eclipse.jgit:org.eclipse.jgit:${jgit_version}")!!)
     include(implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:${jgit_version}")!!)
