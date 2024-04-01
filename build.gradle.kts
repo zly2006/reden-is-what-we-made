@@ -54,7 +54,7 @@ version = buildString {
     append(gitBranch) // branch, usually mc version
     append(".")
     append(gitHash)
-    if (ciNumber != null && versionType != VersionType.DEV) {
+    if (ciNumber != null) {
         append(".")
         append(ciNumber)
     }
@@ -214,8 +214,8 @@ yamlang {
 task("getVersion") {
     // generate .reden-version in build/ folder
     doLast {
-        val versionFile = file("build/.reden-version")
-        versionFile.writeText(project.version as String)
+        file("build/.reden-version").writeText(project.version as String)
+        file("build/.reden-short-version").writeText((project.version as String).substringBefore('+'))
     }
 }
 

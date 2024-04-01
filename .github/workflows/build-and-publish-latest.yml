@@ -47,7 +47,7 @@ jobs:
       - name: Get Mod Version
         id: get_mod_version
         run: |
-          echo "mod_version=$(cat build/.reden-version)" >> $GITHUB_OUTPUT
+          echo "mod_version=$(cat build/.reden-short-version)" >> $GITHUB_OUTPUT
 
       - name: Upload assets to GitHub Action
         uses: actions/upload-artifact@v3
