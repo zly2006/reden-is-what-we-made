@@ -214,8 +214,8 @@ yamlang {
 task("getVersion") {
     // generate .reden-version in build/ folder
     doLast {
-        val versionFile = file("build/.reden-version")
-        versionFile.writeText(project.version as String)
+        file("build/.reden-version").writeText(project.version as String)
+        file("build/.reden-short-version").writeText((project.version as String).substringBefore('+'))
     }
 }
 

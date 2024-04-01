@@ -66,6 +66,7 @@ jobs:
         id: get_mod_version
         run: |
           echo "mod_version=$(cat build/.reden-version)" >> $GITHUB_OUTPUT
+          echo "short_mod_version=$(cat build/.reden-short-version)" >> $GITHUB_OUTPUT
 
       - name: Upload assets to GitHub Action
         if: success() || failure()
@@ -85,7 +86,7 @@ jobs:
           generateReleaseNotes: true
           name: "[CI#${{ github.run_number }}] ${{ steps.get_mod_name.outputs.mod_name }} Mod Pre-Release ${{ steps.get_mod_version.outputs.mod_version }}"
           prerelease: true
-          tag: "beta/${{ steps.get_commit_sha.outputs.short_sha }}"
+          tag: "beta/${{ steps.get_mod_version.outputs.mod_version }}"
 
       - name: Publish to Modrinth & CurseForge
         if: ${{ env.PUBLISH_BETA == 'true' && matrix.java == 17 }} # Only publish the version built with Java LTS
@@ -103,7 +104,7 @@ jobs:
             build/libs/*-@(beta)*@(ci)*[0123456789].jar
 
           name: "${{ steps.get_mod_name.outputs.mod_name }} Pre-Release ${{ steps.get_mod_version.outputs.mod_version }}"
-          version: "${{ steps.get_mod_version.outputs.mod_version }}"
+          version: "${{ steps.get_mod_version.outputs.short_mod_version }}"
           version-type: beta
 
           loaders: |

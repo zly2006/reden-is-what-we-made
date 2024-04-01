@@ -48,6 +48,7 @@ jobs:
         id: get_mod_version
         run: |
           echo "mod_version=$(cat build/.reden-version)" >> $GITHUB_OUTPUT
+          echo "short_mod_version=$(cat build/.reden-short-version)" >> $GITHUB_OUTPUT
 
       - name: Upload assets to GitHub Action
         uses: actions/upload-artifact@v3
@@ -78,7 +79,7 @@ jobs:
           files: build/libs/*-@(stable).jar
 
           name: "${{ steps.get_mod_name.outputs.mod_name }} ${{ steps.get_mod_version.outputs.mod_version }}"
-          version: "${{ steps.get_mod_version.outputs.mod_version }}"
+          version: "${{ steps.get_mod_version.outputs.short_mod_version }}"
           version-type: release
 
           loaders: fabric
