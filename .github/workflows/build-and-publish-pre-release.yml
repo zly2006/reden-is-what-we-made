@@ -95,8 +95,8 @@ jobs:
           modrinth-id: xRu8OXEJ
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           # Publish to CurseForge
-          #curseforge-id: 903236
-          #curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          curseforge-id: 903236
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           # Universal Configurations
           files: |
             build/libs/*-@(beta).jar
