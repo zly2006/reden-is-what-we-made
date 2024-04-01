@@ -85,7 +85,7 @@ jobs:
           generateReleaseNotes: true
           name: "[CI#${{ github.run_number }}] ${{ steps.get_mod_name.outputs.mod_name }} Mod Pre-Release ${{ steps.get_mod_version.outputs.mod_version }}"
           prerelease: true
-          tag: "beta/${{ steps.get_commit_sha.outputs.short_sha }}"
+          tag: "beta/${{ steps.get_mod_version.outputs.mod_version }}"
 
       - name: Publish to Modrinth & CurseForge
         if: ${{ env.PUBLISH_BETA == 'true' && matrix.java == 17 }} # Only publish the version built with Java LTS
