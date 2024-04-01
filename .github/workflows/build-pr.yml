@@ -28,30 +28,24 @@ jobs:
         run: gradle --version
 
       - name: Build with Gradle
-        run: gradle build --stacktrace
+        run: gradle getVersion build --stacktrace
 
-      - name: Get Mod Info
-        id: get_mod_info
+      - name: Get Mod Name
+        id: get_mod_name
         uses: christian-draeger/read-properties@1.1.1
         with:
           path: gradle.properties
-          properties: 'mod_name mod_version'
-      - name: Get commit SHA
-        id: get_commit_sha
+          properties: 'mod_name'
+      - name: Get Mod Version
+        id: get_mod_version
         run: |
-          short_sha=$(echo ${GITHUB_SHA} | cut -c1-7)
-          echo "short_sha=$short_sha" >> $GITHUB_OUTPUT
-      - name: Get commit count
-        id: get_commit_count
-        run: |
-          commit_count=$(git log | grep -e '^commit [a-zA-Z0-9]*' | wc -l)
-          echo "commit_count=$commit_count" >> $GITHUB_OUTPUT
+          echo "mod_version=$(cat build/.reden-version)" >> $GITHUB_OUTPUT
 
       - name: Upload assets to GitHub Action
         if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
-          name: "[PR-CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }} - Java ${{ matrix.java }}"
+          name: "[PR-CI#${{ github.run_number }}] ${{ steps.get_mod_name.outputs.mod_name }} ${{ steps.get_mod_version.outputs.mod_version }} - Java ${{ matrix.java }}"
           path: |
             build/libs/*.jar
             build/reports/tests/

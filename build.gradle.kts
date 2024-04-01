@@ -211,6 +211,14 @@ yamlang {
     inputDir = "assets/reden/lang"
 }
 
+task("getVersion") {
+    // generate .reden-version in build/ folder
+    doLast {
+        val versionFile = file("build/.reden-version")
+        versionFile.writeText(project.version as String)
+    }
+}
+
 // configure the maven publication
 publishing {
     publications {

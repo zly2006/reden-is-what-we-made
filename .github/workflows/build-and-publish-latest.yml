@@ -36,29 +36,23 @@ jobs:
       - name: Build with Gradle
         env:
           REDEN_BUILD_TYPE: "RELEASE"
-        run: gradle build --stacktrace
+        run: gradle getVersion build --stacktrace
 
-      - name: Get Mod Info
-        id: get_mod_info
+      - name: Get Mod Name
+        id: get_mod_name
         uses: christian-draeger/read-properties@1.1.1
         with:
           path: gradle.properties
-          properties: 'mod_name mod_version'
-      - name: Get commit SHA
-        id: get_commit_sha
+          properties: 'mod_name'
+      - name: Get Mod Version
+        id: get_mod_version
         run: |
-          short_sha=$(echo ${GITHUB_SHA} | cut -c1-7)
-          echo "short_sha=$short_sha" >> $GITHUB_OUTPUT
-      - name: Get commit count
-        id: get_commit_count
-        run: |
-          commit_count=$(git log | grep -e '^commit [a-zA-Z0-9]*' | wc -l)
-          echo "commit_count=$commit_count" >> $GITHUB_OUTPUT
+          echo "mod_version=$(cat build/.reden-version)" >> $GITHUB_OUTPUT
 
       - name: Upload assets to GitHub Action
         uses: actions/upload-artifact@v3
         with:
-          name: "${{ steps.get_mod_info.outputs.mod_name }} ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
+          name: "${{ steps.get_mod_name.outputs.mod_name }} ${{ steps.get_mod_version.outputs.mod_version }}"
           path: build/libs/*.jar
 
       - name: Publish to GitHub Releases
@@ -66,7 +60,7 @@ jobs:
         with:
           allowUpdates: true
           artifacts: build/libs/*.jar
-          body: "[RELEASE-CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} Mod Stable Release ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
+          body: "[RELEASE-CI#${{ github.run_number }}] ${{ steps.get_mod_name.outputs.mod_name }} Mod Stable Release ${{ steps.get_mod_version.outputs.mod_version }}"
           generateReleaseNotes: true
           makeLatest: true
           tag: ${{ github.event.ref }}
@@ -83,8 +77,8 @@ jobs:
           # Universal Configurations
           files: build/libs/*-@(stable).jar
 
-          name: "${{ steps.get_mod_info.outputs.mod_name }} ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
-          version: "${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
+          name: "${{ steps.get_mod_name.outputs.mod_name }} ${{ steps.get_mod_version.outputs.mod_version }}"
+          version: "${{ steps.get_mod_version.outputs.mod_version }}"
           version-type: release
 
           loaders: fabric

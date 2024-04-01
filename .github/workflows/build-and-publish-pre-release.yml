@@ -49,35 +49,29 @@ jobs:
 
       - name: Build with Gradle (DEV)
         if : ${{ env.PUBLISH_BETA != 'true' }}
-        run: gradle build --stacktrace
+        run: gradle getVersion build --stacktrace
       - name: Build with Gradle (BETA)
         if : ${{ env.PUBLISH_BETA == 'true' }}
         env:
           REDEN_BUILD_TYPE: "BETA"
-        run: gradle build --stacktrace
+        run: gradle getVersion build --stacktrace
 
-      - name: Get Mod Info
-        id: get_mod_info
+      - name: Get Mod Name
+        id: get_mod_name
         uses: christian-draeger/read-properties@1.1.1
         with:
           path: gradle.properties
-          properties: 'mod_name mod_version'
-      - name: Get commit SHA
-        id: get_commit_sha
+          properties: 'mod_name'
+      - name: Get Mod Version
+        id: get_mod_version
         run: |
-          short_sha=$(echo ${GITHUB_SHA} | cut -c1-7)
-          echo "short_sha=$short_sha" >> $GITHUB_OUTPUT
-      - name: Get commit count
-        id: get_commit_count
-        run: |
-          commit_count=$(git log | grep -e '^commit [a-zA-Z0-9]*' | wc -l)
-          echo "commit_count=$commit_count" >> $GITHUB_OUTPUT
+          echo "mod_version=$(cat build/.reden-version)" >> $GITHUB_OUTPUT
 
       - name: Upload assets to GitHub Action
         if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
-          name: "[DEV-CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }} - Java ${{ matrix.java }}"
+          name: "[DEV-CI#${{ github.run_number }}] ${{ steps.get_mod_name.outputs.mod_name }} ${{ steps.get_mod_version.outputs.mod_version }} - Java ${{ matrix.java }}"
           path: |
             build/libs/*.jar
             build/reports/tests/
@@ -89,7 +83,7 @@ jobs:
           allowUpdates: true
           artifacts: build/libs/*.jar
           generateReleaseNotes: true
-          name: "[CI#${{ github.run_number }}] ${{ steps.get_mod_info.outputs.mod_name }} Mod Pre-Release ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}"
+          name: "[CI#${{ github.run_number }}] ${{ steps.get_mod_name.outputs.mod_name }} Mod Pre-Release ${{ steps.get_mod_version.outputs.mod_version }}"
           prerelease: true
           tag: "beta/${{ steps.get_commit_sha.outputs.short_sha }}"
 
@@ -108,8 +102,8 @@ jobs:
             build/libs/*-@(beta).jar
             build/libs/*-@(beta)*@(ci)*[0123456789].jar
 
-          name: "${{ steps.get_mod_info.outputs.mod_name }} Pre-Release ${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_commit_sha.outputs.short_sha }}.github.ci.${{ github.run_number }}"
-          version: "${{ steps.get_mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}-beta+ghci.${{ github.run_number }}"
+          name: "${{ steps.get_mod_name.outputs.mod_name }} Pre-Release ${{ steps.get_mod_version.outputs.mod_version }}"
+          version: "${{ steps.get_mod_version.outputs.mod_version }}"
           version-type: beta
 
           loaders: |
