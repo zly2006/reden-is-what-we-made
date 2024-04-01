@@ -65,6 +65,10 @@ jobs:
       - name: Get Mod Version
         id: get_mod_version
         run: |
+          echo "mod_version=$(cat build/.reden-version)" >> $GITHUB_OUTPUT
+      - name: Get Short Mod Version
+        id: get_short_mod_version
+        run: |
           echo "mod_version=$(cat build/.reden-short-version)" >> $GITHUB_OUTPUT
 
       - name: Upload assets to GitHub Action
@@ -103,7 +107,7 @@ jobs:
             build/libs/*-@(beta)*@(ci)*[0123456789].jar
 
           name: "${{ steps.get_mod_name.outputs.mod_name }} Pre-Release ${{ steps.get_mod_version.outputs.mod_version }}"
-          version: "${{ steps.get_mod_version.outputs.mod_version }}"
+          version: "${{ steps.get_short_mod_version.outputs.mod_version }}"
           version-type: beta
 
           loaders: |
