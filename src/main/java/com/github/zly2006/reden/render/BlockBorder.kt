@@ -33,11 +33,11 @@ object BlockBorder {
     init {
         WorldRenderEvents.BEFORE_DEBUG_RENDER.register { context ->
             tags.filter { context.camera().pos.distanceTo(BlockPos.fromLong(it.key).toCenterPos()) < MAX_RENDER_DISTANCE.integerValue }
-                .forEach { (_pos, status) ->
+                .forEach { (posLong, status) ->
                     if (status == 0) {
                         return@register
                     }
-                    val pos = BlockPos.fromLong(_pos)
+                    val pos = BlockPos.fromLong(posLong)
                     val alpha = BLOCK_BORDER_ALPHA.doubleValue.toFloat()
                     val matrix4f = context.matrixStack().peek().positionMatrix
                     RenderSystem.disableCull()

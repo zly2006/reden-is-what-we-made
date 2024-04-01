@@ -24,41 +24,41 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-ext {
-    val versionType: String = when (System.getenv()["REDEN_BUILD_TYPE"]) {
-        "RELEASE" -> "stable"
-        "BETA" -> "beta"
-        else -> "dev"
-    }
+enum class VersionType(val prereleaseName: String) {
+    RELEASE("stable"), BETA("beta"), DEV("dev")
+}
+
+val versionType = when (System.getenv()["REDEN_BUILD_TYPE"]) {
+    "RELEASE" -> VersionType.RELEASE
+    "BETA" -> VersionType.BETA
+    else -> VersionType.DEV
+}
+val gitBranch = grgit.branch?.current()?.name ?: "no-git"
+
+version = buildString {
     val commitsCount = grgit.log()?.size?.toString()
-    val gitBranch = grgit.branch?.current()?.name ?: "no-git"
     val gitHash = grgit.head()?.id?.substring(0, 7) ?: "nogit"
     val ciNumber =
         if (System.getenv()["GITHUB_ACTIONS"] == "true") "gh-ci-${System.getenv()["GITHUB_RUN_NUMBER"]}"
         else null
-
-    set("mod_version", buildString {
-        append(mod_version) // major.minor
-        if (commitsCount != null && versionType != "stable") {
-            append(".")
-            append(commitsCount) // patch
-        }
-
-        append("-")
-        append(versionType) // pre: stable/beta/dev
-
-        append("+") // build
-        append(gitBranch) // branch
+    append(mod_version) // major.minor
+    if (commitsCount != null && versionType != VersionType.RELEASE) {
         append(".")
-        append(gitHash)
-        if (ciNumber != null) {
-            append(".")
-            append(ciNumber)
-        }
-    })
-}
+        append(commitsCount) // patch
+    }
 
-version = ext.get("mod_version")!!
+    append("-")
+    append(versionType.prereleaseName) // pre: stable/beta/dev
+
+    append("+") // build
+    append(gitBranch) // branch, usually mc version
+    append(".")
+    append(gitHash)
+    if (ciNumber != null) {
+        append(".")
+        append(ciNumber)
+    }
+}
 group = maven_group
 
 allprojects {
@@ -91,13 +91,14 @@ allprojects {
     tasks {
         processResources {
             inputs.property("version", project.version)
+            val buildTime = grgit.head()?.dateTime?.toEpochSecond()?.times(1000L) ?: System.currentTimeMillis()
             filesMatching("fabric.mod.json") {
                 expand(
                     mapOf(
                         "version" to project.version,
                         "is_main_branch" to is_main_branch,
-                        "build_timestamp" to System.currentTimeMillis(),
-                        "git_branch" to grgit.branch?.current()?.name,
+                        "build_timestamp" to buildTime,
+                        "git_branch" to gitBranch,
                         "git_commit" to grgit.head()?.id,
                     )
                 )
