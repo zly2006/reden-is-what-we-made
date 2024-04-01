@@ -54,7 +54,7 @@ version = buildString {
     append(gitBranch) // branch, usually mc version
     append(".")
     append(gitHash)
-    if (ciNumber != null) {
+    if (ciNumber != null && versionType != VersionType.DEV) {
         append(".")
         append(ciNumber)
     }
