@@ -22,7 +22,7 @@ private fun CommandContext<*>.string(name: String) =
         null
     }
 
-fun register(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
+fun registerRvcLocal(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
     val mc = MinecraftClient.getInstance()
     dispatcher.register {
         literal("rvc-local") {

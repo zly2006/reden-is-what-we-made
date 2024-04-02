@@ -45,7 +45,7 @@ public class RedenClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         UtilsKt.checkMalilib();
-        PearlTask.Companion.register();
+        PearlTask.Companion.registerPearls();
         SelectModeHudKt.registerHud();
         InitializationHandler.getInstance().registerInitializationHandler(() -> {
             RenderEventHandler.getInstance().registerGameOverlayRenderer(RvcHudRenderer.INSTANCE);
@@ -97,8 +97,8 @@ public class RedenClient implements ClientModInitializer {
         });
         ClientLifecycleEvents.CLIENT_STARTED.register(ReportKt::redenSetup);
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            RvcLocalCommandKt.register(dispatcher);
-            ClientGlowKt.register(dispatcher);
+            RvcLocalCommandKt.registerRvcLocal(dispatcher);
+            ClientGlowKt.registerClientGlow(dispatcher);
             dispatcher.register(ClientCommandManager.literal("reden-debug-client")
                     .then(ClientCommandManager.literal("task")
                             .then(ClientCommandManager.literal("list").executes(context -> {

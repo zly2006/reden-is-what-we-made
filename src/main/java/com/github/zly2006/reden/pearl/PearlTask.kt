@@ -34,7 +34,7 @@ class PearlTask {
     var mode = Mode.NOT_INITIALIZED
     companion object {
         val masaHotkeyConfig = ConfigHotkey("pearlHotkey", "P,R", "")
-        fun register() {
+        fun registerPearls() {
             masaHotkeyConfig.keybind.setCallback { _, _ ->
                 val mc = MinecraftClient.getInstance()
                 mc.execute {

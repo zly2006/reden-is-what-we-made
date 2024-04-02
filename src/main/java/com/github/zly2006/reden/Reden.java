@@ -83,10 +83,10 @@ public class Reden implements ModInitializer, CarpetExtension {
     @Override
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTING.register(UtilsKt::setServer);
-        ChannelsKt.register();
+        ChannelsKt.registerChannels();
         CarpetServer.manageExtension(this);
         CommandRegistrationCallback.EVENT.register((dispatcher, access, environment) -> {
-            BehalfCommandKt.register(dispatcher);
+            BehalfCommandKt.registerBehalf(dispatcher);
             // Debug command
             if (isRedenDev()) {
                 dispatcher.register(CommandManager.literal("reden-debug")
@@ -168,7 +168,7 @@ public class Reden implements ModInitializer, CarpetExtension {
                                     return 1;
                                 })));
             }
-            RvcCommandKt.register(dispatcher);
+            RvcCommandKt.registerRvc(dispatcher);
             if (!(dispatcher instanceof ThisIsReden)) {
                 throw new RuntimeException("This is not Reden!");
             } else {
