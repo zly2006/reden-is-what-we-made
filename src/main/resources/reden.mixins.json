@@ -32,6 +32,7 @@
     "debugger.schedule.MixinServerWorld",
     "debugger.schedule.MixinWorldTickScheduler",
     "debugger.updater.MixinServerWorld",
+    "greenStone.MixinRedstone",
     "hopperDelaySync.MixinHoppers",
     "itemShadow.MixinAllInventories",
     "itemShadow.MixinItemStack",

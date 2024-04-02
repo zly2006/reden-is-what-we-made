@@ -167,6 +167,7 @@ private fun Screen.creditsScreenContent(): FlowLayout {
         OpenSourceProject("yarn", "https://github.com/FabricMC/yarn", "CC0-1.0"),
         OpenSourceProject("slf4j", "https://www.slf4j.org/license.html", "MIT"),
         OpenSourceProject("asm", "https://asm.ow2.io/license.html", "BSD-3-Clause"),
+        OpenSourceProject("PowerStones", "https://github.com/CalvinMT/PowerStones", "MIT"),
     )
     content.child(Containers.grid(Sizing.fill(100), Sizing.content(), 20, 2).apply {
         this.child(labelComponent(Text.literal("Project")), 0, 0)

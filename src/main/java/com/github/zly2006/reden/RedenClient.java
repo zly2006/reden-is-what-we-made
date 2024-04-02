@@ -16,6 +16,7 @@ import com.github.zly2006.reden.task.TaskKt;
 import com.github.zly2006.reden.update.AutoUpdateKt;
 import com.github.zly2006.reden.utils.DebugKt;
 import com.github.zly2006.reden.utils.UtilsKt;
+import com.github.zly2006.reden.yo.GreenstoneKt;
 import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.config.ConfigUtils;
@@ -45,6 +46,7 @@ public class RedenClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         UtilsKt.checkMalilib();
+        GreenstoneKt.registerGreenstone();
         PearlTask.Companion.register();
         SelectModeHudKt.registerHud();
         InitializationHandler.getInstance().registerInitializationHandler(() -> {
