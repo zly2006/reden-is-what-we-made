@@ -2,6 +2,7 @@
 
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/reden?style=flat-square&label=Modrinth)](https://modrinth.com/mod/reden)
 [![Discord](https://img.shields.io/discord/1140304794976792707?logo=discord&label=discord)](https://discord.gg/fCxmEyFgAd)
+[![Curse forge Downloads](https://cf.way2muchnoise.eu/reden.svg)](https://www.curseforge.com/minecraft/mc-mods/reden)
 [Official Website](https://redenmc.com)
 
 Redstone EDEN

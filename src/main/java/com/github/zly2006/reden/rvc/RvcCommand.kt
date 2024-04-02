@@ -7,7 +7,7 @@ import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.server.command.ServerCommandSource
 
-fun register(dispatcher: CommandDispatcher<ServerCommandSource>) {
+fun registerRvc(dispatcher: CommandDispatcher<ServerCommandSource>) {
         dispatcher.register(literal("rvc")
                 .executes {
                         1

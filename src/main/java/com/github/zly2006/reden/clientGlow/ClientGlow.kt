@@ -61,7 +61,7 @@ fun selected(pos: Vec3d, sourceEntity: Entity?): List<Entity> {
 
 var glowing: Set<Entity> = setOf(); private set
 
-fun register(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
+fun registerClientGlow(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
     ClientTickEvents.START_CLIENT_TICK.register(ClientTickEvents.StartTick { client ->
         if (client.player != null) {
             glowing = selected(client.player!!.pos, client.player!!).toSet()

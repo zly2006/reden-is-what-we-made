@@ -6,7 +6,7 @@ import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.server.command.ServerCommandSource
 
-fun register(dispatcher: CommandDispatcher<ServerCommandSource>) {
+fun registerBehalf(dispatcher: CommandDispatcher<ServerCommandSource>) {
     dispatcher.register(
         literal("behalf").then(
             argument("player", EntityArgumentType.player())
