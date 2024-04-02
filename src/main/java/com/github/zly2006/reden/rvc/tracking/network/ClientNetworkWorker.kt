@@ -1,8 +1,6 @@
 package com.github.zly2006.reden.rvc.tracking.network
 
 import com.github.zly2006.reden.access.PlayerData
-import com.github.zly2006.reden.render.BlockBorder
-import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
 import com.github.zly2006.reden.rvc.tracking.tracker.StructureTracker
@@ -22,19 +20,7 @@ open class ClientNetworkWorker(
         }
     }
     override suspend fun debugRender(part: TrackedStructurePart) = execute {
-        BlockOutline.blocks = mapOf()
-        BlockBorder.tags = mapOf()
-        BlockOutline.blocks = renderPositions.mapNotNull {
-            if (!world.isAir(it))
-                it to world.getBlockState(it)
-            else null
-        }.toMap()
-        if (part.tracker is StructureTracker.Trackpoint) {
-            part.tracker.trackpoints.forEach {
-                if (!world.isAir(it.pos))
-                    BlockBorder[it.pos] = if (it.mode.isTrack()) 1 else 2
-            }
-        }
+        part.tracker.render(part)
     }
 
     override suspend fun startUndoRecord(cause: PlayerData.UndoRecord.Cause) {}

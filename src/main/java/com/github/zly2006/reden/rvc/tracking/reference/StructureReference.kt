@@ -67,4 +67,11 @@ class StructureReference(
             }
         }
     }
+
+    enum class Type(val isSource: Boolean) {
+        None(false),
+        Source(true),
+        Single(false),
+        Repeating(false),
+    }
 }

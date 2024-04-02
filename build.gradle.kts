@@ -215,7 +215,18 @@ task("getVersion") {
     // generate .reden-version in build/ folder
     doLast {
         file("build/.reden-version").writeText(project.version as String)
-        file("build/.reden-short-version").writeText((project.version as String).substringBefore('+'))
+        file("build/.reden-short-version").writeText(buildString {
+            val commitsCount = grgit.log()?.size?.toString()
+            append(mod_version) // major.minor
+            if (commitsCount != null && versionType != VersionType.RELEASE) {
+                append(".")
+                append(commitsCount)
+            }
+            append("-")
+            append(versionType.prereleaseName)
+            append("+")
+            append(gitBranch)
+        })
     }
 }
 

@@ -1,11 +1,18 @@
 package com.github.zly2006.reden.rvc.tracking.tracker
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.render.BlockBorder
+import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.rvc.blockPos
+import com.github.zly2006.reden.rvc.minMax
 import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
+import com.github.zly2006.reden.rvc.tracking.reference.StructureReference
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
+import net.minecraft.client.MinecraftClient
 import net.minecraft.util.math.BlockPos
 import java.util.*
 
@@ -28,25 +35,20 @@ sealed class StructureTracker {
     @Transient
     protected var origin: BlockPos = BlockPos.ORIGIN
 
+    var referenceType: StructureReference.Type = StructureReference.Type.None
+
     @Serializable
     class Cuboid(
         var first: RelativeCoordinate,
         var second: RelativeCoordinate
-    ) : StructureTracker() {
+    ) : StructureTracker(), WorldRenderEvents.AfterEntities {
         override val blockIterator: Iterator<RelativeCoordinate>
             get() = sequence {
-                val minX = kotlin.math.min(first.x, second.x)
-                val minY = kotlin.math.min(first.y, second.y)
-                val minZ = kotlin.math.min(first.z, second.z)
-                val maxX = kotlin.math.max(first.x, second.x)
-                val maxY = kotlin.math.max(first.y, second.y)
-                val maxZ = kotlin.math.max(first.z, second.z)
-                for (x in minX..maxX) {
-                    for (y in minY..maxY) {
-                        for (z in minZ..maxZ) {
-                            yield(RelativeCoordinate(x, y, z))
-                        }
-                    }
+                minMax(first, second, ::RelativeCoordinate) { min, max ->
+                    for (x in min.x..max.x)
+                        for (y in min.y..max.y)
+                            for (z in min.z..max.z)
+                                this.yield(RelativeCoordinate(x, y, z))
                 }
         }.iterator()
 
@@ -62,10 +64,38 @@ sealed class StructureTracker {
         }
 
         override fun onBlockAdded(part: TrackedStructurePart, pos: BlockPos) {
+            @Suppress("NAME_SHADOWING")
+            val pos = part.getRelativeCoordinate(pos)
+            minMax(first, second, ::RelativeCoordinate) { min, max ->
+                if (pos.x == min.x - 1 || pos.x == max.x + 1 || pos.y == min.y - 1 || pos.y == max.y + 1 || pos.z == min.z - 1 || pos.z == max.z + 1) {
+                    //todo ask if the cuboid should be expanded
+                }
+            }
             TODO("whether to expand the cuboid?")
         }
 
         override fun onBlockRemoved(part: TrackedStructurePart, pos: BlockPos) {}
+
+        override fun render(part: TrackedStructurePart) {
+            super.render(part)
+            val color = when (referenceType) {
+                StructureReference.Type.Source -> 0x00FF00
+                StructureReference.Type.None -> 0xFFFFFF
+                else -> 0xFF0000
+            }
+            BlockOutline.blocks = mapOf()
+            BlockBorder.tags = mapOf()
+            WorldRenderEvents.AFTER_ENTITIES.register(this)
+        }
+
+        override fun updateOrigin(part: TrackedStructurePart) {
+            super.updateOrigin(part)
+
+        }
+
+        override fun afterEntities(context: WorldRenderContext?) {
+            TODO("Not yet implemented")
+        }
     }
 
     @Serializable
@@ -83,8 +113,8 @@ sealed class StructureTracker {
 
         override val blockIterator: Iterator<RelativeCoordinate>
             get() = cachedPositions.keys.asSequence().map {
-            RelativeCoordinate.origin(origin).block(it)
-        }.iterator()
+                RelativeCoordinate.origin(origin).block(it)
+            }.iterator()
 
         override fun updateOrigin(part: TrackedStructurePart) {
             origin = part.origin
@@ -207,6 +237,21 @@ sealed class StructureTracker {
 
         override fun isInArea(part: TrackedStructurePart, pos: RelativeCoordinate) =
             pos.blockPos(origin) in cachedPositions.keys
+
+        override fun render(part: TrackedStructurePart) {
+            super.render(part)
+            BlockOutline.blocks = mapOf()
+            BlockBorder.tags = mapOf()
+            BlockOutline.blocks = cachedPositions.keys.mapNotNull {
+                if (!part.world.isAir(it))
+                    it to part.world.getBlockState(it)
+                else null
+            }.toMap()
+            trackpoints.forEach {
+                if (!part.world.isAir(it.pos))
+                    BlockBorder[it.pos] = if (it.mode.isTrack()) 1 else 2
+            }
+        }
     }
 
     @Serializable
@@ -244,4 +289,11 @@ sealed class StructureTracker {
      * the [blockIterator] should return the correct positions
      */
     abstract suspend fun refreshPositions(part: TrackedStructurePart)
+
+    /**
+     * Render the area of the structure part
+     */
+    open fun render(part: TrackedStructurePart) {
+        assert(MinecraftClient.getInstance().isOnThread) { "" }
+    }
 }
