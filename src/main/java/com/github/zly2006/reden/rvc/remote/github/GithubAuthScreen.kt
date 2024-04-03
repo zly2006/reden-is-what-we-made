@@ -2,6 +2,10 @@ package com.github.zly2006.reden.rvc.remote.github
 
 import com.github.zly2006.reden.malilib.GITHUB_TOKEN
 import com.github.zly2006.reden.utils.buttonWidget
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.minecraft.client.gui.DrawContext
@@ -12,18 +16,16 @@ import okhttp3.Request
 
 private val ignoringJson = Json { ignoreUnknownKeys = true }
 
+@OptIn(DelicateCoroutinesApi::class)
 class GithubAuthScreen: Screen(Text.of("Login to Github")) {
     val auth = GithubAuth()
     var userName: String? = null
     var userId: String? = null
     init {
         if (GITHUB_TOKEN.stringValue.isNotEmpty()) {
-            Thread {
-                try {
-                    refreshUser()
-                } catch (_: Exception) {
-                }
-            }.start()
+            GlobalScope.launch(Dispatchers.IO) {
+                refreshUser()
+            }
         }
     }
 
@@ -51,12 +53,9 @@ class GithubAuthScreen: Screen(Text.of("Login to Github")) {
         auth.genCode()
         auth.startPoll {
             GITHUB_TOKEN.setValueFromString("Bearer ${it.token}")
-            Thread {
-                try {
-                    refreshUser()
-                } catch (_: Exception) {
-                }
-            }.start()
+            GlobalScope.launch(Dispatchers.IO) {
+                refreshUser()
+            }
         }
     }
     val cancelLogin = buttonWidget(10, 40, 100, 20, Text.of("Cancel Login")) {

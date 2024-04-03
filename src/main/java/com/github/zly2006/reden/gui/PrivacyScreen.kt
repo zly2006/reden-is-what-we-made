@@ -1,18 +1,21 @@
 package com.github.zly2006.reden.gui
 
-import com.github.zly2006.reden.RedenClient
 import com.github.zly2006.reden.malilib.HiddenOption.data_BASIC
 import com.github.zly2006.reden.malilib.HiddenOption.data_IDENTIFICATION
 import com.github.zly2006.reden.malilib.HiddenOption.data_USAGE
 import com.github.zly2006.reden.malilib.HiddenOption.iPRIVACY_SETTING_SHOWN
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.report.updateOnlineInfo
+import com.github.zly2006.reden.saveMalilibOptions
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer.Scrollbar
 import io.wispforest.owo.ui.core.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
@@ -22,7 +25,7 @@ class PrivacyScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
 
     override fun build(rootComponent: FlowLayout) {
         iPRIVACY_SETTING_SHOWN.booleanValue = true
-        RedenClient.saveMalilibOptions()
+        saveMalilibOptions()
         onFunctionUsed("init_privacyScreen")
         rootComponent.horizontalAlignment(HorizontalAlignment.CENTER)
         rootComponent.verticalAlignment(VerticalAlignment.CENTER)
@@ -41,7 +44,7 @@ class PrivacyScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
 
         content.child(Components.button(Text.literal("Continue")) {
             onFunctionUsed("continue_privacyScreen")
-            RedenClient.saveMalilibOptions()
+            saveMalilibOptions()
             this.close()
         })
         content.child(Components.smallCheckbox(Text.literal("Basic System Data")).checked(data_BASIC.booleanValue).apply {
@@ -68,9 +71,9 @@ class PrivacyScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
 
     override fun close() {
         client!!.setScreen(parent)
-        RedenClient.saveMalilibOptions()
+        saveMalilibOptions()
         if (data_IDENTIFICATION.booleanValue) {
-            Thread {
+            GlobalScope.launch(Dispatchers.IO) {
                 updateOnlineInfo(client!!)
             }.start()
         }

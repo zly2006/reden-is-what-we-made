@@ -1,7 +1,10 @@
+@file:Suppress("unused", "PropertyName")
+
 package com.github.zly2006.reden.report
 
-import com.github.zly2006.reden.Reden
-import com.github.zly2006.reden.Reden.LOGGER
+import com.github.zly2006.reden.Reden.Companion.LOGGER
+import com.github.zly2006.reden.Reden.Companion.MOD_ID
+import com.github.zly2006.reden.Reden.Companion.MOD_VERSION
 import com.github.zly2006.reden.gui.message.ClientMessageQueue
 import com.github.zly2006.reden.malilib.HiddenOption
 import com.github.zly2006.reden.malilib.HiddenOption.data_BASIC
@@ -15,6 +18,10 @@ import com.github.zly2006.reden.utils.redenApiBaseUrl
 import com.github.zly2006.reden.utils.server
 import com.mojang.authlib.exceptions.InvalidCredentialsException
 import com.mojang.authlib.minecraft.UserApiService
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -56,7 +63,7 @@ inline fun <reified T> Request.Builder.json(data: T) = apply {
 
 fun Request.Builder.ua() = apply {
     header("Authorization", "ApiKey $key")
-    header("User-Agent", "RedenMC/${Reden.MOD_VERSION} Minecraft/${MinecraftVersion.create().name} (Fabric) $userAgent")
+    header("User-Agent", "RedenMC/${MOD_VERSION} Minecraft/${MinecraftVersion.create().name} (Fabric) $userAgent")
 }
 
 @Serializable
@@ -271,7 +278,7 @@ fun checkUpdateFromModrinth(): UpdateInfo? {
         val files: List<ModrinthFile>
     )
 
-    val modrinthVersion = FabricLoader.getInstance().getModContainer(Reden.MOD_ID)
+    val modrinthVersion = FabricLoader.getInstance().getModContainer(MOD_ID)
         .get().metadata.getCustomValue("modmenu").asObject.get("modrinth").asString
     val res = httpClient.newCall(Request.Builder().apply {
         url("https://api.modrinth.com/v2/project/$modrinthVersion/version")
@@ -283,7 +290,7 @@ fun checkUpdateFromModrinth(): UpdateInfo? {
     val versions =
         jsonIgnoreUnknown.decodeFromString<List<ModrinthVersion>>(res).filter { curVersion in it.game_versions }
     val latest = versions.maxByOrNull { Version.parse(it.version_number) }
-    return if (latest != null && Version.parse(latest.version_number) > Reden.MOD_VERSION)
+    return if (latest != null && Version.parse(latest.version_number) > MOD_VERSION)
         UpdateInfo(latest.version_number, latest.files.first().url, latest.changelog, "modrinth")
     else null
 }
@@ -350,7 +357,7 @@ fun updateOnlineInfo(client: MinecraftClient): Boolean {
             os = System.getProperty("os.name") + " " + System.getProperty("os.version"),
             cpus = Runtime.getRuntime().availableProcessors(),
             mc_version = MinecraftVersion.create().name,
-            reden_version = Reden.MOD_VERSION.friendlyString,
+            reden_version = MOD_VERSION.friendlyString,
             mods = FabricLoader.getInstance().allMods.map {
                 ModData(
                     it.metadata.name,
@@ -384,8 +391,9 @@ fun updateOnlineInfo(client: MinecraftClient): Boolean {
     }
 }
 
+@OptIn(DelicateCoroutinesApi::class)
 fun redenSetup(client: MinecraftClient) {
-    Thread {
+    GlobalScope.launch(Dispatchers.IO) {
         try {
             val serverList = ServerList(client)
             serverList.loadFile()
@@ -396,7 +404,7 @@ fun redenSetup(client: MinecraftClient) {
                 os = System.getProperty("os.name") + " " + System.getProperty("os.version"),
                 cpus = Runtime.getRuntime().availableProcessors(),
                 mc_version = MinecraftVersion.create().name,
-                reden_version = Reden.MOD_VERSION.friendlyString,
+                reden_version = MOD_VERSION.friendlyString,
                 mods = if (data_IDENTIFICATION.booleanValue) FabricLoader.getInstance().allMods.map {
                     ModData(
                         it.metadata.name,
@@ -468,7 +476,7 @@ fun redenSetup(client: MinecraftClient) {
         }
     })
     if (HiddenOption.iCHECK_UPDATES.booleanValue) {
-        Thread {
+        GlobalScope.launch(Dispatchers.IO) {
             val updateInfo = try {
                 checkUpdateFromRedenApi() ?: checkUpdateFromModrinth()
             } catch (e: Exception) {

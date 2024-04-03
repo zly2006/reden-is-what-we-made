@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.mixin;
 
-import com.github.zly2006.reden.RedenClient;
+import com.github.zly2006.reden.RedenClientKt;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.google.gson.JsonPrimitive;
 import net.minecraft.client.MinecraftClient;
@@ -36,7 +36,7 @@ public class MixinScreen {
                 MalilibSettingsKt.getAllOptions().stream()
                         .filter(it -> it.getName().equals(key))
                         .forEach(it -> it.setValueFromJsonElement(new JsonPrimitive(val)));
-                RedenClient.saveMalilibOptions();
+                RedenClientKt.saveMalilibOptions();
             }
             else if (command.equals("stopClient")) {
                 client.stop();

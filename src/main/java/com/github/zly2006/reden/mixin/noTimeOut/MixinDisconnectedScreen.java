@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.mixin.noTimeOut;
 
 import com.github.zly2006.reden.Reden;
-import com.github.zly2006.reden.RedenClient;
+import com.github.zly2006.reden.RedenClientKt;
 import com.github.zly2006.reden.gui.message.ClientMessageQueue;
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import kotlin.Unit;
@@ -58,7 +58,7 @@ public class MixinDisconnectedScreen extends Screen {
                         Text.of("Enable NoTimeOut"),
                         () -> {
                             MalilibSettingsKt.NO_TIME_OUT.setBooleanValue(true);
-                            RedenClient.saveMalilibOptions();
+                            RedenClientKt.saveMalilibOptions();
                             ClientMessageQueue.INSTANCE.remove(id);
                             return Unit.INSTANCE;
                         }

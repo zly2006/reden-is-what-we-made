@@ -1,163 +1,166 @@
-package com.github.zly2006.reden;
+package com.github.zly2006.reden
 
-import com.github.zly2006.reden.clientGlow.ClientGlowKt;
-import com.github.zly2006.reden.malilib.KeyCallbacksKt;
-import com.github.zly2006.reden.malilib.MalilibSettingsKt;
-import com.github.zly2006.reden.malilib.data.CommandHotkey;
-import com.github.zly2006.reden.pearl.PearlTask;
-import com.github.zly2006.reden.report.ReportKt;
-import com.github.zly2006.reden.rvc.RvcLocalCommandKt;
-import com.github.zly2006.reden.rvc.gui.RvcHudRenderer;
-import com.github.zly2006.reden.rvc.gui.hud.gameplay.SelectModeHudKt;
-import com.github.zly2006.reden.rvc.tracking.client.ClientTrackingKt;
-import com.github.zly2006.reden.sponsor.LuckToday;
-import com.github.zly2006.reden.task.Task;
-import com.github.zly2006.reden.task.TaskKt;
-import com.github.zly2006.reden.update.AutoUpdateKt;
-import com.github.zly2006.reden.utils.DebugKt;
-import com.github.zly2006.reden.utils.UtilsKt;
-import com.google.gson.JsonObject;
-import fi.dy.masa.malilib.config.ConfigManager;
-import fi.dy.masa.malilib.config.ConfigUtils;
-import fi.dy.masa.malilib.config.IConfigHandler;
-import fi.dy.masa.malilib.event.InitializationHandler;
-import fi.dy.masa.malilib.event.InputEventHandler;
-import fi.dy.masa.malilib.event.RenderEventHandler;
-import fi.dy.masa.malilib.hotkeys.IHotkey;
-import fi.dy.masa.malilib.hotkeys.IKeybindManager;
-import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
-import fi.dy.masa.malilib.util.FileUtils;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.command.argument.ItemStackArgumentType;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
+import com.github.zly2006.reden.clientGlow.registerClientGlow
+import com.github.zly2006.reden.malilib.HOTKEYS
+import com.github.zly2006.reden.malilib.RUN_COMMAND
+import com.github.zly2006.reden.malilib.configureKeyCallbacks
+import com.github.zly2006.reden.malilib.getAllOptions
+import com.github.zly2006.reden.pearl.PearlTask.Companion.registerPearls
+import com.github.zly2006.reden.report.redenSetup
+import com.github.zly2006.reden.rvc.gui.RvcHudRenderer
+import com.github.zly2006.reden.rvc.gui.hud.gameplay.registerHud
+import com.github.zly2006.reden.rvc.registerRvcLocal
+import com.github.zly2006.reden.rvc.tracking.client.registerSelectionTool
+import com.github.zly2006.reden.sponsor.LuckToday.Companion.luckValue
+import com.github.zly2006.reden.task.taskStack
+import com.github.zly2006.reden.update.relaunch
+import com.github.zly2006.reden.utils.checkMalilib
+import com.github.zly2006.reden.utils.isDebug
+import com.github.zly2006.reden.utils.startDebugAppender
+import com.google.gson.JsonObject
+import com.redenmc.bragadier.ktdsl.register
+import com.redenmc.bragadier.ktdsl.then
+import fi.dy.masa.malilib.config.ConfigManager
+import fi.dy.masa.malilib.config.ConfigUtils
+import fi.dy.masa.malilib.config.IConfigHandler
+import fi.dy.masa.malilib.event.InitializationHandler
+import fi.dy.masa.malilib.event.InputEventHandler
+import fi.dy.masa.malilib.event.RenderEventHandler
+import fi.dy.masa.malilib.hotkeys.IKeybindManager
+import fi.dy.masa.malilib.hotkeys.IKeybindProvider
+import fi.dy.masa.malilib.util.FileUtils
+import net.fabricmc.api.ClientModInitializer
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.ClientStarted
+import net.minecraft.client.MinecraftClient
+import net.minecraft.command.argument.ItemStackArgumentType
+import net.minecraft.sound.SoundEvents
+import net.minecraft.text.Text
+import java.io.File
+import java.nio.file.Files
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+fun loadMalilibSettings() {
+    val file = File(FileUtils.getConfigDirectory(), Reden.CONFIG_FILE)
+    if (!file.exists()) {
+        return
+    }
+    val jo = Reden.GSON.fromJson(Files.readString(file.toPath()), JsonObject::class.java)
+    ConfigUtils.readConfigBase(jo, Reden.MOD_NAME, getAllOptions())
+    if (isDebug) {
+        startDebugAppender()
+    }
+}
 
-public class RedenClient implements ClientModInitializer {
-    @Override
-    public void onInitializeClient() {
-        UtilsKt.checkMalilib();
-        PearlTask.Companion.registerPearls();
-        SelectModeHudKt.registerHud();
-        InitializationHandler.getInstance().registerInitializationHandler(() -> {
-            RenderEventHandler.getInstance().registerGameOverlayRenderer(RvcHudRenderer.INSTANCE);
-            ConfigManager.getInstance().registerConfigHandler("reden", new IConfigHandler() {
-                @Override
-                public void load() {
-                    loadMalilibSettings();
+fun saveMalilibOptions() {
+    val jo = JsonObject()
+    File(FileUtils.getConfigDirectory(), "reden").mkdirs()
+    ConfigUtils.writeConfigBase(jo, Reden.MOD_NAME, getAllOptions())
+    Files.writeString(
+        File(FileUtils.getConfigDirectory(), Reden.CONFIG_FILE).toPath(),
+        Reden.GSON.toJson(jo)
+    )
+}
+
+class RedenClient : ClientModInitializer {
+    override fun onInitializeClient() {
+        checkMalilib()
+        registerPearls()
+        registerHud()
+        InitializationHandler.getInstance().registerInitializationHandler {
+            RenderEventHandler.getInstance().registerGameOverlayRenderer(RvcHudRenderer)
+            ConfigManager.getInstance().registerConfigHandler("reden", object : IConfigHandler {
+                override fun load() {
+                    loadMalilibSettings()
                 }
 
-                @Override
-                public void save() {
-                    saveMalilibOptions();
+                override fun save() {
+                    saveMalilibOptions()
                 }
-            });
-            loadMalilibSettings();
-            ClientTrackingKt.registerSelectionTool();
-            InputEventHandler.getKeybindManager().registerKeybindProvider(new IKeybindProvider() {
-                @Override
-                public void addKeysToMap(IKeybindManager iKeybindManager) {
-                    MalilibSettingsKt.HOTKEYS.stream()
-                            .map(IHotkey::getKeybind)
-                            .forEach(iKeybindManager::addKeybindToMap);
+            })
+            loadMalilibSettings()
+            registerSelectionTool()
+            InputEventHandler.getKeybindManager().registerKeybindProvider(object : IKeybindProvider {
+                override fun addKeysToMap(iKeybindManager: IKeybindManager) {
+                    HOTKEYS.forEach { iKeybindManager.addKeybindToMap(it.keybind) }
 
-                    for (CommandHotkey commandHotkey : MalilibSettingsKt.RUN_COMMAND.getCommandHotkeyList()) {
-                        iKeybindManager.addKeybindToMap(commandHotkey.getKeybind());
-                        commandHotkey.getKeybind().setCallback((action, key) -> {
-                            ClientPlayNetworkHandler networkHandler = MinecraftClient.getInstance().getNetworkHandler();
+                    for ((commands, keybind) in RUN_COMMAND.commandHotkeyList) {
+                        iKeybindManager.addKeybindToMap(keybind)
+                        keybind.setCallback { _, _ ->
+                            val networkHandler = MinecraftClient.getInstance().networkHandler
                             if (networkHandler != null) {
-                                for (String command : commandHotkey.getCommands()) {
+                                for (command in commands) {
                                     if (command.startsWith("/")) {
-                                        networkHandler.sendChatCommand(command.substring(1));
-                                    } else {
-                                        networkHandler.sendChatMessage(command);
+                                        networkHandler.sendChatCommand(command.substring(1))
+                                    }
+                                    else {
+                                        networkHandler.sendChatMessage(command)
                                     }
                                 }
-                                return true;
+                                return@setCallback true
                             }
-                            return false;
-                        });
+                            false
+                        }
                     }
                 }
 
-                @Override
-                public void addHotkeys(IKeybindManager iKeybindManager) {
-                    iKeybindManager.addHotkeysForCategory("Reden", "reden.hotkeys.category.generic_hotkeys", MalilibSettingsKt.HOTKEYS);
+                override fun addHotkeys(iKeybindManager: IKeybindManager) {
+                    iKeybindManager.addHotkeysForCategory("Reden", "reden.hotkeys.category.generic_hotkeys", HOTKEYS)
                 }
-            });
-            KeyCallbacksKt.configureKeyCallbacks(MinecraftClient.getInstance());
-        });
-        ClientLifecycleEvents.CLIENT_STARTED.register(ReportKt::redenSetup);
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            RvcLocalCommandKt.registerRvcLocal(dispatcher);
-            ClientGlowKt.registerClientGlow(dispatcher);
-            dispatcher.register(ClientCommandManager.literal("reden-debug-client")
-                    .then(ClientCommandManager.literal("task")
-                            .then(ClientCommandManager.literal("list").executes(context -> {
-                                context.getSource().sendFeedback(Text.literal(String.valueOf(TaskKt.getTaskStack().size())));
-                                for (Task task : TaskKt.getTaskStack()) {
-                                    context.getSource().sendFeedback(Text.literal(task.toString()));
-                                }
-                                return 1;
-                            })))
-                    .then(ClientCommandManager.literal("qubit").executes(context -> {
-                        throw new Error("Qu(b)it!");
-                    }))
-                    .then(ClientCommandManager.literal("floating-item")
-                            .then(ClientCommandManager.argument("item", ItemStackArgumentType.itemStack(registryAccess))
-                                    .executes(context -> {
-                                        MinecraftClient client = MinecraftClient.getInstance();
-                                        client.gameRenderer.showFloatingItem(ItemStackArgumentType.getItemStackArgument(context, "item").createStack(1, false));
-                                        assert client.world != null;
-                                        assert client.player != null;
-                                        client.world.playSound(client.player.getX(), client.player.getY(), client.player.getZ(), SoundEvents.ITEM_TOTEM_USE, client.player.getSoundCategory(), 1.0F, 1.0F, false);
-                                        return 1;
-                                    }))).then(ClientCommandManager.literal("luck-today").executes(context -> {
-                        context.getSource().sendFeedback(
-                                Text.literal(String.valueOf(LuckToday.Companion.getLuckValue().getData()))
-                        );
-                        return 1;
-                    }))
-                    .then(ClientCommandManager.literal("relaunch").executes(context -> {
-                        AutoUpdateKt.relaunch(null);
-                        return 1;
-                    }))
-            );
-        });
-    }
-
-    public static void loadMalilibSettings() {
-        try {
-            File file = new File(FileUtils.getConfigDirectory(), Reden.CONFIG_FILE);
-            if (!file.exists()) {
-                return;
-            }
-            JsonObject jo = Reden.GSON.fromJson(Files.readString(file.toPath()), JsonObject.class);
-            ConfigUtils.readConfigBase(jo, Reden.MOD_NAME, MalilibSettingsKt.getAllOptions());
-            if (DebugKt.isDebug()) {
-                DebugKt.startDebugAppender();
-            }
-        } catch (IOException e) {
-            Reden.LOGGER.error("Failed to load malilib settings", e);
+            })
+            configureKeyCallbacks(MinecraftClient.getInstance())
         }
-    }
-
-    public static void saveMalilibOptions() {
-        JsonObject jo = new JsonObject();
-        new File(FileUtils.getConfigDirectory(), "reden").mkdirs();
-        ConfigUtils.writeConfigBase(jo, Reden.MOD_NAME, MalilibSettingsKt.getAllOptions());
-        try {
-            Files.writeString(new File(FileUtils.getConfigDirectory(), Reden.CONFIG_FILE).toPath(), Reden.GSON.toJson(jo));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        ClientLifecycleEvents.CLIENT_STARTED.register(ClientStarted { client -> redenSetup(client) })
+        ClientCommandRegistrationCallback.EVENT.register(ClientCommandRegistrationCallback { dispatcher, registryAccess ->
+            registerRvcLocal(dispatcher)
+            registerClientGlow(dispatcher)
+            dispatcher.register {
+                literal("reden-debug-client").then {
+                    literal("task").then {
+                        literal("list").executes { context ->
+                            context.source.sendFeedback(Text.literal(taskStack.size.toString()))
+                            for (task in taskStack) {
+                                context.source.sendFeedback(Text.literal(task.toString()))
+                            }
+                            1
+                        }
+                    }
+                    literal("floating-item").then {
+                        argument("item", ItemStackArgumentType.itemStack(registryAccess)).executes { context ->
+                            val client = MinecraftClient.getInstance()
+                            client.gameRenderer.showFloatingItem(
+                                ItemStackArgumentType.getItemStackArgument(
+                                    context,
+                                    "item"
+                                ).createStack(1, false)
+                            )
+                            assert(client.world != null)
+                            assert(client.player != null)
+                            client.world!!.playSound(
+                                client.player!!.x,
+                                client.player!!.y,
+                                client.player!!.z,
+                                SoundEvents.ITEM_TOTEM_USE,
+                                client.player!!.soundCategory,
+                                1.0f,
+                                1.0f,
+                                false
+                            )
+                            1
+                        }
+                    }
+                    literal("luck-today").executes { context ->
+                        context.source.sendFeedback(
+                            Text.literal(luckValue.data.toString())
+                        )
+                        1
+                    }
+                    literal("relaunch").executes {
+                        relaunch(null)
+                        1
+                    }
+                }
+            }
+        })
     }
 }
