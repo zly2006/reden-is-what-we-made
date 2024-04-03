@@ -17,7 +17,7 @@ val owo_version: String by project
 plugins {
     kotlin("jvm") version "1.9.22"
     kotlin("plugin.serialization") version "1.9.22"
-    id("fabric-loom") version "1.5-SNAPSHOT"
+    id("fabric-loom") version "1.6-SNAPSHOT"
     `maven-publish`
     id("org.ajoberstar.grgit") version "5.2.2"
     id("com.redenmc.yamlang") version "1.3.1"
