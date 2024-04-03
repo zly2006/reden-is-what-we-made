@@ -1,7 +1,8 @@
 package com.github.zly2006.reden.clientGlow
 
 import com.mojang.brigadier.CommandDispatcher
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
+import com.redenmc.bragadier.ktdsl.register
+import com.redenmc.bragadier.ktdsl.then
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.minecraft.client.MinecraftClient
@@ -67,17 +68,18 @@ fun registerClientGlow(dispatcher: CommandDispatcher<FabricClientCommandSource>)
             glowing = selected(client.player!!.pos, client.player!!).toSet()
         }
     })
-    dispatcher.register(ClientCommandManager.literal("glow")
-        .then(ClientCommandManager.literal("clear").executes {
-            selector = null
-            glowing = setOf()
-            1
-        })
-        .then(ClientCommandManager.argument("entities", EntityArgumentType.entities())
-            .executes { context ->
+    dispatcher.register {
+        literal("glow").then {
+            literal("clear").executes {
+                selector = null
+                glowing = setOf()
+                1
+            }
+            argument("entities", EntityArgumentType.entities()).executes { context ->
                 selector = context.getArgument("entities", EntitySelector::class.java)
                 context.source.sendFeedback(Text.translatable("reden.commands.glow.success"))
                 1
-            })
-    )
+            }
+        }
+    }
 }

@@ -31,7 +31,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.Version
-import net.fabricmc.loader.api.metadata.ModMetadata
 import net.minecraft.client.MinecraftClient
 import net.minecraft.command.argument.BlockPosArgumentType
 import net.minecraft.command.argument.BlockStateArgumentType
@@ -48,31 +47,19 @@ import java.util.*
 
 class Reden : ModInitializer, CarpetExtension {
     companion object {
-        const val MOD_ID: String = "reden"
-        const val MOD_NAME: String = "Reden"
-        const val CONFIG_FILE: String = "reden/config.json"
-        private val MOD_METADATA: ModMetadata = FabricLoader.getInstance().getModContainer(MOD_ID).get().metadata
-
-        @JvmField
-        val MOD_VERSION: Version = MOD_METADATA.version
-
-        @JvmField
-        val BUILD_TIME: Date = Date(MOD_METADATA.getCustomValue("reden").asObject["build_timestamp"].asString.toLong())
-
-        @JvmField
-        val LOGGER: Logger = LoggerFactory.getLogger(MOD_NAME)
-
-        @JvmField
-        val GSON: Gson = GsonBuilder().setPrettyPrinting().create()
-        const val REDEN_HIGHEST_MIXIN_PRIORITY: Int = 10
-
-        @JvmField
-        val LOGO: Identifier = Reden.identifier("reden_16.png")
-
-        @JvmStatic
-        val isRedenDev: Boolean
-            get() = System.getProperty("reden.debug", FabricLoader.getInstance().isDevelopmentEnvironment.toString())
-                .toBoolean()
+        // @formatter:off
+        const val MOD_ID = "reden"
+        const val MOD_NAME = "Reden"
+        const val CONFIG_FILE = "reden/config.json"
+        private val MOD_METADATA = FabricLoader.getInstance().getModContainer(MOD_ID).get().metadata
+        const val REDEN_HIGHEST_MIXIN_PRIORITY = 10
+        @JvmField val MOD_VERSION: Version = MOD_METADATA.version
+        @JvmField val BUILD_TIME = Date(MOD_METADATA.getCustomValue("reden").asObject["build_timestamp"].asString.toLong())
+        @JvmField val LOGGER: Logger = LoggerFactory.getLogger(MOD_NAME)
+        @JvmField val GSON: Gson = GsonBuilder().setPrettyPrinting().create()
+        @JvmField val LOGO = identifier("reden_16.png")
+        @JvmStatic val isRedenDev = System.getProperty("reden.debug", FabricLoader.getInstance().isDevelopmentEnvironment.toString()).toBoolean()
+        // @formatter:on
 
         @JvmStatic
         @Contract("_ -> new")
@@ -128,21 +115,16 @@ class Reden : ModInitializer, CarpetExtension {
                                         val client = MinecraftClient.getInstance()
                                         assert(client.player != null)
                                         val pos = BlockPosArgumentType.getBlockPos(context, "pos")
-                                        SchematicWorldHandler.getSchematicWorld()!!
-                                            .setBlockState(
-                                                pos,
-                                                BlockStateArgumentType.getBlockState(
-                                                    context,
-                                                    "block"
-                                                ).blockState,
-                                                3
+                                        SchematicWorldHandler.getSchematicWorld()!!.setBlockState(
+                                            pos, BlockStateArgumentType.getBlockState(
+                                                context, "block"
+                                            ).blockState, 3
                                             )
                                         SchematicWorldHandler.getSchematicWorld()!!
                                             .scheduleChunkRenders(pos.x shr 4, pos.z shr 4)
                                         LitematicaRenderer.getInstance().worldRenderer.markNeedsUpdate()
                                         client.player!!.sendMessage(
-                                            SchematicWorldHandler.getSchematicWorld()!!
-                                                .getBlockState(pos).block.name
+                                            SchematicWorldHandler.getSchematicWorld()!!.getBlockState(pos).block.name
                                         )
                                         1
                                     }
@@ -150,10 +132,7 @@ class Reden : ModInitializer, CarpetExtension {
                             }
                         }
                         literal("last-saved-nbt").then {
-                            argument(
-                                "pos",
-                                BlockPosArgumentType.blockPos()
-                            ).executes { context ->
+                            argument("pos", BlockPosArgumentType.blockPos()).executes { context ->
                                 val pos = BlockPosArgumentType.getBlockPos(context, "pos")
                                 val blockEntity = context.source.world.getBlockEntity(pos)
                                 if (blockEntity == null) {
@@ -171,8 +150,7 @@ class Reden : ModInitializer, CarpetExtension {
                         }
                         literal("shadow-item").then {
                             argument("item", ItemStackArgumentType.itemStack(access)).executes { context ->
-                                val itemStackArgument =
-                                    ItemStackArgumentType.getItemStackArgument(context, "item")
+                                val itemStackArgument = ItemStackArgumentType.getItemStackArgument(context, "item")
                                 val stack = itemStackArgument.createStack(1, true)
                                 val inventory = context.source.player!!.inventory
                                 for (i in 0..1) {
@@ -187,8 +165,7 @@ class Reden : ModInitializer, CarpetExtension {
                             val player = context.source.player
                             player?.networkHandler?.sendPacket(
                                 EntityStatusS2CPacket(
-                                    player,
-                                    EntityStatuses.USE_TOTEM_OF_UNDYING
+                                    player, EntityStatuses.USE_TOTEM_OF_UNDYING
                                 )
                             )
                             1
