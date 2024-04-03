@@ -78,7 +78,7 @@ jobs:
             build/reports/tests/
 
       - name: Publish to GitHub Pre-Releases
-        if: ${{ env.PUBLISH_BETA == 'true' && matrix.java == 17 }} # Only publish the version built with Java LTS
+        if: ${{ env.PUBLISH_BETA == 'true' && matrix.java == 21 }} # Only publish the version built with Java LTS
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true

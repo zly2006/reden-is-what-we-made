@@ -9,11 +9,8 @@ jobs:
   build-and-publish-pre-release:
     strategy:
       matrix:
-        # Use thses Java versions:
-        java: [17] # Only use the latest Java LTS
-        # Use these operating systems:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+        java: [ 21 ] # Only use the latest Java LTS
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
