@@ -45,7 +45,7 @@ class SelectionImportScreen(
         selectedLine?.let {
             fileType.import(it.file)?.let { repository ->
                 repository.setWorld()
-                client!!.data.rvcStructures[repository.name] = repository
+                client!!.data.rvc.repositories[repository.name] = repository
                 selectedRepository = repository
 
                 client!!.setScreen(SelectionListScreen())
@@ -206,14 +206,7 @@ class SelectionImportScreen(
                     val name: String
                 )
                 val manifest = json.decodeFromString<Manifest>(manifestString)
-                var name = manifest.name
-                if (name in mc.data.rvcStructures) {
-                    var i = 2
-                    while (name in mc.data.rvcStructures) {
-                        name = "${manifest.name} ($i)"
-                        i++
-                    }
-                }
+                val name = mc.data.rvc.getSuffixName(manifest.name)
                 val path = RvcRepository.path / name / ".git"
                 for (entry in zip.entries()) {
                     val entryPath = path / entry.name

@@ -65,6 +65,7 @@ fun registerSelectionTool() {
                             }
 
                             is StructureTracker.Entire -> {}
+                            is StructureTracker.Reference -> TODO()
                         }
                         structure.refreshPositions()
                     }

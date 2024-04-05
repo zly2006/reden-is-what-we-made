@@ -13,8 +13,18 @@ import kotlinx.serialization.Transient
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
 import net.minecraft.client.MinecraftClient
+import net.minecraft.util.BlockRotation
 import net.minecraft.util.math.BlockPos
 import java.util.*
+
+private fun BlockRotation.invert(): BlockRotation {
+    return when (this) {
+        BlockRotation.CLOCKWISE_90 -> BlockRotation.COUNTERCLOCKWISE_90
+        BlockRotation.CLOCKWISE_180 -> BlockRotation.CLOCKWISE_180
+        BlockRotation.COUNTERCLOCKWISE_90 -> BlockRotation.CLOCKWISE_90
+        else -> this
+    }
+}
 
 /**
  * track a structure's part, listen to block changes and update the positions of the tracked blocks.
@@ -264,6 +274,31 @@ sealed class StructureTracker {
         override suspend fun refreshPositions(part: TrackedStructurePart) {}
         override fun onBlockAdded(part: TrackedStructurePart, pos: BlockPos) {}
         override fun onBlockRemoved(part: TrackedStructurePart, pos: BlockPos) {}
+    }
+
+    @Serializable
+    class Reference(
+        val reference: StructureReference.Referrer
+    ) : StructureTracker() {
+        override val blockIterator: Iterator<RelativeCoordinate>
+            get() = requireNotNull(reference.referencedPart).blockIterator.asSequence().map {
+                it.translate(reference.pos).translate(reference.rotation)
+            }.iterator()
+
+        override fun isInArea(part: TrackedStructurePart, pos: RelativeCoordinate) =
+            requireNotNull(reference.referencedPart).isInArea(
+                pos.translate(reference.pos.invert()).translate(reference.rotation.invert())
+            )
+
+        override suspend fun refreshPositions(part: TrackedStructurePart) {
+            updateOrigin(part)
+        }
+
+        override fun onBlockAdded(part: TrackedStructurePart, pos: BlockPos) {
+        }
+
+        override fun onBlockRemoved(part: TrackedStructurePart, pos: BlockPos) {
+        }
     }
 
     /**

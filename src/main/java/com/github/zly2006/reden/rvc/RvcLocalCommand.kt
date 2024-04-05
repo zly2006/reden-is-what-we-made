@@ -27,9 +27,9 @@ fun registerRvcLocal(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
     dispatcher.register {
         literal("rvc-local") {
             literal("use") {
-                argument("name", string()).suggest { mc.data.rvcStructures.keys }.executes {
+                argument("name", string()).suggest { mc.data.rvc.repositories.keys }.executes {
                     val name = it.string("name")
-                    selectedRepository = mc.data.rvcStructures[name] ?: error("No such repository: $name")
+                    selectedRepository = mc.data.rvc.repositories[name] ?: error("No such repository: $name")
                     if (selectedRepository!!.placementInfo?.worldInfo != mc.getWorldInfo()) {
                         selectedRepository = null
                         error("Repository $name is not in the current world")

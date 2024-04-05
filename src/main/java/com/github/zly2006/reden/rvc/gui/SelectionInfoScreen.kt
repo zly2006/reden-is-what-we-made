@@ -40,7 +40,7 @@ class SelectionInfoScreen(
         if (selectedRepository == repository) {
             selectedRepository = null
         }
-        client!!.data.rvcStructures.remove(repository.name)
+        client!!.data.rvc.repositories.remove(repository.name)
         repository.delete()
         client!!.setScreen(SelectionListScreen())
     }!!
