@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.rvc.io
 
+import com.github.zly2006.reden.exceptions.RedenException
 import com.github.zly2006.reden.rvc.*
 import com.github.zly2006.reden.rvc.tracking.PlacementInfo
 import net.minecraft.nbt.NbtCompound
@@ -8,11 +9,11 @@ import net.minecraft.nbt.NbtIo
 import net.minecraft.nbt.NbtSizeTracker
 import net.minecraft.registry.Registries
 import net.minecraft.structure.StructureTemplate
+import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
 import java.nio.file.Path
-import kotlin.io.path.extension
 
 private object Names {
     const val MATERIALS = "Materials"
@@ -48,17 +49,15 @@ class SchematicImpl(
 
 object SchematicIO: StructureIO {
     override fun save(path: Path, structure: IStructure) {
-        if (path.extension.lowercase() != "schematic") throw IllegalArgumentException("path must be a schematic file")
         val format = FORMATS[Names.FORMAT_STRUCTURE]!!
         val nbt = NbtCompound()
         if (!format.writeToNBT(nbt, structure)) {
-            throw Exception("Failed to save.")
+            throw RedenException(Text.translatable("rvc.error.schematic.write_failed"))
         }
         NbtIo.writeCompressed(nbt, path)
     }
 
     override fun load(path: Path, structure: IWritableStructure) {
-        if (path.extension.lowercase() != "schematic") throw IllegalArgumentException("path must be a schematic file")
         val nbt = NbtIo.readCompressed(path, NbtSizeTracker.ofUnlimitedBytes())
         val formatName = if (nbt.contains(Names.MATERIALS)) nbt.getString(Names.MATERIALS)
         else Names.FORMAT_STRUCTURE

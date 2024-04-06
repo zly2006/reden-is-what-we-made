@@ -13,8 +13,8 @@ class UpdatableTextBox(
     defaultValue: String = "",
     val updateCallback: (String, String) -> Boolean
 ): FlowLayout(horizontalSizing, Sizing.fixed(verticalSize), Algorithm.HORIZONTAL) {
-    var oldValue = defaultValue
-    val input = object: TextBoxComponent(Sizing.fill()) {
+    private var oldValue = defaultValue
+    private val input = object : TextBoxComponent(Sizing.fill()) {
         init {
             text(defaultValue)
         }
@@ -27,7 +27,7 @@ class UpdatableTextBox(
             super.inflate(Size.of(space.width - verticalSize, space.height))
         }
     }
-    val updateButton: TextureButtonComponent by lazy {
+    private val updateButton: TextureButtonComponent by lazy {
         TextureButtonComponent(Reden.identifier("check-white.png"), {
             updateContent(oldValue, input.text)
             oldValue = input.text
@@ -48,7 +48,7 @@ class UpdatableTextBox(
         surface(Surface.flat(0x80000000.toInt()) + Surface.outline(0x80FFFFFF.toInt()))
     }
 
-    fun updateContent(oldValue: String, newValue: String) {
+    private fun updateContent(oldValue: String, newValue: String) {
         if (!updateCallback(oldValue, newValue)) {
             input.text(oldValue)
         } else {
