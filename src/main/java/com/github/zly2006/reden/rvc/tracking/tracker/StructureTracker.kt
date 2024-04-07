@@ -93,6 +93,13 @@ sealed class StructureTracker {
                 StructureReference.Type.None -> 0xFFFFFF
                 else -> 0xFF0000
             }
+            ::Cuboid.invoke(first, second).apply {
+                BlockOutline.blocks = mapOf(
+                    first.blockPos(part.origin) to part.world.getBlockState(first.blockPos(part.origin)),
+                    second.blockPos(part.origin) to part.world.getBlockState(second.blockPos(part.origin))
+                )
+                BlockOutline.color = color
+            }
             BlockOutline.blocks = mapOf()
             BlockBorder.tags = mapOf()
             WorldRenderEvents.AFTER_ENTITIES.register(this)
