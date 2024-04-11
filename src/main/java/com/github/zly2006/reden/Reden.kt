@@ -12,25 +12,27 @@ import com.github.zly2006.reden.indexing.propertyId
 import com.github.zly2006.reden.network.registerChannels
 import com.github.zly2006.reden.rvc.registerRvc
 import com.github.zly2006.reden.transformers.ThisIsReden
+import com.github.zly2006.reden.utils.ResourceLoader
 import com.github.zly2006.reden.utils.ResourceLoader.loadLang
 import com.github.zly2006.reden.utils.TaskScheduler
+import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
+import com.mojang.blaze3d.platform.GlDebugInfo
 import com.redenmc.bragadier.ktdsl.register
 import com.redenmc.bragadier.ktdsl.then
 import fi.dy.masa.litematica.render.LitematicaRenderer
 import fi.dy.masa.litematica.world.SchematicWorldHandler
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.Version
+import net.minecraft.SharedConstants
 import net.minecraft.client.MinecraftClient
 import net.minecraft.command.argument.BlockPosArgumentType
 import net.minecraft.command.argument.BlockStateArgumentType
@@ -175,6 +177,56 @@ class Reden : ModInitializer, CarpetExtension {
                             it.source.sendMessage(Text.of("35 seconds passed"))
                             1
                         }
+                    }
+                    literal("neofetch").executes {
+                        val ja = Gson().fromJson(
+                            ResourceLoader.loadString("assets/reden/neofetch.json"),
+                            JsonArray::class.java
+                        )
+                        ja.forEachIndexed { index, line ->
+                            val text = Text.empty()
+                            for (t in line.asJsonArray) {
+                                text.append(Text.Serialization.fromJsonTree(t))
+                            }
+
+                            val usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
+                            text.append(
+                                when (index) {
+                                    0 -> Text.literal("  ${it.source.name}")
+                                    1 -> Text.literal("  " + "-".repeat(it.source.name.length))
+                                    2 -> Text.literal("  Minecraft ${SharedConstants.getGameVersion().name} (${server.serverModName})")
+                                    3 -> Text.literal("  Reden $MOD_VERSION")
+                                    4 -> Text.literal("  OS: ${System.getProperty("os.name")}")
+                                    5 -> Text.literal("  Java: ${System.getProperty("java.version")}")
+                                    6 -> Text.literal(
+                                        "  MC Memory: ${usedMemory / 1024 / 1024}/${
+                                            Runtime.getRuntime().maxMemory() / 1024 / 1024
+                                        } MiB"
+                                    )
+
+                                    11 -> Text.of("  " + "01234567".map { "§$it█" }.joinToString(""))
+                                    12 -> Text.of("  " + "89abcedf".map { "§$it█" }.joinToString(""))
+                                    else -> Text.empty()
+                                }
+                            )
+                            if (isClient) {
+                                val mc = MinecraftClient.getInstance()
+                                runBlocking(mc.asCoroutineDispatcher()) {
+                                    text.append(
+                                        when (index) {
+                                            7 -> Text.literal("  CPU: ${GlDebugInfo.getCpuInfo()}")
+                                            8 -> Text.literal("  Display: ${mc.window.framebufferWidth}x${mc.window.framebufferHeight} (${GlDebugInfo.getVendor()})")
+                                            9 -> Text.literal("  Driver: ${GlDebugInfo.getRenderer()}")
+                                            10 -> Text.literal("  OpenGL: ${GlDebugInfo.getVersion()}")
+                                            else -> Text.empty()
+                                        }
+                                    )
+                                }
+                            }
+                            it.source.sendMessage(text)
+                            println(text.string.length)
+                        }
+                        1
                     }
                 }
             }

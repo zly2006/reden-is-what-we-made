@@ -159,6 +159,19 @@ class RedenClient : ClientModInitializer {
                         relaunch(null)
                         1
                     }
+                    literal("neofetch") {
+                        literal("chars").executes {
+                            val renderer = MinecraftClient.getInstance().textRenderer
+                            val width = renderer.getWidth(" ")
+                            (0x20..0x7E)
+                                .map { it.toChar() }
+                                .groupBy { renderer.getWidth(it.toString()) }
+                                .forEach {
+                                    println("${it.key}: ${it.value.joinToString("")}")
+                                }
+                            1
+                        }
+                    }
                 }
             }
         })
