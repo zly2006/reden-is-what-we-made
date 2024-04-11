@@ -1,9 +1,9 @@
 package com.github.zly2006.reden.transformers
 
-import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.fabricmc.loader.impl.launch.FabricLauncherBase
 import net.fabricmc.loader.impl.lib.mappingio.tree.MappingTree.ClassMapping
+import net.minecraft.network.packet.CustomPayload
 import net.minecraft.server.MinecraftServer
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
@@ -119,7 +119,7 @@ object IntermediaryMappingAccess {
     }
 }
 
-fun MinecraftServer.sendToAll(packet: FabricPacket) {
+fun MinecraftServer.sendToAll(packet: CustomPayload) {
     playerManager.playerList.forEach {
         ServerPlayNetworking.send(it, packet)
     }

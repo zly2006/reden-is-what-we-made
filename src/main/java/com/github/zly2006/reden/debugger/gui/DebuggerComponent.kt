@@ -2,7 +2,7 @@ package com.github.zly2006.reden.debugger.gui
 
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.tree.TickStageTree
-import com.github.zly2006.reden.network.GlobalStatus.Companion.FROZEN
+import com.github.zly2006.reden.network.GlobalStatus.FROZEN
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.core.Component

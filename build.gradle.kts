@@ -153,13 +153,13 @@ allprojects {
         compilerOptions {
             freeCompilerArgs.add("-Xjvm-default=all")
         }
-        jvmToolchain(17)
+        jvmToolchain(21)
     }
 
     java {
         withSourcesJar()
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
+            languageVersion.set(JavaLanguageVersion.of(21))
         }
     }
 }

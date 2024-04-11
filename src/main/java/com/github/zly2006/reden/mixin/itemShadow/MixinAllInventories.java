@@ -5,8 +5,8 @@ import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.itemShadow.ItemStackOwner;
 import com.github.zly2006.reden.utils.UtilsKt;
 import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
-import net.minecraft.block.entity.BrewingStandBlockEntity;
 import net.minecraft.block.entity.ChiseledBookshelfBlockEntity;
+import net.minecraft.block.entity.LockableContainerBlockEntity;
 import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.vehicle.ChestBoatEntity;
@@ -36,7 +36,7 @@ import java.util.List;
         MerchantInventory.class,
 
         AbstractFurnaceBlockEntity.class,
-        BrewingStandBlockEntity.class,
+        LockableContainerBlockEntity.class,
         ChiseledBookshelfBlockEntity.class,
         //todo
         //  LecternBlockEntity.class,

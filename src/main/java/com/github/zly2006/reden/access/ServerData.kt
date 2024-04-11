@@ -38,7 +38,7 @@ class ServerData(val version: Version, mcServer: MinecraftServer?) : StatusAcces
 
     fun freeze(reason: String) {
         frozen = true
-        GlobalStatus(server.data.status, NbtCompound().apply {
+        GlobalStatus.packet(server.data.status, NbtCompound().apply {
             putString("reason", reason)
         }).let(server::sendToAll)
     }

@@ -118,9 +118,9 @@ public class RedenCarpetSettings {
                                 playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(
                                         item.getId(),
                                         List.of(new DataTracker.SerializedEntry<>(
-                                                ItemEntity.STACK.getId(),
-                                                ItemEntity.STACK.getType(),
-                                                ItemEntity.STACK.getType().copy(item.getStack())
+                                                ItemEntity.STACK.id(),
+                                                ItemEntity.STACK.dataType(),
+                                                ItemEntity.STACK.dataType().copy(item.getStack())
                                         ))
                                 ), world.getRegistryKey());
                             }));

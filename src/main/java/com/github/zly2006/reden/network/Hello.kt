@@ -5,49 +5,33 @@ import com.github.zly2006.reden.access.ServerData
 import com.github.zly2006.reden.access.TransferCooldownAccess
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.translateMessage
+import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.fabricmc.fabric.api.networking.v1.FabricPacket
-import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.loader.api.Version
 import net.minecraft.client.MinecraftClient
-import net.minecraft.network.PacketByteBuf
+import net.minecraft.network.packet.CustomPayload
 
+@Serializable
 class Hello(
-    val version: Version,
+    val versionString: String,
     val featureSet: Set<String>,
-): FabricPacket {
-    override fun write(buf: PacketByteBuf) {
-        buf.writeString(version.toString())
-        buf.writeVarInt(featureSet.size)
-        featureSet.forEach {
-            buf.writeString(it)
-        }
-    }
-    override fun getType(): PacketType<*> = pType
+) : CustomPayload {
+    override fun getId() = ID
 
-    companion object {
-        private val id = Reden.identifier("hello")
-        private val pType = PacketType.create(id) { buf ->
-            val version = Version.parse(buf.readString())
-            val featureSet = mutableSetOf<String>()
-            repeat(buf.readVarInt()) {
-                featureSet.add(buf.readString())
-            }
-            Hello(version, featureSet)
-        }
+    companion object : PacketCodecHelper<Hello> by PacketCodec(Reden.identifier("hello")) {
         fun register() {
             if (isClient) {
-                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->
-                    Reden.LOGGER.info("Hello from server: ${packet.version}")
+                ClientPlayNetworking.registerGlobalReceiver(ID) { packet, _ ->
+                    Reden.LOGGER.info("Hello from server: ${packet.versionString}")
                     Reden.LOGGER.info("Feature set: " + packet.featureSet.joinToString())
                     (MinecraftClient.getInstance() as ServerData.ClientSideServerDataAccess).serverData =
-                        ServerData(packet.version, null).apply {
+                        ServerData(Version.parse(packet.versionString), null).apply {
                             featureSet.addAll(packet.featureSet)
                         }
                     packet.featureSet.forEach { name ->
                         when (name) {
-                            "hopper-cd" -> ClientPlayNetworking.registerReceiver(HopperCDSync.pType) { packet, _, _ ->
+                            "hopper-cd" -> ClientPlayNetworking.registerReceiver(HopperCDSync.ID) { packet, _ ->
                                 val screen = MinecraftClient.getInstance().currentScreen
                                 if (screen is TransferCooldownAccess) {
                                     screen.transferCooldown = packet.cd
@@ -55,8 +39,9 @@ class Hello(
                                 HopperCDSync.currentDelay = packet.cd
                                 HopperCDSync.currentPos = packet.pos
                             }
-                            "undo" -> ClientPlayNetworking.registerReceiver(Undo.pType) { packet, player, _ ->
-                                player.sendMessage(
+
+                            "undo" -> ClientPlayNetworking.registerReceiver(Undo.ID) { packet, context ->
+                                context.player().sendMessage(
                                     when (packet.status) {
                                         0 -> translateMessage("undo", "rollback_success")
                                         1 -> translateMessage("undo", "restore_success")
@@ -74,7 +59,9 @@ class Hello(
                 }
             }
             ServerPlayConnectionEvents.JOIN.register { _, sender, _ ->
-                sender.sendPacket(Hello(Reden.MOD_VERSION, setOf(
+                sender.sendPacket(
+                    Hello(
+                        Reden.MOD_VERSION.friendlyString, setOf(
                     "reden",
                     "undo",
                     "hopper-cd",

@@ -8,39 +8,24 @@ import com.github.zly2006.reden.debugger.tree.TickStageTree
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.red
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.fabricmc.fabric.api.networking.v1.FabricPacket
-import net.fabricmc.fabric.api.networking.v1.PacketType
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
+import net.minecraft.network.packet.CustomPayload
 import net.minecraft.text.Text
 
 data class BreakPointInterrupt(
     val bpId: Int, // = -1
     val tree: TickStageTree?,
     val interrupted: Boolean
-): FabricPacket {
-    override fun write(buf: PacketByteBuf) {
-        buf.writeVarInt(bpId)
-        buf.writeNullable(tree) { _, _ ->
-            StageIo.writeTickStageTree(buf, tree!!, true)
-        }
-        buf.writeBoolean(interrupted)
-    }
+) : CustomPayload {
+    override fun getId() = ID
 
-    override fun getType() = pType
-
-    companion object {
-        val id = Reden.identifier("breakpoint_interrupt")
-        val pType = PacketType.create(id) {
-            BreakPointInterrupt(
-                it.readVarInt(),
-                it.readNullable(StageIo::readTickStageTree),
-                it.readBoolean()
-            )
-        }!!
+    companion object : PacketCodecHelper<BreakPointInterrupt> by PacketCodec(Reden.identifier("breakpoint_interrupt")) {
         fun register() {
             if (isClient) {
-                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->
+                PayloadTypeRegistry.playS2C().register(ID, CODEC)
+                ClientPlayNetworking.registerGlobalReceiver(ID) { packet, _ ->
                     val data = MinecraftClient.getInstance().serverData!!
                     val breakpoint = data.breakpoints.breakpointMap[packet.bpId]
                     if (packet.tree != null) {

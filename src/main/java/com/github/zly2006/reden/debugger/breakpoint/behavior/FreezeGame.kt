@@ -22,7 +22,7 @@ class FreezeGame: BreakPointBehavior() {
 
         server.data.addStatus(GlobalStatus.FROZEN)
             .let {
-                GlobalStatus(it, NbtCompound().apply {
+                GlobalStatus.packet(it, NbtCompound().apply {
                     putString("reason", "game-paused")
                 })
             }.let(server::sendToAll)

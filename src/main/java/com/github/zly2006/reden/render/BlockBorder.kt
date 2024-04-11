@@ -39,7 +39,7 @@ object BlockBorder {
                     }
                     val pos = BlockPos.fromLong(posLong)
                     val alpha = BLOCK_BORDER_ALPHA.doubleValue.toFloat()
-                    val matrix4f = context.matrixStack().peek().positionMatrix
+                    val matrix4f = context.matrixStack()!!.peek().positionMatrix
                     RenderSystem.disableCull()
                     RenderSystem.disableScissor()
                     RenderSystem.enableBlend()

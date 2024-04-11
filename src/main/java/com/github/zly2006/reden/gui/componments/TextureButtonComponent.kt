@@ -15,7 +15,7 @@ class TextureButtonComponent(
     textureWidth: Int = 16,
     textureHeight: Int = textureWidth,
     var tooltip: Text? = null
-): TextIconButtonWidget(width, height, Text.empty(), textureWidth, textureHeight, texture, onPress) {
+) : TextIconButtonWidget(width, height, Text.empty(), textureWidth, textureHeight, texture, onPress, { it.get() }) {
     override fun drawMessage(context: DrawContext?, textRenderer: TextRenderer?, color: Int) {
         super.drawMessage(context, textRenderer, color)
     }

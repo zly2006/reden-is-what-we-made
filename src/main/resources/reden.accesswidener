@@ -144,7 +144,6 @@ accessible field net/minecraft/world/chunk/WorldChunk$DirectBlockEntityTickInvok
 accessible field net/minecraft/util/thread/ReentrantThreadExecutor runningTasks I
 accessible field net/minecraft/client/gui/hud/InGameHud overlayRemaining I
 accessible field net/minecraft/server/MinecraftServer tickStartTimeNanos J
-accessible method net/minecraft/client/gui/widget/TextIconButtonWidget <init> (IILnet/minecraft/text/Text;IILnet/minecraft/util/Identifier;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V
-extendable method net/minecraft/client/gui/widget/TextIconButtonWidget <init> (IILnet/minecraft/text/Text;IILnet/minecraft/util/Identifier;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V
 accessible field net/minecraft/util/thread/ThreadExecutor executionsInProgress I
 accessible field net/minecraft/server/MinecraftServer session Lnet/minecraft/world/level/storage/LevelStorage$Session;
+accessible method net/minecraft/client/gui/widget/TextIconButtonWidget <init> (IILnet/minecraft/text/Text;IILnet/minecraft/util/Identifier;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;Lnet/minecraft/client/gui/widget/ButtonWidget$NarrationSupplier;)V

@@ -11,31 +11,23 @@ import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.modified
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.server
 import com.github.zly2006.reden.utils.setBlockNoPP
-import net.fabricmc.fabric.api.networking.v1.FabricPacket
-import net.fabricmc.fabric.api.networking.v1.PacketType
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.SpawnReason
 import net.minecraft.entity.mob.MobEntity
 import net.minecraft.nbt.NbtCompound
-import net.minecraft.network.PacketByteBuf
+import net.minecraft.network.packet.CustomPayload
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.tick.ChunkTickScheduler
 
 class Undo(
     val status: Int = 0
-): FabricPacket {
-    override fun getType(): PacketType<*> = pType
-    override fun write(buf: PacketByteBuf) {
-        buf.writeVarInt(status)
-    }
+) : CustomPayload {
+    override fun getId() = ID
 
-    companion object {
-        val id = Reden.identifier("undo")
-        val pType = PacketType.create(id) {
-            Undo(it.readVarInt())
-        }
+    companion object : PacketCodecHelper<Undo> by PacketCodec(Reden.identifier("undo")) {
         private fun operate(world: ServerWorld, record: PlayerData.UndoRedoRecord, redoRecord: PlayerData.RedoRecord?, isUndo: Boolean = true) {
             debugLogger("undoing record ${record.id}, isUndo=$isUndo")
             record.data.forEach { (posLong, entry) ->
@@ -64,7 +56,7 @@ class Undo(
                 // apply block entity
                 entry.blockEntity?.let { beNbt ->
                     debugLogger("undo block entity ${pos}, $beNbt")
-                    world.addBlockEntity(BlockEntity.createFromNbt(pos, entry.state, beNbt))
+                    world.addBlockEntity(BlockEntity.createFromNbt(pos, entry.state, beNbt, world.registryManager))
                     (world.getBlockEntity(pos) as BlockEntityInterface).saveLastNbt()
                 }
             }
@@ -74,7 +66,7 @@ class Undo(
                     if (it.value != PlayerData.NotExistEntityEntry) {
                         val entry = it.value
                         debugLogger("undo entity ${it.key} spawning")
-                        val newEntity = entry.entity!!.spawn(world, null, { newEntity ->
+                        val newEntity = entry.entity!!.spawn(world, { newEntity ->
                             // Note: uuid is different from the original one, set it manually
                             newEntity.uuid = it.key
                         }, entry.pos, SpawnReason.COMMAND, false, false)
@@ -118,14 +110,16 @@ class Undo(
             return null
         }
         fun register() {
-            ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, res ->
-                val view = player.data()
-                fun sendStatus(status: Int) = res.sendPacket(Undo(status))
+            PayloadTypeRegistry.playC2S().register(ID, CODEC)
+            PayloadTypeRegistry.playS2C().register(ID, CODEC)
+            ServerPlayNetworking.registerGlobalReceiver(ID) { packet, context ->
+                val view = context.player().data()
+                fun sendStatus(status: Int) = context.responseSender().sendPacket(Undo(status))
                 if (!view.canRecord) {
                     sendStatus(16)
                     return@registerGlobalReceiver
                 }
-                UpdateMonitorHelper.playerStopRecording(player)
+                UpdateMonitorHelper.playerStopRecording(context.player())
                 if (UpdateMonitorHelper.recording != null) {
                     Reden.LOGGER.error("Undo when a record is still active, id=" + UpdateMonitorHelper.recording?.id)
                     // 不取消跟踪会导致undo的更改也被记录，边读边写异常
@@ -144,7 +138,7 @@ class Undo(
                                 ).apply {
                                     data.putAll(undoRecord.data.keys.associateWith { posLong ->
                                         this.fromWorld( // add entity info to this redo record
-                                            player.world,
+                                            context.player().world,
                                             BlockPos.fromLong(posLong),
                                             true
                                         )
@@ -152,7 +146,7 @@ class Undo(
                                     entities.clear()
                                 }
                             )
-                            operate(player.serverWorld, undoRecord, view.redo.last())
+                            operate(context.player().serverWorld, undoRecord, view.redo.last())
                             sendStatus(0)
                         }
                     } ?: sendStatus(2)
@@ -160,7 +154,7 @@ class Undo(
                     1 -> view.redo.lastValid()?.let {
                         view.redo.removeLast()
                         server.execute {
-                            operate(player.serverWorld, it, null, isUndo = false)
+                            operate(context.player().serverWorld, it, null, isUndo = false)
                             view.undo.add(it.undoRecord)
                             sendStatus(1)
                         }

@@ -3,8 +3,10 @@ package com.github.zly2006.reden.yo
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.utils.sendMessage
 import net.minecraft.client.MinecraftClient
+import net.minecraft.component.DataComponentTypes
+import net.minecraft.component.type.AttributeModifierSlot
+import net.minecraft.component.type.AttributeModifiersComponent
 import net.minecraft.enchantment.Enchantments
-import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.attribute.EntityAttributeModifier
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.item.ItemStack
@@ -65,27 +67,38 @@ class CheatCode(
                     item.addEnchantment(Enchantments.LOOTING, level)
                     item.addEnchantment(Enchantments.FIRE_ASPECT, level)
                     item.addEnchantment(Enchantments.KNOCKBACK, level)
-                    item.addEnchantment(Enchantments.SWEEPING, level)
+                    item.addEnchantment(Enchantments.SWEEPING_EDGE, level)
                     item.addEnchantment(Enchantments.SMITE, level)
-                    item.addAttributeModifier(EntityAttributes.GENERIC_ATTACK_DAMAGE, EntityAttributeModifier(
-                        "Attack Damage",
-                        10000.0,
-                        EntityAttributeModifier.Operation.ADDITION
-                    ), EquipmentSlot.MAINHAND)
-                    item.addAttributeModifier(
-                        EntityAttributes.GENERIC_ATTACK_SPEED, EntityAttributeModifier(
-                            "Attack Speed",
-                            100.0,
-                            EntityAttributeModifier.Operation.ADDITION
-                        ), EquipmentSlot.MAINHAND
-                    )
-                    item.addAttributeModifier(
-                        EntityAttributes.GENERIC_MAX_HEALTH, EntityAttributeModifier(
-                            "Max Health",
-                            1000.0,
-                            EntityAttributeModifier.Operation.ADDITION
-                        ), EquipmentSlot.MAINHAND
-                    )
+                    item.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT)
+                        .apply {
+                            modifiers.add(
+                                AttributeModifiersComponent.Entry(
+                                    EntityAttributes.GENERIC_ATTACK_SPEED, EntityAttributeModifier(
+                                        "Attack Speed",
+                                        100.0,
+                                        EntityAttributeModifier.Operation.ADD_VALUE
+                                    ), AttributeModifierSlot.MAINHAND
+                                )
+                            )
+                            modifiers.add(
+                                AttributeModifiersComponent.Entry(
+                                    EntityAttributes.GENERIC_MAX_HEALTH, EntityAttributeModifier(
+                                        "Max Health",
+                                        1000.0,
+                                        EntityAttributeModifier.Operation.ADD_VALUE
+                                    ), AttributeModifierSlot.MAINHAND
+                                )
+                            )
+                            modifiers.add(
+                                AttributeModifiersComponent.Entry(
+                                    EntityAttributes.GENERIC_ATTACK_DAMAGE, EntityAttributeModifier(
+                                        "Attack Damage",
+                                        10000.0,
+                                        EntityAttributeModifier.Operation.ADD_VALUE
+                                    ), AttributeModifierSlot.MAINHAND
+                                )
+                            )
+                        }
                     val emptySlot = mc.player!!.inventory.emptySlot
                     mc.player!!.inventory.insertStack(emptySlot, item.copy())
                     val slotIndex = mc.player!!.playerScreenHandler.getSlotIndex(mc.player!!.inventory, emptySlot).orElse(-1)

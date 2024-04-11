@@ -7,34 +7,32 @@ import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
 import com.github.zly2006.reden.debugger.gui.BreakpointUpdatable
 import com.github.zly2006.reden.transformers.sendToAll
+import com.github.zly2006.reden.utils.codec.UUIDSerializer
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.sendMessage
+import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.fabricmc.fabric.api.networking.v1.FabricPacket
-import net.fabricmc.fabric.api.networking.v1.PacketType
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.client.MinecraftClient
-import net.minecraft.network.PacketByteBuf
+import net.minecraft.network.packet.CustomPayload
 import java.util.*
 
 private val id = Reden.identifier("update_breakpoint")
-private val pType = PacketType.create(id) {
-    val bp = it.readNullable(BreakpointsManager.getBreakpointManager()::read)
-    val flag = it.readVarInt()
-    val bpId = it.readVarInt()
-    val uuid = it.readNullable(PacketByteBuf::readUuid)
-    UpdateBreakpointPacket(bp, flag, bpId, uuid)
-}
 
+@Serializable
 data class UpdateBreakpointPacket(
     val breakPoint: BreakPoint?,
     val flag: Int = 0,
     val bpId: Int = 0,
+    @Serializable(with = UUIDSerializer::class)
     val sender: UUID? = null
-): FabricPacket {
-    companion object {
+) : CustomPayload {
+    override fun getId() = ID
+
+    companion object : PacketCodecHelper<UpdateBreakpointPacket> by PacketCodec(id) {
         private fun updateBreakpoint(packet: UpdateBreakpointPacket, manager: BreakpointsManager) {
             val bp = packet.breakPoint
             val flag = packet.flag
@@ -54,17 +52,19 @@ data class UpdateBreakpointPacket(
             }
         }
         fun register() {
-            ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, _ ->
-                updateBreakpoint(packet, player.server.data.breakpoints)
-                player.sendMessage("Breakpoint updated.")
+            PayloadTypeRegistry.playC2S().register(ID, CODEC)
+            ServerPlayNetworking.registerGlobalReceiver(ID) { packet, context ->
+                updateBreakpoint(packet, context.player().server.data.breakpoints)
+                context.player().sendMessage("Breakpoint updated.")
                 // sync
-                player.server.sendToAll(packet.copy(sender = player.uuid))
+                context.player().server.sendToAll(packet.copy(sender = context.player().uuid))
             }
             ServerPlayConnectionEvents.JOIN.register { _, sender, server ->
                 server.data.breakpoints.sendAll(sender)
             }
             if (isClient) {
-                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->
+                PayloadTypeRegistry.playS2C().register(ID, CODEC)
+                ClientPlayNetworking.registerGlobalReceiver(ID) { packet, _ ->
                     val data = MinecraftClient.getInstance().data
                     updateBreakpoint(packet, data.breakpoints)
                 }
@@ -81,13 +81,4 @@ data class UpdateBreakpointPacket(
         // properties
         const val ENABLED = 4
     }
-
-    override fun write(buf: PacketByteBuf) {
-        buf.writeNullable(breakPoint, BreakpointsManager.getBreakpointManager()::write)
-        buf.writeVarInt(flag)
-        buf.writeVarInt(bpId)
-        buf.writeNullable(sender, PacketByteBuf::writeUuid)
-    }
-
-    override fun getType(): PacketType<UpdateBreakpointPacket> = pType
 }

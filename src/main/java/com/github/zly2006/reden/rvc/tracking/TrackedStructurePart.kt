@@ -245,7 +245,7 @@ class TrackedStructurePart(
         blockEntities.forEach { (pos, nbt) ->
             val be = (blocks[pos]?.block as? BlockEntityProvider)?.createBlockEntity(pos.blockPos(origin), blocks[pos])
                 ?.apply {
-                    readNbt(nbt)
+                    read(nbt, this@TrackedStructurePart.world.registryManager)
                     markDirty()
                 } ?: redenError("Failed to load block entity")
             world.addBlockEntity(be)
@@ -269,8 +269,7 @@ class TrackedStructurePart(
                     world as ServerWorld,
                     world.getLocalDifficulty(entity.blockPos),
                     SpawnReason.STRUCTURE,
-                    null,
-                    it.value
+                    null
                 )
                 (world as ServerWorld).spawnEntityAndPassengers(entity)
             }
@@ -366,7 +365,7 @@ class TrackedStructurePart(
             if (pos.y > maxPos.y) maxPos.y = pos.y
             if (pos.z > maxPos.z) maxPos.z = pos.z
             val state = world.getBlockState(pos.blockPos(origin))
-            val beData = world.getBlockEntity(pos.blockPos(origin))?.createNbtWithId()
+            val beData = world.getBlockEntity(pos.blockPos(origin))?.createNbtWithId(world.registryManager)
             blocks[pos] = state
             if (beData != null) blockEntities[pos] = beData
         }

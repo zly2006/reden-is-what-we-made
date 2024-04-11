@@ -95,7 +95,7 @@ public abstract class ChatScreenMixin extends Screen {
             });
         }
         quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_raw"), (entry, button) -> {
-            client.keyboard.setClipboard(Text.Serialization.toJsonString(text));
+            client.keyboard.setClipboard(Text.Serialization.toJsonString(text, client.world.getRegistryManager()));
             entry.setName(Text.translatable("reden.widget.chat.copied"));
         });
         quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy"), (entry, button) -> {
@@ -108,7 +108,7 @@ public abstract class ChatScreenMixin extends Screen {
                 if (action == HoverEvent.Action.SHOW_TEXT) {
                     quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_hover_raw"), (entry, button) -> {
                         Text hoverText = style.getHoverEvent().getValue(HoverEvent.Action.SHOW_TEXT);
-                        client.keyboard.setClipboard(Text.Serialization.toJsonString(hoverText));
+                        client.keyboard.setClipboard(Text.Serialization.toJsonString(hoverText, client.world.getRegistryManager()));
                         entry.setName(Text.translatable("reden.widget.chat.copied"));
                     });
                 }
@@ -116,16 +116,13 @@ public abstract class ChatScreenMixin extends Screen {
                     quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.give_hover_item"), (entry, button) -> {
                         @SuppressWarnings("DataFlowIssue")
                         ItemStack stack = style.getHoverEvent().getValue(HoverEvent.Action.SHOW_ITEM).asStack();
-                        if (stack.getNbt() == null) {
+                        if (stack.getComponents().isEmpty()) {
                             //noinspection DataFlowIssue
                             client.getNetworkHandler().sendChatCommand(
                                 "give @s " + Registries.ITEM.getId(stack.getItem())
                             );
                         } else {
-                            //noinspection DataFlowIssue
-                            client.getNetworkHandler().sendChatCommand(
-                                "give @s " + Registries.ITEM.getId(stack.getItem()) + stack.getNbt().toString()
-                            );
+                            // todo
                         }
                         entry.setName(Text.translatable("reden.widget.chat.done"));
                     });

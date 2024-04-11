@@ -39,9 +39,9 @@ public class MixinTracker {
                 playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(
                         entity.getId(),
                         List.of(new DataTracker.SerializedEntry<>(
-                                ItemEntity.STACK.getId(),
-                                ItemEntity.STACK.getType(),
-                                ItemEntity.STACK.getType().copy(stack)
+                                ItemEntity.STACK.id(),
+                                ItemEntity.STACK.dataType(),
+                                ItemEntity.STACK.dataType().copy(stack)
                         ))
                 ), world.getRegistryKey());
             }
