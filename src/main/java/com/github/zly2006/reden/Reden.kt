@@ -40,11 +40,13 @@ import net.minecraft.command.argument.ItemStackArgumentType
 import net.minecraft.entity.EntityStatuses
 import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket
 import net.minecraft.text.Text
+import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import org.jetbrains.annotations.Contract
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
+import kotlin.time.Duration.Companion.milliseconds
 
 
 class Reden : ModInitializer, CarpetExtension {
@@ -70,6 +72,8 @@ class Reden : ModInitializer, CarpetExtension {
         }
     }
 
+    private var serverStartTime: Long = 0
+
     override fun version(): String {
         return "reden"
     }
@@ -84,7 +88,10 @@ class Reden : ModInitializer, CarpetExtension {
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onInitialize() {
-        ServerLifecycleEvents.SERVER_STARTING.register { server = it }
+        ServerLifecycleEvents.SERVER_STARTING.register {
+            server = it
+            serverStartTime = System.currentTimeMillis()
+        }
         registerChannels()
         CarpetServer.manageExtension(this)
         CommandRegistrationCallback.EVENT.register { dispatcher, access, _ ->
@@ -178,7 +185,7 @@ class Reden : ModInitializer, CarpetExtension {
                             1
                         }
                     }
-                    literal("neofetch").executes {
+                    literal("neofetch").executes { context ->
                         val ja = Gson().fromJson(
                             ResourceLoader.loadString("assets/reden/neofetch.json"),
                             JsonArray::class.java
@@ -190,10 +197,13 @@ class Reden : ModInitializer, CarpetExtension {
                             }
 
                             val usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
+                            fun color(s: String) = s.map {
+                                Text.literal("█").formatted(Formatting.byCode(it))
+                            }.fold(Text.literal("  ")) { acc, text -> acc.append(text) }
                             text.append(
                                 when (index) {
-                                    0 -> Text.literal("  ${it.source.name}")
-                                    1 -> Text.literal("  " + "-".repeat(it.source.name.length))
+                                    0 -> Text.literal("  ${context.source.name}")
+                                    1 -> Text.literal("  " + "-".repeat(context.source.name.length))
                                     2 -> Text.literal("  Minecraft ${SharedConstants.getGameVersion().name} (${server.serverModName})")
                                     3 -> Text.literal("  Reden $MOD_VERSION")
                                     4 -> Text.literal("  OS: ${System.getProperty("os.name")}")
@@ -203,9 +213,9 @@ class Reden : ModInitializer, CarpetExtension {
                                             Runtime.getRuntime().maxMemory() / 1024 / 1024
                                         } MiB"
                                     )
-
-                                    11 -> Text.of("  " + "01234567".map { "§$it█" }.joinToString(""))
-                                    12 -> Text.of("  " + "89abcedf".map { "§$it█" }.joinToString(""))
+                                    7 -> Text.literal("  Server Uptime: ${(System.currentTimeMillis() - serverStartTime).milliseconds}")
+                                    13 -> color("01234567")
+                                    14 -> color("89abcedf")
                                     else -> Text.empty()
                                 }
                             )
@@ -214,17 +224,16 @@ class Reden : ModInitializer, CarpetExtension {
                                 runBlocking(mc.asCoroutineDispatcher()) {
                                     text.append(
                                         when (index) {
-                                            7 -> Text.literal("  CPU: ${GlDebugInfo.getCpuInfo()}")
-                                            8 -> Text.literal("  Display: ${mc.window.framebufferWidth}x${mc.window.framebufferHeight} (${GlDebugInfo.getVendor()})")
-                                            9 -> Text.literal("  Driver: ${GlDebugInfo.getRenderer()}")
-                                            10 -> Text.literal("  OpenGL: ${GlDebugInfo.getVersion()}")
+                                            8 -> Text.literal("  CPU: ${GlDebugInfo.getCpuInfo()}")
+                                            9 -> Text.literal("  Display: ${mc.window.framebufferWidth}x${mc.window.framebufferHeight} (${GlDebugInfo.getVendor()})")
+                                            10 -> Text.literal("  Driver: ${GlDebugInfo.getRenderer()}")
+                                            11 -> Text.literal("  OpenGL: ${GlDebugInfo.getVersion()}")
                                             else -> Text.empty()
                                         }
                                     )
                                 }
                             }
-                            it.source.sendMessage(text)
-                            println(text.string.length)
+                            context.source.sendMessage(text)
                         }
                         1
                     }
