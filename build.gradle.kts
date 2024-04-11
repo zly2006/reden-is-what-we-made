@@ -106,6 +106,7 @@ allprojects {
         }
 
         test {
+            workingDir = file("run")
             useJUnitPlatform()
         }
 
