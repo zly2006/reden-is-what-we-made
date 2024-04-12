@@ -135,7 +135,7 @@ class Reden : ModInitializer, CarpetExtension {
 
                                 7 -> Text.literal("  Server Uptime: ${(System.currentTimeMillis() - serverStartTime).milliseconds}")
                                 13 -> color("01234567")
-                                14 -> color("89abcedf")
+                                14 -> color("89abcdef")
                                 else -> Text.empty()
                             }
                         )
