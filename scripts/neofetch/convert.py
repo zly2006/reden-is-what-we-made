@@ -48,5 +48,5 @@ def proc_line(s: str) -> list[dict]:
 
 
 lines = [proc_line(line) for line in lines]
-with open("../../src/main/resources/assets/reden/neofetch.json", "w") as f:
+with open("../../src/main/resources/assets/reden/minefetch/.json", "w") as f:
     f.write(json.dumps(lines))

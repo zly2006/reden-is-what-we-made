@@ -21,6 +21,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.mojang.blaze3d.platform.GlDebugInfo
+import com.mojang.brigadier.arguments.StringArgumentType
 import com.redenmc.bragadier.ktdsl.register
 import com.redenmc.bragadier.ktdsl.then
 import fi.dy.masa.litematica.render.LitematicaRenderer
@@ -104,9 +105,15 @@ class Reden : ModInitializer, CarpetExtension {
                         1
                     }
                 }
-                literal("neofetch").executes { context ->
+                literal("minefetch").executes { context ->
+                    val logo =
+                        try {
+                            context.getArgument("logo", String::class.java)
+                        } catch (_: IllegalArgumentException) {
+                            null
+                        } ?: "grass_block"
                     val ja = Gson().fromJson(
-                        ResourceLoader.loadString("assets/reden/neofetch.json"),
+                        ResourceLoader.loadString("assets/reden/minefetch/$logo.json"),
                         JsonArray::class.java
                     )
                     fun color(s: String) = s.map {
@@ -159,6 +166,16 @@ class Reden : ModInitializer, CarpetExtension {
                         context.source.sendMessage(Text.literal(" ".repeat(textLength)).append(it))
                     }
                     1
+                }
+            }
+            // forks etc
+            dispatcher.register {
+                literal("minefetch") {
+                    literal("--logo") {
+                        // todo: brigadier bug
+                        argument("logo", StringArgumentType.word())
+                            .redirect(dispatcher.root.getChild("minefetch"))
+                    }
                 }
             }
             // Debug command
