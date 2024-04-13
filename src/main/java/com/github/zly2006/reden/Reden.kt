@@ -124,7 +124,7 @@ class Reden : ModInitializer, CarpetExtension {
                             .replace("vm", "", true)
                             .replace("server", "", true)
                             .trim() + " " + System.getProperty("java.vm.version")))
-                        add(Text.literal("MC Memory: ${Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() / 1024 / 1024}/${Runtime.getRuntime().maxMemory() / 1024 / 1024} MiB"))
+                        add(Text.literal("MC Memory: ${(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024}/${Runtime.getRuntime().maxMemory() / 1024 / 1024} MiB"))
                         add(Text.literal("Server Uptime: ${(System.currentTimeMillis() - serverStartTime).milliseconds}"))
                         // @formatter:on
                         if (isClient) {
