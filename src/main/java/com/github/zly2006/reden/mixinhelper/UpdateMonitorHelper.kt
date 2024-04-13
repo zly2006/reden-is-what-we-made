@@ -174,7 +174,7 @@ object UpdateMonitorHelper {
     @JvmStatic
     fun postSetBlock(world: ServerWorld, pos: BlockPos, finalState: BlockState, beChangeOnly: Boolean) {
         val be = world.getBlockEntity(pos) as BlockEntityInterface?
-        if (be != null) {
+        if (be != null && RedenCarpetSettings.Options.undoBlockEntities) {
             val data = be.lastSavedNbt
             debugLogger("id ${recording?.id ?: 0}: set$pos, block entity lastSaved=$data")
 
