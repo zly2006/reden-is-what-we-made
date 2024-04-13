@@ -109,51 +109,54 @@ class Reden : ModInitializer, CarpetExtension {
                         ResourceLoader.loadString("assets/reden/neofetch.json"),
                         JsonArray::class.java
                     )
-                    ja.forEachIndexed { index, line ->
-                        val text = Text.empty()
-                        for (t in line.asJsonArray) {
-                            text.append(Text.Serialization.fromJsonTree(t))
-                        }
+                    fun color(s: String) = s.map {
+                        Text.literal("█").formatted(Formatting.byCode(it))
+                    }.fold(Text.empty()) { acc, text -> acc.append(text) }
 
-                        val usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
-                        fun color(s: String) = s.map {
-                            Text.literal("█").formatted(Formatting.byCode(it))
-                        }.fold(Text.literal("  ")) { acc, text -> acc.append(text) }
-                        text.append(
-                            when (index) {
-                                0 -> Text.literal("  ${context.source.name}")
-                                1 -> Text.literal("  " + "-".repeat(context.source.name.length))
-                                2 -> Text.literal("  Minecraft ${SharedConstants.getGameVersion().name} (${server.serverModName})")
-                                3 -> Text.literal("  Reden $MOD_VERSION")
-                                4 -> Text.literal("  OS: ${System.getProperty("os.name")}")
-                                5 -> Text.literal("  Java: ${System.getProperty("java.version")}")
-                                6 -> Text.literal(
-                                    "  MC Memory: ${usedMemory / 1024 / 1024}/${
-                                        Runtime.getRuntime().maxMemory() / 1024 / 1024
-                                    } MiB"
-                                )
-
-                                7 -> Text.literal("  Server Uptime: ${(System.currentTimeMillis() - serverStartTime).milliseconds}")
-                                13 -> color("01234567")
-                                14 -> color("89abcdef")
-                                else -> Text.empty()
-                            }
-                        )
+                    val lineSeq = buildList<Text> {
+                        // @formatter:off
+                        add(Text.literal(context.source.name))
+                        add(Text.literal("-".repeat(context.source.name.length)))
+                        add(Text.literal("Minecraft ${SharedConstants.getGameVersion().name} (${server.serverModName})"))
+                        add(Text.literal("Reden $MOD_VERSION"))
+                        add(Text.literal("OS: ${System.getProperty("os.name")} ${System.getProperty("os.version")} ${System.getProperty("os.arch")}"))
+                        add(Text.literal("Java: " + System.getProperty("java.vm.name")
+                            .replace("vm", "", true)
+                            .replace("server", "", true)
+                            .trim() + " " + System.getProperty("java.vm.version")))
+                        add(Text.literal("MC Memory: ${Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() / 1024 / 1024}/${Runtime.getRuntime().maxMemory() / 1024 / 1024} MiB"))
+                        add(Text.literal("Server Uptime: ${(System.currentTimeMillis() - serverStartTime).milliseconds}"))
+                        // @formatter:on
                         if (isClient) {
                             val mc = MinecraftClient.getInstance()
                             runBlocking(mc.asCoroutineDispatcher()) {
-                                text.append(
-                                    when (index) {
-                                        8 -> Text.literal("  CPU: ${GlDebugInfo.getCpuInfo()}")
-                                        9 -> Text.literal("  Display: ${mc.window.framebufferWidth}x${mc.window.framebufferHeight} (${GlDebugInfo.getVendor()})")
-                                        10 -> Text.literal("  Driver: ${GlDebugInfo.getRenderer()}")
-                                        11 -> Text.literal("  OpenGL: ${GlDebugInfo.getVersion()}")
-                                        else -> Text.empty()
-                                    }
-                                )
-                            }
+                                buildList {
+                                    add(Text.literal("CPU: ${GlDebugInfo.getCpuInfo()}"))
+                                    add(Text.literal("Display: ${mc.window.framebufferWidth}x${mc.window.framebufferHeight} (${GlDebugInfo.getVendor()})"))
+                                    add(Text.literal("Driver: ${GlDebugInfo.getRenderer()}"))
+                                    add(Text.literal("OpenGL: ${GlDebugInfo.getVersion()}"))
+                                }
+                            }.let { addAll(it) }
+                        }
+                        add(Text.empty())
+                        add(color("01234567"))
+                        add(color("89abcdef"))
+                    }.iterator()
+                    var textLength = 0
+                    ja.asSequence().forEach {
+                        val text = Text.empty()
+                        for (t in it.asJsonArray) {
+                            text.append(Text.Serialization.fromJsonTree(t))
+                        }
+                        if (lineSeq.hasNext()) {
+                            text.append("  ").apply { }
+                            textLength = text.string.length
+                            text.append(lineSeq.next())
                         }
                         context.source.sendMessage(text)
+                    }
+                    lineSeq.forEachRemaining {
+                        context.source.sendMessage(Text.literal(" ".repeat(textLength)).append(it))
                     }
                     1
                 }
