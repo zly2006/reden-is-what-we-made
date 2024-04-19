@@ -10,11 +10,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(SamplerModule.class)
+@Mixin(value = SamplerModule.class, remap = false)
 public class MixinSpark {
     @Inject(
             method = "handleUpload",
-            at = @At("HEAD")
+            at = @At("HEAD"),
+            remap = false
     )
     private void onUpload(SparkPlatform platform, CommandResponseHandler resp, Sampler sampler, Sampler.ExportProps exportProps, boolean saveToFileFlag, CallbackInfo ci) {
         SparkHelper.sampler = sampler;
