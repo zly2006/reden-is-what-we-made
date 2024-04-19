@@ -46,6 +46,7 @@
     "richTranslation.MixinTranslatable",
     "sctuctureBlock.MixinStructureBlock",
     "sctuctureBlock.MixinStructureBlockEntity",
+    "spark.MixinSpark",
     "undo.MixinBlockEntity",
     "undo.MixinBlockEvent",
     "undo.MixinCommands",

@@ -192,6 +192,7 @@ dependencies {
     modImplementation("fi.dy.masa.tweakeroo:tweakeroo:0.19.2")
     modImplementation("com.glisco:isometric-renders:0.4.7+1.20.3")
     modImplementation("com.terraformersmc:modmenu:9.0.0")
+    modImplementation("maven.modrinth:spark:1.10.58-fabric")
 
     // Runtime only dependencies (game optimization)
     modRuntimeOnly("maven.modrinth:ferrite-core:6.0.3-fabric")

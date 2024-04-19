@@ -9,6 +9,8 @@ import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.indexing.blockId
 import com.github.zly2006.reden.indexing.entityId
 import com.github.zly2006.reden.indexing.propertyId
+import com.github.zly2006.reden.mixinhelper.SparkHelper
+import com.github.zly2006.reden.mixinhelper.sparkInstalled
 import com.github.zly2006.reden.network.registerChannels
 import com.github.zly2006.reden.rvc.registerRvc
 import com.github.zly2006.reden.transformers.ThisIsReden
@@ -93,6 +95,12 @@ class Reden : ModInitializer, CarpetExtension {
                         context.source.sendMessage(Text.of("Reden v" + MOD_VERSION.friendlyString))
                         context.source.sendMessage(Text.of("Build time: $BUILD_TIME"))
                         1
+                    }
+                    if (sparkInstalled) literal("spark") {
+                        literal("analyze").executes {
+                            SparkHelper.analyze()
+                            1
+                        }
                     }
                 }
             }
@@ -179,6 +187,8 @@ class Reden : ModInitializer, CarpetExtension {
                 }
             }
             registerRvc(dispatcher)
+
+
             if (dispatcher !is ThisIsReden) {
                 throw RuntimeException("This is not Reden!")
             }
