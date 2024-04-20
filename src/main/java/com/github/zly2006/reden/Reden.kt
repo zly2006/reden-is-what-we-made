@@ -9,6 +9,7 @@ import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.indexing.blockId
 import com.github.zly2006.reden.indexing.entityId
 import com.github.zly2006.reden.indexing.propertyId
+import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import com.github.zly2006.reden.network.registerChannels
 import com.github.zly2006.reden.rvc.registerRvc
 import com.github.zly2006.reden.transformers.ThisIsReden
@@ -82,7 +83,10 @@ class Reden : ModInitializer, CarpetExtension {
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onInitialize() {
-        ServerLifecycleEvents.SERVER_STARTING.register { server = it }
+        ServerLifecycleEvents.SERVER_STARTING.register {
+            UpdateMonitorHelper.cleanup()
+            server = it
+        }
         registerChannels()
         CarpetServer.manageExtension(this)
         CommandRegistrationCallback.EVENT.register { dispatcher, access, _ ->
