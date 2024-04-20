@@ -1,5 +1,6 @@
 @file:Suppress("PropertyName")
 
+import org.jetbrains.kotlin.incremental.createDirectory
 import kotlin.io.path.absolutePathString
 import kotlin.math.floor
 
@@ -106,7 +107,7 @@ allprojects {
         }
 
         test {
-            workingDir = file("run")
+            workingDir = file("run").also { it.createDirectory() }
             useJUnitPlatform()
         }
 
