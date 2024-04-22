@@ -38,6 +38,7 @@ class CheatCode(
         fun onKeyPressed(key: Int) {
             cheatCodes.forEach {
                 it.keyPressed(key)
+                println(key)
             }
         }
 
@@ -57,6 +58,7 @@ class CheatCode(
                 onFunctionUsed("uuddlrlrba")
                 val mc = MinecraftClient.getInstance()
                 if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
+                    mc.networkHandler?.sendChatCommand("effect give @s regeneration 100 255")
                     val item = ItemStack(Items.DIAMOND_SWORD)
                     val level = 127
                     item.addEnchantment(Enchantments.SHARPNESS, level)
