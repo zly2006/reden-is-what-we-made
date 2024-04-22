@@ -289,6 +289,8 @@ carpet:
     tickBackMaxTicks:
       desc: |-
         回退 ticks 的最大数量。默认为 100，0 禁用。
+    undoBlockEntities:
+      desc: 允许撤销记录方块实体。默认为 true。
 
     undoEntities:
       desc: 允许撤销记录实体。默认为 true。

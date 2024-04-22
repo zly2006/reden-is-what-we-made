@@ -62,10 +62,12 @@ class Undo(
                     fluidTickScheduler.removeTicksIf { it.pos == pos }
                 }
                 // apply block entity
-                entry.blockEntity?.let { beNbt ->
-                    debugLogger("undo block entity ${pos}, $beNbt")
-                    world.addBlockEntity(BlockEntity.createFromNbt(pos, entry.state, beNbt))
-                    (world.getBlockEntity(pos) as BlockEntityInterface).saveLastNbt()
+                if (RedenCarpetSettings.Options.undoBlockEntities) {
+                    entry.blockEntity?.let { beNbt ->
+                        debugLogger("undo block entity ${pos}, $beNbt")
+                        world.addBlockEntity(BlockEntity.createFromNbt(pos, entry.state, beNbt))
+                        (world.getBlockEntity(pos) as BlockEntityInterface).saveLastNbt()
+                    }
                 }
             }
             record.entities.forEach {
