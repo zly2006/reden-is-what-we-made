@@ -103,13 +103,7 @@ object UpdateMonitorHelper {
         val reason = reasonSupplier()
         if (filterLogById(id))
             debugLogger("[${undoRecords.size + 1}] id $id: push, $reason")
-        return undoRecords.add(
-            UndoRecordEntry(
-                id,
-                undoRecordsMap[id],
-                reason
-            )
-        )
+        return undoRecords.add(UndoRecordEntry(id, undoRecordsMap[id], reason))
     }
     @JvmStatic
     fun popRecord(reasonSupplier: () -> String): UndoRecordEntry {
