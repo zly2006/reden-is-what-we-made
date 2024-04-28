@@ -52,8 +52,8 @@ fun PlayerEntity.sendMessage(s: String) {
 val ClientPlayerEntity?.holdingToolItem: Boolean
     get() {
         val stack = this?.getStackInHand(Hand.MAIN_HAND) ?: return false
-    return Registries.ITEM.getId(stack.item) == Identifier.tryParse(SELECTION_TOOL.stringValue)
-}
+        return Registries.ITEM.getId(stack.item) == Identifier.tryParse(SELECTION_TOOL.stringValue)
+    }
 
 fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.NOTIFY_LISTENERS) {
     setBlockState(pos, state, flags and Block.NOTIFY_NEIGHBORS.inv() or Block.FORCE_STATE or Block.SKIP_DROPS)
@@ -90,12 +90,13 @@ object ResourceLoader {
 fun buttonWidget(x: Int, y: Int, width: Int, height: Int, message: Text, onPress: ButtonWidget.PressAction) =
     ButtonWidget(x, y, width, height, message, onPress) { it.get() }
 
-val isSinglePlayerAndCheating: Boolean get() {
-    infix fun Boolean?.and(other: Boolean?) = this ?: false && other ?: false
-    return MinecraftClient.getInstance()?.let {
-        (it.server?.isSingleplayer and it.player?.hasPermissionLevel(2))
-    } == true
-}
+val isSinglePlayerAndCheating: Boolean
+    get() {
+        infix fun Boolean?.and(other: Boolean?) = this ?: false && other ?: false
+        return MinecraftClient.getInstance()?.let {
+            (it.server?.isSingleplayer and it.player?.hasPermissionLevel(2))
+        } == true
+    }
 
 fun memorySizeToString(size: Int) {
     val unit = arrayOf("B", "KB", "MB", "GB", "TB")
@@ -155,11 +156,13 @@ fun checkMalilib() {
         if (isClient)
             Class.forName("fi.dy.masa.malilib.util.FileUtils")
     } catch (_: ClassNotFoundException) {
-        throw ModResolutionException("""
+        throw ModResolutionException(
+            """
             Dependency not found!
             Reden requires Malilib to run on the clients.
             Please install Malilib from https://www.curseforge.com/minecraft/mc-mods/malilib
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 }
 
