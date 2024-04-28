@@ -18,7 +18,6 @@ import com.github.zly2006.reden.utils.TaskScheduler
 import com.github.zly2006.reden.utils.server
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
 import com.redenmc.bragadier.ktdsl.register
 import com.redenmc.bragadier.ktdsl.then
 import fi.dy.masa.litematica.render.LitematicaRenderer
@@ -44,9 +43,6 @@ import net.minecraft.util.Identifier
 import org.jetbrains.annotations.Contract
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.io.InputStreamReader
-import java.io.Reader
-import java.nio.charset.StandardCharsets
 import java.util.*
 
 
@@ -87,14 +83,6 @@ class Reden : ModInitializer, CarpetExtension {
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onInitialize() {
-        val jsonObject = GSON.fromJson(
-            InputStreamReader(
-                Reden::class.java.classLoader.getResourceAsStream("assets/reden/lang/zh_cn.json"),
-                StandardCharsets.UTF_8
-            ) as Reader,
-            JsonObject::class.java
-        )
-        println(jsonObject.keySet().joinToString("\n"))
         ServerLifecycleEvents.SERVER_STARTING.register {
             UpdateMonitorHelper.cleanup()
             server = it
