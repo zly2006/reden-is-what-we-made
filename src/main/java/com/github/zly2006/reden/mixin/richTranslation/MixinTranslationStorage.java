@@ -40,7 +40,8 @@ public class MixinTranslationStorage implements com.github.zly2006.reden.access.
             method = "load(Lnet/minecraft/resource/ResourceManager;Ljava/util/List;Z)Lnet/minecraft/client/resource/language/TranslationStorage;",
             at = @At(
                     value = "INVOKE",
-                    target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;[Ljava/lang/Object;)V"
+                    target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;[Ljava/lang/Object;)V",
+                    remap = false
             )
     )
     private static void onWarn(ResourceManager resourceManager, List<String> definitions, boolean rightToLeft, CallbackInfoReturnable<TranslationStorage> cir, @Local Exception e) {
