@@ -21,7 +21,7 @@ fun registerSelectionTool() {
             if (!eventButtonState) return false // ensure mouse down
             val mc = MinecraftClient.getInstance()
             if (mc.currentScreen != null) return false // ensure no gui
-            if (mc.player?.holdingToolItem != true) return false // ensure hand tool item
+            if (!mc.player.holdingToolItem) return false // ensure hand tool item
 
             // get clicked block
             val raycast = mc.cameraEntity!!.raycast(256.0, 0f, false)
