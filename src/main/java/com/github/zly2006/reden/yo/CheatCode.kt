@@ -38,7 +38,6 @@ class CheatCode(
         fun onKeyPressed(key: Int) {
             cheatCodes.forEach {
                 it.keyPressed(key)
-                println(key)
             }
         }
 
