@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.richTranslation;
 
+import com.github.zly2006.reden.Reden;
 import com.github.zly2006.reden.access.TranslationStorageAccess;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -39,6 +40,17 @@ public class MixinTranslationStorage implements com.github.zly2006.reden.access.
             method = "load(Lnet/minecraft/resource/ResourceManager;Ljava/util/List;Z)Lnet/minecraft/client/resource/language/TranslationStorage;",
             at = @At(
                     value = "INVOKE",
+                    target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;[Ljava/lang/Object;)V"
+            )
+    )
+    private static void onWarn(ResourceManager resourceManager, List<String> definitions, boolean rightToLeft, CallbackInfoReturnable<TranslationStorage> cir, @Local Exception e) {
+        Reden.LOGGER.error("mc failed to load lang.", e);
+    }
+
+    @Inject(
+            method = "load(Lnet/minecraft/resource/ResourceManager;Ljava/util/List;Z)Lnet/minecraft/client/resource/language/TranslationStorage;",
+            at = @At(
+                    value = "INVOKE",
                     target = "Lnet/minecraft/client/resource/language/TranslationStorage;load(Ljava/lang/String;Ljava/util/List;Ljava/util/Map;)V"
             )
     )
@@ -51,8 +63,7 @@ public class MixinTranslationStorage implements com.github.zly2006.reden.access.
                     MutableText text = Text.Serialization.fromJsonTree(it.getValue());
                     tempTextMap.put(it.getKey(), text);
                 });
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } catch (IOException ignored) {
             }
         });
     }
