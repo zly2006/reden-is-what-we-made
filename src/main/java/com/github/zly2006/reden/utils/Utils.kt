@@ -49,8 +49,9 @@ fun PlayerEntity.sendMessage(s: String) {
     sendMessage(Text.literal(s))
 }
 
-val ClientPlayerEntity.holdingToolItem: Boolean get() {
-    val stack = getStackInHand(Hand.MAIN_HAND) ?: return false
+val ClientPlayerEntity?.holdingToolItem: Boolean
+    get() {
+        val stack = this?.getStackInHand(Hand.MAIN_HAND) ?: return false
     return Registries.ITEM.getId(stack.item) == Identifier.tryParse(SELECTION_TOOL.stringValue)
 }
 
@@ -165,14 +166,15 @@ fun checkMalilib() {
 /**
  * @author Zai_yu_you
  */
+@Deprecated("", level = DeprecationLevel.HIDDEN)
 fun generateRandomColor(alpha: Int, baseGray: Int, offsetWeight: Float): Int {
     require(offsetWeight > 0 && offsetWeight <= 1) { "The input offsetWeight must be between 0(inclusive) and 1 " }
     require(baseGray in 1..256) { "The input baseGray must be between 0(inclusive) and 256 " }
     val random = Random()
 
-    var r = (baseGray * (1 - offsetWeight) + random.nextInt((baseGray * offsetWeight).toInt())) as Int
-    var g = (baseGray * (1 - offsetWeight) + random.nextInt((baseGray * offsetWeight).toInt())) as Int
-    var b = (baseGray * (1 - offsetWeight) + random.nextInt((baseGray * offsetWeight).toInt())) as Int
+    var r = (baseGray * (1 - offsetWeight) + random.nextInt((baseGray * offsetWeight).toInt())).toInt()
+    var g = (baseGray * (1 - offsetWeight) + random.nextInt((baseGray * offsetWeight).toInt())).toInt()
+    var b = (baseGray * (1 - offsetWeight) + random.nextInt((baseGray * offsetWeight).toInt())).toInt()
 
     //归一化
     var scaleFactor = 256f / (r + g + b)
