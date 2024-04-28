@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.resource.language.TranslationStorage;
+import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -19,7 +20,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,16 +57,17 @@ public class MixinTranslationStorage implements com.github.zly2006.reden.access.
     )
     private static void loadCustomText(ResourceManager resourceManager, List<String> definitions, boolean rightToLeft, CallbackInfoReturnable<TranslationStorage> cir, @Local Identifier identifier) {
         Gson gson = new Gson();
-        resourceManager.getAllResources(identifier).forEach(resource -> {
+        for (Resource resource : resourceManager.getAllResources(identifier)) {
             try {
-                var jo = gson.fromJson(new InputStreamReader(resource.getInputStream()), JsonObject.class);
+                String content = new String(resource.getInputStream().readAllBytes());
+                var jo = gson.fromJson(content, JsonObject.class);
                 jo.entrySet().stream().filter(it -> it.getValue() instanceof JsonArray).forEach(it -> {
                     MutableText text = Text.Serialization.fromJsonTree(it.getValue());
                     tempTextMap.put(it.getKey(), text);
                 });
             } catch (IOException ignored) {
             }
-        });
+        }
     }
 
     @Inject(
