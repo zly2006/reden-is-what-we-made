@@ -13,7 +13,7 @@ fun registerHud() {
     RvcHudRenderer.supplierMap["select_mode_hud"] = {
         val list = mutableListOf<Text>()
         val mc = MinecraftClient.getInstance()
-        if (mc.player?.holdingToolItem == true) {
+        if (mc.player.holdingToolItem) {
             if (selectedStructure == null) {
                 list.add(Text.translatable("reden.widget.rvc.hud.selected_nothing"))
             }

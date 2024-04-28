@@ -25,7 +25,7 @@ object RvcHudRenderer: IRenderer {
 
     override fun onRenderGameOverlayPost(drawContext: DrawContext) {
         val mc = MinecraftClient.getInstance()
-        if ((mc.player)?.holdingToolItem != true) return
+        if (!mc.player.holdingToolItem) return
         updateLines()
         val allLines = mutableListOf<OrderedText>()
         lines.forEach { (name, lines) ->
