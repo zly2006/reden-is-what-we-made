@@ -20,10 +20,7 @@ import io.wispforest.owo.ui.container.ScrollContainer
 import io.wispforest.owo.ui.core.*
 import io.wispforest.owo.ui.util.UIErrorToast
 import net.minecraft.client.MinecraftClient
-import net.minecraft.network.NetworkSide
 import net.minecraft.text.Text
-import org.eclipse.jgit.api.Git
-import java.io.File
 
 val selectedStructure: TrackedStructure?
     get() {
@@ -82,12 +79,8 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
     private val worldInfo = MinecraftClient.getInstance().getWorldInfo()
     private val reloadAllButton = Components.button(Text.literal("Reload All")) {
         onFunctionUsed("reloadAll_rvcListScreen")
-        client!!.data.rvcStructures.clear()
         selectedRepository = null
-        File("rvc").listFiles()!!.asSequence()
-            .filter { it.isDirectory && it.resolve(".git").exists() }
-            .map { RvcRepository(Git.open(it), side = NetworkSide.CLIENTBOUND) }
-            .forEach { client!!.data.rvcStructures[it.name] = it }
+        client!!.data.rvc.load()
         close()
     }
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
@@ -208,7 +201,7 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
             infoBox
         )
 
-        mc.data.rvcStructures.values.forEach {
+        mc.data.rvc.repositories.values.forEach {
             val element = RepositoryLine(it)
             if (it == selectedRepository) {
                 _selectedUIElement = element

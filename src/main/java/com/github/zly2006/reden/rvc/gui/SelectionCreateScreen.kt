@@ -20,13 +20,13 @@ class SelectionCreateScreen(val parent: Screen?) : BaseOwoScreen<FlowLayout>() {
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
     private val confirmNameButton: ButtonComponent = Components.button(Text.literal("OK")) {
         val repository = RvcRepository.create(nameField.text, client!!.getWorldInfo(), NetworkSide.CLIENTBOUND)
-        client!!.data.rvcStructures[nameField.text] = repository
+        client!!.data.rvc.repositories[nameField.text] = repository
         selectedRepository = repository
         client!!.data.mc.setScreen(null)
     }.active(false)
     private val nameField = Components.textBox(Sizing.fixed(100)).apply {
         onChanged().subscribe {
-            if (it in client!!.data.rvcStructures) {
+            if (it in client!!.data.rvc.repositories) {
                 label.text(Text.literal("Name already exists").red())
                 confirmNameButton.active(false)
             } else if (it.isEmpty()) {

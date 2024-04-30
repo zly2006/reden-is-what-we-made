@@ -30,10 +30,10 @@ import net.minecraft.world.tick.TickPriority
 import org.jetbrains.annotations.Contract
 
 class TrackedStructurePart(
-    name: String,
+    val partName: String,
     override val structure: TrackedStructure,
     val tracker: StructureTracker = StructureTracker.Trackpoint()
-) : ReadWriteStructure(name), IPlacement, PositionIterable {
+) : ReadWriteStructure("${structure.name}/$partName"), IPlacement, PositionIterable {
     public override var minX: Int = super.minX
     public override var minY: Int = super.minY
     public override var minZ: Int = super.minZ

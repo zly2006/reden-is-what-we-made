@@ -124,14 +124,16 @@ fun doHeartHeat() {
             val shutdown: Boolean,
         )
 
-        val res = jsonIgnoreUnknown.decodeFromString(Res.serializer(), it.body!!.string())
-        if (res.shutdown) {
-            throw Error(res.status)
-        }
-        if (it.code == 200) {
-            featureUsageData.clear()
-            if (res.status.startsWith("set-key="))
-                key = res.status.substring(8)
+        if (it.code in 200..299 || it.code in 400..499) {
+            val res = jsonIgnoreUnknown.decodeFromString(Res.serializer(), it.body!!.string())
+            if (res.shutdown) {
+                throw Error(res.status)
+            }
+            if (it.code == 200) {
+                featureUsageData.clear()
+                if (res.status.startsWith("set-key="))
+                    key = res.status.substring(8)
+            }
         }
     }
 }
