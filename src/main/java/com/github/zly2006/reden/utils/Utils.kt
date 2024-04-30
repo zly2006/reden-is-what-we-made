@@ -32,6 +32,9 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
+import org.eclipse.jgit.api.AddCommand
+import org.eclipse.jgit.api.CommitCommand
+import org.eclipse.jgit.api.GitCommand
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
@@ -245,3 +248,79 @@ fun MinecraftServer.send(task: () -> Unit) = send(ServerTask(ticks, task))
 @Suppress("NOTHING_TO_INLINE")
 inline fun error(reason: String): Nothing =
     throw SimpleCommandExceptionType(Text.literal(reason)).create()
+
+fun GitCommand<*>.gitCommandLine(): ProcessBuilder {
+    val builder = ProcessBuilder("git")
+    return when (this) {
+        is AddCommand -> {
+            builder.apply {
+                command().add("add")
+                command().addAll(filepatterns)
+                if (update) {
+                    command().add("-u")
+                }
+                if (renormalize) {
+                    command().add("--renormalize")
+                }
+            }
+        }
+
+        is CommitCommand -> {
+            builder.apply {
+                command().add("commit")
+                if (all) {
+                    command().add("-a")
+                }
+                if (amend) {
+                    command().add("--amend")
+                }
+                if (allowEmpty) {
+                    command().add("--allow-empty")
+                }
+                if (signCommit) {
+                    command().add("-S")
+                }
+                if (noVerify) {
+                    command().add("--no-verify")
+                }
+//                if (only) {
+//                    command().add("--only")
+//                }
+                if (message != null) {
+                    command().add("-m")
+                    command().add(message!!)
+                }
+                if (committer != null) {
+                    command().add("--committer")
+                    command().add(committer!!.toExternalString())
+                }
+                if (author != null) {
+                    command().add("--author")
+                    command().add(author!!.toExternalString())
+                }
+                if (gpgSigner != null) {
+                    command().add("--signoff")
+                    command().add("--gpg-sign")
+                    TODO()
+//                    command().add(gpgSigner!!.toExternalString())
+                }
+                if (gpgSigner == null && signCommit) {
+                    command().add("--signoff")
+                }
+                if (cleanupMode != null) {
+                    command().add("--cleanup")
+                    command().add(cleanupMode!!.name)
+                }
+                if (cleanDefaultIsStrip) {
+                    command().add("--cleanup-default")
+                }
+                if (commentChar != null) {
+                    command().add("--comment-char")
+                    command().add(commentChar!!.toString())
+                }
+            }
+        }
+
+        else          -> error("Unsupported GitCommand")
+    }
+}
