@@ -10,7 +10,6 @@ import com.github.zly2006.reden.indexing.blockId
 import com.github.zly2006.reden.indexing.entityId
 import com.github.zly2006.reden.indexing.propertyId
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import com.github.zly2006.reden.network.registerChannels
 import com.github.zly2006.reden.rvc.registerRvc
 import com.github.zly2006.reden.transformers.ThisIsReden
@@ -28,10 +27,7 @@ import com.redenmc.bragadier.ktdsl.register
 import com.redenmc.bragadier.ktdsl.then
 import fi.dy.masa.litematica.render.LitematicaRenderer
 import fi.dy.masa.litematica.world.SchematicWorldHandler
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
