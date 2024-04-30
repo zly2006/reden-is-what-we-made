@@ -45,6 +45,7 @@ configurations.getByName("include") { // only "include" artifacts are "ourselves
     }
 }
 
+// todo: (gradle bug) incremental transformation
 abstract class Publize : TransformAction<TransformParameters.None> {
     override fun getParameters() = error("No parameters needed")
 
@@ -88,11 +89,12 @@ abstract class Publize : TransformAction<TransformParameters.None> {
         this.exec.run {
             javaexec {
                 // run classpath/public-jar-1.0-SNAPSHOT-all.jar
-                classpath(File("classpath/public-jar-1.1-all.jar"))
+                classpath(File("classpath/public-jar-1.2-all.jar"))
                 mainClass.set("Main")
                 args(
                     file.absolutePath,
-                    outputFile.absolutePath
+                    outputFile.absolutePath,
+                    "--field"
                 )
             }
             println("transformed.")
