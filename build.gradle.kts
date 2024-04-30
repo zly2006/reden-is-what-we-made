@@ -59,27 +59,50 @@ abstract class Publize : TransformAction<TransformParameters.None> {
     @get:Inject
     abstract val inputChanges: InputChanges
 
+    @get:Inject
+    abstract val project: Project
+
     override fun transform(outputs: TransformOutputs) {
         val fileName = inputArtifact.get().asFile.name
-        println("input: ${input.get().asFile.name} artifact: $fileName")
-        val outputDir = outputs.dir("${input.get().asFile.name}.loc")
-        inputChanges.getFileChanges(input).forEach { change ->
-            val changedFile = change.file
-            if (change.fileType != FileType.FILE) {
-                return@forEach
-            }
-            val outputLocation = outputDir.resolve("${change.normalizedPath}.loc")
-            when (change.changeType) {
-                ChangeType.ADDED, ChangeType.MODIFIED -> {
-                    println("Processing file ${changedFile.name}")
-                    outputLocation.parentFile.mkdirs()
+        println("input: ${input.get().asFile.absolutePath} artifact: $fileName")
+        val outputFile = input.get().asFile.parentFile.resolve("$fileName.publized.jar")
+        println("output: ${outputFile.absolutePath}")
+        val changedFiles = inputChanges.getFileChanges(input)
+            .filter { it.fileType == FileType.FILE }
+            .map { it.file to it.changeType }
+            .toMutableList()
+        println("AAAAAAA" + outputFile.exists())
+        if (!outputFile.exists()) {
+            println("Output file does not exist, transforming...")
+            changedFiles.add(Pair(inputArtifact.get().asFile, ChangeType.ADDED))
+        }
+        changedFiles.forEach { (file, changeType) ->
+            when (changeType) {
+                ChangeType.ADDED,
+                ChangeType.MODIFIED -> {
+                    println("Processing file ${file.name}")
+                    outputFile.parentFile.mkdirs()
 
-                    outputLocation.writeBytes(changedFile.readBytes())
+                    this.project.run {
+                        javaexec {
+                            // run classpath/public-jar-1.0-SNAPSHOT-all.jar
+                            classpath(files("classpath/public-jar-1.0-SNAPSHOT-all.jar"))
+                            mainClass.set("com.redenmc.publicizer.MainKt")
+                            args(
+                                file.absolutePath,
+                                outputFile.absolutePath
+                            )
+                        }
+                        println("transformed.")
+                    }
+
+                    println("OK, ${file.absolutePath} -> ${outputFile.absolutePath}")
+                    outputs.file(outputFile)
                 }
 
-                ChangeType.REMOVED                    -> {
-                    println("Removing leftover output file ${outputLocation.name}")
-                    outputLocation.delete()
+                ChangeType.REMOVED  -> {
+                    println("Removing leftover output file ${outputFile.absolutePath}")
+                    outputFile.delete()
                 }
             }
         }
@@ -257,7 +280,15 @@ dependencies {
     // Embedded dependencies
     include(implementation("com.redenmc:brigadier-kotlin-dsl:1.0-SNAPSHOT")!!)
     include(implementation("com.squareup.okhttp3:okhttp:4.11.0")!!)
-    include(implementation("org.eclipse.jgit:org.eclipse.jgit:${jgit_version}")!!)
+    include(implementation("org.eclipse.jgit:org.eclipse.jgit")!!)
+    constraints {
+        implementation("org.eclipse.jgit:org.eclipse.jgit:${jgit_version}").run {
+            attributes {
+                attribute(publized, true)
+            }
+            version { require(jgit_version) }
+        }
+    }
     include(implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:${jgit_version}")!!)
     include(implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.apache:${jgit_version}")!!)
     include(implementation("com.squareup.okio:okio-jvm:3.2.0")!!)
