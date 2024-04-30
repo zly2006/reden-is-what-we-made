@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class MixinTranslationStorage implements com.github.zly2006.reden.access.
         Gson gson = new Gson();
         resourceManager.getAllResources(identifier).forEach(resource -> {
             try {
-                var jo = gson.fromJson(new InputStreamReader(resource.getInputStream()), JsonObject.class);
+                var jo = gson.fromJson(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8), JsonObject.class);
                 jo.entrySet().stream().filter(it -> it.getValue() instanceof JsonArray).forEach(it -> {
                     MutableText text = Text.Serialization.fromJsonTree(it.getValue());
                     tempTextMap.put(it.getKey(), text);
