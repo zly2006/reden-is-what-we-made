@@ -25,6 +25,74 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
+val artifactType = Attribute.of("artifactType", String::class.java)
+val publized = Attribute.of("publized", Boolean::class.javaObjectType)
+dependencies {
+    attributesSchema {
+        attribute(publized)
+    }
+    artifactTypes.getByName("jar") {
+        attributes.attribute(publized, false)
+    }
+}
+
+configurations.getByName("include") { // only "include" artifacts are "ourselves", so just make them all public!
+    allArtifacts.all {
+        if (isCanBeResolved) {
+            attributes.attribute(publized, true)
+            println("configuration ${this.name} ${allDependencies.toList()}")
+        }
+    }
+}
+
+abstract class Publize : TransformAction<TransformParameters.None> {
+    override fun getParameters() = error("No parameters needed")
+
+    @get:PathSensitive(PathSensitivity.NAME_ONLY)
+    @get:InputArtifact
+    abstract val inputArtifact: Provider<FileSystemLocation>
+
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:InputArtifact
+    abstract val input: Provider<FileSystemLocation>
+
+    @get:Inject
+    abstract val inputChanges: InputChanges
+
+    override fun transform(outputs: TransformOutputs) {
+        val fileName = inputArtifact.get().asFile.name
+        println("input: ${input.get().asFile.name} artifact: $fileName")
+        val outputDir = outputs.dir("${input.get().asFile.name}.loc")
+        inputChanges.getFileChanges(input).forEach { change ->
+            val changedFile = change.file
+            if (change.fileType != FileType.FILE) {
+                return@forEach
+            }
+            val outputLocation = outputDir.resolve("${change.normalizedPath}.loc")
+            when (change.changeType) {
+                ChangeType.ADDED, ChangeType.MODIFIED -> {
+                    println("Processing file ${changedFile.name}")
+                    outputLocation.parentFile.mkdirs()
+
+                    outputLocation.writeBytes(changedFile.readBytes())
+                }
+
+                ChangeType.REMOVED                    -> {
+                    println("Removing leftover output file ${outputLocation.name}")
+                    outputLocation.delete()
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    registerTransform(Publize::class) {
+        from.attribute(publized, false).attribute(artifactType, "jar")
+        to.attribute(publized, true).attribute(artifactType, "jar")
+    }
+}
+
 enum class VersionType(val prereleaseName: String) {
     RELEASE("stable"), BETA("beta"), DEV("dev")
 }
