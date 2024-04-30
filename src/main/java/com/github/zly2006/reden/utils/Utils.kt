@@ -32,6 +32,8 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
+import org.eclipse.jgit.api.AddCommand
+import org.eclipse.jgit.api.GitCommand
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
@@ -245,3 +247,13 @@ fun MinecraftServer.send(task: () -> Unit) = send(ServerTask(ticks, task))
 @Suppress("NOTHING_TO_INLINE")
 inline fun error(reason: String): Nothing =
     throw SimpleCommandExceptionType(Text.literal(reason)).create()
+
+fun GitCommand<*>.gitCommandLine(): List<String> {
+    return when (this) {
+        is AddCommand -> {
+            TODO()
+        }
+
+        else          -> error("Unsupported GitCommand")
+    }
+}
