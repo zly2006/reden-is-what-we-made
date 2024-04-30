@@ -13,15 +13,39 @@ object SparkHelper {
         val samplerData = requireNotNull(output) {
             "No report found, use /spark profiler start to start a sampler"
         }
-        val timeSum = samplerData.threadsList.sumOf { it.timesList.sum() }
-        val redens = samplerData.threadsList.flatMap {
-            it.childrenList.filter {
+        val thread = samplerData.threadsList[0]
+        val timeSum = thread.timesList.sum()
+        val redens = thread.childrenList.filter {
                 it.className.contains("reden", true) ||
                         it.methodName.contains("reden", true)
+        }.toMutableList()
+        var index = 0
+        while (index < redens.size) {
+            val node = redens[index]
+            fun getChildren(node: SparkSamplerProtos.StackTraceNode) = buildList {
+                add(node)
+                node.childrenRefsList.forEach {
+                    add(thread.childrenList[it])
+                }
             }
+
+            var depth = 0
+            var children = listOf(node)
+            while (depth < 5 || children.size < 100) {
+                val newChildren = children.flatMap { getChildren(it) }
+                if (newChildren.isEmpty()) {
+                    break
+                }
+                children = newChildren
+                redens.removeAll { it in children }
+                depth++
+            }
+            index++
         }
-        val redenTime = redens.sumOf { it.timesCount }
-        println("${redenTime.toDouble() / timeSum * 100}% of the time is spent in Reden")
+
+
+        val redenTime = redens.sumOf { it.timesList.sum() }
+        println("${redenTime / timeSum * 100}% of the time is spent in Reden")
         println("Total time: $timeSum ms")
         println("Reden time: $redenTime ms")
     }
