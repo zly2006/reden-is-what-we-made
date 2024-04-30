@@ -57,56 +57,61 @@ abstract class Publize : TransformAction<TransformParameters.None> {
     abstract val input: Provider<FileSystemLocation>
 
     @get:Inject
-    abstract val inputChanges: InputChanges
-
-    @get:Inject
-    abstract val project: Project
+    abstract val exec: ExecOperations
 
     override fun transform(outputs: TransformOutputs) {
         val fileName = inputArtifact.get().asFile.name
         println("input: ${input.get().asFile.absolutePath} artifact: $fileName")
-        val outputFile = input.get().asFile.parentFile.resolve("$fileName.publized.jar")
+        val outputFile = outputs.file("$fileName.publized.jar")
         println("output: ${outputFile.absolutePath}")
-        val changedFiles = inputChanges.getFileChanges(input)
-            .filter { it.fileType == FileType.FILE }
-            .map { it.file to it.changeType }
-            .toMutableList()
-        println("AAAAAAA" + outputFile.exists())
-        if (!outputFile.exists()) {
-            println("Output file does not exist, transforming...")
-            changedFiles.add(Pair(inputArtifact.get().asFile, ChangeType.ADDED))
-        }
-        changedFiles.forEach { (file, changeType) ->
-            when (changeType) {
-                ChangeType.ADDED,
-                ChangeType.MODIFIED -> {
-                    println("Processing file ${file.name}")
-                    outputFile.parentFile.mkdirs()
+//        println("AAAAAAA")
+//        try {
+//            val changedFiles = inputChanges.getFileChanges(input)
+//                .filter { it.fileType == FileType.FILE }
+//                .map { it.file to it.changeType }
+//                .toMutableList()
+//            println(changedFiles)
+//            println("AAAAAAA" + outputFile.exists())
+//            if (!outputFile.exists()) {
+//                println("Output file does not exist, transforming...")
+//                changedFiles.add(Pair(inputArtifact.get().asFile, ChangeType.ADDED))
+//            }
+//            changedFiles.forEach { (file, changeType) ->
+//                when (changeType) {
+//                    ChangeType.ADDED,
+//                    ChangeType.MODIFIED -> {
+//                        println("Processing file ${file.name}")
 
-                    this.project.run {
-                        javaexec {
-                            // run classpath/public-jar-1.0-SNAPSHOT-all.jar
-                            classpath(files("classpath/public-jar-1.0-SNAPSHOT-all.jar"))
-                            mainClass.set("com.redenmc.publicizer.MainKt")
-                            args(
-                                file.absolutePath,
-                                outputFile.absolutePath
-                            )
-                        }
-                        println("transformed.")
-                    }
+        val file = input.get().asFile
+        outputFile.parentFile.mkdirs()
 
-                    println("OK, ${file.absolutePath} -> ${outputFile.absolutePath}")
-                    outputs.file(outputFile)
-                }
-
-                ChangeType.REMOVED  -> {
-                    println("Removing leftover output file ${outputFile.absolutePath}")
-                    outputFile.delete()
-                }
+        this.exec.run {
+            javaexec {
+                // run classpath/public-jar-1.0-SNAPSHOT-all.jar
+                classpath(File("classpath/public-jar-1.1-all.jar"))
+                mainClass.set("Main")
+                args(
+                    file.absolutePath,
+                    outputFile.absolutePath
+                )
             }
+            println("transformed.")
         }
+
+        println("OK, ${file.absolutePath} -> ${outputFile.absolutePath}")
+//        outputs.file(outputFile)
     }
+
+//                    ChangeType.REMOVED  -> {
+//                        println("Removing leftover output file ${outputFile.absolutePath}")
+//                        outputFile.delete()
+//                    }
+//                }
+//            }
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//    }
 }
 
 dependencies {
