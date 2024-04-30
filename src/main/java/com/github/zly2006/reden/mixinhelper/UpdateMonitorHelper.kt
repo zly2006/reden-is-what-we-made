@@ -21,7 +21,6 @@ import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.undoRecordsMap
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.block.BlockState
 import net.minecraft.entity.Entity
@@ -88,6 +87,14 @@ object UpdateMonitorHelper {
     val undoRecordsMap: MutableMap<Long, PlayerData.UndoRecord> = HashMap()
     internal val undoRecords = mutableListOf<UndoRecordEntry>()
 
+    /**
+     * Used for crash recovery.
+     */
+    fun cleanup() {
+        undoRecordsMap.clear()
+        undoRecords.clear()
+    }
+
     private fun filterLogById(undoId: Long) =
         undoId != 0L || if (isClient) !DEBUG_LOGGER_IGNORE_UNDO_ID_0.booleanValue else true
 
@@ -114,12 +121,6 @@ object UpdateMonitorHelper {
         }
         return undoRecords.removeLast()
     }
-    data class Changed(
-        val record: PlayerData.UndoRecord,
-        val pos: BlockPos
-    )
-    var lastTickChanged: MutableSet<Changed> = hashSetOf(); private set
-    var thisTickChanged: MutableSet<Changed> = hashSetOf(); private set
     val recording: PlayerData.UndoRecord? get() = undoRecords.lastOrNull()?.record
 
     /**
@@ -174,7 +175,7 @@ object UpdateMonitorHelper {
     @JvmStatic
     fun postSetBlock(world: ServerWorld, pos: BlockPos, finalState: BlockState, beChangeOnly: Boolean) {
         val be = world.getBlockEntity(pos) as BlockEntityInterface?
-        if (be != null) {
+        if (be != null && RedenCarpetSettings.Options.undoBlockEntities) {
             val data = be.lastSavedNbt
             debugLogger("id ${recording?.id ?: 0}: set$pos, block entity lastSaved=$data")
 
@@ -297,9 +298,5 @@ object UpdateMonitorHelper {
 
     init {
         ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> playerQuit(handler.player) }
-        ServerTickEvents.START_SERVER_TICK.register {
-            lastTickChanged = thisTickChanged
-            thisTickChanged = hashSetOf()
-        }
     }
 }

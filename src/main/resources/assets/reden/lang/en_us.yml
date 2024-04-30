@@ -316,8 +316,9 @@ carpet:
         Memory size a player can use for undo. Default is 5MB, 0 to disable, -1 for infinite.
 
     tickBackMaxTicks:
-      desc: |-
-        Maximum ticks for tick back. Default is 100, 0 to disable.
+      desc: Maximum ticks for tick back. Default is 100, 0 to disable.
+    undoBlockEntities:
+      desc: Allow undo record block entities. Default is true.
 
     undoEntities:
       desc: Allow undo record entities. Default is true.

@@ -107,7 +107,7 @@ allprojects {
         }
 
         test {
-            workingDir = file("run").apply { createDirectory() }
+            workingDir = file("run").also { it.createDirectory() }
             useJUnitPlatform()
         }
 
@@ -163,6 +163,13 @@ allprojects {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(17))
         }
+    }
+}
+afterEvaluate {
+    loom.runs.configureEach {// https://fabricmc.net/wiki/tutorial:mixin_hotswaps
+//        vmArg("-javaagent:${ configurations.compileClasspath.find { it.name.contains("sponge-mixin") } }")
+
+        vmArg("-Dmixin.debug.export=true")
     }
 }
 

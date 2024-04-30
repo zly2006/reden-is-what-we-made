@@ -49,6 +49,11 @@ public class RedenCarpetSettings {
         @Rule(
                 categories = {CATEGORY_REDEN, RuleCategory.CREATIVE}
         )
+        public static boolean undoBlockEntities = true;
+
+        @Rule(
+                categories = {CATEGORY_REDEN, RuleCategory.CREATIVE}
+        )
         public static boolean undoEntities = true;
 
         @Rule(

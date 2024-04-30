@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.BlockEntityInterface;
+import com.github.zly2006.reden.carpet.RedenCarpetSettings;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.block.BlockState;
@@ -30,7 +31,7 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
 
     @Override
     public void saveLastNbt$reden() {
-        if (world != null && !world.isClient) {
+        if (world != null && !world.isClient && RedenCarpetSettings.Options.undoBlockEntities) {
             DebugKt.debugLogger.invoke("before saving lastNBT at " + pos.toShortString() + ", data=" + lastSavedNbt);
             lastSavedNbt = this.createNbtWithIdentifyingData().copy();
             DebugKt.debugLogger.invoke("saved lastNBT at " + pos.toShortString() + ", cause=manual, " + lastSavedNbt);
@@ -48,7 +49,7 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
             at = @At("HEAD")
     )
     private void onBlockEntityChanged(CallbackInfo ci) {
-        if (world instanceof ServerWorld serverWorld) {
+        if (world instanceof ServerWorld serverWorld && RedenCarpetSettings.Options.undoBlockEntities) {
             UpdateMonitorHelper.postSetBlock(serverWorld, pos, cachedState, true);
         }
     }
@@ -59,7 +60,7 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
     )
     private void onReadNbt(NbtCompound nbt, CallbackInfo ci) {
         DebugKt.debugLogger.invoke("before saving lastNBT at " + pos.toShortString() + ", data=" + lastSavedNbt);
-        if (lastSavedNbt == null) {
+        if (lastSavedNbt == null && RedenCarpetSettings.Options.undoBlockEntities) {
             lastSavedNbt = nbt.copy();
             DebugKt.debugLogger.invoke("saved lastNBT at " + pos.toShortString() + ", cause=read, " + lastSavedNbt);
         } else {
