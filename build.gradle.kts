@@ -88,7 +88,6 @@ abstract class Publize : TransformAction<TransformParameters.None> {
 
         this.exec.run {
             javaexec {
-                // run classpath/public-jar-1.0-SNAPSHOT-all.jar
                 classpath(File("classpath/public-jar-1.2-all.jar"))
                 mainClass.set("Main")
                 args(
@@ -238,7 +237,7 @@ allprojects {
                 println("Jar size: " + floor(jar.length().toDouble() / 1024 / 1024) + "MB")
 
                 javaexec {
-                    classpath(files("classpath/public-jar-1.0-SNAPSHOT-all.jar"))
+                    classpath(files("classpath/public-jar-1.2-all.jar"))
                     mainClass.set("com.redenmc.publicizer.MainKt")
                     args(
                         jar.absolutePath,
