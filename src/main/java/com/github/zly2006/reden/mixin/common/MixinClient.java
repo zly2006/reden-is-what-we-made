@@ -60,7 +60,7 @@ public abstract class MixinClient implements ClientData.ClientDataAccess, Server
             at = @At("HEAD")
     )
     private void onWorldChange(ClientWorld world, CallbackInfo ci) {
-        getClientData$reden().getRvcStructures().values().forEach(RvcRepository::clearCache);
+        getClientData$reden().getRvc().getRepositories().values().forEach(RvcRepository::clearCache);
         SelectionListScreenKt.setSelectedRepository(null);
         TaskKt.getTaskStack().forEach(it -> it.onClientSideWorldChanged(world));
     }

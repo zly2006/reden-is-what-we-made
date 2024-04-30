@@ -13,9 +13,9 @@ public class MixinKeyboard {
     @Inject(
             method = "onKey",
             at = @At(
-                    value = "FIELD",
+                    value = "INVOKE",
                     ordinal = 0,
-                    target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;"
+                    target = "Lnet/minecraft/client/util/InputUtil;isKeyPressed(JI)Z"
             )
     )
     private void onKey(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {

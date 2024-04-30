@@ -2,11 +2,15 @@ package com.github.zly2006.reden.rvc.tracking.reference
 
 import com.github.zly2006.reden.rvc.RelativeCoordinate
 import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import net.minecraft.util.BlockRotation
 import net.minecraft.util.math.BlockPos
 
+@Serializable
 class StructureReference(
     val name: String,
+    @Contextual
     val referencedPart: TrackedStructurePart,
 ) {
     companion object {
@@ -14,9 +18,11 @@ class StructureReference(
     }
 
     val id = nextId.next()
-    val references: MutableList<Reference> = mutableListOf()
+    val referrers: MutableList<Referrer> = mutableListOf()
 
-    data class Reference(
+    @Serializable
+    data class Referrer(
+        @Contextual
         val referencedPart: TrackedStructurePart? = null,
         val pos: RelativeCoordinate,
         val rotation: BlockRotation
@@ -53,8 +59,8 @@ class StructureReference(
             val zRange = if (repeatZ) z else 0..0
             for (x in xRange) {
                 for (z in zRange) {
-                    references.add(
-                        Reference(
+                    referrers.add(
+                        Referrer(
                             part,
                             RelativeCoordinate(
                                 startPos.x + x * offsetX + x * part.xSize,
