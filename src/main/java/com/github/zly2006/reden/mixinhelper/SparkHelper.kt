@@ -22,17 +22,10 @@ object SparkHelper {
         var index = 0
         while (index < redens.size) {
             val node = redens[index]
-            fun getChildren(node: SparkSamplerProtos.StackTraceNode) = buildList {
-                add(node)
-                node.childrenRefsList.forEach {
-                    add(thread.childrenList[it])
-                }
-            }
-
             var depth = 0
             var children = listOf(node)
             while (depth < 5 || children.size < 100) {
-                val newChildren = children.flatMap { getChildren(it) }
+                val newChildren = children.flatMap { it.childrenRefsList.map { ref -> thread.childrenList[ref] } }
                 if (newChildren.isEmpty()) {
                     break
                 }
