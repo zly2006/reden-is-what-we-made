@@ -7,18 +7,21 @@ val sparkInstalled = FabricLoader.getInstance().isModLoaded("spark")
 
 /**
  * Requires [sparkInstalled]
+ * [SinceKotlin] 1.4
  */
 object SparkHelper {
     fun analyze() {
         val samplerData = requireNotNull(output) {
             "No report found, use /spark profiler start to start a sampler"
         }
-        val thread = samplerData.threadsList[0]
+        val thread = samplerData.threadsList.first()
         val timeSum = thread.timesList.sum()
         val redens = thread.childrenList.filter {
-                it.className.contains("reden", true) ||
-                        it.methodName.contains("reden", true)
+            it.className.contains("reden", true) || it.methodName.contains("reden", true)
+        }.filterNot {
+            "redirect$" !in it.methodName
         }.toMutableList()
+
         var index = 0
         while (index < redens.size) {
             val node = redens[index]
