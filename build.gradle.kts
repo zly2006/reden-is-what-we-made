@@ -25,6 +25,103 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
+val artifactType = Attribute.of("artifactType", String::class.java)
+val publized = Attribute.of("publized", Boolean::class.javaObjectType)
+dependencies {
+    attributesSchema {
+        attribute(publized)
+    }
+    artifactTypes.getByName("jar") {
+        attributes.attribute(publized, false)
+    }
+}
+
+configurations.getByName("include") { // only "include" artifacts are "ourselves", so just make them all public!
+    allArtifacts.all {
+        if (isCanBeResolved) {
+            attributes.attribute(publized, true)
+            println("configuration ${this.name} ${allDependencies.toList()}")
+        }
+    }
+}
+
+// todo: (gradle bug) incremental transformation
+abstract class Publize : TransformAction<TransformParameters.None> {
+    override fun getParameters() = error("No parameters needed")
+
+    @get:PathSensitive(PathSensitivity.NAME_ONLY)
+    @get:InputArtifact
+    abstract val inputArtifact: Provider<FileSystemLocation>
+
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:InputArtifact
+    abstract val input: Provider<FileSystemLocation>
+
+    @get:Inject
+    abstract val exec: ExecOperations
+
+    override fun transform(outputs: TransformOutputs) {
+        val fileName = inputArtifact.get().asFile.name
+        println("input: ${input.get().asFile.absolutePath} artifact: $fileName")
+        val outputFile = outputs.file("$fileName.publized.jar")
+        println("output: ${outputFile.absolutePath}")
+//        println("AAAAAAA")
+//        try {
+//            val changedFiles = inputChanges.getFileChanges(input)
+//                .filter { it.fileType == FileType.FILE }
+//                .map { it.file to it.changeType }
+//                .toMutableList()
+//            println(changedFiles)
+//            println("AAAAAAA" + outputFile.exists())
+//            if (!outputFile.exists()) {
+//                println("Output file does not exist, transforming...")
+//                changedFiles.add(Pair(inputArtifact.get().asFile, ChangeType.ADDED))
+//            }
+//            changedFiles.forEach { (file, changeType) ->
+//                when (changeType) {
+//                    ChangeType.ADDED,
+//                    ChangeType.MODIFIED -> {
+//                        println("Processing file ${file.name}")
+
+        val file = input.get().asFile
+        outputFile.parentFile.mkdirs()
+
+        this.exec.run {
+            javaexec {
+                classpath(File("classpath/public-jar-1.2-all.jar"))
+                mainClass.set("Main")
+                args(
+                    file.absolutePath,
+                    outputFile.absolutePath,
+                    "--field"
+                )
+            }
+            println("transformed.")
+        }
+
+        println("OK, ${file.absolutePath} -> ${outputFile.absolutePath}")
+//        outputs.file(outputFile)
+    }
+
+//                    ChangeType.REMOVED  -> {
+//                        println("Removing leftover output file ${outputFile.absolutePath}")
+//                        outputFile.delete()
+//                    }
+//                }
+//            }
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//    }
+}
+
+dependencies {
+    registerTransform(Publize::class) {
+        from.attribute(publized, false).attribute(artifactType, "jar")
+        to.attribute(publized, true).attribute(artifactType, "jar")
+    }
+}
+
 enum class VersionType(val prereleaseName: String) {
     RELEASE("stable"), BETA("beta"), DEV("dev")
 }
@@ -140,7 +237,7 @@ allprojects {
                 println("Jar size: " + floor(jar.length().toDouble() / 1024 / 1024) + "MB")
 
                 javaexec {
-                    classpath(files("classpath/public-jar-1.0-SNAPSHOT-all.jar"))
+                    classpath(files("classpath/public-jar-1.2-all.jar"))
                     mainClass.set("com.redenmc.publicizer.MainKt")
                     args(
                         jar.absolutePath,
@@ -189,7 +286,15 @@ dependencies {
     // Embedded dependencies
     include(implementation("com.redenmc:brigadier-kotlin-dsl:1.0-SNAPSHOT")!!)
     include(implementation("com.squareup.okhttp3:okhttp:4.11.0")!!)
-    include(implementation("org.eclipse.jgit:org.eclipse.jgit:${jgit_version}")!!)
+    include(implementation("org.eclipse.jgit:org.eclipse.jgit")!!)
+    constraints {
+        implementation("org.eclipse.jgit:org.eclipse.jgit:${jgit_version}").run {
+            attributes {
+                attribute(publized, true)
+            }
+            version { require(jgit_version) }
+        }
+    }
     include(implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:${jgit_version}")!!)
     include(implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.apache:${jgit_version}")!!)
     include(implementation("com.squareup.okio:okio-jvm:3.2.0")!!)
