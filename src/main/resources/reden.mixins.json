@@ -91,6 +91,8 @@
     "privacy.MixinLanguageManager",
     "render.MixinBlockModelRenderer",
     "render.MixinMinecraftClient",
+    "render.MixinRenderSystem",
+    "render.MixinWindow",
     "render.MixinWorldRenderer",
     "richTranslation.MixinTranslationStorage",
     "rvc.MixinWorldChunk",

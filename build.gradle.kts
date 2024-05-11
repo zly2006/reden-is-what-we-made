@@ -1,5 +1,6 @@
 @file:Suppress("PropertyName")
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.incremental.createDirectory
 import kotlin.io.path.absolutePathString
 import kotlin.math.floor
@@ -14,6 +15,7 @@ val loader_version: String by project
 val jgit_version: String by project
 val fabric_version: String by project
 val owo_version: String by project
+val imgui_version: String by project
 
 plugins {
     kotlin("jvm") version "1.9.22"
@@ -129,7 +131,7 @@ enum class VersionType(val prereleaseName: String) {
 val versionType = when (System.getenv()["REDEN_BUILD_TYPE"]) {
     "RELEASE" -> VersionType.RELEASE
     "BETA" -> VersionType.BETA
-    else -> VersionType.DEV
+    else   -> VersionType.DEV
 }
 val gitBranch = grgit.branch?.current()?.name ?: "no-git"
 
@@ -215,36 +217,19 @@ allprojects {
         }
 
         shadowJar {
-            /**
-             * Note: use of this shadowJar task is on your own risk.
-             * It contains minecraft classes so make sure to not distribute it.
-             * See Mojang's EULA for more information.
-             */
             isZip64 = true
-            exclude("META-INF/**")
-            exclude("kotlin/**")
-            exclude("kotlinx/**")
-            exclude("*.json")
-            exclude("*.properties")
-            exclude("*.accesswidener")
-            exclude("LICENSE*")
-            exclude("Log4j*")
-            exclude("mixin/**")
-            exclude("mappings/**")
-
-            doLast {
-                val jar = archiveFile.get().asFile
-                println("Jar size: " + floor(jar.length().toDouble() / 1024 / 1024) + "MB")
-
-                javaexec {
-                    classpath(files("classpath/public-jar-1.2-all.jar"))
-                    mainClass.set("com.redenmc.publicizer.MainKt")
-                    args(
-                        jar.absolutePath,
-                        jar.toPath().parent.resolve("publiced-" + jar.name).absolutePathString()
-                    )
-                }
+            configurations = listOf(project.configurations.getByName("shadow"))
+            archiveClassifier = "shadow-dev"
+            dependencies {
+                exclude(dependency("org.lwjgl:lwjgl"))
+                exclude(dependency("org.lwjgl:lwjgl-glfw"))
+                exclude(dependency("org.lwjgl:lwjgl-opengl"))
             }
+        }
+
+        remapJar {
+            dependsOn(shadowJar)
+            inputFile.set(shadowJar.get().archiveFile.get())
         }
     }
 
@@ -270,10 +255,59 @@ afterEvaluate {
     }
 }
 
+tasks.create<ShadowJar>("exportJat") {
+    /**
+     * Note: use of this shadowJar task is on your own risk.
+     * It contains minecraft classes so make sure to not distribute it.
+     * See Mojang's EULA for more information.
+     */
+
+    isZip64 = true
+    exclude("META-INF/**")
+    exclude("kotlin/**")
+    exclude("kotlinx/**")
+    exclude("*.json")
+    exclude("*.properties")
+    exclude("*.accesswidener")
+    exclude("LICENSE*")
+    exclude("Log4j*")
+    exclude("mixin/**")
+    exclude("mappings/**")
+
+    doLast {
+        val jar = archiveFile.get().asFile
+        println("Jar size: " + floor(jar.length().toDouble() / 1024 / 1024) + "MB")
+
+        javaexec {
+            classpath(files("classpath/public-jar-1.2-all.jar"))
+            mainClass.set("com.redenmc.publicizer.MainKt")
+            args(
+                jar.absolutePath,
+                jar.toPath().parent.resolve("publiced-" + jar.name).absolutePathString()
+            )
+        }
+    }
+}
+
 dependencies {
     minecraft("com.mojang:minecraft:${minecraft_version}")
     mappings("net.fabricmc:yarn:${yarn_mappings}:v2")
     modImplementation("net.fabricmc:fabric-loader:${loader_version}")
+
+
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
+
+    implementation("io.github.spair:imgui-java-binding:${imgui_version}")
+    shadow("io.github.spair:imgui-java-binding:${imgui_version}")
+    implementation("io.github.spair:imgui-java-lwjgl3:${imgui_version}")
+    shadow("io.github.spair:imgui-java-lwjgl3:${imgui_version}")
+
+    implementation("io.github.spair:imgui-java-natives-windows:${imgui_version}")
+    shadow("io.github.spair:imgui-java-natives-windows:${imgui_version}")
+    implementation("io.github.spair:imgui-java-natives-linux:${imgui_version}")
+    shadow("io.github.spair:imgui-java-natives-linux:${imgui_version}")
+    implementation("io.github.spair:imgui-java-natives-macos:${imgui_version}")
+    shadow("io.github.spair:imgui-java-natives-macos:${imgui_version}")
 
     // Essential dependencies
     modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric_version}")
