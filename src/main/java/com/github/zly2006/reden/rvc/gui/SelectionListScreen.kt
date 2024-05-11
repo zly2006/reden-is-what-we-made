@@ -1,15 +1,18 @@
 package com.github.zly2006.reden.rvc.gui
 
+import com.github.zly2006.reden.ImguiScreen
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.render.BlockOutline
+import com.github.zly2006.reden.renderers
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.tracking.PlacementInfo
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.utils.red
+import imgui.ImGui
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
 import io.wispforest.owo.ui.component.CheckboxComponent
@@ -40,7 +43,28 @@ val selectedStructure: TrackedStructure?
     }
 var selectedRepository: RvcRepository? = null
 
-class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
+class SelectionListScreen : ImguiScreen({
+    ImGui.beginMainMenuBar()
+
+    ImGui.beginMenu("RVC")
+    ImGui.menuItem("New", "")
+    ImGui.endMenu()
+
+    ImGui.beginMenu("Git")
+    ImGui.endMenu()
+
+    ImGui.endMainMenuBar()
+
+    ImGui.textWrapped("This is a test")
+}) {
+    init {
+        renderers["selectionListScreen"] = {
+            ImGui.textWrapped("aaaa")
+        }
+    }
+}
+
+class SelectionListScreen1 : BaseOwoScreen<FlowLayout>() {
     private var _selectedUIElement: RepositoryLine? = null
     var selectedUIElement: RepositoryLine?
         get() = _selectedUIElement
@@ -119,7 +143,7 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
         }
         private val exportButton: ButtonComponent = Components.button(Text.literal("Export")) {
             onFunctionUsed("export_rvcStructure")
-            MinecraftClient.getInstance().setScreen(SelectionExportScreen(this@SelectionListScreen, repository))
+            MinecraftClient.getInstance().setScreen(SelectionExportScreen(this@SelectionListScreen1, repository))
         }
         private val removeButton = Components.button(Text.literal("Remove")) {
             onFunctionUsed("remove_rvcStructure")
@@ -186,7 +210,7 @@ class SelectionListScreen : BaseOwoScreen<FlowLayout>() {
             gap(5)
             child(Components.button(Text.literal("New")) {
                 onFunctionUsed("new_rvcListScreen")
-                client!!.setScreen(SelectionCreateScreen(this@SelectionListScreen))
+                client!!.setScreen(SelectionCreateScreen(this@SelectionListScreen1))
             })
             child(Components.button(Text.literal("Import")) {
                 onFunctionUsed("import_rvcListScreen")
