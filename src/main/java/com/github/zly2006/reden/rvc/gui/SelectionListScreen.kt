@@ -43,21 +43,24 @@ val selectedStructure: TrackedStructure?
     }
 var selectedRepository: RvcRepository? = null
 
-class SelectionListScreen : ImguiScreen({
-    ImGui.beginMainMenuBar()
-
-    ImGui.beginMenu("RVC")
-    ImGui.menuItem("New", "")
-    ImGui.endMenu()
-
-    ImGui.beginMenu("Git")
-    ImGui.endMenu()
-
-    ImGui.endMainMenuBar()
-
-    ImGui.textWrapped("This is a test")
-}) {
+class SelectionListScreen : ImguiScreen() {
     init {
+        mainRenderer = {
+            if (ImGui.beginMainMenuBar()) {
+                if (ImGui.beginMenu("RVC")) {
+                    if (ImGui.menuItem("New", "")) {
+                        MinecraftClient.getInstance().setScreen(SelectionCreateScreen(this))
+                    }
+                    ImGui.endMenu()
+                }
+                if (ImGui.beginMenu("Git")) {
+                    ImGui.endMenu()
+                }
+                ImGui.endMainMenuBar()
+            }
+
+            ImGui.textWrapped("This is a test")
+        }
         renderers["selectionListScreen"] = {
             ImGui.textWrapped("aaaa")
         }

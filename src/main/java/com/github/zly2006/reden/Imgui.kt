@@ -34,7 +34,7 @@ val renderers = mutableMapOf<String, () -> Unit>()
 val hudRenderers = mutableMapOf<String, () -> Unit>()
 
 open class ImguiScreen(
-    val mainRenderer: () -> Unit = {},
+    var mainRenderer: () -> Unit = {},
 ) : Screen(Text.literal("reden")) {
     override fun render(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
         super.render(context, mouseX, mouseY, delta)
