@@ -20,6 +20,7 @@ public class MixinWindow {
             at = @At("RETURN")
     )
     private void postInit(CallbackInfo ci) {
+        System.setProperty("org.lwjgl.util.NoChecks", "true");
         ImguiKt.initImgui(handle);
     }
 }

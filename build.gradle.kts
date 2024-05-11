@@ -297,17 +297,22 @@ dependencies {
 
     implementation("com.google.code.findbugs:jsr305:3.0.2")
 
-    implementation("io.github.spair:imgui-java-binding:${imgui_version}")
-    shadow("io.github.spair:imgui-java-binding:${imgui_version}")
-    implementation("io.github.spair:imgui-java-lwjgl3:${imgui_version}")
-    shadow("io.github.spair:imgui-java-lwjgl3:${imgui_version}")
+//    implementation("io.github.spair:imgui-java-binding:${imgui_version}")
+//    shadow("io.github.spair:imgui-java-binding:${imgui_version}")
+//    implementation("io.github.spair:imgui-java-lwjgl3:${imgui_version}")
+//    shadow("io.github.spair:imgui-java-lwjgl3:${imgui_version}")
+//
+//    implementation("io.github.spair:imgui-java-natives-windows:${imgui_version}")
+//    shadow("io.github.spair:imgui-java-natives-windows:${imgui_version}")
+//    implementation("io.github.spair:imgui-java-natives-linux:${imgui_version}")
+//    shadow("io.github.spair:imgui-java-natives-linux:${imgui_version}")
+//    implementation("io.github.spair:imgui-java-natives-macos:${imgui_version}")
+//    shadow("io.github.spair:imgui-java-natives-macos:${imgui_version}")
 
-    implementation("io.github.spair:imgui-java-natives-windows:${imgui_version}")
-    shadow("io.github.spair:imgui-java-natives-windows:${imgui_version}")
-    implementation("io.github.spair:imgui-java-natives-linux:${imgui_version}")
-    shadow("io.github.spair:imgui-java-natives-linux:${imgui_version}")
-    implementation("io.github.spair:imgui-java-natives-macos:${imgui_version}")
-    shadow("io.github.spair:imgui-java-natives-macos:${imgui_version}")
+    // ImGui, https://github.com/SpaiR/imgui-java/pull/190
+    val imguiAll = "imgui-app-1.86.11-11-gbdf3fc2-all.jar"
+    implementation(files("classpath/$imguiAll"))
+    shadow(files("classpath/$imguiAll"))
 
     // Essential dependencies
     modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric_version}")
