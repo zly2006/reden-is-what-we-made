@@ -13,6 +13,8 @@ import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.utils.red
 import imgui.ImGui
+import imgui.flag.ImGuiTableFlags
+import imgui.type.ImString
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
 import io.wispforest.owo.ui.component.CheckboxComponent
@@ -23,6 +25,7 @@ import io.wispforest.owo.ui.container.ScrollContainer
 import io.wispforest.owo.ui.core.*
 import io.wispforest.owo.ui.util.UIErrorToast
 import net.minecraft.client.MinecraftClient
+import net.minecraft.network.NetworkSide
 import net.minecraft.text.Text
 
 val selectedStructure: TrackedStructure?
@@ -43,13 +46,41 @@ val selectedStructure: TrackedStructure?
     }
 var selectedRepository: RvcRepository? = null
 
+fun ImguiRedText(text: String) {
+    ImGui.textColored(1f, 0f, 0f, 1f, text)
+}
+
 class SelectionListScreen : ImguiScreen() {
+    fun newRepository() {
+        val name = ImString()
+        renderers["New Repository"] = {
+            ImGui.text("Name")
+            ImGui.sameLine()
+            ImGui.inputText("##name", name)
+
+            val buttonCreate = ImGui.button("Create")
+            if (name.get() in client!!.data.rvc.repositories) {
+                ImGui.newLine()
+                ImguiRedText("Name already exists")
+            } else if (name.get().isEmpty()) {
+                ImGui.newLine()
+                ImguiRedText("Name cannot be empty")
+            } else if (buttonCreate) {
+                onFunctionUsed("create_rvcListScreen", true)
+                val repository = RvcRepository.create(name.get(), client!!.getWorldInfo(), NetworkSide.CLIENTBOUND)
+                client!!.data.rvc.repositories[name.get()] = repository
+                selectedRepository = repository
+                renderers -= "New Repository"
+            }
+        }
+    }
+
     init {
         mainRenderer = {
             if (ImGui.beginMainMenuBar()) {
                 if (ImGui.beginMenu("RVC")) {
                     if (ImGui.menuItem("New", "")) {
-                        MinecraftClient.getInstance().setScreen(SelectionCreateScreen(this))
+                        newRepository()
                     }
                     ImGui.endMenu()
                 }
@@ -59,6 +90,33 @@ class SelectionListScreen : ImguiScreen() {
                 ImGui.endMainMenuBar()
             }
 
+            if (ImGui.button("Reload All Repositories")) {
+                onFunctionUsed("reloadAll_rvcListScreen")
+                selectedRepository = null
+                client!!.data.rvc.load()
+                close()
+            }
+
+
+            if (ImGui.beginTable("Repositories", 5, ImGuiTableFlags.ScrollY)) {
+                ImGui.tableNextRow()
+                ImGui.text("Name")
+
+                client!!.data.rvc.repositories.values.forEach {
+                    ImGui.tableNextColumn()
+                    ImGui.tableNextRow()
+                    ImGui.checkbox(it.name, false)
+                    ImGui.tableNextColumn()
+                    ImGui.button("Place")
+                    ImGui.tableNextColumn()
+                    ImGui.button("Details")
+                    ImGui.tableNextColumn()
+                    ImGui.button("Export")
+                    ImGui.tableNextColumn()
+                    ImGui.button("Remove")
+                }
+                ImGui.endTable()
+            }
             ImGui.textWrapped("This is a test")
         }
         renderers["selectionListScreen"] = {
@@ -105,10 +163,7 @@ class SelectionListScreen1 : BaseOwoScreen<FlowLayout>() {
         }
     private val worldInfo = MinecraftClient.getInstance().getWorldInfo()
     private val reloadAllButton = Components.button(Text.literal("Reload All")) {
-        onFunctionUsed("reloadAll_rvcListScreen")
-        selectedRepository = null
-        client!!.data.rvc.load()
-        close()
+
     }
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
