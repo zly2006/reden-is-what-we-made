@@ -107,11 +107,7 @@ class SelectionListScreen : ImguiScreen() {
                 close()
             }
 
-            if (ImGui.beginChild(
-                    "Repositories", 0F, ImGui.getWindowSizeY() * 0.5f, true,
-                    ImGuiWindowFlags.NoMove
-                )
-            ) {
+            if (ImGui.beginChild("Repositories", 0F, ImGui.getWindowSizeY() * 0.5f, true, ImGuiWindowFlags.NoMove)) {
                 if (ImGui.beginTable("Repositories", 5)) {
                     ImGui.tableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch)
                     ImGui.tableSetupColumn("", ImGuiTableColumnFlags.WidthFixed)
@@ -119,9 +115,9 @@ class SelectionListScreen : ImguiScreen() {
                     ImGui.tableSetupColumn("", ImGuiTableColumnFlags.WidthFixed)
                     ImGui.tableSetupColumn("", ImGuiTableColumnFlags.WidthFixed)
                     ImGui.tableHeadersRow()
-                    ImGui.tableNextRow()
 
                     client!!.data.rvc.repositories.values.forEachIndexed { index, repository ->
+                        ImGui.pushID("Repository ${repository.name}")
                         fun hoverHighlight() {
                             if (ImGui.isItemHovered() || ImGui.isItemActive()) {
                                 renderHoveRedRow = index
@@ -188,6 +184,7 @@ class SelectionListScreen : ImguiScreen() {
                                 ImGui.endDisabled()
                             }
                         }
+                        ImGui.popID()
                     }
                     ImGui.endTable()
                 }
