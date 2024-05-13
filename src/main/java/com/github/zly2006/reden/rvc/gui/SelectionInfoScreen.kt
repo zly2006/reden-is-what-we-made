@@ -3,6 +3,7 @@ package com.github.zly2006.reden.rvc.gui
 import com.github.zly2006.reden.ImguiScreen
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
+import com.github.zly2006.reden.renderers
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.gui.git.RvcCommitScreen
 import com.github.zly2006.reden.rvc.gui.git.RvcManageRemotesScreen
@@ -64,13 +65,17 @@ class SelectionInfoScreen(
             }
             if (ImGui.button("Delete")) {
                 onFunctionUsed("delete_rvcStructure")
-                // todo confirm screen
-                if (selectedRepository == repository) {
-                    selectedRepository = null
+                renderers["Delete Repository"] = {
+                    ImGui.text("Are you sure you want to delete ${repository.name}?")
+                    if (ImGui.button("Yes")) {
+                        client!!.data.rvc.repositories.remove(repository.name)
+                        repository.delete()
+                        client!!.setScreen(SelectionListScreen())
+                    }
+                    if (ImGui.button("No")) {
+                        renderers -= "Delete Repository"
+                    }
                 }
-                client!!.data.rvc.repositories.remove(repository.name)
-                repository.delete()
-                client!!.setScreen(SelectionListScreen())
             }
 
             if (repository.git.branchList().call().isNotEmpty()) {

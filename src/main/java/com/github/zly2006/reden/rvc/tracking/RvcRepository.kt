@@ -4,7 +4,6 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.gui.LoginRedenScreen
 import com.github.zly2006.reden.report.httpClient
 import com.github.zly2006.reden.report.ua
-import com.github.zly2006.reden.rvc.gui.SelectionInfoScreen
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureLitematicaTask
 import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureTask
 import com.github.zly2006.reden.rvc.remote.IRemoteRepository
@@ -165,10 +164,6 @@ class RvcRepository(
     fun fetch() {
         headCache = null
         git.fetch().call()
-        val screen = MinecraftClient.getInstance().currentScreen
-        if (screen is SelectionInfoScreen) {
-            screen.refresh()
-        }
     }
 
     @Contract(pure = true)
