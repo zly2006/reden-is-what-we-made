@@ -11,7 +11,7 @@ import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import imgui.ImGui
 import imgui.flag.ImGuiTableBgTarget
 import imgui.flag.ImGuiTableColumnFlags
-import imgui.flag.ImGuiTableFlags
+import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImString
 import io.wispforest.owo.ui.util.UIErrorToast
 import net.minecraft.client.MinecraftClient
@@ -48,6 +48,10 @@ class SelectionListScreen : ImguiScreen() {
             ImGui.inputText("##name", name)
 
             val buttonCreate = ImGui.button("Create")
+            ImGui.sameLine()
+            if (ImGui.button("Cancel")) {
+                renderers -= "New Repository"
+            }
             if (name.get() in client!!.data.rvc.repositories) {
                 ImGui.newLine()
                 ImguiRedText("Name already exists")
@@ -77,9 +81,20 @@ class SelectionListScreen : ImguiScreen() {
                         onFunctionUsed("import_rvcListScreen")
                         client!!.setScreen(SelectionImportScreen())
                     }
+                    ImGui.menuItem("Clone")
                     ImGui.endMenu()
                 }
-                if (ImGui.beginMenu("Git")) {
+                if (ImGui.beginMenu("Git", selectedRepository != null)) {
+                    ImGui.menuItem("Commit Changes")
+                    ImGui.menuItem("Pull")
+                    ImGui.menuItem("Push")
+                    ImGui.menuItem("Fetch")
+                    if (ImGui.beginMenu("Share...", selectedRepository != null)) {
+                        ImGui.menuItem("Github")
+                        ImGui.menuItem("Gitee")
+                        ImGui.menuItem("Git URL")
+                        ImGui.endMenu()
+                    }
                     ImGui.endMenu()
                 }
                 ImGui.endMainMenuBar()
@@ -92,88 +107,97 @@ class SelectionListScreen : ImguiScreen() {
                 close()
             }
 
-
-            if (ImGui.beginTable("Repositories", 5, ImGuiTableFlags.ScrollY)) {
-                ImGui.tableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch)
-                ImGui.tableSetupColumn("", ImGuiTableColumnFlags.WidthFixed)
-                ImGui.tableSetupColumn("", ImGuiTableColumnFlags.WidthFixed)
-                ImGui.tableSetupColumn("", ImGuiTableColumnFlags.WidthFixed)
-                ImGui.tableSetupColumn("", ImGuiTableColumnFlags.WidthFixed)
-                ImGui.tableHeadersRow()
-                ImGui.tableNextRow()
-                ImGui.text("Name")
-
-                client!!.data.rvc.repositories.values.forEachIndexed { index, repository ->
-                    fun hoverHighlight() {
-                        if (ImGui.isItemHovered() || ImGui.isItemActive()) {
-                            renderHoveRedRow = index
-                        }
-                    }
+            if (ImGui.beginChild(
+                    "Repositories", 0F, ImGui.getWindowSizeY() * 0.5f, true,
+                    ImGuiWindowFlags.NoMove
+                )
+            ) {
+                if (ImGui.beginTable("Repositories", 5)) {
+                    ImGui.tableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch)
+                    ImGui.tableSetupColumn("", ImGuiTableColumnFlags.WidthFixed)
+                    ImGui.tableSetupColumn("", ImGuiTableColumnFlags.WidthFixed)
+                    ImGui.tableSetupColumn("", ImGuiTableColumnFlags.WidthFixed)
+                    ImGui.tableSetupColumn("", ImGuiTableColumnFlags.WidthFixed)
+                    ImGui.tableHeadersRow()
                     ImGui.tableNextRow()
-                    if (renderHoveRedRow == index) {
-                        ImGui.tableSetBgColor(ImGuiTableBgTarget.RowBg1, 0x7fffffff)
-                    }
 
-                    // row start
-                    ImGui.tableNextColumn()
-                    if (ImGui.checkbox(repository.name, selectedRepository == repository)) {
-                        selectedRepository = repository
-                    }
-                    hoverHighlight()
+                    client!!.data.rvc.repositories.values.forEachIndexed { index, repository ->
+                        fun hoverHighlight() {
+                            if (ImGui.isItemHovered() || ImGui.isItemActive()) {
+                                renderHoveRedRow = index
+                            }
+                        }
+                        ImGui.tableNextRow()
+                        if (renderHoveRedRow == index) {
+                            ImGui.tableSetBgColor(ImGuiTableBgTarget.RowBg1, 0x7fffffff)
+                        }
 
-                    val sameWorld = repository.placementInfo?.worldInfo?.equals(worldInfo)
-                    run { // Place button
-                        if (sameWorld == true) {
-                            ImGui.beginDisabled()
+                        // row start
+                        ImGui.tableNextColumn()
+                        if (ImGui.checkbox(repository.name, selectedRepository == repository)) {
+                            if (selectedRepository == repository) selectedRepository = null
+                            else selectedRepository = repository
                         }
-                        if (ImGui.button("Place")) {
-                            onFunctionUsed("place_rvcStructure")
-                            repository.startPlacing(repository.head())
-                            close()
+                        hoverHighlight()
+
+                        ImGui.tableNextColumn()
+                        val sameWorld = repository.placementInfo?.worldInfo?.equals(worldInfo)
+                        run { // Place button
+                            if (sameWorld == true) {
+                                ImGui.beginDisabled()
+                            }
+                            if (ImGui.button("Place")) {
+                                onFunctionUsed("place_rvcStructure")
+                                repository.startPlacing(repository.head())
+                                close()
+                            }
+                            if (ImGui.isItemHovered()) {
+                                ImGui.setTooltip(
+                                    """
+                                    Note: We have detected that this machine has been placed in a different world.
+                                    It is recommended to remove it first and then place it again.
+                                    """.trimIndent()
+                                )
+                            }
+                            if (sameWorld == true) {
+                                ImGui.endDisabled()
+                            }
                         }
-                        if (ImGui.isItemHovered()) {
-                            ImGui.beginTooltip()
-                            ImGui.textWrapped(
-                                """
-                        Note: We have detected that this machine has been placed in a different world.
-                        It is recommended to remove it first and then place it again.
-                        """.trimIndent()
-                            )
-                            ImGui.endTooltip()
+                        ImGui.tableNextColumn()
+                        if (ImGui.button("Details")) {
+                            onFunctionUsed("open_rvcStructure")
+                            MinecraftClient.getInstance().setScreen(SelectionInfoScreen(repository, repository.head()))
                         }
-                        if (sameWorld == true) {
-                            ImGui.endDisabled()
+                        ImGui.tableNextColumn()
+                        if (ImGui.button("Export")) {
+                            onFunctionUsed("export_rvcStructure")
+                            MinecraftClient.getInstance().setScreen(SelectionExportScreen(this, repository))
+                        }
+                        ImGui.tableNextColumn()
+                        run {
+                            if (sameWorld != true) {
+                                ImGui.beginDisabled()
+                            }
+                            if (ImGui.button("Remove")) {
+                                onFunctionUsed("remove_rvcStructure")
+                                repository.head().clearArea()
+                                repository.clearCache()
+                                repository.placementInfo = null
+                            }
+                            if (sameWorld != true) {
+                                ImGui.endDisabled()
+                            }
                         }
                     }
-                    ImGui.tableNextColumn()
-                    if (ImGui.button("Details")) {
-                        onFunctionUsed("open_rvcStructure")
-                        MinecraftClient.getInstance().setScreen(SelectionInfoScreen(repository, repository.head()))
-                    }
-                    ImGui.tableNextColumn()
-                    if (ImGui.button("Export")) {
-                        onFunctionUsed("export_rvcStructure")
-                        MinecraftClient.getInstance().setScreen(SelectionExportScreen(this, repository))
-                    }
-                    ImGui.tableNextColumn()
-                    run {
-                        if (sameWorld != true) {
-                            ImGui.beginDisabled()
-                        }
-                        if (ImGui.button("Remove")) {
-                            onFunctionUsed("remove_rvcStructure")
-                            repository.head().clearArea()
-                            repository.clearCache()
-                            repository.placementInfo = null
-                        }
-                        if (sameWorld != true) {
-                            ImGui.endDisabled()
-                        }
-                    }
+                    ImGui.endTable()
                 }
-                ImGui.endTable()
+                ImGui.endChild()
             }
-            ImGui.textWrapped("This is a test")
+            if (selectedRepository != null) {
+
+            } else {
+                ImguiRedText("No repository selected.")
+            }
         }
         renderers["selectionListScreen"] = {
             ImGui.textWrapped("aaaa")
