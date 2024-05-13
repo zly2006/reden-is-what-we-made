@@ -224,6 +224,13 @@ allprojects {
                 exclude(dependency("org.lwjgl:lwjgl"))
                 exclude(dependency("org.lwjgl:lwjgl-glfw"))
                 exclude(dependency("org.lwjgl:lwjgl-opengl"))
+
+                exclude("windows/x64/org/lwjgl/**")
+                exclude("windows/x86/org/lwjgl/**")
+                exclude("linux/x64/org/lwjgl/**")
+                exclude("linux/x86/org/lwjgl/**")
+                exclude("macos/x64/org/lwjgl/**")
+                exclude("macos/arm64/org/lwjgl/**")
             }
         }
 
@@ -273,12 +280,6 @@ tasks.create<ShadowJar>("exportJat") {
     exclude("Log4j*")
     exclude("mixin/**")
     exclude("mappings/**")
-    exclude("windows/x64/org/lwjgl/**")
-    exclude("windows/x86/org/lwjgl/**")
-    exclude("linux/x64/org/lwjgl/**")
-    exclude("linux/x86/org/lwjgl/**")
-    exclude("macos/x64/org/lwjgl/**")
-    exclude("macos/arm64/org/lwjgl/**")
 
     doLast {
         val jar = archiveFile.get().asFile
