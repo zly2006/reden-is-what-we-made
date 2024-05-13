@@ -162,7 +162,11 @@ class SelectionListScreen : ImguiScreen() {
                         ImGui.tableNextColumn()
                         if (ImGui.button("Details")) {
                             onFunctionUsed("open_rvcStructure")
-                            MinecraftClient.getInstance().setScreen(SelectionInfoScreen(repository, repository.head()))
+                            MinecraftClient.getInstance().setScreen(
+                                SelectionInfoScreen(
+                                    repository, repository.head(), this
+                                )
+                            )
                         }
                         ImGui.tableNextColumn()
                         if (ImGui.button("Export")) {
