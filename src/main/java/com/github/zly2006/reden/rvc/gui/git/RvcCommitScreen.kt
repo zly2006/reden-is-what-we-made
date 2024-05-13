@@ -27,9 +27,7 @@ class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStruc
         }
         structure.networkWorker?.launch {
             repository.commit(structure, message, client!!.player)
-            client!!.execute {
-                client!!.setScreen(SelectionInfoScreen(repository, structure))
-            }
+            client!!.execute(::close)
         }
     }!!
     private val commitAndPushButton = Components.button(Text.literal("Commit and Push")) {
@@ -41,9 +39,7 @@ class RvcCommitScreen(val repository: RvcRepository, val structure: TrackedStruc
         structure.networkWorker?.launch {
             repository.commit(structure, message, client!!.player)
             repository.push(repository.remote, false)
-            client!!.execute {
-                client!!.setScreen(SelectionInfoScreen(repository, structure))
-            }
+            client!!.execute(::close)
         }
     }!!
 

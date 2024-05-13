@@ -200,8 +200,5 @@ class SelectionListScreen : ImguiScreen() {
                 ImguiRedText("No repository selected.")
             }
         }
-        renderers["selectionListScreen"] = {
-            ImGui.textWrapped("aaaa")
-        }
     }
 }

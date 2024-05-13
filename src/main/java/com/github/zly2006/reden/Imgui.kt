@@ -1,6 +1,7 @@
 package com.github.zly2006.reden
 
 import imgui.ImGui
+import imgui.assertion.ImAssertCallback
 import imgui.flag.ImGuiConfigFlags
 import imgui.flag.ImGuiStyleVar
 import imgui.flag.ImGuiWindowFlags
@@ -16,6 +17,10 @@ import org.lwjgl.glfw.GLFW
 // 创建 ImGui 的实例
 private val imGuiGlfw = ImGuiImplGlfw()
 private val imGuiGl3 = ImGuiImplGl3()
+
+class ImGuiAssertationException(assertion: String?, line: Int, file: String?) :
+    RuntimeException("ImGui assertion failed: $assertion at $file:$line")
+
 fun initImgui(windowHandle: Long) {
     // 设置 ImGui 的上下文
     ImGui.createContext()
@@ -28,6 +33,15 @@ fun initImgui(windowHandle: Long) {
     // 初始化 ImGui 的 GLFW 和 OpenGL 实现
     imGuiGlfw.init(windowHandle, true)
     imGuiGl3.init("#version 150")
+
+    ImGui.setAssertCallback(object : ImAssertCallback() {
+        override fun imAssert(assertion: String?, line: Int, file: String?) {
+            throw ImGuiAssertationException(assertion, line, file)
+        }
+
+        override fun imAssertCallback(p0: String?, p1: Int, p2: String?) {
+        }
+    })
 }
 
 val renderers = mutableMapOf<String, () -> Unit>()
