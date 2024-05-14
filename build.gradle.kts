@@ -225,12 +225,14 @@ allprojects {
                 exclude(dependency("org.lwjgl:lwjgl-glfw"))
                 exclude(dependency("org.lwjgl:lwjgl-opengl"))
 
+                // glfw is embedded in minecraft
                 exclude("windows/x64/org/lwjgl/**")
                 exclude("windows/x86/org/lwjgl/**")
                 exclude("linux/x64/org/lwjgl/**")
                 exclude("linux/x86/org/lwjgl/**")
                 exclude("macos/x64/org/lwjgl/**")
                 exclude("macos/arm64/org/lwjgl/**")
+                exclude("org/lwjgl/**")
             }
         }
 
