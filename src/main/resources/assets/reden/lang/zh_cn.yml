@@ -1,8 +1,8 @@
 reden:
   debugger:
     tick_stage:
-      entity: 'Entity/%s: %s'
-      block_entity: 'BlockEntity at %s'
+      entity: '实体/%s: %s'
+      block_entity: '%s处的方块实体'
       nc_update_6: NC 六向更新
       pp_update: PP 更新
       nc_update: NC 更新
@@ -87,17 +87,17 @@ reden:
         scheduled_tick_unstable: |
           该结构包含计划刻 或方块事件，可能会导致游戏不稳定。
     chat:
-      about: About SuperRight Chat
-      copy: Copy
-      copy_click_command: Copy Click Command
-      copy_click_file: Copy Click File
-      copy_hover_raw: Copy Hover Raw
-      copy_hover_uuid: Copy Hover UUID
-      copy_raw: Copy Raw
-      copy_url: Copy URL
-      give_hover_item: Give Hover Item
-      copied: Copied
-      done: Done
+      about: 关于 SuperRight 聊天栏
+      copy: 复制
+      copy_click_command: 复制点击命令
+      copy_click_file: 复制点击文件
+      copy_hover_raw: 复制悬浮字原始JSON
+      copy_hover_uuid: 复制悬浮 UUID
+      copy_raw: 复制原始JSON
+      copy_url: 复制网址
+      give_hover_item: 获取悬浮项物品
+      copied: 已复制
+      done: 完成
   feature:
     undo:
       cause:
@@ -288,7 +288,7 @@ carpet:
       desc: debug：启用方块更新
     stackOverflowUpdates:
       desc: |-
-        TODO
+        待实现
     allowedUndoSizeInBytes:
       desc: |-
         单个玩家可以用于撤销的内存大小。默认为 5MB，设为 0 禁用撤销功能，-1 不限制。
@@ -303,11 +303,11 @@ carpet:
     undoScheduledTicks:
       desc: 允许撤销计划刻造成的更新。默认为 true。
     redenDebuggerUpdater:
-      desc: TODO
+      desc: 待实现
     realFakePlayer:
       desc: Tick fake players in network phase, like real player but a pig.
     modifyStructureBlockDetectRange:
-      desc: Modify structure corner detecting range, -1 to not modify. In vanilla, this value is 80 by default.
+      desc: 修改结构方块对角检测范围，-1 表示不修改。在原版中，默认值为 80。
     redenDebug:
       desc: |-
         启用 Reden 调试模式。默认为 false。用于错误报告等。
