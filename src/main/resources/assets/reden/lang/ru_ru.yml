@@ -1,94 +1,94 @@
 reden:
   debugger:
     tick_stage:
-      entity: 'Entity/%s: %s'
-      block_entity: 'BlockEntity at %s'
-      nc_update_6: NC Update 6 Sides
-      pp_update: Post-Placement
-      nc_update: Neighbor-Changed
-      block_event: Block Event at %s, block %s, type %s, data %s
-      nc_update_with_source: Neighbor-Changed
-      world_root: Ticking world %s
+      entity: 'Сущностей/%s: %s'
+      block_entity: 'Блоки-сущности в %s'
+      nc_update_6: СД обновляет 6 сторон
+      pp_update: Пост-Размещение
+      nc_update: Соседние Изменения
+      block_event: События Блоков в %s, блок %s, тип %s, данные %s
+      nc_update_with_source: Соседние Изменения
+      world_root: Тиканье мира %s
       block_scheduled_ticks_root:
-        .: Block scheduled ticks
+        .: Запланированные тики блоков
         desc: ''
       fluid_scheduled_ticks_root:
-        .: Fluid scheduled ticks
+        .: Запланированные тики жидкостей
         desc: ''
       block_scheduled_tick:
-        .: Block scheduled ticks at %s
+        .: Запланированные тики блоков в %s
         desc: ''
       fluid_scheduled_tick:
-        .: Fluid scheduled ticks at %s
+        .: Запланированные тики жидкостей в %s
         desc: ''
   constants:
     world:
-      overworld: Overworld
-      the_nether: The Nether
-      the_end: The End
+      overworld: Верхний Мир
+      the_nether: Нижний Мир
+      the_end: Энд
     mod:
       litematica: Litematica
   widget:
     privacy:
       desc: |
-        Welcome to Reden!
+        Добро пожаловать в Reden!
 
-        Reden collects some data to improve the user experience. You can disable it in this screen.
-        Here is a brief of the data we collect:
-        1. Basic information of your computer and system
-          This is used to help us understand the user base and improve the user experience. This data is anonymous.
-        2. Usage data
-          This data includes something like how many times you use features provided by Reden or how long you play Minecraft.
-          It is used to help us know which features are popular and which features are not so we can decide which feature should we focus on. This data is anonymous.
-        3. Identification data
-          This data includes your Minecraft username and UUID. It is used to help us identify you and provide you with better support.
-          This data is not anonymous, but we will not share it with anyone else.
+        Reden собирает некоторую информацию для улучшения пользовательского опыта. Вы можете выключить это на этом экране.
+        Вот краткий список того, что мы собираем:
+        1. Основная информация о вашем компьютере и системе
+          Она используется, чтобы помочь нам понять базу пользователей и улучшить пользовательский опыт.  Эта информация анонимна.
+        2. Данные об использовании
+          Эти данные включают в себя такие вещи как количество использования функций, предоставляемых Reden, или как долго вы играете в Майнкрафт.
+          Они используются, чтобы помочь нам понять какие функции популярны, а какие нет, так что мы сможем решить на чём нам следует сфокусироваться. Эта информация анонимна.
+        3. Идентификационные сведения
+          Эти данные включают в себя ваш Майнкрафт никнейм и UUID. Они используются, чтобы помочь нам идентифицировать вас и обеспечить вас наилучшей поддержкой.
+          Эта информация не анонимна, но мы не передаём её кому-либо еще.
     config:
-      debug: Debug
-      generic: Generic
-      micro_tick: Micro Tick
+      debug: Отладка
+      generic: Основное
+      micro_tick: Микро Тик
       rvc: RVC
-      super_right: Super Right
-      title: Reden Config
-      sponsor: Sponsors
+      super_right: Супер справа
+      title: Конфиг Reden
+      sponsor: Спонсоры
     button:
-      commandHotkeyListEdit: Edit
+      commandHotkeyListEdit: Изменить
     title:
-      commandHotkeyListEdit: Edit command list
+      commandHotkeyListEdit: Изменить список команд
     rvc:
       hud:
         move_machine:
           .: "[RVC] Moving Machine"
-          structure: "Structure: %s"
-          origin: 'Origin at: %s'
-          litematica: "Using Litematica"
-          confirm: "Press %s to confirm this position"
-          conflict: "This position is conflicted with %s blocks"
-        selected: "Selected: %s"
+          structure: "Структура: %s"
+          origin: 'Точка привязки в: %s'
+          litematica: "Используя Litematica"
+          confirm: "Нажмите %s, чтобы подтвердить эту позицию"
+          conflict: "Эта позиция конфликтует с %s блоками"
+        selected: "Выбрано: %s"
         selected_nothing:
           - 
-            text: "Selected: Nothing"
-            color: red
+            text: "Выбрано: Ничего"
+            color: красный
         trackpoints:
           - 
-            text: "Trackpoints: "
+            text: "Точки слежки: "
           - 
-            text: "%s Tracking "
-            color: green
+            text: "%s Отслеживаются "
+            color: зелёный
           - 
-            text: "%s Ignoring "
-            color: red
+            text: "%s Игнорируются "
+            color: красный
       structure:
         export:
-          litematica: Export to Litematica
-        name: "Name: %s"
-        block_count: "%s blocks"
-        entity_count: "%s entities"
+          litematica: Экспорт в Litematica
+        name: "Имя: %s"
+        block_count: "%s блоков"
+        entity_count: "%s сущностей"
         scheduled_tick_unstable: |
-          This structure contains scheduled ticks or block events, which may cause unstable behavior.
+          Эта структура содержит запланированные тики или события блоков, которые могут вызвать нестабильное поведение.
     chat:
       about: About SuperRight Chat
-      copy: Copy
+      copy: Копировать
       copy_click_command: Copy Click Command
       copy_click_file: Copy Click File
       copy_hover_raw: Copy Hover Raw
