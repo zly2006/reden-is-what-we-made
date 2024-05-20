@@ -1,0 +1,313 @@
+reden:
+  debugger:
+    tick_stage:
+      entity: 'Entity/%s: %s'
+      block_entity: 'BlockEntity at %s'
+      nc_update_6: NC Update 6 Sides
+      pp_update: Post-Placement
+      nc_update: Neighbor-Changed
+      block_event: Block Event at %s, block %s, type %s, data %s
+      nc_update_with_source: Neighbor-Changed
+      world_root: Ticking world %s
+      block_scheduled_ticks_root:
+        .: Block scheduled ticks
+        desc: ''
+      fluid_scheduled_ticks_root:
+        .: Fluid scheduled ticks
+        desc: ''
+      block_scheduled_tick:
+        .: Block scheduled ticks at %s
+        desc: ''
+      fluid_scheduled_tick:
+        .: Fluid scheduled ticks at %s
+        desc: ''
+  constants:
+    world:
+      overworld: Overworld
+      the_nether: The Nether
+      the_end: The End
+    mod:
+      litematica: Litematica
+  widget:
+    privacy:
+      desc: |
+        Welcome to Reden!
+
+        Reden collects some data to improve the user experience. You can disable it in this screen.
+        Here is a brief of the data we collect:
+        1. Basic information of your computer and system
+          This is used to help us understand the user base and improve the user experience. This data is anonymous.
+        2. Usage data
+          This data includes something like how many times you use features provided by Reden or how long you play Minecraft.
+          It is used to help us know which features are popular and which features are not so we can decide which feature should we focus on. This data is anonymous.
+        3. Identification data
+          This data includes your Minecraft username and UUID. It is used to help us identify you and provide you with better support.
+          This data is not anonymous, but we will not share it with anyone else.
+    config:
+      debug: Debug
+      generic: Generic
+      micro_tick: Micro Tick
+      rvc: RVC
+      super_right: Super Right
+      title: Reden Config
+      sponsor: Sponsors
+    button:
+      commandHotkeyListEdit: Edit
+    title:
+      commandHotkeyListEdit: Edit command list
+    rvc:
+      hud:
+        move_machine:
+          .: "[RVC] Moving Machine"
+          structure: "Structure: %s"
+          origin: 'Origin at: %s'
+          litematica: "Using Litematica"
+          confirm: "Press %s to confirm this position"
+          conflict: "This position is conflicted with %s blocks"
+        selected: "Selected: %s"
+        selected_nothing:
+          - 
+            text: "Selected: Nothing"
+            color: red
+        trackpoints:
+          - 
+            text: "Trackpoints: "
+          - 
+            text: "%s Tracking "
+            color: green
+          - 
+            text: "%s Ignoring "
+            color: red
+      structure:
+        export:
+          litematica: Export to Litematica
+        name: "Name: %s"
+        block_count: "%s blocks"
+        entity_count: "%s entities"
+        scheduled_tick_unstable: |
+          This structure contains scheduled ticks or block events, which may cause unstable behavior.
+    chat:
+      about: About SuperRight Chat
+      copy: Copy
+      copy_click_command: Copy Click Command
+      copy_click_file: Copy Click File
+      copy_hover_raw: Copy Hover Raw
+      copy_hover_uuid: Copy Hover UUID
+      copy_raw: Copy Raw
+      copy_url: Copy URL
+      give_hover_item: Give Hover Item
+      copied: Copied
+      done: Done
+  feature:
+    undo:
+      cause:
+        break_block: Break Block
+        use_block: Use Block
+        use_item: Use Item
+        use_entity: Use Entity
+        attack_entity: Attack Entity
+        command: Command
+        litematica_task: Litematica Task
+        unknown: Unknown
+  message:
+    undo:
+      base: "[Reden/Undo] %s"
+      rollback_success: Rollback success
+      restore_success: Restore success
+      no_blocks_info: No blocks info
+      no_permission: No permission
+      not_recording: Not recording
+      unknown_error: Unknown error
+      unknown_status: Unknown status
+    youtube:
+      "yes": Yes!
+      "no": Don't show again
+      title: Reden YouTube Channel
+      desc: |
+        You have used Reden for %s times!
+        Do you want to subscribe to our channel?
+  config:
+    #===== Generic =====
+    redenConfigKey:
+      .: redenConfigKey
+      comment: |-
+
+    selectionTool:
+      .: selectionTool
+      comment: |-
+
+    hudPosition:
+      .: hudPosition
+      comment: |-
+
+    allowCopyrightCheck:
+      .: allowCopyrightCheck
+      comment: |-
+
+    securityCommit:
+      .: securityCommit
+      comment: |-
+
+    noTimeOut:
+      .: noTimeOut
+      comment: |-
+
+    undoKey:
+      .: undoKey
+      comment: |-
+
+    blockBorderAlpha:
+      .: blockBorderAlpha
+      comment: |-
+
+    redoKey:
+      .: redoKey
+      comment: |-
+
+    undoSupportLitematicaOperation:
+      .: undoSupportLitematicaOperation
+      comment: |-
+
+    undoCheatingOnly:
+      .: undoCheatingOnly
+      comment: |-
+        Only enable undo feature if cheating enabled.
+    solidFaceRenderer:
+      .: solidFaceRenderer
+      comment: |-
+        Draw markers on targeted solid faces.
+    solidFaceShapePredicate:
+      .: solidFaceShapePredicate
+      comment: |-
+        Shape predicate type for solidFaceRenderer. Can be "full", "center" or "rigid".
+    maxRenderDistance:
+      .: maxRenderDistance
+      comment: |-
+
+    #===== Micro Tick =====
+    toggleNcBreakpoint:
+      .: toggleNcBreakpoint
+      comment: |-
+        Neighbor Changed Event
+    togglePpBreakpoint:
+      .: togglePpBreakpoint
+      comment: |-
+        Post Placement Event
+    toggleCuBreakpoint:
+      .: toggleCuBreakpoint
+      comment: |-
+        Comparator Update Event
+    toggleForceEntityPosSync:
+      .: toggleForceEntityPosSync
+      comment: |-
+        Force Entity Pos Sync
+    #===== RVC =====
+    openRvcScreen:
+      .: openRvcScreen
+      comment: |-
+        Open RVC screen
+    openSelectionList:
+      .: openSelectionList
+      comment: |-
+        Open RVC selection list
+    rvcRecordMultiplayer:
+      .: rvcRecordMultiplayer
+      comment: |-
+        Enable RVC in multiplayer
+    rvcForceLocally:
+      .: rvcForceLocally
+      comment: |-
+        Force RVC to run locally even the remote server enabled RVC
+    #===== Super Right =====
+    chatRightClickMenu:
+      .: chatRightClickMenu
+      comment: |-
+        Enable right click menu in chat
+    structureBlockLoad:
+      .: structureBlockLoad
+      comment: |-
+
+    structureBlockSave:
+      .: structureBlockSave
+      comment: |-
+
+    runCommand:
+      .: runCommand
+      comment: |-
+
+    #===== Debug =====
+    debugLogger:
+      .: debugLogger
+      comment: |-
+        Enable debug logger
+    debugPacketLogger:
+      .: debugPacketLogger
+      comment: |-
+
+    debugTagBlockPos:
+      .: debugTagBlockPos
+      comment: |-
+        Tag block position
+    debugPreviewUndo:
+      .: debugPreviewUndo
+      comment: |-
+        Preview undo
+    maxChainUpdates:
+      .: maxChainUpdates
+      comment: |-
+        Max chain updates, affects after reopening
+    doAssertionChecks:
+      .: doAssertionChecks
+      comment: |-
+
+    undoReportUnTrackedTnt:
+      .: undoReportUnTrackedTnt
+      comment: |-
+
+    openGithubAuthScreen:
+      .: openGithubAuthScreen
+      comment: |-
+
+    githubToken:
+      .: githubToken
+      comment: |-
+        Keep it secure! You should not modify it unless you know what you are doing.
+    allowSocialFollow:
+      .: allowSocialFollow
+      comment: |-
+
+carpet:
+  rule:
+    redenDebuggerItemShadow:
+      desc: Enable Reden debugger for item shadowing, this can give you some necessary information for item shadowing.
+    fixInvisibleShadowingItems:
+      desc: Igna
+    redenDebuggerEnabled:
+      desc: Enable Reden debugger
+    redenDebuggerBlockUpdates:
+      desc: Enable debugging block updates
+    stackOverflowUpdates:
+      desc: |-
+        TODO
+    allowedUndoSizeInBytes:
+      desc: |-
+        Memory size a player can use for undo. Default is 5MB, 0 to disable, -1 for infinite.
+    tickBackMaxTicks:
+      desc: Maximum ticks for tick back. Default is 100, 0 to disable.
+    undoBlockEntities:
+      desc: Allow undo record block entities. Default is true.
+    undoEntities:
+      desc: Allow undo record entities. Default is true.
+    undoApplyingClearScheduledTicks:
+      desc: Clear all scheduled tick if that block position undoed.
+    undoScheduledTicks:
+      desc: Allow undo record scheduled ticks. Default is true.
+    redenDebuggerUpdater:
+      desc: TODO
+    realFakePlayer:
+      desc: Tick fake players in network phase, like real player but a pig.
+    modifyStructureBlockDetectRange:
+      desc: Modify structure corner detecting range, -1 to not modify. In vanilla, this value is 80 by default.
+    redenDebug:
+      desc: |-
+        Enable Reden debug mode. Default is false. Used for bug report etc.
