@@ -14,7 +14,7 @@ open class ClientNetworkWorker(
     override val world: World
 ) : NetworkWorker {
     private var renderPositions = listOf<BlockPos>()
-    override fun trackpointUpdated(part: TrackedStructurePart) {
+    override suspend fun trackpointUpdated(part: TrackedStructurePart) {
         if (part.tracker is StructureTracker.Trackpoint) {
             renderPositions = part.tracker.cachedPositions.keys.toList()
         }

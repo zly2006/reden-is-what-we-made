@@ -3,6 +3,8 @@ package com.github.zly2006.reden.rvc.gui
 import com.github.zly2006.reden.ImguiScreen
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ClientData.Companion.data
+import com.github.zly2006.reden.render.BlockBorder
+import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.renderers
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
@@ -93,6 +95,34 @@ class SelectionListScreen : ImguiScreen() {
                         ImGui.menuItem("Github")
                         ImGui.menuItem("Gitee")
                         ImGui.menuItem("Git URL")
+                        ImGui.endMenu()
+                    }
+                    ImGui.endMenu()
+                }
+                if (ImGui.beginMenu("Debug")) {
+                    if (ImGui.beginMenu("debugRender")) {
+                        if (ImGui.beginMenu("BlockBorder")) {
+                            if (ImGui.menuItem("Clear")) {
+                                BlockBorder.tags = emptyMap()
+                            }
+
+                            ImGui.endMenu()
+                        }
+                        if (ImGui.beginMenu("BlockOutline")) {
+                            if (ImGui.menuItem("Clear")) {
+                                BlockOutline.blocks = emptyMap()
+                            }
+                            ImGui.endMenu()
+                        }
+                        if (ImGui.menuItem("Redraw Structure Highlight")) {
+                            requireNotNull(selectedStructure?.networkWorker).launch {
+                                selectedStructure!!.regions.values.forEach { it.dirty = false }
+                                selectedStructure!!.regions.values.forEach {
+                                    selectedStructure!!.networkWorker!!.debugRender(it)
+                                }
+                                selectedStructure!!.refreshPositionsAsync()?.join()
+                            }
+                        }
                         ImGui.endMenu()
                     }
                     ImGui.endMenu()

@@ -30,5 +30,5 @@ interface NetworkWorker {
 
     @OptIn(DelicateCoroutinesApi::class)
     fun launch(function: suspend CoroutineScope.() -> Unit) = GlobalScope.launch(coroutineDispatcher, block = function)
-    fun trackpointUpdated(part: TrackedStructurePart) {}
+    suspend fun trackpointUpdated(part: TrackedStructurePart) {}
 }

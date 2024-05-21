@@ -3,6 +3,7 @@ package com.github.zly2006.reden.rvc.tracking.client
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.rvc.gui.selectedStructure
 import com.github.zly2006.reden.rvc.tracking.PlacementInfo
+import com.github.zly2006.reden.rvc.tracking.TrackedStructurePart
 import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.rvc.tracking.tracker.StructureTracker
 import com.github.zly2006.reden.rvc.tracking.tracker.TrackPoint
@@ -34,54 +35,64 @@ fun registerSelectionTool() {
                     val structure = selectedStructure!!
                     structure.networkWorker?.launch {
                         val region = structure.regions.values.first() // todo: select region
-                        when (val tracker = region.tracker) {
-                            is StructureTracker.Trackpoint -> {
-                                if (region.placementInfo == null) {
-                                    Reden.LOGGER.info(
-                                        "PlacementInfo is null for ${structure.name}, creating new one " +
-                                                "because of trackpoint creation"
-                                    )
-                                    region.placementInfo = PlacementInfo(mc.getWorldInfo())
-                                }
-                                if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                                    tracker.addTrackPoint(
-                                        TrackPoint(
-                                            region.getRelativeCoordinate(blockResult.blockPos),
-                                            TrackPredicate.QC,
-                                            TrackPredicate.TrackMode.TRACK
-                                        )
-                                    )
-                                }
-                                else {
-                                    tracker.addTrackPoint(
-                                        TrackPoint(
-                                            region.getRelativeCoordinate(blockResult.blockPos),
-                                            TrackPredicate.Same,
-                                            TrackPredicate.TrackMode.IGNORE,
-                                        )
-                                    )
-                                }
-                            }
-
-                            is StructureTracker.Cuboid -> {
-                                if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                                    tracker.first = region.getRelativeCoordinate(blockResult.blockPos)
-                                    mc.player?.sendMessage(Text.literal("First point set"), true)
-                                }
-                                else {
-                                    tracker.second = region.getRelativeCoordinate(blockResult.blockPos)
-                                    mc.player?.sendMessage(Text.literal("Second point set"), true)
-                                }
-                            }
-
-                            is StructureTracker.Entire -> {}
-                            is StructureTracker.Reference -> TODO()
-                        }
+                        onMouseDown(region, eventButton, blockResult)
+                        region.dirty = true
                         structure.refreshPositions()
                     }
                 }
             }
             return true
+        }
+
+        fun onMouseDown(
+            region: TrackedStructurePart,
+            eventButton: Int,
+            blockResult: BlockHitResult
+        ) {
+            val mc = MinecraftClient.getInstance()
+            when (val tracker = region.tracker) {
+                is StructureTracker.Trackpoint -> {
+                    if (region.placementInfo == null) {
+                        Reden.LOGGER.info(
+                            "PlacementInfo is null for ${region.name}, creating new one " +
+                                    "because of trackpoint creation"
+                        )
+                        region.placementInfo = PlacementInfo(mc.getWorldInfo())
+                    }
+                    if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+                        tracker.addTrackPoint(
+                            TrackPoint(
+                                blockResult.blockPos,
+                                region,
+                                TrackPredicate.QC,
+                                TrackPredicate.TrackMode.TRACK
+                            )
+                        )
+                    } else {
+                        tracker.addTrackPoint(
+                            TrackPoint(
+                                blockResult.blockPos,
+                                region,
+                                TrackPredicate.Same,
+                                TrackPredicate.TrackMode.IGNORE,
+                            )
+                        )
+                    }
+                }
+
+                is StructureTracker.Cuboid     -> {
+                    if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+                        tracker.first = region.getRelativeCoordinate(blockResult.blockPos)
+                        mc.player?.sendMessage(Text.literal("First point set"), true)
+                    } else {
+                        tracker.second = region.getRelativeCoordinate(blockResult.blockPos)
+                        mc.player?.sendMessage(Text.literal("Second point set"), true)
+                    }
+                }
+
+                is StructureTracker.Entire     -> {}
+                is StructureTracker.Reference  -> TODO()
+            }
         }
     })
 }

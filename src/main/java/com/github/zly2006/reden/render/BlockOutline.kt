@@ -123,7 +123,7 @@ object BlockOutline {
                         ) { buffer }
                     }
 
-                    else -> {}
+                    else                  -> {}
                 }
             } else {
                 val matrix4f = matrices.peek().positionMatrix
@@ -164,4 +164,12 @@ object BlockOutline {
 
     var color: Int = 0xffffff
     var blocks = mapOf<BlockPos, BlockState>()
+        get() {
+            assert(MinecraftClient.getInstance().isOnThread)
+            return field
+        }
+        set(value) {
+            assert(MinecraftClient.getInstance().isOnThread)
+            field = value
+        }
 }

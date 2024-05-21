@@ -209,8 +209,8 @@ class RvcRepository(
                     if (refs.isEmpty()) TrackedStructure(name, this)
                     else if (refs.any { it.name == RVC_BRANCH_REF }) checkoutBranch(RVC_BRANCH, configureCallback)
                     else checkout(refs.first().name, configureCallback)
+                configureCallback(headCache!!)
             }
-            configureCallback(headCache!!)
             return headCache!!
         } catch (e: Exception) {
             redenError("Failed to load RVC head structure from repository ${this.name}", e, log = true)

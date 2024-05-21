@@ -194,7 +194,7 @@ sealed class StructureTracker {
             cachedPositions = hashMapOf()
             updateOrigin(part)
             val readPos = hashSetOf<BlockPos>()
-            requireNotNull(part.structure.networkWorker).launch {
+            requireNotNull(part.structure.networkWorker).execute {
                 trackpoints.filter { it.mode == TrackPredicate.TrackMode.IGNORE }.forEach { trackPoint ->
                     // first, add all blocks recursively
                     val queue = LinkedList<SpreadEntry>()

@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.encoding.*
+import net.minecraft.util.math.BlockPos
 
 @Serializable(TrackPoint.Companion.TrackPointSerializer::class)
 class TrackPoint(
@@ -15,6 +16,14 @@ class TrackPoint(
     predicate: TrackPredicate,
     mode: TrackPredicate.TrackMode
 ) : SpreadEntry(predicate, mode) {
+    constructor(
+        pos: BlockPos,
+        part: TrackedStructurePart,
+        predicate: TrackPredicate,
+        mode: TrackPredicate.TrackMode
+    ) : this(part.getRelativeCoordinate(pos), predicate, mode) {
+        this.pos = pos
+    }
     companion object {
         object TrackPointSerializer : KSerializer<TrackPoint> {
             override val descriptor = buildClassSerialDescriptor("TrackPoint") {
