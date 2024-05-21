@@ -222,9 +222,18 @@ allprojects {
              */
             isZip64 = true
             exclude("META-INF/**")
+            exclude("_COROUTINE/**")
             exclude("kotlin/**")
             exclude("kotlinx/**")
+            exclude("macos/**")
+            exclude("windows/**")
+            exclude("linux/**")
+            exclude("io/netty/**")
+            exclude("com/ibm/**")
+            exclude("assets/minecraft/textures/**")
             exclude("*.json")
+            exclude("*.jpg")
+            exclude("*.png")
             exclude("*.properties")
             exclude("*.accesswidener")
             exclude("LICENSE*")
@@ -237,11 +246,12 @@ allprojects {
                 println("Jar size: " + floor(jar.length().toDouble() / 1024 / 1024) + "MB")
 
                 javaexec {
-                    classpath(files("classpath/public-jar-1.2-all.jar"))
-                    mainClass.set("com.redenmc.publicizer.MainKt")
+                    classpath(File("classpath/public-jar-1.2-all.jar"))
+                    mainClass.set("Main")
                     args(
                         jar.absolutePath,
-                        jar.toPath().parent.resolve("publiced-" + jar.name).absolutePathString()
+                        jar.toPath().parent.resolve("publiced-" + jar.name).absolutePathString(),
+                        "--field"
                     )
                 }
             }
