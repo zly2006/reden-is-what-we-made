@@ -25,7 +25,9 @@ class TrackedStructure(
     val regions = mutableMapOf<String, TrackedStructurePart>()
 
     init {
-        regions[""] = TrackedStructurePart("", this)
+        regions[""] = TrackedStructurePart("", this).apply {
+            placementInfo = structure.placementInfo
+        }
     }
 
     val minX get() = regions.values.minOf { it.minX }

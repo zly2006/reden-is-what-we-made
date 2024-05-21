@@ -51,7 +51,7 @@ class TrackedStructurePart(
 
     override val origin: BlockPos
         get() = placementInfo?.origin?.toImmutable()
-            ?: redenError("getting origin but PlacementInfo not set for subregion: ${structure.name}/$name")
+            ?: redenError("getting origin but PlacementInfo not set for subregion: $name")
 
     override fun createPlacement(placementInfo: PlacementInfo) = apply {
         this.placementInfo = placementInfo

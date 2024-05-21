@@ -1,6 +1,9 @@
 package com.github.zly2006.reden.rvc.tracking.client
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.rvc.gui.selectedStructure
+import com.github.zly2006.reden.rvc.tracking.PlacementInfo
+import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.rvc.tracking.tracker.StructureTracker
 import com.github.zly2006.reden.rvc.tracking.tracker.TrackPoint
 import com.github.zly2006.reden.rvc.tracking.tracker.TrackPredicate
@@ -33,6 +36,13 @@ fun registerSelectionTool() {
                         val region = structure.regions.values.first() // todo: select region
                         when (val tracker = region.tracker) {
                             is StructureTracker.Trackpoint -> {
+                                if (region.placementInfo == null) {
+                                    Reden.LOGGER.info(
+                                        "PlacementInfo is null for ${structure.name}, creating new one " +
+                                                "because of trackpoint creation"
+                                    )
+                                    region.placementInfo = PlacementInfo(mc.getWorldInfo())
+                                }
                                 if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
                                     tracker.addTrackPoint(
                                         TrackPoint(

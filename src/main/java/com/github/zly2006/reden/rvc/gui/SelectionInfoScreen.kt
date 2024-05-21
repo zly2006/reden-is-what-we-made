@@ -147,6 +147,7 @@ class SelectionInfoScreen(
                         client!!.data.rvc.repositories.remove(repository.name)
                         repository.delete()
                         client!!.setScreen(SelectionListScreen())
+                        renderers -= "Delete Repository"
                     }
                     if (ImGui.button("No")) {
                         renderers -= "Delete Repository"
