@@ -7,7 +7,7 @@ import kotlinx.serialization.encoding.Encoder
 import net.minecraft.util.math.Vec3d
 
 object Vec3dSerializer : KSerializer<Vec3d> {
-    override val descriptor = (DoubleArraySerializer()).descriptor
+    override val descriptor = DoubleArraySerializer().descriptor
 
     override fun deserialize(decoder: Decoder): Vec3d {
         val doubles = decoder.decodeSerializableValue(DoubleArraySerializer())

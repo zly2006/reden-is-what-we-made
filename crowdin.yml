@@ -1,0 +1,6 @@
+project_id_env: CROWDIN_PROJECT_ID
+api_token_env: CROWDIN_PERSONAL_TOKEN
+
+files:
+  - source: src/main/resources/assets/reden/lang/en_us.yml
+    translation: /src/main/resources/assets/reden/lang/%locale%.yml
