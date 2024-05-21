@@ -17,6 +17,7 @@ import net.minecraft.registry.Registries
 import java.io.FileFilter
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
+import kotlin.io.path.name
 import kotlin.io.path.notExists
 
 /**
@@ -98,7 +99,7 @@ object RvcFileIO : StructureIO {
             path.toFile().mkdirs()
         }
         structure.regions.values.forEach { part ->
-            val path = path.resolve(part.name)
+            val path = path.resolve(part.partName)
             path.createDirectories()
             val usePalette = palette ?: (part.blocks.size > 4096)
 
@@ -209,10 +210,10 @@ object RvcFileIO : StructureIO {
     override fun load(path: Path, structure: IWritableStructure) {
         require(structure is TrackedStructure) { "Structure is not a TrackedStructure" }
         structure.regions.clear()
-        val paths = path.toFile().listFiles(FileFilter { it.isDirectory && it.resolve("index.rvc").exists() })?.toList()
-            .orEmpty()
-        (paths + path.toFile()).forEach {
-            val partPath = it.toPath()
+        val paths = path.toFile().listFiles(FileFilter { it.isDirectory && it.resolve("index.rvc").exists() })
+            ?.map { it.toPath() }.orEmpty()
+        (paths + listOf(path)).forEach {
+            val partPath = it
 
             val tracker = loadRvcFile(partPath, "index")?.let { rvcFile ->
                 Json.decodeFromString<StructureTracker>(rvcFile.data.joinToString(""))

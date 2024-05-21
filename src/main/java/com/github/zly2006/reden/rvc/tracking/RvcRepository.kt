@@ -33,6 +33,7 @@ import okhttp3.Request
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.InitCommand
+import org.eclipse.jgit.api.errors.TransportException
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.jetbrains.annotations.Contract
@@ -128,6 +129,7 @@ class RvcRepository(
         structure.refreshPositions()
         if (git.branchList().call().isEmpty()) {
             // if this is the first commit, reset the origin
+            Reden.LOGGER.info("First commit, resetting origin")
             structure.placementInfo = structure.placementInfo!!.copy(origin = structure.minPos)
             structure.repository.placementInfo = structure.placementInfo
         }
@@ -150,6 +152,9 @@ class RvcRepository(
         return CommitResult(structure.totalBlocks, commit.name)
     }
 
+    /**
+     * @throws TransportException if github think you dont have permission, check github app installation stuff
+     */
     fun push(remote: IRemoteRepository, force: Boolean = false) {
         val push = git.push()
             .setRemote(remote.gitUrl)

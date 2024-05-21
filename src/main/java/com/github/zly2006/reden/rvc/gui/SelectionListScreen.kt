@@ -116,9 +116,9 @@ class SelectionListScreen : ImguiScreen() {
                         }
                         if (ImGui.menuItem("Redraw Structure Highlight")) {
                             requireNotNull(selectedStructure?.networkWorker).launch {
-                                selectedStructure!!.regions.values.forEach { it.dirty = false }
                                 selectedStructure!!.regions.values.forEach {
-                                    selectedStructure!!.networkWorker!!.debugRender(it)
+                                    it.dirty = false
+                                    selectedStructure!!.networkWorker!!.refreshPositions(it)
                                 }
                                 selectedStructure!!.refreshPositionsAsync()?.join()
                             }

@@ -195,6 +195,32 @@ class SelectionInfoScreen(
                     ImGui.endTable()
                 }
             }
+
+            if (ImGui.beginTable("Regions", 3)) {
+                ImGui.tableSetupColumn("Name", 0)
+                ImGui.tableSetupColumn("Trackers", 0)
+                ImGui.tableSetupColumn("Operations", 0)
+                ImGui.tableHeadersRow()
+                structure.regions.values.forEach { region ->
+                    ImGui.pushID(region.name)
+                    ImGui.tableNextRow()
+                    ImGui.tableSetColumnIndex(0)
+                    ImGui.text(region.name)
+                    ImGui.tableSetColumnIndex(1)
+                    ImGui.text("${region.tracker::class.java.simpleName} (${region.xSize}x${region.ySize}x${region.zSize})")
+                    ImGui.tableSetColumnIndex(2)
+                    if (ImGui.button("Edit")) {
+                        onFunctionUsed("edit_rvcStructure")
+                        renderers["Edit ${region.name}"] = {
+                            if (ImGui.button("Close")) {
+                                renderers -= "Edit ${region.name}"
+                            }
+                        }
+                    }
+                    ImGui.popID()
+                }
+                ImGui.endTable()
+            }
         }
     }
 
