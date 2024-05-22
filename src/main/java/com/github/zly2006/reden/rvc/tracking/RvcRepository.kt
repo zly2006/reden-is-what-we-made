@@ -130,8 +130,15 @@ class RvcRepository(
         if (git.branchList().call().isEmpty()) {
             // if this is the first commit, reset the origin
             Reden.LOGGER.info("First commit, resetting origin")
-            structure.placementInfo = structure.placementInfo!!.copy(origin = structure.minPos)
-            structure.repository.placementInfo = structure.placementInfo
+            structure.collectAllFromWorld()
+            structure.repository.placementInfo = structure.placementInfo!!.copy(origin = structure.minPos)
+            structure.createPlacement(structure.repository.placementInfo!!)
+
+            // fixme
+            assert(structure.regions[""]!!.placementInfo!!.origin != BlockPos.ORIGIN)
+            structure.regions.values.forEach {
+                it.tracker.refillToRegion(it)
+            }
         }
         structure.collectAllFromWorld()
         RvcFileIO.save(path, structure)
@@ -201,6 +208,7 @@ class RvcRepository(
     fun configure(structure: TrackedStructure) {
         if (placementInfo != null) {
             structure.placementInfo = placementInfo
+            structure.createPlacement(placementInfo!!)
             structure.networkWorker = getNetworkWorker(placementInfo!!.worldInfo, structure)
         }
     }

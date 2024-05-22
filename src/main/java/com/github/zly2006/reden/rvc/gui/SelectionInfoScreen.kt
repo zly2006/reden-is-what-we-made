@@ -7,8 +7,10 @@ import com.github.zly2006.reden.renderers
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
+import com.github.zly2006.reden.rvc.tracking.tracker.StructureTracker
 import imgui.ImGui
 import imgui.flag.ImGuiCol
+import imgui.flag.ImGuiTableFlags
 import imgui.type.ImString
 import io.wispforest.owo.ui.util.UIErrorToast
 import net.minecraft.client.gui.screen.ChatScreen
@@ -211,9 +213,47 @@ class SelectionInfoScreen(
                     ImGui.tableSetColumnIndex(2)
                     if (ImGui.button("Edit")) {
                         onFunctionUsed("edit_rvcStructure")
-                        renderers["Edit ${region.name}"] = {
+                        val popupName = "Edit \"${region.name}\""
+                        renderers[popupName] = {
+                            ImGui.text("Name: ${region.partName}, subregion of ${region.structure.name}")
+                            ImGui.text("Git submodule: ${null} // todo")
+                            ImGui.text("Tracker: ${region.tracker::class.java.simpleName}")
+                            if (region.tracker is StructureTracker.Trackpoint) {
+                                if (ImGui.beginTable("Trackpoints", 4, ImGuiTableFlags.ScrollX)) {
+                                    ImGui.tableSetupColumn("Position")
+                                    ImGui.tableSetupColumn("Predicate")
+                                    ImGui.tableSetupColumn("Mode")
+                                    ImGui.tableSetupColumn("Operations")
+                                    ImGui.tableHeadersRow()
+
+                                    region.tracker.trackpoints.forEach { trackpoint ->
+                                        ImGui.pushID(trackpoint.pos.asLong())
+                                        ImGui.tableNextRow()
+                                        ImGui.tableSetColumnIndex(0)
+                                        ImGui.text(trackpoint.pos.toShortString())
+                                        ImGui.tableSetColumnIndex(1)
+                                        ImGui.text(trackpoint.predicate.name)
+                                        ImGui.tableSetColumnIndex(2)
+                                        ImGui.text(trackpoint.mode.name)
+                                        ImGui.tableSetColumnIndex(3)
+                                        if (ImGui.button("Delete")) {
+                                            region.tracker.removeTrackpoint(trackpoint.pos)
+                                            renderers["Restore deleted trackpoint"] = {
+                                                ImGui.text("Trackpoint deleted")
+                                                ImGui.text("If you want to restore it, click the button below")
+                                                if (ImGui.button("Restore")) {
+                                                    region.tracker.addTrackPoint(trackpoint)
+                                                    renderers -= "Restore deleted trackpoint"
+                                                }
+                                            }
+                                        }
+                                        ImGui.popID()
+                                    }
+                                    ImGui.endTable()
+                                }
+                            }
                             if (ImGui.button("Close")) {
-                                renderers -= "Edit ${region.name}"
+                                renderers -= popupName
                             }
                         }
                     }

@@ -139,7 +139,7 @@ fun renderFrame() {
         ImGui.end()
     }
     if (mc.currentScreen is ImguiScreen) {
-        run {
+        runCatching {
             var windowFlags = ImGuiWindowFlags.MenuBar or ImGuiWindowFlags.NoDocking
 
             val viewport = ImGui.getMainViewport()
@@ -161,6 +161,9 @@ fun renderFrame() {
             (mc.currentScreen as ImguiScreen).mainRenderer()
 
             ImGui.end()
+        }.onFailure {
+            mc.setScreen(null)
+            it.printStackTrace()
         }
 
         renderers.forEach { (title, renderer) ->

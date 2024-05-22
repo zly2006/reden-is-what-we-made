@@ -269,6 +269,19 @@ sealed class StructureTracker {
                     BlockBorder[it.pos] = if (it.mode.isTrack()) 1 else 2
             }
         }
+
+        override fun refillToRegion(part: TrackedStructurePart) {
+            val trackpointList = trackpoints.map {
+                TrackPoint(
+                    part.getRelativeCoordinate(it.pos),
+                    it.predicate,
+                    it.mode
+                )
+            }
+            trackpoints.clear()
+            trackpoints.addAll(trackpointList)
+            updateOrigin(part)
+        }
     }
 
     @Serializable
@@ -337,5 +350,8 @@ sealed class StructureTracker {
      */
     open fun render(part: TrackedStructurePart) {
         assert(MinecraftClient.getInstance().isOnThread) { "" }
+    }
+
+    open fun refillToRegion(part: TrackedStructurePart) {
     }
 }

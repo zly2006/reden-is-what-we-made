@@ -12,7 +12,7 @@ import net.minecraft.util.math.BlockPos
 
 @Serializable(TrackPoint.Companion.TrackPointSerializer::class)
 class TrackPoint(
-    private val relativeCoordinate: RelativeCoordinate,
+    val relativeCoordinate: RelativeCoordinate,
     predicate: TrackPredicate,
     mode: TrackPredicate.TrackMode
 ) : SpreadEntry(predicate, mode) {

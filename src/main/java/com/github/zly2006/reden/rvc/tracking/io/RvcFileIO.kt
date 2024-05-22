@@ -18,7 +18,6 @@ import java.io.FileFilter
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.name
-import kotlin.io.path.notExists
 
 /**
  * Save and load [TrackedStructure]s into and from RVC files.
@@ -91,16 +90,13 @@ object RvcFileIO : StructureIO {
     }
 
     fun save(path: Path, structure: IStructure, palette: Boolean?) {
-        // ================================ Check Saving Structure Type ================================
         if (structure !is TrackedStructure) {
             throw IllegalArgumentException("Structure is not a TrackedStructure")
         }
-        if (path.notExists()) {
-            path.toFile().mkdirs()
-        }
+
         structure.regions.values.forEach { part ->
-            val path = path.resolve(part.partName)
-            path.createDirectories()
+            val path = path.resolve(part.partName).createDirectories()
+
             val usePalette = palette ?: (part.blocks.size > 4096)
 
             @Suppress("NAME_SHADOWING")
