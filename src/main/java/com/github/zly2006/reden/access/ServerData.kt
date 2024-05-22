@@ -24,7 +24,7 @@ class ServerData(val version: Version, mcServer: MinecraftServer?) : StatusAcces
     @JvmField var realTicks = 0
     override var status: Long = 0
     var uuid: UUID? = null
-    var serverId = mcServer?.session?.directory?.path?.hashCode()?.toHexString()
+    var serverId = mcServer?.session?.directory?.path()?.hashCode()?.toHexString()
     var address: String = ""
     var tickStage: ServerRootStage? = null
     var tickStageTree = TickStageTree()

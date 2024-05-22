@@ -4,7 +4,6 @@ import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.mixinhelper.RedenNeighborUpdater
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.World
-import okhttp3.internal.toHexString
 
 class WorldData(
     val serverWorld: ServerWorld
@@ -14,7 +13,7 @@ class WorldData(
     @JvmField
     var updatesDisabled = false
     val worldId = buildString {
-        append(serverWorld.server.session.directory.path.hashCode().toHexString())
+        append(serverWorld.server.data.serverId)
         append('-')
         append(serverWorld.registryKey.value.toString())
     }

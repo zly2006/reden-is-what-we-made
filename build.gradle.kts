@@ -18,8 +18,9 @@ val owo_version: String by project
 val imgui_version: String by project
 
 plugins {
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.serialization") version "1.9.22"
+    kotlin("jvm") version "2.0.0"
+    kotlin("plugin.serialization") version "2.0.0"
+
     id("fabric-loom") version "1.6-SNAPSHOT"
     `maven-publish`
     id("org.ajoberstar.grgit") version "5.2.2"
@@ -335,7 +336,7 @@ dependencies {
 
     // Essential dependencies
     modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric_version}")
-    modImplementation("net.fabricmc:fabric-language-kotlin:1.10.17+kotlin.1.9.22")
+    modImplementation("net.fabricmc:fabric-language-kotlin:1.11.0+kotlin.2.0.0")
     modImplementation("fi.dy.masa.malilib:malilib-fabric-1.20.4:0.18.0")
     modImplementation("carpet:fabric-carpet:1.20.3-1.4.128+v231205")
     modImplementation("io.wispforest:owo-lib:${owo_version}")

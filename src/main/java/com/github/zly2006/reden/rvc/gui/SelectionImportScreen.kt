@@ -148,7 +148,7 @@ class SelectionImportScreen(
     enum class Type(val displayName: Text) {
         StructureBlock(Text.literal("Structure Block")) {
             override fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout) {
-                server.session.directory.path.resolve("generated").toFile()
+                server.session.directory.path().resolve("generated").toFile()
                     .listFiles(FileFilter { it.isDirectory })?.forEach {
                         val namespace = it.name
                         it.resolve("structures").listFiles()
@@ -195,17 +195,13 @@ class SelectionImportScreen(
             private val json = Json {
                 ignoreUnknownKeys
             }
-
             override fun import(file: File): RvcRepository {
                 val zip = ZipFile(file)
                 val mc = MinecraftClient.getInstance()
                 val manifestString = zip.getInputStream(zip.getEntry("manifest.rvc.json")).readAllBytes().decodeToString()
                 Reden.LOGGER.info("manifest: $manifestString")
-                @Serializable
-                class Manifest(
-                    val name: String
-                )
-                val manifest = json.decodeFromString<Manifest>(manifestString)
+
+                val manifest = json.decodeFromString<RVCArchiveManifest>(manifestString)
                 val name = mc.data.rvc.getSuffixName(manifest.name)
                 val path = RvcRepository.path / name / ".git"
                 for (entry in zip.entries()) {
@@ -239,6 +235,11 @@ class SelectionImportScreen(
                     .forEach { rootComponent.child(screen.FileLine(it, it.name)) }
             }
         };
+
+        @Serializable
+        class RVCArchiveManifest(
+            val name: String
+        )
 
         abstract fun discover(screen: SelectionImportScreen, rootComponent: FlowLayout)
 

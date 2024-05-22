@@ -67,7 +67,7 @@ data class WorldInfo(
         fun ofLocal(world: ServerWorld): WorldInfo {
             return WorldInfo(
                 isRemoteServer = false,
-                localSaveName = world.server.session.directory.path.name,
+                localSaveName = world.server.session.directory.path().name,
                 worldId = world.data.worldId,
                 worldDimension = world.dimensionKey.value,
                 worldKey = world.registryKey.value,

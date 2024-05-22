@@ -51,7 +51,7 @@ class SelectionExportScreen(
     private val exportButton: ButtonComponent = Components.button(Text.literal("Export")) {
         val timeStart = System.currentTimeMillis()
         val path = if (selectedType == ExportType.StructureBlock) {
-            client!!.server?.session?.directory?.path
+            client!!.server?.session?.directory?.path()
         } else Path(SelectionImportScreen.FOLDER_SCHEMATICS)
         if (path != null) {
             selectedType.export(path, rvc.head().apply {
