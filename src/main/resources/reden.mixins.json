@@ -88,6 +88,8 @@
     "otherMods.litematica.rvcRender.MixinSchematicPlacementManager",
     "otherMods.litematica.undo.MixinTaskScheduler",
     "otherMods.malilib.MixinWidgetConfigOption",
+    "playerModel.ObserverHead",
+    "playerModel.PMR",
     "privacy.MixinLanguageManager",
     "render.MixinBlockModelRenderer",
     "render.MixinMinecraftClient",
