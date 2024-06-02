@@ -49,7 +49,7 @@ reden:
       micro_tick: Micro Tick
       rvc: RVC
       super_right: Super Right
-      title: Reden Config
+      title: Reden 設置
       sponsor: Sponsors
     button:
       commandHotkeyListEdit: Edit
@@ -85,10 +85,10 @@ reden:
         block_count: "%s blocks"
         entity_count: "%s entities"
         scheduled_tick_unstable: |
-          This structure contains scheduled ticks or block events, which may cause unstable behavior.
+          本結構包含已規劃遊戲刻或方塊事件，可能會導致行為不穩定。
     chat:
       about: About SuperRight Chat
-      copy: Copy
+      copy: 複製
       copy_click_command: Copy Click Command
       copy_click_file: Copy Click File
       copy_hover_raw: Copy Hover Raw
@@ -96,14 +96,14 @@ reden:
       copy_raw: Copy Raw
       copy_url: Copy URL
       give_hover_item: Give Hover Item
-      copied: Copied
-      done: Done
+      copied: 已複製
+      done: 完成
   feature:
     undo:
       cause:
-        break_block: Break Block
-        use_block: Use Block
-        use_item: Use Item
+        break_block: 破壞方塊
+        use_block: 使用方塊
+        use_item: 使用物品
         use_entity: Use Entity
         attack_entity: Attack Entity
         command: Command
@@ -112,20 +112,20 @@ reden:
   message:
     undo:
       base: "[Reden/Undo] %s"
-      rollback_success: Rollback success
+      rollback_success: 回滾成功
       restore_success: Restore success
-      no_blocks_info: No blocks info
-      no_permission: No permission
+      no_blocks_info: 沒有方塊資訊
+      no_permission: 沒有權限
       not_recording: Not recording
-      unknown_error: Unknown error
-      unknown_status: Unknown status
+      unknown_error: 未知錯誤
+      unknown_status: 未知狀態
     youtube:
-      "yes": Yes!
-      "no": Don't show again
-      title: Reden YouTube Channel
+      "yes": 好！
+      "no": 不再詢問
+      title: Reden YouTube頻道
       desc: |
-        You have used Reden for %s times!
-        Do you want to subscribe to our channel?
+        你已經使用Reden %s 次了！
+        要不要順手訂閱我們的頻道？
   config:
     #===== Generic =====
     redenConfigKey:
@@ -171,7 +171,7 @@ reden:
     undoCheatingOnly:
       .: undoCheatingOnly
       comment: |-
-        Only enable undo feature if cheating enabled.
+        只在「允許作弊」的情況下開啟「回到上一步」的功能。
     solidFaceRenderer:
       .: solidFaceRenderer
       comment: |-
@@ -271,7 +271,7 @@ reden:
     githubToken:
       .: githubToken
       comment: |-
-        Keep it secure! You should not modify it unless you know what you are doing.
+        注意安全！你不應該修改這個，除非你知道你在幹嘛。
     allowSocialFollow:
       .: allowSocialFollow
       comment: |-
@@ -291,7 +291,7 @@ carpet:
         TODO
     allowedUndoSizeInBytes:
       desc: |-
-        Memory size a player can use for undo. Default is 5MB, 0 to disable, -1 for infinite.
+        「回到上一步」功能使用的記憶體大小。預設為5MB，0為關閉，-1為無限。
     tickBackMaxTicks:
       desc: Maximum ticks for tick back. Default is 100, 0 to disable.
     undoBlockEntities:
