@@ -1,13 +1,13 @@
 reden:
   debugger:
     tick_stage:
-      entity: 'Entity/%s: %s'
-      block_entity: 'BlockEntity at %s'
-      nc_update_6: NC Update 6 Sides
-      pp_update: Post-Placement
-      nc_update: Neighbor-Changed
+      entity: '實體/%s: %s'
+      block_entity: '%s處的方塊實體'
+      nc_update_6: NC 六向更新
+      pp_update: PP 更新
+      nc_update: NC 更新
       block_event: Block Event at %s, block %s, type %s, data %s
-      nc_update_with_source: Neighbor-Changed
+      nc_update_with_source: NC 使用源更新
       world_root: Ticking world %s
       block_scheduled_ticks_root:
         .: Block scheduled ticks
@@ -23,55 +23,55 @@ reden:
         desc: ''
   constants:
     world:
-      overworld: Overworld
-      the_nether: The Nether
-      the_end: The End
+      overworld: 主世界
+      the_nether: 地獄
+      the_end: 終界
     mod:
       litematica: Litematica
   widget:
     privacy:
       desc: |
-        Welcome to Reden!
+        歡迎使用 Reden！
 
-        Reden collects some data to improve the user experience. You can disable it in this screen.
-        Here is a brief of the data we collect:
-        1. Basic information of your computer and system
-          This is used to help us understand the user base and improve the user experience. This data is anonymous.
-        2. Usage data
-          This data includes something like how many times you use features provided by Reden or how long you play Minecraft.
-          It is used to help us know which features are popular and which features are not so we can decide which feature should we focus on. This data is anonymous.
-        3. Identification data
-          This data includes your Minecraft username and UUID. It is used to help us identify you and provide you with better support.
-          This data is not anonymous, but we will not share it with anyone else.
+        Reden 需要收集一些資料以提升使用者體驗。您可以在此頁面中禁用它。
+        以下是我們收集的資料概述：
+        1. 您電腦和系統的基本資訊
+          用於幫助我們瞭解使用者群體並改進使用者體驗。這些資料是匿名的。
+        2. 使用資料
+          此資料包括您使用功能的次數或您玩 Minecraft 的時長等資訊。
+          它有助於我們瞭解哪些功能受歡迎，哪些功能不太受歡迎，以便我們決定應該重點關注哪些功能。這些資料是匿名的。
+        3. 身份資料
+          此資料包括您的 Minecraft 使用者名稱和 UUID 等資料。它用於幫助我們識別您並提供更好的支援。
+          這些資料不是匿名的，但我們不會與第三方分享此資訊。
     config:
-      debug: Debug
-      generic: Generic
-      micro_tick: Micro Tick
+      debug: 除錯
+      generic: 通用
+      micro_tick: 微時序
       rvc: RVC
       super_right: Super Right
       title: Reden 設置
-      sponsor: Sponsors
+      sponsor: 贊助者
     button:
-      commandHotkeyListEdit: Edit
+      commandHotkeyListEdit: 編輯
     title:
-      commandHotkeyListEdit: Edit command list
+      commandHotkeyListEdit: 編輯指令列表
     rvc:
       hud:
         move_machine:
           .: "[RVC] Moving Machine"
-          structure: "Structure: %s"
+          structure: "結構：%s"
           origin: 'Origin at: %s'
           litematica: "Using Litematica"
           confirm: "Press %s to confirm this position"
           conflict: "This position is conflicted with %s blocks"
-        selected: "Selected: %s"
+        selected: "已選擇：%s"
         selected_nothing:
           - 
             text: "Selected: Nothing"
             color: red
         trackpoints:
           - 
-            text: "Trackpoints: "
+            text: "追蹤點："
           - 
             text: "%s Tracking "
             color: green
