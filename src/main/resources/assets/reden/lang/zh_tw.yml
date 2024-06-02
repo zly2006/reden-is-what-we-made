@@ -85,7 +85,7 @@ reden:
         block_count: "%s blocks"
         entity_count: "%s entities"
         scheduled_tick_unstable: |
-          本結構包含已規劃遊戲刻或方塊事件，可能會導致行為不穩定。
+          本結構包含計劃刻或方塊事件，可能會導致行為不穩定。
     chat:
       about: About SuperRight Chat
       copy: 複製
