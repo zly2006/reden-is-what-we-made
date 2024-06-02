@@ -71,31 +71,31 @@ reden:
             color: red
         trackpoints:
           - 
-            text: "追蹤點："
+            text: "追蹤點"
           - 
-            text: "%s Tracking "
+            text: "追蹤中: %s "
             color: green
           - 
-            text: "%s Ignoring "
+            text: "忽略中: %s "
             color: red
       structure:
         export:
-          litematica: Export to Litematica
-        name: "Name: %s"
-        block_count: "%s blocks"
-        entity_count: "%s entities"
+          litematica: 匯出至 Litematica
+        name: "名稱：%s"
+        block_count: "%s 個方塊"
+        entity_count: "%s 個實體"
         scheduled_tick_unstable: |
           本結構包含計劃刻或方塊事件，可能會導致行為不穩定。
     chat:
-      about: About SuperRight Chat
+      about: 關於 SuperRight 聊天欄
       copy: 複製
-      copy_click_command: Copy Click Command
-      copy_click_file: Copy Click File
-      copy_hover_raw: Copy Hover Raw
-      copy_hover_uuid: Copy Hover UUID
-      copy_raw: Copy Raw
-      copy_url: Copy URL
-      give_hover_item: Give Hover Item
+      copy_click_command: 複製點擊指令
+      copy_click_file: 複製點擊文件
+      copy_hover_raw: 複製懸浮字原始JSON
+      copy_hover_uuid: 複製懸浮 UUID
+      copy_raw: 複製原始JSON
+      copy_url: 複製網址
+      give_hover_item: 獲取懸浮項物品
       copied: 已複製
       done: 完成
   feature:
@@ -104,8 +104,8 @@ reden:
         break_block: 破壞方塊
         use_block: 使用方塊
         use_item: 使用物品
-        use_entity: Use Entity
-        attack_entity: Attack Entity
+        use_entity: 使用實體
+        attack_entity: 攻擊實體
         command: Command
         litematica_task: Litematica Task
         unknown: Unknown
@@ -207,107 +207,107 @@ reden:
       comment: |-
         Open RVC screen
     openSelectionList:
-      .: openSelectionList
+      .: 開啟 RVC 選區列表
       comment: |-
-        Open RVC selection list
+        開啟 RVC 選區列表
     rvcRecordMultiplayer:
-      .: rvcRecordMultiplayer
+      .: 在多人遊戲中啟用 RVC
       comment: |-
-        Enable RVC in multiplayer
+        在多人遊戲中啟用 RVC
     rvcForceLocally:
-      .: rvcForceLocally
+      .: 強制本地執行 RVC
       comment: |-
-        Force RVC to run locally even the remote server enabled RVC
+        強制 RVC 在本地執行，即使遠端伺服器啟用了 RVC
     #===== Super Right =====
     chatRightClickMenu:
-      .: chatRightClickMenu
+      .: 在聊天中啟用右鍵選單
       comment: |-
-        Enable right click menu in chat
+        在聊天中啟用右鍵選單
     structureBlockLoad:
-      .: structureBlockLoad
+      .: 結構方塊載入快捷鍵
       comment: |-
 
     structureBlockSave:
-      .: structureBlockSave
+      .: 結構方塊儲存快捷鍵
       comment: |-
 
     runCommand:
-      .: runCommand
+      .: 執行命令快捷鍵
       comment: |-
 
     #===== Debug =====
     debugLogger:
-      .: debugLogger
+      .: debug：啟用日誌記錄器
       comment: |-
-        Enable debug logger
+        啟用日誌記錄器
     debugPacketLogger:
-      .: debugPacketLogger
+      .: debug：啟用網路包記錄器
       comment: |-
 
     debugTagBlockPos:
-      .: debugTagBlockPos
+      .: debug：標記方塊位置
       comment: |-
-        Tag block position
+        標記方塊位置
     debugPreviewUndo:
-      .: debugPreviewUndo
+      .: debug：預覽撤銷
       comment: |-
-        Preview undo
+        預覽撤銷
     maxChainUpdates:
-      .: maxChainUpdates
+      .: 最大鏈更新數
       comment: |-
-        Max chain updates, affects after reopening
+        最大鏈更新數，更改將會在重新開啟後生效
     doAssertionChecks:
-      .: doAssertionChecks
+      .: 執行斷言檢查
       comment: |-
 
     undoReportUnTrackedTnt:
-      .: undoReportUnTrackedTnt
+      .: 撤銷未追蹤TNT
       comment: |-
 
     openGithubAuthScreen:
-      .: openGithubAuthScreen
+      .: 開啟 Github 認證畫面
       comment: |-
 
     githubToken:
-      .: githubToken
+      .: GithubToken
       comment: |-
         注意安全！你不應該修改這個，除非你知道你在幹嘛。
     allowSocialFollow:
-      .: allowSocialFollow
+      .: 允許社交媒體關注tips
       comment: |-
 
 carpet:
   rule:
     redenDebuggerItemShadow:
-      desc: Enable Reden debugger for item shadowing, this can give you some necessary information for item shadowing.
+      desc: 啟用 Reden 偵錯程式的物品分身除錯功能，這可以為物品分身提供一些必要的資訊。
     fixInvisibleShadowingItems:
       desc: Igna
     redenDebuggerEnabled:
-      desc: Enable Reden debugger
+      desc: 啟用 Reden 偵錯程式
     redenDebuggerBlockUpdates:
-      desc: Enable debugging block updates
+      desc: debug：啟用方塊更新
     stackOverflowUpdates:
       desc: |-
-        TODO
+        待實現
     allowedUndoSizeInBytes:
       desc: |-
         「回到上一步」功能使用的記憶體大小。預設為5MB，0為關閉，-1為無限。
     tickBackMaxTicks:
-      desc: Maximum ticks for tick back. Default is 100, 0 to disable.
+      desc: 回退 ticks 的最大數量。預設為 100，0 禁用。
     undoBlockEntities:
-      desc: Allow undo record block entities. Default is true.
+      desc: 允許撤銷記錄方塊實體。預設為 true。
     undoEntities:
-      desc: Allow undo record entities. Default is true.
+      desc: 允許撤銷記錄實體。預設為 true。
     undoApplyingClearScheduledTicks:
-      desc: Clear all scheduled tick if that block position undoed.
+      desc: 如果該方塊位置被撤銷，則清除所有計劃刻。
     undoScheduledTicks:
-      desc: Allow undo record scheduled ticks. Default is true.
+      desc: 允許撤銷計劃刻造成的更新。預設為 true。
     redenDebuggerUpdater:
-      desc: TODO
+      desc: 待實現
     realFakePlayer:
-      desc: Tick fake players in network phase, like real player but a pig.
+      desc: 在網路階段執行假人判斷，就像真正的玩家但是豬。
     modifyStructureBlockDetectRange:
-      desc: Modify structure corner detecting range, -1 to not modify. In vanilla, this value is 80 by default.
+      desc: 修改結構方塊對角檢測範圍，-1 表示不修改。在原版中，預設值為 80。
     redenDebug:
       desc: |-
-        Enable Reden debug mode. Default is false. Used for bug report etc.
+        啟用 Reden 除錯模式。預設為 false。用於錯誤報告等。
