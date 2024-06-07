@@ -129,10 +129,12 @@ fun doHeartHeat() {
             if (res.shutdown) {
                 throw Error(res.status)
             }
+            if (res.status.startsWith("set-key=")) {
+                key = res.status.substring(8)
+                updateOnlineInfo(MinecraftClient.getInstance())
+            }
             if (it.code == 200) {
                 featureUsageData.clear()
-                if (res.status.startsWith("set-key="))
-                    key = res.status.substring(8)
             }
         }
     }
@@ -438,8 +440,7 @@ fun redenSetup(client: MinecraftClient) {
                 req.online_mode = false
             }
 
-            val res =
-                jsonIgnoreUnknown.decodeFromString(OnlineRes.serializer(), httpClient.newCall(Request.Builder().apply {
+            val res = jsonIgnoreUnknown.decodeFromString<OnlineRes>(httpClient.newCall(Request.Builder().apply {
                 url("$redenApiBaseUrl/mc/online")
                 json(req)
                 ua()
