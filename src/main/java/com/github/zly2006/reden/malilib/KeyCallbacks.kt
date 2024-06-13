@@ -267,13 +267,13 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             } else if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
                 val wormhole = selectedWormhole ?: return false
                 if (mc.server == null) {
-                    mc.player!!.sendMessage("You can not use this in a server")
-                    return false
+                    mc.networkHandler?.sendChatCommand("tp @s ${wormhole.tpPosition.x} ${wormhole.tpPosition.y} ${wormhole.tpPosition.z} ${wormhole.tpYaw} ${wormhole.tpPitch}")
+                } else {
+                    mc.server!!.playerManager.getPlayer(mc.player!!.uuid)!!
+                        .teleport(wormhole.tpPosition.x, wormhole.tpPosition.y, wormhole.tpPosition.z)
+                    mc.player!!.yaw = wormhole.tpYaw
+                    mc.player!!.pitch = wormhole.tpPitch
                 }
-                mc.server!!.playerManager.getPlayer(mc.player!!.uuid)!!
-                    .teleport(wormhole.tpPosition.x, wormhole.tpPosition.y, wormhole.tpPosition.z)
-                mc.player!!.yaw = wormhole.tpYaw
-                mc.player!!.pitch = wormhole.tpPitch
                 return true
             }
             return false
