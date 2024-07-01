@@ -187,6 +187,7 @@ allprojects {
             name = "CottonMC"
             url = uri("https://server.bbkr.space/artifactory/libs-release")
         }
+        maven { url = uri("https://jitpack.io") }
     }
 
     tasks {
@@ -337,9 +338,9 @@ dependencies {
     // Essential dependencies
     modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric_version}")
     modImplementation("net.fabricmc:fabric-language-kotlin:1.11.0+kotlin.2.0.0")
-    modImplementation("fi.dy.masa.malilib:malilib-fabric-1.20.4:0.18.0")
-    modImplementation("carpet:fabric-carpet:1.20.3-1.4.128+v231205")
+    modImplementation("carpet:fabric-carpet:1.21-1.4.147+v240613")
     modImplementation("io.wispforest:owo-lib:${owo_version}")
+    modImplementation("com.github.sakura-ryoko:malilib:b012771deb")
     // Game test
     modImplementation("net.fabricmc:fabric-loader-junit:${loader_version}")
     // Embedded dependencies
@@ -360,9 +361,9 @@ dependencies {
     include(implementation("com.jcraft:jsch:0.1.55")!!)
 
     // Optional dependencies
-    modImplementation("fi.dy.masa.litematica:litematica:0.17.1")
-    modImplementation("fi.dy.masa.tweakeroo:tweakeroo:0.19.2")
-    modImplementation("com.glisco:isometric-renders:0.4.7+1.20.3")
+    modImplementation("com.github.sakura-ryoko:litematica:8e285513a6")
+    modImplementation("com.github.sakura-ryoko:tweakeroo:36a640f2c6")
+//    modImplementation("com.glisco:isometric-renders:0.4.7+1.20.3")
     modImplementation("com.terraformersmc:modmenu:9.0.0")
 
     // Runtime only dependencies (game optimization)

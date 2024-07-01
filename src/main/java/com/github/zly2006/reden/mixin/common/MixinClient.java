@@ -42,11 +42,7 @@ public abstract class MixinClient implements ClientData.ClientDataAccess, Server
 
     @Inject(
             method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V",
-            at = @At(
-                    value = "FIELD",
-                    shift = At.Shift.AFTER,
-                    target = "Lnet/minecraft/client/MinecraftClient;player:Lnet/minecraft/client/network/ClientPlayerEntity;"
-            )
+            at = @At("RETURN")
     )
     private void resetServerDataOnDisconnect(Screen screen, CallbackInfo ci) {
         if (player == null) {
