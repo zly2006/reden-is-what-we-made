@@ -53,7 +53,7 @@ class CreditScreen(val parent: Screen? = null): BaseOwoScreen<FlowLayout>() {
     }
 
     override fun render(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
-        renderBackgroundTexture(context)
+        renderInGameBackground(context)
         super.render(context, mouseX, mouseY, delta)
     }
 

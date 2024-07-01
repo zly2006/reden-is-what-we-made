@@ -2,29 +2,27 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.gui.DebuggerComponent
-import com.github.zly2006.reden.debugger.tree.StageIo
 import com.github.zly2006.reden.debugger.tree.TickStageTree
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.sendMessage
 import io.wispforest.owo.ui.hud.Hud
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.fabricmc.fabric.api.networking.v1.FabricPacket
-import net.fabricmc.fabric.api.networking.v1.PacketType
 import net.minecraft.client.MinecraftClient
-import net.minecraft.network.PacketByteBuf
+import net.minecraft.network.packet.CustomPayload
 
-class StageTreeS2CPacket(val tree: TickStageTree) : FabricPacket {
-    companion object {
-        val id = Reden.identifier("stage_tree_s2c")
-        val pType = PacketType.create(id) {
-            StageTreeS2CPacket(StageIo.readTickStageTree(it))
-        }!!
-
+@Serializable
+class StageTreeS2CPacket(
+    @Contextual
+    val tree: TickStageTree
+) : CustomPayload {
+    companion object : PacketCodecHelper<StageTreeS2CPacket> by PacketCodec(Reden.identifier("stage_tree_s2c")) {
         fun register() {
             if (isClient) {
-                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, player, _ ->
+                ClientPlayNetworking.registerGlobalReceiver(ID) { packet, context ->
                     val mc = MinecraftClient.getInstance()
-                    player.sendMessage("Tick stage tree")
+                    context.player().sendMessage("Tick stage tree")
                     Hud.remove(Reden.identifier("debugger"))
                     Hud.add(Reden.identifier("debugger")) {
                         DebuggerComponent(packet.tree).asHud()
@@ -33,9 +31,6 @@ class StageTreeS2CPacket(val tree: TickStageTree) : FabricPacket {
             }
         }
     }
-    override fun write(buf: PacketByteBuf) {
-        StageIo.writeTickStageTree(buf, tree)
-    }
 
-    override fun getType() = pType
+    override fun getId() = ID
 }

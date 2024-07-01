@@ -82,7 +82,8 @@ class BreakpointInfoScreen(
             breakpoint.flags = breakpoint.flags or ENABLED
         }
         breakpoint.flags = breakpoint.flags and UpdateBreakpointPacket.UPDATE.inv()
-        ClientPlayNetworking.send(UpdateBreakpointPacket(null, flag = breakpoint.flags, bpId = breakpoint.id))
+        ClientPlayNetworking.getSender()
+            .sendPacket(UpdateBreakpointPacket(null, flag = breakpoint.flags, bpId = breakpoint.id))
         updateFlags(breakpoint.flags)
     }
     private fun updateFlags(flags: Int) {

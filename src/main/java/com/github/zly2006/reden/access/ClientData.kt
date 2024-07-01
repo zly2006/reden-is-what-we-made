@@ -16,16 +16,16 @@ class ClientData(
     val wormholes = mutableListOf<Wormhole>()
     val rvc = RvcManager(NetworkSide.CLIENTBOUND)
 
+    @Suppress("INAPPLICABLE_JVM_NAME")
     interface ClientDataAccess {
-        @Suppress("INAPPLICABLE_JVM_NAME")
-        @JvmName("getClientData\$reden")
-        fun clientData(): ClientData
+        @get:JvmName("getClientData\$reden")
+        val clientData: ClientData
     }
 
     companion object {
         @JvmStatic
         val MinecraftClient.data: ClientData get() {
-            return (this as ClientDataAccess).clientData()
+            return (this as ClientDataAccess).clientData
         }
     }
 }

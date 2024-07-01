@@ -7,6 +7,7 @@ import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -23,17 +24,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinBlockEntity implements BlockEntityInterface {
     @Shadow @Nullable protected World world;
 
-    @Shadow public abstract NbtCompound createNbtWithIdentifyingData();
-
     @Shadow private BlockState cachedState;
     @Shadow @Final protected BlockPos pos;
+
+    @Shadow
+    public abstract NbtCompound createNbtWithId(RegistryWrapper.WrapperLookup registryLookup);
+
     @Unique NbtCompound lastSavedNbt = null;
 
     @Override
     public void saveLastNbt$reden() {
         if (world != null && !world.isClient && RedenCarpetSettings.Options.undoBlockEntities) {
             DebugKt.debugLogger.invoke("before saving lastNBT at " + pos.toShortString() + ", data=" + lastSavedNbt);
-            lastSavedNbt = this.createNbtWithIdentifyingData().copy();
+            lastSavedNbt = this.createNbtWithId(world.getRegistryManager()).copy();
             DebugKt.debugLogger.invoke("saved lastNBT at " + pos.toShortString() + ", cause=manual, " + lastSavedNbt);
         }
     }
@@ -55,10 +58,10 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
     }
 
     @Inject(
-            method = "readNbt(Lnet/minecraft/nbt/NbtCompound;)V",
+            method = "read",
             at = @At("TAIL")
     )
-    private void onReadNbt(NbtCompound nbt, CallbackInfo ci) {
+    private void onReadNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
         DebugKt.debugLogger.invoke("before saving lastNBT at " + pos.toShortString() + ", data=" + lastSavedNbt);
         if (lastSavedNbt == null && RedenCarpetSettings.Options.undoBlockEntities) {
             lastSavedNbt = nbt.copy();

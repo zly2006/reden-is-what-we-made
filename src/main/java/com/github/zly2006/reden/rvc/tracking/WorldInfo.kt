@@ -40,7 +40,7 @@ data class WorldInfo(
         fun ofMemory(world: World) = WorldInfo(
             isRemoteServer = true,
             worldId = UUID.randomUUID().toString(),
-            worldDimension = world.dimensionKey.value,
+            worldDimension = world.dimensionEntry.key.get().value,
             worldKey = world.registryKey.value,
         ).apply {
             worldCache = world
@@ -59,7 +59,7 @@ data class WorldInfo(
                 remoteServerRedenVersionCode = -1,
                 remoteServerRedenBrand = "TODO", // todo
                 worldId = mc.world!!.data?.worldId,
-                worldDimension = mc.world!!.dimensionKey.value,
+                worldDimension = mc.world!!.dimensionEntry.key.get().value,
                 worldKey = mc.world!!.registryKey.value,
             )
         }
@@ -69,7 +69,7 @@ data class WorldInfo(
                 isRemoteServer = false,
                 localSaveName = world.server.session.directory.path().name,
                 worldId = world.data.worldId,
-                worldDimension = world.dimensionKey.value,
+                worldDimension = world.dimensionEntry.key.get().value,
                 worldKey = world.registryKey.value,
             )
         }

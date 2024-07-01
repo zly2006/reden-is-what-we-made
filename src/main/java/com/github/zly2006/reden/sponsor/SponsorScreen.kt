@@ -62,7 +62,7 @@ class SponsorScreen(val parent: Screen? = null, private val loadIfNull: Boolean 
     }
 
     override fun render(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
-        renderBackgroundTexture(context)
+        renderInGameBackground(context)
         super.render(context, mouseX, mouseY, delta)
     }
 }

@@ -5,49 +5,44 @@ import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.network.Continue.Companion.checkFrozen
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.red
+import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.fabricmc.fabric.api.networking.v1.FabricPacket
-import net.fabricmc.fabric.api.networking.v1.PacketType
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.network.PacketByteBuf
+import net.minecraft.network.packet.CustomPayload
 import net.minecraft.text.Text
 
+@Serializable
 class StepOver(
     /**
      * Step over, until the stage is ticked.
      */
     val stageId: Int,
-): FabricPacket {
-    override fun getType(): PacketType<*> = pType
-    override fun write(buf: PacketByteBuf) {
-        buf.writeVarInt(stageId)
-    }
+) : CustomPayload {
+    override fun getId() = ID
 
-    companion object {
-        val id = Reden.identifier("step_over")
-        val pType = PacketType.create(id) {
-            val stageId = it.readVarInt()
-            StepOver(stageId)
-        }!!
+    companion object : PacketCodecHelper<StepOver> by PacketCodec(Reden.identifier("step_over")) {
         fun register() {
-            ServerPlayNetworking.registerGlobalReceiver(pType) { packet, player, sender ->
-                checkFrozen(player) {
+            PayloadTypeRegistry.playC2S().register(ID, CODEC)
+            ServerPlayNetworking.registerGlobalReceiver(ID) { packet, context ->
+                checkFrozen(context.player()) {
                     try {
-                        val tree = player.server.data.tickStageTree
+                        val tree = context.player().server.data.tickStageTree
                         val target = tree.activeStages.firstOrNull { it.id == packet.stageId }
 
                         if (target == null || !tree.stepOver(target) {
-                                sender.sendPacket(BreakPointInterrupt(-2, tree, true))
+                                context.responseSender().sendPacket(BreakPointInterrupt(-2, tree, true))
                             }
-                        ) player.sendMessage(Text.literal("Failed to step over: stage not found.").red())
+                        ) context.player().sendMessage(Text.literal("Failed to step over: stage not found.").red())
                     } catch (e: Exception) {
-                        player.sendMessage(Text.literal("Failed to step over.").red())
+                        context.player().sendMessage(Text.literal("Failed to step over.").red())
                         Reden.LOGGER.error("There is something wrong, but it is not your bad.", e)
                     }
                 }
             }
             if (isClient) {
-                ClientPlayNetworking.registerGlobalReceiver(pType) { packet, _, _ ->
+                PayloadTypeRegistry.playS2C().register(ID, CODEC)
+                ClientPlayNetworking.registerGlobalReceiver(ID) { packet, _ ->
 
                 }
             }

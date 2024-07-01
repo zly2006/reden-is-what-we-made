@@ -46,7 +46,7 @@ fun tickPackets(server: MinecraftServer) {
 
 fun unfreeze(server: MinecraftServer) {
     server.data.frozen = false
-    val globalStatus = GlobalStatus(server.data.status, NbtCompound().apply {
+    val globalStatus = GlobalStatus.packet(server.data.status, NbtCompound().apply {
         putString("reason", "game-resumed")
     })
     server.sendToAll(globalStatus)

@@ -49,7 +49,7 @@ public class MixinTranslationStorage implements com.github.zly2006.reden.access.
             try {
                 var jo = gson.fromJson(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8), JsonObject.class);
                 jo.entrySet().stream().filter(it -> it.getValue() instanceof JsonArray).forEach(it -> {
-                    MutableText text = Text.Serialization.fromJsonTree(it.getValue());
+                    MutableText text = Text.Serialization.fromJsonTree(it.getValue(), null);
                     tempTextMap.put(it.getKey(), text);
                 });
             } catch (IOException e) {
