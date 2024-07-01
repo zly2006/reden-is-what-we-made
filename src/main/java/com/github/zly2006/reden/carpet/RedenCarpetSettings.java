@@ -116,10 +116,8 @@ public class RedenCarpetSettings {
                             world.getEntitiesByType(TypeFilter.instanceOf(ItemEntity.class), entity -> true).forEach(item -> {
                                 System.out.println(item.getStack());
                                 PlayerManager playerManager = source.getServer().getPlayerManager();
-                                playerManager.sendToDimension(
-                                        item.createSpawnPacket(),
-                                        world.getRegistryKey()
-                                );
+
+                                playerManager.sendToDimension(item.createSpawnPacket(world.getChunkManager().chunkLoadingManager.entityTrackers.get(item.getId()).entry), world.getRegistryKey());
                                 playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(
                                         item.getId(),
                                         List.of(new DataTracker.SerializedEntry<>(

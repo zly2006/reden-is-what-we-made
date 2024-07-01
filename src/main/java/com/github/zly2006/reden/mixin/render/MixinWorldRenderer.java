@@ -73,7 +73,7 @@ public abstract class MixinWorldRenderer {
                     shift = At.Shift.AFTER
             )
     )
-    private void onRenderOutline(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f projectionMatrix, CallbackInfo ci) {
+    private void onRenderOutline(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
         if (BlockOutline.INSTANCE.getBlocks().isEmpty()) return;
         OutlineVertexConsumerProvider vertexConsumers = this.bufferBuilders.getOutlineVertexConsumers();
         int color = BlockOutline.INSTANCE.getColor();
@@ -81,7 +81,8 @@ public abstract class MixinWorldRenderer {
         // only render to outline frame buffer
         VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getOutline(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE));
         RenderSystem.disableCull();
-        BlockOutline.INSTANCE.render(buffer, matrices, camera, vertexConsumers);
+
+        BlockOutline.INSTANCE.render(buffer, matrix4f, camera, vertexConsumers);
         RenderSystem.enableCull();
     }
 }

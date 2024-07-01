@@ -103,16 +103,14 @@ public class SolidFaceRenderer {
             RenderSystem.setShader(GameRenderer::getPositionColorProgram);
             float prevLineWidth = RenderSystem.getShaderLineWidth();
             RenderSystem.lineWidth(3.0F);
-            BufferBuilder bb = Tessellator.getInstance().getBuffer();
-            bb.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+            BufferBuilder bb = Tessellator.getInstance().begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
             for(int i = 0; i < 4; i++) {
                 Vector3f p1 = this.cachedVertexes[i].subtract(cameraPos).toVector3f();
                 Vector3f p2 = this.cachedVertexes[(i + 1) % 4].subtract(cameraPos).toVector3f();
-                bb.vertex(positionMatrix, p1.x, p1.y, p1.z).color(0xFF, 0, 0, 0xFF).next();
-                bb.vertex(positionMatrix, p2.x, p2.y, p2.z).color(0xFF, 0, 0, 0xFF).next();
+                bb.vertex(positionMatrix, p1.x, p1.y, p1.z).color(0xFF, 0, 0, 0xFF);
+                bb.vertex(positionMatrix, p2.x, p2.y, p2.z).color(0xFF, 0, 0, 0xFF);
             }
-
-            Tessellator.getInstance().draw();
+            BufferRenderer.drawWithGlobalProgram(bb.end());
             RenderSystem.enableCull();
             RenderSystem.disableBlend();
             RenderSystem.lineWidth(prevLineWidth);

@@ -34,7 +34,8 @@ fun tickPackets(server: MinecraftServer) {
 
     // send block updates
     server.worlds.forEach {
-        it.chunkManager.threadedAnvilChunkStorage.entryIterator().forEach {
+        // fixme
+        it.chunkManager.chunkLoadingManager.chunkHolders.values.forEach {
             val worldChunk = it.worldChunk
             if (worldChunk != null) {
                 it.flushUpdates(worldChunk)

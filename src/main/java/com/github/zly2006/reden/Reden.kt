@@ -65,7 +65,7 @@ class Reden : ModInitializer, CarpetExtension {
         @JvmStatic
         @Contract("_ -> new")
         fun identifier(id: String): Identifier {
-            return Identifier(MOD_ID, id)
+            return Identifier.of(MOD_ID, id)
         }
     }
 

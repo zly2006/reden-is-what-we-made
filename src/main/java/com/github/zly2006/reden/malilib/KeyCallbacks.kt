@@ -270,7 +270,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
                     mc.networkHandler?.sendChatCommand("tp @s ${wormhole.tpPosition.x} ${wormhole.tpPosition.y} ${wormhole.tpPosition.z} ${wormhole.tpYaw} ${wormhole.tpPitch}")
                 } else {
                     mc.server!!.playerManager.getPlayer(mc.player!!.uuid)!!
-                        .teleport(wormhole.tpPosition.x, wormhole.tpPosition.y, wormhole.tpPosition.z)
+                        .teleport(wormhole.tpPosition.x, wormhole.tpPosition.y, wormhole.tpPosition.z, false)
                     mc.player!!.yaw = wormhole.tpYaw
                     mc.player!!.pitch = wormhole.tpPitch
                 }

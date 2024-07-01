@@ -30,7 +30,7 @@ fun selected(pos: Vec3d, sourceEntity: Entity?): List<Entity> {
         return mc.world!!.entities.filter { it.uuid == selector.uuid }
     }
     else {
-        val predicate = selector.getPositionPredicate(selector.positionOffset.apply(pos))
+        val predicate = selector.getPositionPredicate(selector.positionOffset.apply(pos), null, null)
         return if (selector.senderOnly) {
             if (sourceEntity != null && predicate.test(sourceEntity))
                 listOf(sourceEntity)

@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
+import net.minecraft.network.DisconnectionInfo;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import org.spongepowered.asm.mixin.Final;
@@ -25,11 +26,11 @@ import java.util.ArrayList;
 public class MixinDisconnectedScreen extends Screen {
     @Shadow
     @Final
-    private Text reason;
+    private DirectionalLayoutWidget grid;
 
     @Shadow
     @Final
-    private DirectionalLayoutWidget grid;
+    private DisconnectionInfo info;
 
     protected MixinDisconnectedScreen(Text title) {
         super(title);
@@ -44,7 +45,7 @@ public class MixinDisconnectedScreen extends Screen {
             locals = LocalCapture.CAPTURE_FAILSOFT
     )
     private void tryNoTimeOut(CallbackInfo ci, ButtonWidget buttonWidget) {
-        if (reason.getContent() instanceof TranslatableTextContent content && "disconnect.timeout".equals(content.getKey())) {
+        if (this.info.reason().getContent() instanceof TranslatableTextContent content && "disconnect.timeout".equals(content.getKey())) {
             if (!MalilibSettingsKt.NO_TIME_OUT.getBooleanValue()) {
                 var buttonList = new ArrayList<ClientMessageQueue.Button>();
                 int id = ClientMessageQueue.INSTANCE.addNotification(

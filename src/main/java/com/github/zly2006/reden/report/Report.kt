@@ -38,6 +38,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.Util
 import net.minecraft.util.crash.CrashMemoryReserve
 import net.minecraft.util.crash.CrashReport
+import net.minecraft.util.crash.ReportType
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -232,7 +233,7 @@ fun reportException(e: Exception) {
     if (isDevVersion && data_USAGE.booleanValue) {
         try {
             CrashMemoryReserve.releaseMemory()
-            val asString = CrashReport("Reden generated crash report.", e).asString()
+            val asString = CrashReport("Reden generated crash report.", e).asString(ReportType.MINECRAFT_CRASH_REPORT)
             httpClient.newCall(Request.Builder().apply {
                 url("$redenApiBaseUrl/mc/exception")
                 @Serializable

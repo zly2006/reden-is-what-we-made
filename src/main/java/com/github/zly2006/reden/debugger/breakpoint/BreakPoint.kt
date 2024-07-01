@@ -66,7 +66,7 @@ interface BreakPoint {
 
 object IdentifierSerializer: KSerializer<Identifier> {
     override val descriptor = String.serializer().descriptor
-    override fun deserialize(decoder: Decoder) = Identifier(decoder.decodeString())
+    override fun deserialize(decoder: Decoder) = Identifier.of(decoder.decodeString())
     override fun serialize(encoder: Encoder, value: Identifier) { encoder.encodeString(value.toString()) }
 }
 

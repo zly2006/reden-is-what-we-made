@@ -7,10 +7,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
-import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.render.Tessellator
-import net.minecraft.client.render.VertexFormat
-import net.minecraft.client.render.VertexFormats
+import net.minecraft.client.render.*
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 
@@ -49,39 +46,40 @@ object BlockBorder {
                         val max = _max.toVector3f().add(delta, delta, delta)
 
                         RenderSystem.setShader(GameRenderer::getPositionColorProgram)
-                        Tessellator.getInstance().buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
+                        val buffer =
+                            Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
 
-                        Tessellator.getInstance().buffer.vertex(matrix4f, min.x, min.y, min.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, min.x, min.y, max.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, min.x, max.y, max.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, min.x, max.y, min.z).color(r, g, b, a).next()
+                        buffer.vertex(matrix4f, min.x, min.y, min.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, min.x, min.y, max.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, min.x, max.y, max.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, min.x, max.y, min.z).color(r, g, b, a)
 
-                        Tessellator.getInstance().buffer.vertex(matrix4f, max.x, min.y, min.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, max.x, min.y, max.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, max.x, max.y, max.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, max.x, max.y, min.z).color(r, g, b, a).next()
+                        buffer.vertex(matrix4f, max.x, min.y, min.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, max.x, min.y, max.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, max.x, max.y, max.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, max.x, max.y, min.z).color(r, g, b, a)
 
-                        Tessellator.getInstance().buffer.vertex(matrix4f, min.x, min.y, min.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, max.x, min.y, min.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, max.x, min.y, max.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, min.x, min.y, max.z).color(r, g, b, a).next()
+                        buffer.vertex(matrix4f, min.x, min.y, min.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, max.x, min.y, min.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, max.x, min.y, max.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, min.x, min.y, max.z).color(r, g, b, a)
 
-                        Tessellator.getInstance().buffer.vertex(matrix4f, min.x, max.y, min.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, max.x, max.y, min.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, max.x, max.y, max.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, min.x, max.y, max.z).color(r, g, b, a).next()
+                        buffer.vertex(matrix4f, min.x, max.y, min.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, max.x, max.y, min.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, max.x, max.y, max.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, min.x, max.y, max.z).color(r, g, b, a)
 
-                        Tessellator.getInstance().buffer.vertex(matrix4f, min.x, min.y, min.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, min.x, max.y, min.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, max.x, max.y, min.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, max.x, min.y, min.z).color(r, g, b, a).next()
+                        buffer.vertex(matrix4f, min.x, min.y, min.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, min.x, max.y, min.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, max.x, max.y, min.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, max.x, min.y, min.z).color(r, g, b, a)
 
-                        Tessellator.getInstance().buffer.vertex(matrix4f, min.x, min.y, max.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, min.x, max.y, max.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, max.x, max.y, max.z).color(r, g, b, a).next()
-                        Tessellator.getInstance().buffer.vertex(matrix4f, max.x, min.y, max.z).color(r, g, b, a).next()
+                        buffer.vertex(matrix4f, min.x, min.y, max.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, min.x, max.y, max.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, max.x, max.y, max.z).color(r, g, b, a)
+                        buffer.vertex(matrix4f, max.x, min.y, max.z).color(r, g, b, a)
 
-                        Tessellator.getInstance().draw()
+                        BufferRenderer.drawWithGlobalProgram(buffer.end())
                     }
                     when (status) {
                         TagBlockPos.green -> drawBox(

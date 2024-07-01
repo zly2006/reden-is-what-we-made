@@ -7,7 +7,6 @@ import com.github.zly2006.reden.rvc.io.SchematicIO
 import com.github.zly2006.reden.rvc.tracking.RvcRepository
 import com.github.zly2006.reden.rvc.tracking.TrackedStructure
 import com.github.zly2006.reden.utils.red
-import com.github.zly2006.reden.utils.redenError
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
 import io.wispforest.owo.ui.component.Components
@@ -18,10 +17,8 @@ import io.wispforest.owo.ui.core.*
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.structure.StructureTemplate
-import net.minecraft.structure.StructureTemplateManager
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
-import net.minecraft.util.WorldSavePath
 import java.awt.Color
 import java.io.File
 import java.nio.file.Path
@@ -206,15 +203,13 @@ class SelectionExportScreen(
     ) {
         StructureBlock(Text.literal("Structure Block"), Text.empty(), SelectionImportScreen.EXTENSION_NBT) {
             override fun export(/*unused*/ path: Path, head: TrackedStructure) {
-                val identifier = Identifier(head.name)
+                val identifier = Identifier.of(head.name)
                 StructureTemplate()
-                val nbtPath = StructureTemplateManager.getTemplatePath(
-                    MinecraftClient.getInstance().server?.session?.getDirectory(WorldSavePath.GENERATED) ?: redenError(
-                        Text.translatable("rvc.error.singleplayer_world_not_found")
-                    ),
+
+                val nbtPath = MinecraftClient.getInstance().server?.structureTemplateManager?.getTemplatePath(
                     identifier,
                     ".nbt"
-                )
+                ) ?: error("")
                 SchematicIO.save(nbtPath, head)
             }
         },

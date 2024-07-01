@@ -35,7 +35,7 @@ public class MixinCreateWorldScreen {
             worldCreator.setGameMode(WorldCreator.Mode.CREATIVE);
             worldCreator.setCheatsEnabled(true);
             var registry = generatorOptionsHolder.getCombinedRegistryManager();
-            var preset = registry.get(RegistryKeys.FLAT_LEVEL_GENERATOR_PRESET).get(new Identifier("the_void"));
+            var preset = registry.get(RegistryKeys.FLAT_LEVEL_GENERATOR_PRESET).get(Identifier.of("the_void"));
             assert preset != null;
             var chunkGenerator = new FlatChunkGenerator(preset.settings());
             worldCreator.setWorldType(new WorldCreator.WorldType(registry.get(RegistryKeys.WORLD_PRESET).getEntry(WorldPresets.FLAT).get()));

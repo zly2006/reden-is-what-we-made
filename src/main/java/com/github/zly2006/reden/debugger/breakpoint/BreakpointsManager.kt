@@ -231,7 +231,7 @@ class BreakpointsManager(val isClient: Boolean) {
 
             private fun findActualSerializer(
                 identifier: String?
-            ) = getBreakpointManager().registry[Identifier(identifier)]?.kSerializer()
+            ) = getBreakpointManager().registry[Identifier.of(identifier)]?.kSerializer()
                 ?: throw SerializationException("breakpoint type $identifier not found")
         }
 

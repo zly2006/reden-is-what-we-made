@@ -55,16 +55,15 @@ public abstract class ObserverHead<T extends LivingEntity, M extends EntityModel
             matrixStack.scale(this.scaleX, this.scaleY, this.scaleZ);
             this.getContextModel().getHead().rotate(matrixStack);
             HeadFeatureRenderer.translate(matrixStack, false);
-            BufferBuilder buffer = Tessellator.getInstance().getBuffer();
             matrixStack.translate(-0.5, -0.5, -0.5);
             RenderSystem.disableCull();
-            buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+            BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
             Matrix4f matrix = matrixStack.peek().getPositionMatrix();
-            buffer.vertex(matrix, 0, 0, 0).color(0, 0, 0, 0).next();
-            buffer.vertex(matrix, 1, 0, 0).color(0, 0, 0, 0).next();
-            buffer.vertex(matrix, 1, 1, 0).color(0, 0, 0, 0).next();
-            buffer.vertex(matrix, 0, 1, 0).color(0, 0, 0, 0).next();
-            Tessellator.getInstance().draw();
+            buffer.vertex(matrix, 0, 0, 0).color(0, 0, 0, 0);
+            buffer.vertex(matrix, 1, 0, 0).color(0, 0, 0, 0);
+            buffer.vertex(matrix, 1, 1, 0).color(0, 0, 0, 0);
+            buffer.vertex(matrix, 0, 1, 0).color(0, 0, 0, 0);
+            BufferRenderer.drawWithGlobalProgram(buffer.end());
             this.heldItemRenderer.renderItem(livingEntity, new ItemStack(Items.OBSERVER), ModelTransformationMode.HEAD, false, matrixStack, vertexConsumerProvider, light);
             matrixStack.pop();
         }

@@ -247,13 +247,13 @@ allprojects {
         compilerOptions {
             freeCompilerArgs.add("-Xjvm-default=all")
         }
-        jvmToolchain(17)
+        jvmToolchain(21)
     }
 
     java {
         withSourcesJar()
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
+            languageVersion.set(JavaLanguageVersion.of(21))
         }
     }
 }
@@ -366,8 +366,7 @@ dependencies {
     modImplementation("com.terraformersmc:modmenu:9.0.0")
 
     // Runtime only dependencies (game optimization)
-    modRuntimeOnly("maven.modrinth:ferrite-core:6.0.3-fabric")
-    modRuntimeOnly("maven.modrinth:in-game-account-switcher:8.0.2-fabric1.20.4")
+    modRuntimeOnly("maven.modrinth:ferrite-core:7.0.0")
     modRuntimeOnly("maven.modrinth:notenoughcrashes:4.4.7+1.20.4-fabric")
 }
 

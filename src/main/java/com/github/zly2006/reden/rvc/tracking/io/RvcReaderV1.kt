@@ -91,7 +91,7 @@ class RvcReaderV1(
                 RelativeCoordinate(rvcData.next().toInt(), rvcData.next().toInt(), rvcData.next().toInt())
             val type = rvcData.next().toInt()
             val data = rvcData.next().toInt()
-            val block = Registries.BLOCK.get(Identifier(rvcData.readGreedy()))
+            val block = Registries.BLOCK.get(Identifier.of(rvcData.readGreedy()))
             blockEvents.add(
                 TrackedStructurePart.BlockEventInfo(
                     pos = relativeCoordinate,
@@ -116,7 +116,7 @@ class RvcReaderV1(
             blockTicks.add(
                 TrackedStructurePart.TickInfo(
                     pos = relativeCoordinate,
-                    type = registry.get(Identifier(rvcData.next()))!! as T,
+                    type = registry.get(Identifier.of(rvcData.next()))!! as T,
                     delay = rvcData.next().toLong(),
                     priority = TickPriority.byIndex(rvcData.next().toInt()),
                     registry = registry

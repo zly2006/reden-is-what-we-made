@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         # Use thses Java versions:
-        java: [ 17, 21 ] # Current Java LTS and current latest Java version
+        java: [ 21 ] # Current Java LTS and current latest Java version
         # Use these operating systems:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
