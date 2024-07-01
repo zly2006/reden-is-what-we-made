@@ -364,11 +364,11 @@ dependencies {
     modImplementation("com.github.sakura-ryoko:litematica:8e285513a6")
     modImplementation("com.github.sakura-ryoko:tweakeroo:36a640f2c6")
 //    modImplementation("com.glisco:isometric-renders:0.4.7+1.20.3")
-    modImplementation("com.terraformersmc:modmenu:9.0.0")
+    modImplementation("com.terraformersmc:modmenu:11.0.1")
 
     // Runtime only dependencies (game optimization)
     modRuntimeOnly("maven.modrinth:ferrite-core:7.0.0")
-    modRuntimeOnly("maven.modrinth:notenoughcrashes:4.4.7+1.20.4-fabric")
+//    modRuntimeOnly("maven.modrinth:notenoughcrashes:4.4.7+1.20.4-fabric")
 }
 
 base {

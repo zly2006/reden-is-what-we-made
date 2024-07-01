@@ -9,6 +9,7 @@ import io.wispforest.owo.ui.hud.Hud
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.packet.CustomPayload
 
@@ -20,6 +21,7 @@ class StageTreeS2CPacket(
     companion object : PacketCodecHelper<StageTreeS2CPacket> by PacketCodec(Reden.identifier("stage_tree_s2c")) {
         fun register() {
             if (isClient) {
+                PayloadTypeRegistry.playS2C().register(ID, CODEC)
                 ClientPlayNetworking.registerGlobalReceiver(ID) { packet, context ->
                     val mc = MinecraftClient.getInstance()
                     context.player().sendMessage("Tick stage tree")

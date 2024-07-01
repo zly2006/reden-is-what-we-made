@@ -5,6 +5,7 @@ import com.github.zly2006.reden.access.ServerData.Companion.data
 import com.github.zly2006.reden.debugger.unfreeze
 import com.github.zly2006.reden.utils.red
 import kotlinx.serialization.Serializable
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.network.packet.CustomPayload
 import net.minecraft.server.network.ServerPlayerEntity
@@ -23,6 +24,7 @@ class Continue : CustomPayload {
         }
 
         fun register() {
+            PayloadTypeRegistry.playC2S().register(ID, CODEC)
             ServerPlayNetworking.registerGlobalReceiver(ID) { _, context ->
                 checkFrozen(context.player()) {
                     unfreeze(context.player().server)

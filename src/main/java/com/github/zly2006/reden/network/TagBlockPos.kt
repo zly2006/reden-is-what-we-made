@@ -4,6 +4,7 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.utils.isClient
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.minecraft.network.packet.CustomPayload
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
@@ -23,6 +24,7 @@ class TagBlockPos(
 
         fun register() {
             if (!isClient) return
+            PayloadTypeRegistry.playS2C().register(ID, CODEC)
             ClientPlayNetworking.registerGlobalReceiver(ID) { packet, _ ->
                 BlockBorder[packet.pos] = packet.status
             }

@@ -5,7 +5,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.StructureBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -23,7 +22,7 @@ public class MixinStructureBlock {
                     target = "Lnet/minecraft/block/entity/StructureBlockBlockEntity;openScreen(Lnet/minecraft/entity/player/PlayerEntity;)Z"
             )
     )
-    private void onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
+    private void onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
         if (world.isClient) {
             StructureBlockHelper.INSTANCE.setLastUsed(pos);
             StructureBlockHelper.INSTANCE.setLastUsedWorld(world.getRegistryKey().getValue());

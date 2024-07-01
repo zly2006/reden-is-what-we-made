@@ -6,8 +6,11 @@ import com.github.zly2006.reden.access.TransferCooldownAccess
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.translateMessage
 import kotlinx.serialization.Serializable
+import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
+import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents
+import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking
 import net.fabricmc.loader.api.Version
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.packet.CustomPayload
@@ -21,8 +24,10 @@ class Hello(
 
     companion object : PacketCodecHelper<Hello> by PacketCodec(Reden.identifier("hello")) {
         fun register() {
+            PayloadTypeRegistry.configurationS2C().register(ID, CODEC)
             if (isClient) {
-                ClientPlayNetworking.registerGlobalReceiver(ID) { packet, _ ->
+                PayloadTypeRegistry.configurationC2S().register(ID, CODEC)
+                ClientConfigurationNetworking.registerGlobalReceiver(ID) { packet, _ ->
                     Reden.LOGGER.info("Hello from server: ${packet.versionString}")
                     Reden.LOGGER.info("Feature set: " + packet.featureSet.joinToString())
                     (MinecraftClient.getInstance() as ServerData.ClientSideServerDataAccess).serverData =
@@ -58,16 +63,18 @@ class Hello(
                     }
                 }
             }
-            ServerPlayConnectionEvents.JOIN.register { _, sender, _ ->
-                sender.sendPacket(
-                    Hello(
+            ServerConfigurationConnectionEvents.CONFIGURE.register { handler, _ ->
+                ServerConfigurationNetworking.send(
+                    handler, Hello(
                         Reden.MOD_VERSION.friendlyString, setOf(
-                    "reden",
-                    "undo",
-                    "hopper-cd",
-                    "experimental:debugger",
-                    "experimental:pearl",
-                )))
+                            "reden",
+                            "undo",
+                            "hopper-cd",
+                            "experimental:debugger",
+                            "experimental:pearl",
+                        )
+                    )
+                )
             }
         }
     }

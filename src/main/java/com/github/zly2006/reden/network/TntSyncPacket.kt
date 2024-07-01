@@ -9,6 +9,7 @@ import com.github.zly2006.reden.utils.isClient
 import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.minecraft.network.packet.CustomPayload
 import net.minecraft.util.math.Vec3d
 import java.util.*
@@ -34,6 +35,7 @@ class TntSyncPacket(
                 syncedTntPos.clear()
             }
             if (isClient) {
+                PayloadTypeRegistry.playS2C().register(ID, CODEC)
                 ClientPlayNetworking.registerGlobalReceiver(ID) { packet, _ ->
                     pearlTask?.onTntSyncPacket(packet)
                     debugLogger("TntSyncPacket: TNT${packet.tntPower} @ ${packet.tntPos}")
