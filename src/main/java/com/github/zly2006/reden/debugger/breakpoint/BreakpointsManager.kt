@@ -7,7 +7,7 @@ import com.github.zly2006.reden.debugger.breakpoint.behavior.BreakPointBehavior
 import com.github.zly2006.reden.debugger.breakpoint.behavior.FreezeGame
 import com.github.zly2006.reden.debugger.breakpoint.behavior.StatisticsBehavior
 import com.github.zly2006.reden.debugger.stages.block.AbstractBlockUpdateStage
-import com.github.zly2006.reden.network.SyncBreakpointsPacket
+import com.github.zly2006.reden.network.SyncBreakpointsPacketS2CPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.UPDATE
@@ -82,7 +82,7 @@ class BreakpointsManager(val isClient: Boolean) {
     }
 
     fun sendAll(sender: PacketSender) {
-        sender.sendPacket(SyncBreakpointsPacket(breakpointMap.values.toList()))
+        sender.sendPacket(SyncBreakpointsPacketS2CPacket(breakpointMap.values.toList()))
     }
 
     fun clear() {

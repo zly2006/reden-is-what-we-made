@@ -29,7 +29,8 @@ interface BreakPointType {
     fun kSerializer(): KSerializer<out BreakPoint>
 }
 
-interface BreakPoint {
+@Serializable
+sealed interface BreakPoint {
     val id: Int
     @Transient // Note
     val type: BreakPointType
