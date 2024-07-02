@@ -26,7 +26,7 @@ public class ChatHudMixin {
     }
 
     @ModifyArg(
-            method = "addMessage(Lnet/minecraft/client/gui/hud/ChatHudLine;)V",
+            method = "addVisibleMessage",
         at = @At(value = "INVOKE", target = "Ljava/util/List;add(ILjava/lang/Object;)V", ordinal = 0),
         index = 1
     )
