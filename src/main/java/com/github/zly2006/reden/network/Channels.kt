@@ -4,7 +4,7 @@ import com.github.zly2006.reden.Reden
 
 val RVC_DATA_SYNC = Reden.identifier("rvc_data_sync")
 fun registerChannels() {
-    HelloS2CPacket.register()
+    registerHello()
     TagBlockPos.register()
     Undo.register()
     UpdateBreakpointPacket.register()
@@ -17,5 +17,5 @@ fun registerChannels() {
     WorldStatus.register()
     HopperCDSync.register()
     StageTreeS2CPacket.register()
-    SyncBreakpointsPacketS2CPacket.register()
+    registerSyncBreakpointsS2C()
 }

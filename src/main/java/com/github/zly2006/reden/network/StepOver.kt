@@ -24,6 +24,7 @@ class StepOver(
     companion object : PacketCodecHelper<StepOver> by PacketCodec(Reden.identifier("step_over")) {
         fun register() {
             PayloadTypeRegistry.playC2S().register(ID, CODEC)
+            PayloadTypeRegistry.playS2C().register(ID, CODEC)
             ServerPlayNetworking.registerGlobalReceiver(ID) { packet, context ->
                 checkFrozen(context.player()) {
                     try {
@@ -41,7 +42,6 @@ class StepOver(
                 }
             }
             if (isClient) {
-                PayloadTypeRegistry.playS2C().register(ID, CODEC)
                 ClientPlayNetworking.registerGlobalReceiver(ID) { packet, _ ->
 
                 }

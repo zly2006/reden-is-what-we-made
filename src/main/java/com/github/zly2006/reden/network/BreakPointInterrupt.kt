@@ -21,8 +21,8 @@ data class BreakPointInterrupt(
 
     companion object : PacketCodecHelper<BreakPointInterrupt> by PacketCodec(Reden.identifier("breakpoint_interrupt")) {
         fun register() {
+            PayloadTypeRegistry.playS2C().register(ID, CODEC)
             if (isClient) {
-                PayloadTypeRegistry.playS2C().register(ID, CODEC)
                 ClientPlayNetworking.registerGlobalReceiver(ID) { packet, _ ->
                     val data = MinecraftClient.getInstance().serverData!!
                     val breakpoint = data.breakpoints.breakpointMap[packet.bpId]

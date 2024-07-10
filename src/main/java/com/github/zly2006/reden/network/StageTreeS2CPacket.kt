@@ -20,8 +20,8 @@ class StageTreeS2CPacket(
 ) : CustomPayload {
     companion object : PacketCodecHelper<StageTreeS2CPacket> by PacketCodec(Reden.identifier("stage_tree_s2c")) {
         fun register() {
+            PayloadTypeRegistry.playS2C().register(ID, CODEC)
             if (isClient) {
-                PayloadTypeRegistry.playS2C().register(ID, CODEC)
                 ClientPlayNetworking.registerGlobalReceiver(ID) { packet, context ->
                     val mc = MinecraftClient.getInstance()
                     context.player().sendMessage("Tick stage tree")

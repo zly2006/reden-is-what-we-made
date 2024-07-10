@@ -34,8 +34,8 @@ class TntSyncPacket(
             ServerTickEvents.END_SERVER_TICK.register {
                 syncedTntPos.clear()
             }
+            PayloadTypeRegistry.playS2C().register(ID, CODEC)
             if (isClient) {
-                PayloadTypeRegistry.playS2C().register(ID, CODEC)
                 ClientPlayNetworking.registerGlobalReceiver(ID) { packet, _ ->
                     pearlTask?.onTntSyncPacket(packet)
                     debugLogger("TntSyncPacket: TNT${packet.tntPower} @ ${packet.tntPos}")

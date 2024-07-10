@@ -22,8 +22,8 @@ abstract class StatusSyncPacket(
 
 object WorldStatus : PacketCodecHelper<StatusSyncPacket> by PacketCodec(Reden.identifier("world_status")) {
     fun register() {
+        PayloadTypeRegistry.playS2C().register(ID, CODEC)
         if (isClient) {
-            PayloadTypeRegistry.playS2C().register(ID, CODEC)
             ClientPlayNetworking.registerGlobalReceiver(ID) { packet, context ->
                 // todo: client side world data
                 MinecraftClient.getInstance().world?.data?.status = packet.status
@@ -40,8 +40,8 @@ object WorldStatus : PacketCodecHelper<StatusSyncPacket> by PacketCodec(Reden.id
 
 object GlobalStatus : PacketCodecHelper<StatusSyncPacket> by PacketCodec(Reden.identifier("global_status")) {
     fun register() {
+        PayloadTypeRegistry.playS2C().register(ID, CODEC)
         if (isClient) {
-            PayloadTypeRegistry.playS2C().register(ID, CODEC)
             ClientPlayNetworking.registerGlobalReceiver(ID) { packet, context ->
                 // todo: client side world data
                 MinecraftClient.getInstance().serverData?.status = packet.status
