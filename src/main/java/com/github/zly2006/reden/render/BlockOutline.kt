@@ -23,9 +23,10 @@ object BlockOutline {
         }
         val renderManager = mc.blockRenderManager
         val random = Random.create()
-        synchronized(blocks) {
-            blocks.toList()
-        }.forEach { (pos, state) ->
+        val matrixStack = MatrixStack()
+        matrixStack.translate((-camera.pos.x).toFloat(), (-camera.pos.y).toFloat(), (-camera.pos.z).toFloat())
+
+        blocks.toList().forEach { (pos, state) ->
             if (state.fluidState != null) {
                 renderManager.renderFluid(
                     pos,
@@ -36,9 +37,7 @@ object BlockOutline {
                 )
             }
 
-            val matrixStack = MatrixStack()
-            matrixStack.multiplyPositionMatrix(matrices)
-            matrixStack.translate((-camera.pos.x).toFloat(), (-camera.pos.y).toFloat(), (-camera.pos.z).toFloat())
+            matrixStack.push()
             matrixStack.translate(pos.x.toFloat(), pos.y.toFloat(), pos.z.toFloat())
             when (state.renderType) {
                 BlockRenderType.MODEL                -> renderManager.renderBlock(
@@ -61,6 +60,7 @@ object BlockOutline {
 
                 else                                 -> {}
             }
+            matrixStack.pop()
         }
     }
 

@@ -3,14 +3,12 @@ package com.github.zly2006.reden.network
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
 import com.github.zly2006.reden.debugger.gui.DebuggerScreen
-import com.github.zly2006.reden.debugger.tree.StageIo
 import com.github.zly2006.reden.debugger.tree.TickStageTree
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.red
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.minecraft.client.MinecraftClient
-import net.minecraft.network.PacketByteBuf
 import net.minecraft.network.packet.CustomPayload
 import net.minecraft.text.Text
 

@@ -73,7 +73,7 @@ val BREAKPOINT_RENDERER = RCBooleanHotkey("breakpointRenderer", false, "B", Keyb
 @JvmField val CHAT_RIGHT_CLICK_MENU = RedenConfigBoolean("chatRightClickMenu", true).sr()
 @JvmField val STRUCTURE_BLOCK_LOAD = RedenConfigHotkey("structureBlockLoad", "").sr().hotkey()
 @JvmField val STRUCTURE_BLOCK_SAVE = RedenConfigHotkey("structureBlockSave", "").sr().hotkey()
-@JvmField val WORMHOLE_SELECT = RedenConfigHotkey("wormholeSelect", "LEFT_ALT", KeybindSettings.INGAME_BOTH).sr().hotkey()
+@JvmField val WORMHOLE_SELECT = RedenConfigHotkey("wormholeSelect", "", KeybindSettings.INGAME_BOTH).sr().hotkey()
 @JvmField val RUN_COMMAND = RedenConfigCommandHotkeyList("runCommand").sr()
 // Debug
 @JvmField val DEBUG_LOGGER = RedenConfigBoolean("debugLogger") {

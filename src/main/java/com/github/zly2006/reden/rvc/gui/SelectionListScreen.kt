@@ -114,13 +114,15 @@ class SelectionListScreen : ImguiScreen() {
                             }
                             ImGui.endMenu()
                         }
-                        if (ImGui.menuItem("Redraw Structure Highlight")) {
-                            requireNotNull(selectedStructure?.networkWorker).launch {
-                                selectedStructure!!.regions.values.forEach {
-                                    it.dirty = false
-                                    selectedStructure!!.networkWorker!!.refreshPositions(it)
+                        if (selectedRepository != null) {
+                            if (ImGui.menuItem("Redraw Structure Highlight")) {
+                                requireNotNull(selectedStructure?.networkWorker).launch {
+                                    selectedStructure!!.regions.values.forEach {
+                                        it.dirty = false
+                                        selectedStructure!!.networkWorker!!.refreshPositions(it)
+                                    }
+                                    selectedStructure!!.refreshPositionsAsync()?.join()
                                 }
-                                selectedStructure!!.refreshPositionsAsync()?.join()
                             }
                         }
                         ImGui.endMenu()

@@ -11,6 +11,7 @@ import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.modified
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.server
 import com.github.zly2006.reden.utils.setBlockNoPP
+import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.block.entity.BlockEntity
@@ -22,6 +23,7 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.tick.ChunkTickScheduler
 
+@Serializable
 class Undo(
     val status: Int = 0
 ) : CustomPayload {
