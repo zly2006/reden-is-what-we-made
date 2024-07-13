@@ -140,7 +140,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         else false
     }
     DEBUG_PREVIEW_UNDO.callback {
-        if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE) {
+        if (mc.interactionManager?.currentGameMode == GameMode.CREATIVE && mc.server != null) {
             BlockBorder.tags = mutableMapOf()
             val view = mc.server!!.playerManager.playerList[0].data()
             view.undo.lastOrNull()?.data?.keys?.forEach {

@@ -28,7 +28,7 @@
   "reden.config.debugPacketLogger": "debug：启用网络包记录器",
   "reden.config.debugPacketLogger.comment": "",
   "reden.config.debugPreviewUndo": "debug：预览撤销",
-  "reden.config.debugPreviewUndo.comment": "预览撤销",
+  "reden.config.debugPreviewUndo.comment": "预览撤销, 只在单人有效",
   "reden.config.debugTagBlockPos": "debug：标记方块位置",
   "reden.config.debugTagBlockPos.comment": "标记方块位置",
   "reden.config.doAssertionChecks": "执行断言检查",

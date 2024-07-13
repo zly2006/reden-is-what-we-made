@@ -38,7 +38,7 @@
   "reden.config.debugPacketLogger": "debugPacketLogger",
   "reden.config.debugPacketLogger.comment": "",
   "reden.config.debugPreviewUndo": "debugPreviewUndo",
-  "reden.config.debugPreviewUndo.comment": "Preview undo",
+  "reden.config.debugPreviewUndo.comment": "Preview undo, only work in single player mode",
   "reden.config.debugTagBlockPos": "debugTagBlockPos",
   "reden.config.debugTagBlockPos.comment": "Tag block position",
   "reden.config.doAssertionChecks": "doAssertionChecks",

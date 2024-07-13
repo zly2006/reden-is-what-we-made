@@ -1,6 +1,8 @@
 package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.debugger.breakpoint.BlockPosSerializer
+import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.block.entity.HopperBlockEntity
@@ -8,7 +10,9 @@ import net.minecraft.network.packet.CustomPayload
 import net.minecraft.screen.HopperScreenHandler
 import net.minecraft.util.math.BlockPos
 
+@Serializable
 class HopperCDSync(
+    @Serializable(BlockPosSerializer::class)
     val pos: BlockPos,
     val cd: Int
 ) : CustomPayload {
