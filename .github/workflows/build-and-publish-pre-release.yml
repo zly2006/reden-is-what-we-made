@@ -89,7 +89,7 @@ jobs:
           tag: "beta/${{ steps.get_mod_version.outputs.mod_version }}"
 
       - name: Publish to Modrinth & CurseForge
-        if: ${{ env.PUBLISH_BETA == 'true' && matrix.java == 17 }} # Only publish the version built with Java LTS
+        if: ${{ env.PUBLISH_BETA == 'true' && matrix.java == 21 }} # Only publish the version built with Java LTS
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           # Publish to Modrinth
