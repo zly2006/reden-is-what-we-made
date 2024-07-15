@@ -2,8 +2,8 @@ package com.github.zly2006.reden.rvc.tracking
 
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
 import com.github.zly2006.reden.access.WorldData.Companion.data
-import com.github.zly2006.reden.debugger.breakpoint.BlockPosSerializer
-import com.github.zly2006.reden.debugger.breakpoint.IdentifierSerializer
+import com.github.zly2006.reden.utils.codec.BlockPosSerializer
+import com.github.zly2006.reden.utils.codec.IdentifierSerializer
 import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
 import kotlinx.serialization.Serializable

@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
-import com.github.zly2006.reden.debugger.breakpoint.BlockPosSerializer
+import com.github.zly2006.reden.utils.codec.BlockPosSerializer
 import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking

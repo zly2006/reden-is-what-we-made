@@ -1,17 +1,12 @@
 package com.github.zly2006.reden.debugger.breakpoint
 
 import com.github.zly2006.reden.debugger.breakpoint.behavior.BreakPointBehavior
+import com.github.zly2006.reden.utils.codec.IdentifierSerializer
 import com.github.zly2006.reden.utils.server
 import io.wispforest.owo.ui.container.FlowLayout
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.listSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.world.ServerWorld
@@ -62,23 +57,5 @@ sealed interface BreakPoint {
     fun call(event: Any) {
         handler.sortBy { it.priority }
         handler.forEach { it.type.onBreakPoint(this, event) }
-    }
-}
-
-object IdentifierSerializer: KSerializer<Identifier> {
-    override val descriptor = String.serializer().descriptor
-    override fun deserialize(decoder: Decoder) = Identifier.of(decoder.decodeString())
-    override fun serialize(encoder: Encoder, value: Identifier) { encoder.encodeString(value.toString()) }
-}
-
-object BlockPosSerializer: KSerializer<BlockPos> {
-    @OptIn(ExperimentalSerializationApi::class)
-    override val descriptor = listSerialDescriptor<Int>()
-    override fun deserialize(decoder: Decoder): BlockPos {
-        val list = decoder.decodeSerializableValue(ListSerializer(Int.serializer()))
-        return BlockPos(list[0], list[1], list[2])
-    }
-    override fun serialize(encoder: Encoder, value: BlockPos) {
-        encoder.encodeSerializableValue(ListSerializer(Int.serializer()), listOf(value.x, value.y, value.z))
     }
 }

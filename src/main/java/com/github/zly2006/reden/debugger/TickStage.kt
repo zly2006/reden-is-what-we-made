@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.debugger
 
-import com.github.zly2006.reden.debugger.breakpoint.BlockPosSerializer
+import com.github.zly2006.reden.utils.codec.BlockPosSerializer
 import com.github.zly2006.reden.utils.codec.TextSerializer
 import com.github.zly2006.reden.utils.readBlockState
 import com.github.zly2006.reden.utils.writeBlockState

@@ -2,6 +2,8 @@ package com.github.zly2006.reden.debugger.breakpoint
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
+import com.github.zly2006.reden.utils.codec.BlockPosSerializer
+import com.github.zly2006.reden.utils.codec.IdentifierSerializer
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import net.minecraft.block.BlockState

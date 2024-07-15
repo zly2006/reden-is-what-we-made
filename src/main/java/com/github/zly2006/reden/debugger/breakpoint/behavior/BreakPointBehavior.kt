@@ -2,7 +2,7 @@ package com.github.zly2006.reden.debugger.breakpoint.behavior
 
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
-import com.github.zly2006.reden.debugger.breakpoint.IdentifierSerializer
+import com.github.zly2006.reden.utils.codec.IdentifierSerializer
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.SerialDescriptor

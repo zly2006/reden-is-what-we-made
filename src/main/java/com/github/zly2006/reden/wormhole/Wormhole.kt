@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.wormhole
 
-import com.github.zly2006.reden.debugger.breakpoint.BlockPosSerializer
+import com.github.zly2006.reden.utils.codec.BlockPosSerializer
 import com.github.zly2006.reden.utils.codec.Vec3dSerializer
 import kotlinx.serialization.Serializable
 import net.minecraft.util.math.BlockPos

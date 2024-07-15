@@ -7,6 +7,8 @@ import com.github.zly2006.reden.debugger.stages.block.NeighborChanged
 import com.github.zly2006.reden.debugger.stages.block.StageBlockComparatorUpdate
 import com.github.zly2006.reden.debugger.stages.block.StageBlockPPUpdate
 import com.github.zly2006.reden.network.UpdateBreakpointPacket.Companion.ENABLED
+import com.github.zly2006.reden.utils.codec.BlockPosSerializer
+import com.github.zly2006.reden.utils.codec.IdentifierSerializer
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
