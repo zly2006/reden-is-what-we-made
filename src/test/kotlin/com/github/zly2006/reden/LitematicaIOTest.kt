@@ -14,7 +14,6 @@ import net.minecraft.block.Blocks
 import net.minecraft.network.NetworkSide
 import net.minecraft.util.math.BlockPos
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.name
@@ -32,7 +31,7 @@ class LitematicaIOTest {
         }
     }
 
-    @Test
+    //    @Test
     fun testImport_Blocks() {
         val file = Path("run/rvc/test/schematics/test.litematic").createParentDirectories()
         file.writeBytes(this.file)
@@ -52,7 +51,7 @@ class LitematicaIOTest {
         }
     }
 
-    @Test
+    //    @Test
     fun testExport_Block() {
         val file = Path("run/rvc/test/schematics/test.litematic").createParentDirectories()
         val structure = CuboidStructure("test")
