@@ -7,6 +7,8 @@ import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.stages.TickStageWorldProvider
 import com.github.zly2006.reden.debugger.tickPackets
 import com.github.zly2006.reden.utils.server
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import net.minecraft.block.BlockState
 import net.minecraft.server.world.BlockEvent
 import net.minecraft.server.world.ServerWorld
@@ -14,6 +16,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.tick.OrderedTick
 import org.slf4j.LoggerFactory
 
+@Serializable
 class TickStageTree(
     val activeStages: MutableList<TickStage> = mutableListOf()
 ) {
@@ -28,11 +31,18 @@ class TickStageTree(
     private val history = mutableListOf<TickStage>()
     // only used for debugging, DO NOT use it in production!! it is very very slow
     private val stacktrace = false
+
+    @Transient
     private val stacktraces: MutableList<Array<StackTraceElement>?> = mutableListOf()
 
+    @Transient
     private var stepOverUntil: TickStage? = null
+
+    @Transient
     private var stepOverCallback: (() -> Unit)? = null
     private var steppingInto = false
+
+    @Transient
     private var stepIntoCallback: (() -> Unit)? = null
 
     fun clear() {

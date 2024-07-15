@@ -49,7 +49,7 @@ fun registerHello() {
             Reden.LOGGER.info("Hello from server: ${packet.versionString}")
             Reden.LOGGER.info("Feature set: " + packet.featureSet.joinToString())
             (MinecraftClient.getInstance() as ServerData.ClientSideServerDataAccess).serverData =
-                ServerData(Version.parse(packet.versionString), null).apply {
+                ServerData(Version.parse(packet.versionString)).apply {
                     featureSet.addAll(packet.featureSet)
                 }
         }

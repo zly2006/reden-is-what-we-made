@@ -2,6 +2,8 @@ package com.github.zly2006.reden.utils.codec
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ByteArraySerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import net.minecraft.nbt.NbtCompound
@@ -13,7 +15,7 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 
 object NbtSerializer : KSerializer<NbtCompound> {
-    override val descriptor = ByteArraySerializer().descriptor
+    override val descriptor = PrimitiveSerialDescriptor("minecraft.NbtCompound", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): NbtCompound = NbtIo.read(
         DataInputStream(ByteArrayInputStream(decoder.decodeSerializableValue(ByteArraySerializer()))),

@@ -1,8 +1,13 @@
 package com.github.zly2006.reden.debugger
 
+import com.github.zly2006.reden.debugger.breakpoint.BlockPosSerializer
+import com.github.zly2006.reden.utils.codec.TextSerializer
 import com.github.zly2006.reden.utils.readBlockState
 import com.github.zly2006.reden.utils.writeBlockState
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import net.minecraft.block.BlockState
+import net.minecraft.block.Blocks
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.text.MutableText
@@ -17,10 +22,13 @@ import okhttp3.internal.toHexString
  * It may have children stages, which means these stages are callee
  * and the parent stage is caller in jvm stack.
  */
+@Serializable
 abstract class TickStage(
     val name: String,
     val parent: TickStage?,
+    @Serializable(with = TextSerializer::class)
     open val displayName: MutableText,
+    @Serializable(with = TextSerializer::class)
     open val description: MutableText = Text.empty()
 ) {
     constructor(name: String, parent: TickStage?): this(
@@ -63,8 +71,20 @@ abstract class TickStage(
         Finished
     }
     var status = StageStatus.Initialized
-    data class BlockChange(val before: BlockState, val after: BlockState)
-    val changedBlocks = mutableMapOf<BlockPos, BlockChange>()
+
+    @Serializable
+    data class BlockChange(
+        @Transient
+        val before: BlockState = Blocks.AIR.defaultState,
+        @Transient
+        val after: BlockState = Blocks.AIR.defaultState
+    )
+
+    val changedBlocks = mutableMapOf<
+            @Serializable(BlockPosSerializer::class)
+            BlockPos,
+            BlockChange
+            >()
     var hasScheduledTicks = false
     var hasBlockEvents = false
 
