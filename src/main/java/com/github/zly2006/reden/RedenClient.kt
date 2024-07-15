@@ -17,6 +17,7 @@ import com.github.zly2006.reden.update.relaunch
 import com.github.zly2006.reden.utils.checkMalilib
 import com.github.zly2006.reden.utils.isDebug
 import com.github.zly2006.reden.utils.startDebugAppender
+import com.github.zly2006.reden.yo.registerGreenstone
 import com.google.gson.JsonObject
 import com.redenmc.bragadier.ktdsl.register
 import com.redenmc.bragadier.ktdsl.then
@@ -67,6 +68,7 @@ class RedenClient : ClientModInitializer {
         checkMalilib()
         registerPearls()
         registerHud()
+        registerGreenstone()
         InitializationHandler.getInstance().registerInitializationHandler {
             RenderEventHandler.getInstance().registerGameOverlayRenderer(RvcHudRenderer)
             ConfigManager.getInstance().registerConfigHandler("reden", object : IConfigHandler {
