@@ -8,6 +8,7 @@ import com.github.zly2006.reden.access.ServerData.Companion.serverData
 import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
 import com.github.zly2006.reden.debugger.gui.BreakpointInfoScreen
 import com.github.zly2006.reden.debugger.gui.BreakpointListComponent
+import com.github.zly2006.reden.debugger.gui.DebuggerTimelineScreen
 import com.github.zly2006.reden.gui.CreditScreen
 import com.github.zly2006.reden.gui.message.ClientMessageQueue
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
@@ -429,6 +430,10 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
             return@callback false
         }
         mc.setScreen(RvcCommitScreen(selectedRepository!!, selectedStructure!!))
+        true
+    }
+    DEBUG_OPEN_TIMELINE_GUI.callback {
+        mc.setScreen(DebuggerTimelineScreen())
         true
     }
 }

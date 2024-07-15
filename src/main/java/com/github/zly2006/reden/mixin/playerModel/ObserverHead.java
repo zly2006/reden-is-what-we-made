@@ -50,7 +50,7 @@ public abstract class ObserverHead<T extends LivingEntity, M extends EntityModel
             at = @At("HEAD")
     )
     private void renderHead(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, T livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
-        if (livingEntity instanceof ClientPlayerEntity player) {
+        if (livingEntity instanceof ClientPlayerEntity player && player.getNameForScoreboard().equals("Steve47876")) {
             matrixStack.push();
             matrixStack.scale(this.scaleX, this.scaleY, this.scaleZ);
             this.getContextModel().getHead().rotate(matrixStack);

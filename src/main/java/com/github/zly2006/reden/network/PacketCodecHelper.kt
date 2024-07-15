@@ -12,6 +12,7 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.network.codec.PacketCodec
 import net.minecraft.network.packet.CustomPayload
 import net.minecraft.util.Identifier
+import kotlin.reflect.typeOf
 
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("PropertyName", "MemberVisibilityCanBePrivate")
@@ -40,13 +41,15 @@ interface PacketCodecHelper<T : CustomPayload> {
 
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("FunctionName")
-inline fun <reified T : CustomPayload> PacketCodec(id: Identifier) =
-    object : PacketCodecHelper<T> {
+inline fun <reified T : CustomPayload> PacketCodec(id: Identifier): PacketCodecHelper<T> {
+    val type = typeOf<T>()
+    return object : PacketCodecHelper<T> {
         override val ID = CustomPayload.Id<T>(id)
         override val CODEC = PacketCodec.ofStatic<PacketByteBuf, T>({ buf, obj ->
-            buf.writeByteArray(PacketCodecHelper.cbor.encodeToByteArray(serializer<T>(), obj))
+            buf.writeByteArray(PacketCodecHelper.cbor.encodeToByteArray(serializer(type), obj))
         }, { buf ->
             val bytes = buf.readByteArray()
-            PacketCodecHelper.cbor.decodeFromByteArray(serializer<T>(), bytes) as T
+            PacketCodecHelper.cbor.decodeFromByteArray(serializer(type), bytes) as T
         })
     }
+}

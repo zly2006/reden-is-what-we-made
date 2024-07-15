@@ -98,6 +98,7 @@ val BREAKPOINT_RENDERER = RCBooleanHotkey("breakpointRenderer", false, "B", Keyb
 @JvmField val DEBUG_DISPLAY_RVC_WORLD_INFO = RedenConfigHotkey("debugDisplayRvcWorldInfo").debug().hotkey()
 @JvmField val DEBUG_NEW_NOTIFICATION = RedenConfigHotkey("debugNewNotification", "").debug().hotkey()
 @JvmField val DEBUG_LITEMATICA_SCHEMATIC_RERENDER = RedenConfigHotkey("debugLitematicaSchematicRerender").debug().hotkey()
+@JvmField val DEBUG_OPEN_TIMELINE_GUI = RedenConfigHotkey("debugOpenTimelineGui").debug().hotkey()
 
 // Hidden
 object HiddenOption {

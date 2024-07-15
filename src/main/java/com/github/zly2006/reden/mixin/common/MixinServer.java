@@ -5,8 +5,13 @@ import com.github.zly2006.reden.access.ServerData;
 import com.github.zly2006.reden.debugger.stages.ServerRootStage;
 import com.github.zly2006.reden.network.GlobalStatus;
 import com.github.zly2006.reden.transformers.RedenMixinExtension;
+import com.mojang.datafixers.DataFixer;
+import net.minecraft.resource.ResourcePackManager;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.SaveLoader;
 import net.minecraft.server.ServerTask;
+import net.minecraft.server.WorldGenerationProgressListenerFactory;
+import net.minecraft.util.ApiServices;
 import net.minecraft.util.thread.ReentrantThreadExecutor;
 import net.minecraft.world.level.storage.LevelStorage;
 import org.jetbrains.annotations.NotNull;
@@ -20,12 +25,26 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.net.Proxy;
+
 @Mixin(MinecraftServer.class)
 public abstract class MixinServer extends ReentrantThreadExecutor<ServerTask> implements ServerData.ServerDataAccess {
-    @Unique private static final String REDEN_BREAKPOINTS_JSON = "reden_breakpoints.json";
-    @Shadow @Nullable private String serverId;
-    @Shadow @Final protected LevelStorage.Session session;
-    @Unique ServerData serverData = new ServerData(Reden.MOD_VERSION, (MinecraftServer) (Object) this);
+    @Unique
+    private static final String REDEN_BREAKPOINTS_JSON = "reden_breakpoints.json";
+    @Shadow
+    @Nullable
+    private String serverId;
+    @Shadow
+    @Final
+    protected LevelStorage.Session session;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void onInit(Thread serverThread, LevelStorage.Session session, ResourcePackManager dataPackManager, SaveLoader saveLoader, Proxy proxy, DataFixer dataFixer, ApiServices apiServices, WorldGenerationProgressListenerFactory worldGenerationProgressListenerFactory, CallbackInfo ci) {
+        serverData = new ServerData(Reden.MOD_VERSION, (MinecraftServer) (Object) this);
+    }
+
+    @Unique
+    ServerData serverData;
 
     public MixinServer() {
         super("What?");
