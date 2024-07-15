@@ -10,7 +10,6 @@ import java.util.*
 fun registerGreenstone() {
     val packs = listOf(
         Reden.identifier("greenstone"),
-        Reden.identifier("communist_redstone")
     )
     packs.forEach {
         if (!ResourceManagerHelper.registerBuiltinResourcePack(
@@ -25,10 +24,5 @@ fun registerGreenstone() {
         && Calendar.getInstance()[Calendar.DAY_OF_MONTH] == 1
     ) {
         MinecraftClient.getInstance().resourcePackManager.enable("reden:greenstone")
-    }
-    if (Calendar.getInstance()[Calendar.MONTH] == Calendar.MARCH
-        && Calendar.getInstance()[Calendar.DAY_OF_MONTH] == 28
-    ) {
-        MinecraftClient.getInstance().resourcePackManager.enable("reden:communist_redstone")
     }
 }
