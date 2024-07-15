@@ -9,7 +9,7 @@ on:
         type: boolean
   push:
     branches:
-      - 1.20.4
+      - "1.21"
 
 jobs:
   build-and-publish-pre-release:
