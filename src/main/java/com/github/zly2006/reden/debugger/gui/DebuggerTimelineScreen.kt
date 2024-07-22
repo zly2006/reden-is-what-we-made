@@ -15,6 +15,39 @@ class DebuggerTimelineScreen : Screen(Text.literal("reden")) {
     val timelineHeight = 30
     var quickMenu: QuickMenuWidget? = null
 
+    class ColumnReference(
+        val width: Int,
+        val serverTicks: Int,
+        val thisIndex: Int,
+        val parent: ColumnReference? = null,
+        var displayed: Boolean = true
+    ) : Comparable<ColumnReference> {
+        override fun compareTo(other: ColumnReference): Int {
+            if (!displayed && !other.displayed) {
+                return 0
+            }
+            if (!displayed) {
+                return 1
+            }
+            if (!other.displayed) {
+                return -1
+            }
+            if (serverTicks > other.serverTicks) {
+                return 1
+            }
+            if (serverTicks < other.serverTicks) {
+                return -1
+            }
+            if (thisIndex > other.serverTicks) {
+                return 1
+            }
+            if (thisIndex < other.serverTicks) {
+                return -1
+            }
+            return 0
+        }
+    }
+
     inner class Row(
         val label: Text,
         var height: Int = 10

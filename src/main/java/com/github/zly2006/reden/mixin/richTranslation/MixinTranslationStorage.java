@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.resource.language.TranslationStorage;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -49,7 +50,7 @@ public class MixinTranslationStorage implements com.github.zly2006.reden.access.
             try {
                 var jo = gson.fromJson(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8), JsonObject.class);
                 jo.entrySet().stream().filter(it -> it.getValue() instanceof JsonArray).forEach(it -> {
-                    MutableText text = Text.Serialization.fromJsonTree(it.getValue(), null);
+                    MutableText text = Text.Serialization.fromJsonTree(it.getValue(), DynamicRegistryManager.EMPTY);
                     tempTextMap.put(it.getKey(), text);
                 });
             } catch (IOException e) {
