@@ -45,9 +45,7 @@ private fun <T : ConfigBase<*>> T.debug() = apply { (DEBUG_TAB.add(this)) }
 @JvmField val SOLID_FACE_RENDERER = RedenConfigBoolean("solidFaceRenderer").generic()
 @JvmField val ENABLE_CLIENT_GLOW = RCBooleanHotkey("enableClientGlow", true, "LEFT_CONTROL,G").hotkey().generic()
 @JvmField val SOLID_FACE_SHAPE_PREDICATE = RedenConfigOptionList("solidFaceShapePredicate", ShapePredicateOptionEntry.FULL).generic()
-@JvmField val FANCY_BLOCK_OUTLINE = RedenConfigBoolean("fancyBlockOutline", true).generic()
-@JvmField val EASTER_EGG_RATE = RedenConfigInteger("easterEggRate", 3, 0, 100).generic()
-@JvmField val SCROLL_AMOUNT = RedenConfigFloat("scrollAmount", 1.5f, 0f, 5f).generic()
+@JvmField val EASTER_EGG_RATE = RedenConfigInteger("easterEggRate", 0, 0, 100).generic()
 // Micro Tick
 @JvmField
 val BREAKPOINT_RENDERER = RCBooleanHotkey("breakpointRenderer", false, "B", KeybindSettings.INGAME_BOTH).hotkey().mt()

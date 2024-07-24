@@ -32,8 +32,9 @@ public class MixinTranslationStorage implements com.github.zly2006.reden.access.
     @Unique
     private static final Map<String, Text> tempTextMap = new HashMap<>();
 
+    @NotNull
     @Override
-    public @NotNull Map<String, Text> getTextMap$reden() {
+    public Map<String, Text> getTextMap$reden() {
         return textMap;
     }
 
