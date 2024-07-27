@@ -3,6 +3,7 @@ package com.github.zly2006.reden.mixin.superRight.chat;
 import com.github.zly2006.reden.access.VisibleChatHudLineAccess;
 import com.github.zly2006.reden.gui.QuickMenuWidget;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -21,6 +22,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.UUID;
@@ -32,7 +34,8 @@ import static com.github.zly2006.reden.malilib.MalilibSettingsKt.CHAT_RIGHT_CLIC
 @Mixin(ChatScreen.class)
 public abstract class ChatScreenMixin extends Screen {
     private static final Pattern urlPattern = Pattern.compile("(https?://)?[a-zA-Z0-9\\-.]+\\.[a-zA-Z]{2,8}(/\\S*)?");
-    @Unique QuickMenuWidget quickMenuWidget;
+    @Unique
+    QuickMenuWidget quickMenuWidget = null;
 
     protected ChatScreenMixin(Text title) {
         super(title);
@@ -77,7 +80,12 @@ public abstract class ChatScreenMixin extends Screen {
         if (quickMenuWidget != null) {
             quickMenuWidget.remove();
         }
-        quickMenuWidget = new QuickMenuWidget(this, mouseX + 1, mouseY + 1);
+        quickMenuWidget = new QuickMenuWidget(this, mouseX + 1, mouseY + 1) {
+            @Override
+            public void remove() {
+                quickMenuWidget = null;
+            }
+        };
 //        quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.about"), (e, b) ->
 //                client.setScreen(new SuperRightIntro()));
         String message = text.getString();
@@ -152,7 +160,6 @@ public abstract class ChatScreenMixin extends Screen {
                 }
             }
         }
-        addDrawable(quickMenuWidget);
     }
 
     private ChatHudLine.Visible ct$geMessageAt(double x, double y) {
@@ -176,6 +183,13 @@ public abstract class ChatScreenMixin extends Screen {
                 MinecraftClient.getInstance().inGameHud.getChatHud().scroll(-1);
                 cir.setReturnValue(true);
             }
+        }
+    }
+
+    @Inject(method = "render", at = @At("TAIL"))
+    private void render(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        if (quickMenuWidget != null) {
+            quickMenuWidget.render(context, mouseX, mouseY, delta);
         }
     }
 

@@ -7,12 +7,13 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class QuickMenuWidget implements Selectable, Drawable, Element {
+public abstract class QuickMenuWidget implements Selectable, Drawable, Element {
     private final Screen parent;
     private final List<MenuEntry> entries = new ArrayList<>();
     private final MinecraftClient client = MinecraftClient.getInstance();
@@ -63,6 +64,9 @@ public class QuickMenuWidget implements Selectable, Drawable, Element {
     public void addEntry(Text name, ClickAction action) {
         entries.add(new MenuEntry(name, action));
     }
+
+    public abstract void remove();
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         if (entries.isEmpty()) {
@@ -80,7 +84,9 @@ public class QuickMenuWidget implements Selectable, Drawable, Element {
         if (y + height > parent.height) {
             y = parent.height - height;
         }
-        context.fillGradient(x, y, x + width, y + height, 0x80000000, 0x80000000);
+        context.getMatrices().push();
+        context.getMatrices().translate(0.0F, 0.0F, 100);
+        context.fillGradient(RenderLayer.getGuiOverlay(), x, y, x + width, y + height, 0x80000000, 0x80000000, 0);
         for (int i = 0; i < entries.size(); i++) {
             MenuEntry entry = entries.get(i);
             int color = 0xFFFFFF;
@@ -89,6 +95,7 @@ public class QuickMenuWidget implements Selectable, Drawable, Element {
             }
             context.drawCenteredTextWithShadow(client.textRenderer, entry.name, x + width / 2, y + i * 14 + 2, color);
         }
+        context.getMatrices().pop();
     }
 
     @Override
@@ -108,10 +115,6 @@ public class QuickMenuWidget implements Selectable, Drawable, Element {
         }
         remove();
         return false;
-    }
-
-    public void remove() {
-        parent.remove(this);
     }
 
     @Override
