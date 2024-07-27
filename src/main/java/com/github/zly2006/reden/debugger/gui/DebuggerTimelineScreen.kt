@@ -130,16 +130,18 @@ class DebuggerTimelineScreen : Screen(Text.literal("reden")) {
         ).apply {
             entries.add(object : Row.Entry(-3.0, -1.0, 0xff7c7cff.toInt(), Text.literal("Right click")) {
                 override fun rightClick(mouseX: Int, mouseY: Int) {
-                    quickMenu = QuickMenuWidget(
-                        this@DebuggerTimelineScreen, mouseX,
-                        mouseY
-                    ).apply {
-                        addEntry(Text.literal("Example")) { e, _ ->
-                            e.name = Text.literal("Done")
-                            e.action = QuickMenuWidget.EMPTY_ACTION
+                    quickMenu = object : QuickMenuWidget(this@DebuggerTimelineScreen, mouseX, mouseY) {
+                        init {
+                            addEntry(Text.literal("Example")) { e, _ ->
+                                e.name = Text.literal("Done")
+                                e.action = EMPTY_ACTION
+                            }
+                        }
+
+                        override fun remove() {
+                            quickMenu = null
                         }
                     }
-                    super.rightClick(mouseX, mouseY)
                 }
             })
         }
