@@ -129,3 +129,4 @@ accessible field net/minecraft/server/world/ServerChunkLoadingManager chunkHolde
 accessible field net/minecraft/server/world/ServerChunkLoadingManager entityTrackers Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;
 accessible class net/minecraft/server/world/ServerChunkLoadingManager$EntityTracker
 accessible field net/minecraft/server/world/ServerChunkLoadingManager$EntityTracker entry Lnet/minecraft/server/network/EntityTrackerEntry;
+accessible method net/minecraft/world/chunk/WorldChunk updateTicker (Lnet/minecraft/block/entity/BlockEntity;)V

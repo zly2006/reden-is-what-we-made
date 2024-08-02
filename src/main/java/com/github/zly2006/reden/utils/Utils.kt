@@ -13,6 +13,7 @@ import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.impl.discovery.ModResolutionException
 import net.minecraft.block.Block
+import net.minecraft.block.BlockEntityProvider
 import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.Screen
@@ -24,6 +25,7 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.ServerTask
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
@@ -32,7 +34,10 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
+import net.minecraft.world.Heightmap
 import net.minecraft.world.World
+import net.minecraft.world.chunk.WorldChunk
+import net.minecraft.world.chunk.light.ChunkLightProvider
 import org.eclipse.jgit.api.AddCommand
 import org.eclipse.jgit.api.CommitCommand
 import org.eclipse.jgit.api.GitCommand
@@ -60,7 +65,61 @@ val ClientPlayerEntity?.holdingToolItem: Boolean
     }
 
 fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.NOTIFY_LISTENERS) {
-    setBlockState(pos, state, flags and Block.NOTIFY_NEIGHBORS.inv() or Block.FORCE_STATE or Block.SKIP_DROPS)
+//    setBlockState(pos, state, flags and Block.NOTIFY_NEIGHBORS.inv() or Block.FORCE_STATE or Block.SKIP_DROPS)
+    profiler.push("reden_setBlockState_noPP")
+    val stateBefore = getBlockState(pos)
+    if (stateBefore.hasBlockEntity()) {
+        removeBlockEntity(pos)
+    }
+    getChunk(pos).run { getSection(getSectionIndex(pos.y)) }
+        .setBlockState(pos.x and 15, pos.y and 15, pos.z and 15, state, false)
+    getWorldChunk(pos).run {
+        this.heightmaps[Heightmap.Type.MOTION_BLOCKING]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
+        this.heightmaps[Heightmap.Type.MOTION_BLOCKING_NO_LEAVES]!!.trackUpdate(
+            pos.x and 15,
+            pos.y,
+            pos.z and 15,
+            state
+        )
+        this.heightmaps[Heightmap.Type.OCEAN_FLOOR]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
+        this.heightmaps[Heightmap.Type.WORLD_SURFACE]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
+        setNeedsSaving(true)
+
+        if (ChunkLightProvider.needsLightUpdate(this, pos, stateBefore, state)) {
+            profiler.push("updateSkyLightSources")
+            chunkSkyLight.isSkyLightAccessible(this, pos.x and 15, pos.y and 15, pos.z and 15)
+            profiler.swap("queueCheckLight")
+            chunkManager.lightingProvider.checkBlock(pos)
+            profiler.pop()
+        }
+
+        if (!state.isOf(stateBefore.block) && stateBefore.hasBlockEntity()) {
+            this.removeBlockEntity(pos)
+        }
+
+        if (state.hasBlockEntity()) {
+            var blockEntity = this.getBlockEntity(pos, WorldChunk.CreationType.CHECK)
+            if (blockEntity == null) {
+                blockEntity = (state.block as BlockEntityProvider).createBlockEntity(pos, state)
+                if (blockEntity != null) {
+                    this.addBlockEntity(blockEntity)
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                blockEntity.cachedState = state
+                this.updateTicker(blockEntity)
+            }
+        }
+    }
+    if (this is ServerWorld) {
+        chunkManager.markForUpdate(pos)
+    }
+    if (flags and Block.NOTIFY_LISTENERS != 0) {
+        updateListeners(pos, stateBefore, state, flags)
+    }
+    // poi
+    this.onBlockChanged(pos, stateBefore, state)
+    profiler.pop()
 }
 
 val isClient: Boolean get() = FabricLoader.getInstance().environmentType == EnvType.CLIENT
