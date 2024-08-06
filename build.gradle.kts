@@ -21,7 +21,7 @@ plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization") version "2.0.0"
 
-    id("fabric-loom") version "1.6-SNAPSHOT"
+    id("fabric-loom") version "1.7-SNAPSHOT"
     `maven-publish`
     id("org.ajoberstar.grgit") version "5.2.2"
     id("com.redenmc.yamlang") version "1.3.1"
