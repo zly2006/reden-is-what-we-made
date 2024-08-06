@@ -345,7 +345,7 @@ dependencies {
     // Embedded dependencies
     include(implementation("com.redenmc:brigadier-kotlin-dsl:1.0-SNAPSHOT")!!)
     include(implementation("com.squareup.okhttp3:okhttp:4.11.0")!!)
-    include(implementation("org.eclipse.jgit:org.eclipse.jgit")!!)
+    include(implementation("org.eclipse.jgit:org.eclipse.jgit:${jgit_version}")!!)
     constraints {
         implementation("org.eclipse.jgit:org.eclipse.jgit:${jgit_version}").run {
             attributes {
