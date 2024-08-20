@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.mixin.greenStone;
 
-import com.github.zly2006.reden.utils.UtilsKt;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.block.RedstoneWireBlock;
 import net.minecraft.client.MinecraftClient;
@@ -22,11 +21,9 @@ public class MixinRedstone {
             cancellable = true
     )
     private static void overwriteColor(int powerLevel, CallbackInfoReturnable<Integer> cir, @Local Vec3d vec3d) {
-        if (UtilsKt.isClient()) {
-            if (MinecraftClient.getInstance().getResourcePackManager().getEnabledIds().contains("reden:greenstone")) {
-                // swap red and green channel
-                cir.setReturnValue(MathHelper.packRgb((float) vec3d.getY(), (float) vec3d.getX(), (float) vec3d.getZ()));
-            }
+        if (MinecraftClient.getInstance().getResourcePackManager().getEnabledIds().contains("reden:greenstone")) {
+            // swap red and green channel
+            cir.setReturnValue(MathHelper.packRgb((float) vec3d.getY(), (float) vec3d.getX(), (float) vec3d.getZ()));
         }
     }
 }
