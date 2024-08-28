@@ -22,7 +22,7 @@ public class MixinRedstone {
     )
     private static void overwriteColor(int powerLevel, CallbackInfoReturnable<Integer> cir, @Local Vec3d vec3d) {
         if (MinecraftClient.getInstance().getResourcePackManager().getEnabledIds().contains("reden:greenstone")) {
-            // swap red and green channel
+            // swap red and green channels
             cir.setReturnValue(MathHelper.packRgb((float) vec3d.getY(), (float) vec3d.getX(), (float) vec3d.getZ()));
         }
     }
