@@ -4,8 +4,6 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.breakpoint.BreakPoint
 import com.github.zly2006.reden.debugger.tree.TickStageTree
-import com.github.zly2006.reden.gui.componments.TextureComponent
-import com.github.zly2006.reden.network.Continue
 import com.github.zly2006.reden.network.StepInto
 import com.github.zly2006.reden.network.StepOver
 import com.github.zly2006.reden.report.onFunctionUsed
@@ -50,31 +48,25 @@ class DebuggerScreen(private val tree: TickStageTree, private val breakpoint: Br
         onFunctionUsed("init_debuggerScreen")
         rootComponent.child(component)
         rootComponent.child(Containers.horizontalFlow(Sizing.fill(100), Sizing.content()).apply {
+//            child(
+//                TextureComponent(
+//                    Reden.identifier("reden-icon.png"), 0, 0, 16, 16,
+//                    160, 160
+//                ).apply {
+//                    blend(true)
+//                    tooltip(Text.literal("Continue"))
+//                    mouseDown().subscribe { _, _, b ->
+//                        if (b == 0) {
+//                            onFunctionUsed("buttonContinue_debuggerScreen")
+//                            client!!.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+//                            ClientPlayNetworking.send(Continue())
+//                            true
+//                        } else false
+//                    }
+//                }
+//            )
             child(
-                TextureComponent(
-                    Reden.identifier("reden-icon.png"), 0, 0, 16, 16,
-                    160, 160
-                ).apply {
-                    blend(true)
-                    tooltip(Text.literal("Continue"))
-                    mouseEnter().subscribe {
-                        this.uv(0, 16)
-                    }
-                    mouseLeave().subscribe {
-                        this.uv(0, 0)
-                    }
-                    mouseDown().subscribe { _, _, b ->
-                        if (b == 0) {
-                            onFunctionUsed("buttonContinue_debuggerScreen")
-                            client!!.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
-                            ClientPlayNetworking.send(Continue())
-                            true
-                        } else false
-                    }
-                }
-            )
-            child(
-                TextureComponent(
+                Components.texture(
                     Reden.identifier("reden-icon.png"), 48, 0, 16, 16,
                     160, 160
                 ).apply {
@@ -91,7 +83,7 @@ class DebuggerScreen(private val tree: TickStageTree, private val breakpoint: Br
                 }
             )
             child(
-                TextureComponent(
+                Components.texture(
                     Reden.identifier("reden-icon.png"), 64, 0, 16, 16,
                     160, 160
                 ).apply {

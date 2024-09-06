@@ -36,7 +36,6 @@
     "itemShadow.MixinAllInventories",
     "itemShadow.MixinItemStack",
     "otherMods.owo.IScrollContainer",
-    "otherMods.owo.ITextureComponent",
     "otherMods.owo.MixinTextureComponent",
     "otherMods.tweeakeroo.hopperDelaySync.MixinX",
     "pearl.MixinExplosion",

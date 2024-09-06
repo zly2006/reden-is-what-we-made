@@ -24,7 +24,6 @@ plugins {
     id("fabric-loom") version "1.7-SNAPSHOT"
     `maven-publish`
     id("org.ajoberstar.grgit") version "5.2.2"
-    id("com.redenmc.yamlang") version "1.3.1"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -165,10 +164,10 @@ group = maven_group
 allprojects {
     repositories {
         mavenCentral()
-        maven {
-            name = "Reden"
-            url = uri("https://maven.starlight.cool/artifactory/reden")
-        }
+//        maven {
+//            name = "Reden"
+//            url = uri("https://maven.starlight.cool/artifactory/reden")
+//        }
         maven {
             name = "Masa Maven"
             url = uri("https://masa.dy.fi/maven")
@@ -344,7 +343,6 @@ dependencies {
     // Game test
     modImplementation("net.fabricmc:fabric-loader-junit:${loader_version}")
     // Embedded dependencies
-    include(implementation("com.redenmc:brigadier-kotlin-dsl:1.0-SNAPSHOT")!!)
     include(implementation("com.squareup.okhttp3:okhttp:4.11.0")!!)
     include(implementation("org.eclipse.jgit:org.eclipse.jgit:${jgit_version}")!!)
     constraints {
@@ -377,11 +375,6 @@ base {
 
 loom {
     accessWidenerPath = file("src/main/resources/reden.accesswidener")
-}
-
-yamlang {
-    targetSourceSets = listOf(sourceSets.main.get())
-    inputDir = "assets/reden/lang"
 }
 
 task("getVersion") {

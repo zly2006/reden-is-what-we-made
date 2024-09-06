@@ -6,9 +6,6 @@ import com.github.zly2006.reden.access.BlockEntityInterface
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.behalf.registerBehalf
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
-import com.github.zly2006.reden.indexing.blockId
-import com.github.zly2006.reden.indexing.entityId
-import com.github.zly2006.reden.indexing.propertyId
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import com.github.zly2006.reden.network.registerChannels
 import com.github.zly2006.reden.rvc.registerRvc
@@ -23,9 +20,6 @@ import com.redenmc.bragadier.ktdsl.then
 import fi.dy.masa.litematica.render.LitematicaRenderer
 import fi.dy.masa.litematica.world.SchematicWorldHandler
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
@@ -192,15 +186,15 @@ class Reden : ModInitializer, CarpetExtension {
         }
         ServerTickEvents.END_SERVER_TICK.register(TaskScheduler)
 
-        GlobalScope.launch(Dispatchers.IO) {
-            LOGGER.info("Loading indexes...")
-            try {
-                entityId
-                blockId
-                propertyId
-            } catch (e: Exception) {
-                LOGGER.error("Loading indexes.", e)
-            }
-        }
+//        GlobalScope.launch(Dispatchers.IO) {
+//            LOGGER.info("Loading indexes...")
+//            try {
+//                entityId
+//                blockId
+//                propertyId
+//            } catch (e: Exception) {
+//                LOGGER.error("Loading indexes.", e)
+//            }
+//        }
     }
 }

@@ -79,12 +79,6 @@ private fun initFonts(io: ImGuiIO) {
         glyphRanges
     ) // cyrillic glyphs
     io.fonts.addFontFromMemoryTTF(
-        ResourceLoader.loadBytes("NotoSansCJKjp-Medium.otf"),
-        16f,
-        fontConfig,
-        glyphRanges
-    ) // japanese glyphs
-    io.fonts.addFontFromMemoryTTF(
         ResourceLoader.loadBytes("fa-regular-400.ttf"),
         14f,
         fontConfig,

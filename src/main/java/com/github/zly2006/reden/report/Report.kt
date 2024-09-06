@@ -223,7 +223,7 @@ fun onFunctionUsed(name: String, active: Boolean = false) {
     }
 }
 
-private val jsonIgnoreUnknown = Json { ignoreUnknownKeys = true }
+val jsonIgnoreUnknown = Json { ignoreUnknownKeys = true }
 
 fun reportServerStart(server: MinecraftServer) {
 

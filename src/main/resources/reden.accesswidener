@@ -130,3 +130,4 @@ accessible field net/minecraft/server/world/ServerChunkLoadingManager entityTrac
 accessible class net/minecraft/server/world/ServerChunkLoadingManager$EntityTracker
 accessible field net/minecraft/server/world/ServerChunkLoadingManager$EntityTracker entry Lnet/minecraft/server/network/EntityTrackerEntry;
 accessible method net/minecraft/world/chunk/WorldChunk updateTicker (Lnet/minecraft/block/entity/BlockEntity;)V
+accessible field com/mojang/blaze3d/systems/RenderSystem shaderTextures [I
