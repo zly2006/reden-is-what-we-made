@@ -124,20 +124,20 @@ class MinenvScreen : BaseOwoScreen<FlowLayout>() {
                                 override fun onFailure(call: Call, e: IOException) {}
 
                                 override fun onResponse(call: Call, response: Response) {
-                                    client!!.execute {
-                                        runCatching {
-                                            WebTextureComponent(
-                                                response.body!!.bytes(),
-                                                0,
-                                                0,
-                                                40,
-                                                40,
-                                            )
-                                        }.onSuccess {
+                                    runCatching {
+                                        WebTextureComponent(
+                                            response.body!!.bytes(),
+                                            0,
+                                            0,
+                                            40,
+                                            40,
+                                        )
+                                    }.onSuccess {
+                                        client!!.execute {
                                             mevItem.display!!.child(0, it)
-                                        }.onFailure {
-                                            Reden.LOGGER.error("Image failed: ${mevItem.images[0]}")
                                         }
+                                    }.onFailure {
+                                        Reden.LOGGER.error("Image failed: ${mevItem.images[0]}")
                                     }
                                 }
                             })
