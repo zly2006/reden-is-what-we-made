@@ -17,6 +17,7 @@ class MevItem(
     val downloads: Long,
     val images: List<String>,
     val published_at: Instant,
+    val thumbnail_url: String?,
     @Transient
     var display: FlowLayout? = null
 )

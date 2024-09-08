@@ -14,42 +14,22 @@ import net.minecraft.client.render.VertexFormats
 import org.joml.Matrix4f
 import kotlin.math.min
 
-open class WebTextureComponent : BaseComponent {
-    private val u: Int
-    private val v: Int
-    private val regionWidth: Int
-    private val regionHeight: Int
+open class WebTextureComponent(
+    private val texture: WebTexture,
+    private val u: Int,
+    private val v: Int,
+    private val regionWidth: Int,
+    private val regionHeight: Int,
+) : BaseComponent() {
+    private val visibleArea =
+        AnimatableProperty.of(PositionedRectangle.of(0, 0, texture.image.width, texture.image.height))!!
 
-    constructor(
-        bytes: ByteArray, u: Int, v: Int, regionWidth: Int, regionHeight: Int = WebTexture(bytes).image!!.run {
-            regionWidth * height / width
-        }
-    ) : super() {
-        this.u = u
-        this.v = v
-        this.regionWidth = regionWidth
-        this.regionHeight = regionHeight
-        this.texture = WebTexture(bytes)
-        this.visibleArea =
-            AnimatableProperty.of(PositionedRectangle.of(0, 0, texture.image!!.width, texture.image!!.height))!!
+    companion object {
+        fun fixedHeight(texture: WebTexture, u: Int, v: Int, height: Int) = WebTextureComponent(
+            texture, u, v, height * texture.image.width / texture.image.height, height
+        )
     }
 
-    constructor(
-        bytes: ByteArray, u: Int, v: Int, regionWidth: Int
-    ) : super() {
-        this.u = u
-        this.v = v
-        this.regionWidth = regionWidth
-        this.texture = WebTexture(bytes)
-        this.regionHeight = texture.image!!.run {
-            regionWidth * height / width
-        }
-        this.visibleArea =
-            AnimatableProperty.of(PositionedRectangle.of(0, 0, texture.image!!.width, texture.image!!.height))!!
-    }
-
-    private val texture: WebTexture
-    private val visibleArea: AnimatableProperty<PositionedRectangle>
     var blend: Boolean = false
 
     override fun determineHorizontalContentSize(sizing: Sizing): Int {
@@ -94,10 +74,10 @@ open class WebTextureComponent : BaseComponent {
             visibleArea.y(),
             bottomEdge,
             0,
-            (u + 0.0F) / texture.image!!.width,
-            (u + visibleArea.width()) / texture.image!!.width,
-            (v + 0.0F) / texture.image!!.height,
-            (u + visibleArea.height()) / texture.image!!.height
+            (u + 0.0F) / texture.image.width,
+            (u + visibleArea.width()) / texture.image.width,
+            (v + 0.0F) / texture.image.height,
+            (u + visibleArea.height()) / texture.image.height
         )
 
         if (this.blend) {

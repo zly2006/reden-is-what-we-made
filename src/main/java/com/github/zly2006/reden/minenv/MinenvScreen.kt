@@ -76,7 +76,7 @@ class MinenvScreen : BaseOwoScreen<FlowLayout>() {
 
             override fun onResponse(call: Call, response: Response) {
                 val string = response.body!!.string()
-                println("took " + (System.currentTimeMillis() - requestStart) + "ms")
+                response.body!!.close()
                 client!!.execute {
                     try {
                         val mevSearch = jsonIgnoreUnknown.decodeFromString<MevSearch>(string)
@@ -113,34 +113,10 @@ class MinenvScreen : BaseOwoScreen<FlowLayout>() {
                         )
                     }
                     list.forEach { mevItem ->
-                        if (mevItem.images.isNotEmpty() && mevItem.display != null) {
-                            httpClient.newCall(Request.Builder().apply {
-                                ua()
-                                get()
-                                url(mevItem.images.first())
-                            }.build()).apply {
-                                Reden.LOGGER.info("Started request: ${request().url}")
-                            }.enqueue(object : Callback {
-                                override fun onFailure(call: Call, e: IOException) {}
-
-                                override fun onResponse(call: Call, response: Response) {
-                                    runCatching {
-                                        WebTextureComponent(
-                                            response.body!!.bytes(),
-                                            0,
-                                            0,
-                                            40,
-                                            40,
-                                        )
-                                    }.onSuccess {
-                                        client!!.execute {
-                                            mevItem.display!!.child(0, it)
-                                        }
-                                    }.onFailure {
-                                        Reden.LOGGER.error("Image failed: ${mevItem.images[0]}")
-                                    }
-                                }
-                            })
+                        if (mevItem.thumbnail_url != null && mevItem.display != null) {
+                            TextureStorage.getImage(mevItem.thumbnail_url) {
+                                mevItem.display!!.child(0, WebTextureComponent(it, 0, 0, 40, 40))
+                            }
                         }
                     }
                 }

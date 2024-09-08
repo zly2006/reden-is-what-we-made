@@ -51,10 +51,12 @@ import java.util.logging.Logger
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
+
 var key = ""
 
 val httpClient = OkHttpClient.Builder().apply {
     readTimeout(60.seconds.toJavaDuration())
+    Logger.getLogger(OkHttpClient::class.java.name).level = Level.FINE
 }.build()
 
 inline fun <reified T> Request.Builder.json(data: T) = apply {

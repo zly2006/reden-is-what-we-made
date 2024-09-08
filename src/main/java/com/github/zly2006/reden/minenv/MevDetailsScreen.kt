@@ -20,6 +20,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.text.ClickEvent
+import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.Util
@@ -32,7 +34,7 @@ import java.nio.file.Path
 import kotlin.io.path.*
 
 @Serializable
-class FileItem(
+private class FileItem(
     val default_file_name: String,
     @SerialName("file")
     val url: String,
@@ -43,7 +45,7 @@ class FileItem(
 )
 
 class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<FlowLayout>() {
-    private val loadingLabel = Components.label(Text.literal("Loading image..."))!!
+    private val loadingLabel = Components.label(Text.literal("Loading image...").formatted(Formatting.GRAY))!!
     private val images = ArrayList<Component>(info.images.size).apply {
         for (i in 0 until info.images.size) this.add(loadingLabel)
     }
@@ -53,7 +55,7 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
     private val filesContainer = Containers.verticalFlow(Sizing.fill(), Sizing.content()).apply {
     }!!
     private var imgId = 1
-    private val imageInfoLabel = Components.label(Text.literal("Loading image..."))!!
+    private val imageInfoLabel = Components.label(Text.empty().formatted(Formatting.GRAY))!!
     private val btnPrev = Components.button(Text.literal("<")) {
         imgId--
         if (imgId < 1) imgId = info.images.size
@@ -66,7 +68,14 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
     override fun build(rootComponent: FlowLayout) {
-        rootComponent.child(Components.label(Text.literal(info.post_name)))
+        rootComponent.child(Components.label(Text.literal(info.post_name).styled {
+            it.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "https://www.minemev.com/p/${info.uuid}"))
+                .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("View on minemev.com")))
+        }).apply {
+            margins(Insets.vertical(7))
+            horizontalSizing(Sizing.fill())
+            horizontalTextAlignment(HorizontalAlignment.CENTER)
+        })
         rootComponent.child(
             Containers.verticalScroll(Sizing.fill(), Sizing.expand(),
                 Containers.verticalFlow(Sizing.fill(), Sizing.content()).apply {
@@ -79,34 +88,12 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
                             verticalAlignment(VerticalAlignment.CENTER)
                         })
                         info.images.mapIndexed { index, url ->
-                            httpClient.newCall(Request.Builder().apply {
-                                ua()
-                                get()
-                                url(url)
-                            }.build()).apply {
-                                Reden.LOGGER.info("Started request: ${request().url}")
-                            }.enqueue(object : Callback {
-                                override fun onFailure(call: Call, e: IOException) {}
-
-                                override fun onResponse(call: Call, response: Response) {
-                                    val bytes = response.body!!.bytes()
-                                    runCatching {
-                                        WebTextureComponent(
-                                            bytes,
-                                            0,
-                                            0,
-//                                            minOf(NativeImage.read(bytes.copyOf()).use {
-//                                                it.width
-//                                            }, this@MevDetailsScreen.width)
-                                            this@MevDetailsScreen.width
-                                        )
-                                    }.onFailure {
-                                        Reden.LOGGER.error("\n\nImage failed: $url")
-                                    }.onSuccess {
-                                        images[index] = it
-                                    }
-                                }
-                            })
+                            TextureStorage.getImage(url) {
+                                images[index] = WebTextureComponent.fixedHeight(
+                                    it, 0, 0,
+                                    this@MevDetailsScreen.height * 4 / 5
+                                )
+                            }
                         }
                         this.child(imgContainer)
                         this.child(Components.label(Text.of(info.description)).apply {
@@ -132,7 +119,7 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
             override fun onFailure(call: Call, e: IOException) {}
 
             override fun onResponse(call: Call, response: Response) {
-                val fileItems = jsonIgnoreUnknown.decodeFromString<List<FileItem>>(response.body!!.string())
+                val fileItems = jsonIgnoreUnknown.decodeFromString<List<FileItem>>(response.body!!.use { it.string() })
                 client!!.execute {
                     fileItems.forEach { file ->
                         val label = Text.literal(file.default_file_name)
@@ -146,13 +133,15 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
                                     val parent = Path("schematics", "downloaded")
                                     parent.createDirectories()
                                     val path = getUniqueFilename(file, parent)
-                                    path.writeBytes(httpClient.newCall(Request.Builder().apply {
+                                    httpClient.newCall(Request.Builder().apply {
                                         ua()
                                         get()
                                         url(file.url)
                                     }.build()).apply {
                                         Reden.LOGGER.info("Started request: ${request().url}")
-                                    }.execute().body!!.bytes())
+                                    }.execute().body!!.use {
+                                        path.writeBytes(it.bytes())
+                                    }
                                     runCatching {
                                         val guiSchematicLoad = GuiSchematicLoad()
                                         guiSchematicLoad.parent = this@MevDetailsScreen
