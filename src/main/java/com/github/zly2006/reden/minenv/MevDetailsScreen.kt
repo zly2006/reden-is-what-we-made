@@ -6,6 +6,7 @@ import com.github.zly2006.reden.mixin.malilib.IMixinGuiListBase
 import com.github.zly2006.reden.report.httpClient
 import com.github.zly2006.reden.report.jsonIgnoreUnknown
 import com.github.zly2006.reden.report.ua
+import com.github.zly2006.reden.utils.red
 import fi.dy.masa.litematica.gui.GuiSchematicLoad
 import fi.dy.masa.litematica.gui.widgets.WidgetSchematicBrowser
 import fi.dy.masa.malilib.gui.widgets.WidgetDirectoryEntry
@@ -88,16 +89,18 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
                             verticalAlignment(VerticalAlignment.CENTER)
                         })
                         info.images.mapIndexed { index, url ->
-                            TextureStorage.getImage(url) {
+                            TextureStorage.getImage(url, {
                                 images[index] = WebTextureComponent.fixedHeight(
                                     it, 0, 0,
                                     this@MevDetailsScreen.height * 4 / 5
                                 )
+                            }) {
+                                images[index] = Components.label(Text.literal("Failed: ${it.message}").red())
                             }
                         }
                         this.child(imgContainer)
                         this.child(Components.label(Text.of(info.description)).apply {
-                            maxWidth(this@MevDetailsScreen.width)
+                            sizing(Sizing.fill(), Sizing.content())
                         })
                         this.child(Components.label(Text.of("\n\nFile Downloads")))
                         this.child(filesContainer)

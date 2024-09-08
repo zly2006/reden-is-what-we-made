@@ -329,6 +329,7 @@ dependencies {
 //    implementation("io.github.spair:imgui-java-natives-macos:${imgui_version}")
 //    shadow("io.github.spair:imgui-java-natives-macos:${imgui_version}")
 
+
     // ImGui, https://github.com/SpaiR/imgui-java/pull/190
     val imguiAll = "imgui-app-1.86.11-11-gbdf3fc2-all.jar"
     implementation(files("classpath/$imguiAll"))
@@ -343,8 +344,10 @@ dependencies {
     // Game test
     modImplementation("net.fabricmc:fabric-loader-junit:${loader_version}")
     // Embedded dependencies
+    include(implementation("com.squareup.okio:okio-jvm:3.2.0")!!)
     include(implementation("com.squareup.okhttp3:okhttp:4.11.0")!!)
     include(implementation("org.eclipse.jgit:org.eclipse.jgit:${jgit_version}")!!)
+    include(implementation("org.sejda.imageio:webp-imageio:0.1.6")!!)
     constraints {
         implementation("org.eclipse.jgit:org.eclipse.jgit:${jgit_version}").run {
             attributes {
@@ -355,7 +358,6 @@ dependencies {
     }
     include(implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:${jgit_version}")!!)
     include(implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.apache:${jgit_version}")!!)
-    include(implementation("com.squareup.okio:okio-jvm:3.2.0")!!)
     include(implementation("com.jcraft:jsch:0.1.55")!!)
 
     // Optional dependencies

@@ -2,6 +2,7 @@ package com.github.zly2006.reden.minenv
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.gui.componments.WebTextureComponent
+import com.github.zly2006.reden.malilib.DEBUG_MINENV_THUMBNAIL_COMPARISON
 import com.github.zly2006.reden.report.httpClient
 import com.github.zly2006.reden.report.jsonIgnoreUnknown
 import com.github.zly2006.reden.report.ua
@@ -113,9 +114,15 @@ class MinenvScreen : BaseOwoScreen<FlowLayout>() {
                         )
                     }
                     list.forEach { mevItem ->
-                        if (mevItem.thumbnail_url != null && mevItem.display != null) {
-                            TextureStorage.getImage(mevItem.thumbnail_url) {
+                        if (mevItem.images.isNotEmpty() && mevItem.display != null) {
+                            val size = client!!.options.guiScale.value * 40 * 2
+                            TextureStorage.getImage("https://www.minemev.com/api/preview/${mevItem.uuid}?size=$size") {
                                 mevItem.display!!.child(0, WebTextureComponent(it, 0, 0, 40, 40))
+                                if (DEBUG_MINENV_THUMBNAIL_COMPARISON.booleanValue) {
+                                    TextureStorage.getImage(mevItem.images.first()) { rawImage ->
+                                        mevItem.display!!.child(1, WebTextureComponent(rawImage, 0, 0, 40, 40))
+                                    }
+                                }
                             }
                         }
                     }
