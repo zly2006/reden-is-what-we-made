@@ -10,6 +10,7 @@ class MevItem(
     val post_name: String,
     val uuid: String,
     val description: String,
+    val description_md: String? = null,
     val tags: List<String>,
     val versions: List<String>,
     val User: String,
@@ -17,7 +18,6 @@ class MevItem(
     val downloads: Long,
     val images: List<String>,
     val published_at: Instant,
-    val thumbnail_url: String?,
     @Transient
     var display: FlowLayout? = null
 )

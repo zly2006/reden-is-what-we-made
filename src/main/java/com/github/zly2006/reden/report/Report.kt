@@ -61,10 +61,12 @@ val httpClient = OkHttpClient.Builder().apply {
 
 inline fun <reified T> Request.Builder.json(data: T) = apply {
     header("Content-Type", "application/json")
+    cacheControl(CacheControl.Builder().noCache().build())
     post(Json.encodeToString(data).toRequestBody("application/json".toMediaTypeOrNull()))
 }
 
 fun Request.Builder.ua() = apply {
+    cacheControl(CacheControl.Builder().onlyIfCached().build())
     header("Authorization", "ApiKey $key")
     header("User-Agent", "RedenMC/${MOD_VERSION} Minecraft/${MinecraftVersion.create().name} (Fabric) $userAgent")
 }

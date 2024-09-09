@@ -55,6 +55,8 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
     }!!
     private val filesContainer = Containers.verticalFlow(Sizing.fill(), Sizing.content()).apply {
     }!!
+    private val description = Containers.verticalFlow(Sizing.fill(), Sizing.content()).apply {
+    }!!
     private var imgId = 1
     private val imageInfoLabel = Components.label(Text.empty().formatted(Formatting.GRAY))!!
     private val btnPrev = Components.button(Text.literal("<")) {
@@ -69,6 +71,33 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
     override fun build(rootComponent: FlowLayout) {
+        httpClient.newCall(Request.Builder().apply {
+            ua()
+            get()
+            url("https://minemev.com/api/details/${info.uuid}")
+        }.build()).apply {
+            Reden.LOGGER.info("Started request: ${request().url}")
+        }.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Reden.LOGGER.error("Failed request: ${call.request().url}", e)
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.body!!.use {
+                    val string = it.string()
+                    val item = jsonIgnoreUnknown.decodeFromString<MevItem>(string)
+                    client!!.execute {
+                        description.child(Components.label(Text.of(item.description)).apply {
+                            sizing(Sizing.fill(), Sizing.content())
+                        })
+                        while (description.children().size > 1) {
+                            description.removeChild(description.children().first())
+                        }
+                    }
+                }
+            }
+        })
+
         rootComponent.child(Components.label(Text.literal(info.post_name).styled {
             it.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "https://www.minemev.com/p/${info.uuid}"))
                 .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("View on minemev.com")))
@@ -99,9 +128,10 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
                             }
                         }
                         this.child(imgContainer)
-                        this.child(Components.label(Text.of(info.description)).apply {
+                        description.child(Components.label(Text.of(info.description)).apply {
                             sizing(Sizing.fill(), Sizing.content())
                         })
+                        this.child(description)
                         this.child(Components.label(Text.of("\n\nFile Downloads")))
                         this.child(filesContainer)
                         this.horizontalAlignment(HorizontalAlignment.CENTER)
