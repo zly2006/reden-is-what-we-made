@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.minenv
+package com.github.zly2006.reden.minemev
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.gui.componments.WebTextureComponent
@@ -22,7 +22,7 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 
-class MinenvScreen : BaseOwoScreen<FlowLayout>() {
+class MevScreen : BaseOwoScreen<FlowLayout>() {
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
     var list: List<MevItem> = mutableListOf()
@@ -102,7 +102,7 @@ class MinenvScreen : BaseOwoScreen<FlowLayout>() {
                         component.gap(5)
                         component.mouseDown().subscribe { _, _, b ->
                             if (b == 0) {
-                                client!!.setScreen(MevDetailsScreen(this@MinenvScreen, mev))
+                                client!!.setScreen(MevDetailsScreen(this@MevScreen, mev))
                                 true
                             } else false
                         }

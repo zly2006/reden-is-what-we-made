@@ -11,7 +11,7 @@ import com.github.zly2006.reden.debugger.gui.BreakpointListComponent
 import com.github.zly2006.reden.debugger.gui.DebuggerTimelineScreen
 import com.github.zly2006.reden.gui.CreditScreen
 import com.github.zly2006.reden.gui.message.ClientMessageQueue
-import com.github.zly2006.reden.minenv.MinenvScreen
+import com.github.zly2006.reden.minemev.MevScreen
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
 import com.github.zly2006.reden.network.*
 import com.github.zly2006.reden.render.BlockBorder
@@ -438,7 +438,7 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         true
     }
     DEBUG_MINENV_GUI.callback {
-        mc.setScreen(MinenvScreen())
+        mc.setScreen(MevScreen())
         true
     }
 }

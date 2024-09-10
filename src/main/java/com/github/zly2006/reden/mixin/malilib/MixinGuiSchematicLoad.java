@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.mixin.malilib;
 
-import com.github.zly2006.reden.minenv.MinenvScreen;
+import com.github.zly2006.reden.minemev.MevScreen;
 import com.llamalad7.mixinextras.sugar.Local;
 import fi.dy.masa.litematica.gui.GuiSchematicBrowserBase;
 import fi.dy.masa.litematica.gui.GuiSchematicLoad;
@@ -26,6 +26,6 @@ public abstract class MixinGuiSchematicLoad extends GuiSchematicBrowserBase {
         int buttonWidth = this.getStringWidth(label) + 10;
         x -= buttonWidth + 4;
         var button = new ButtonGeneric(x, y, buttonWidth, 20, label);
-        this.addButton(button, (button1, mouseButton) -> client.setScreen(new MinenvScreen()));
+        this.addButton(button, (button1, mouseButton) -> client.setScreen(new MevScreen()));
     }
 }

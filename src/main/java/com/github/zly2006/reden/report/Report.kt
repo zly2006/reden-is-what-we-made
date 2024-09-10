@@ -60,7 +60,7 @@ val httpClient = OkHttpClient.Builder().apply {
 }.build()
 
 inline fun <reified T> Request.Builder.json(data: T) = apply {
-    cacheControl(CacheControl.Builder().noCache().build())
+    header("Content-Type", "application/json")
     post(Json.encodeToString(data).toRequestBody("application/json".toMediaTypeOrNull()))
 }
 

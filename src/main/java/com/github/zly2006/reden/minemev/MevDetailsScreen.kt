@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.minenv
+package com.github.zly2006.reden.minemev
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.gui.componments.WebTextureComponent
