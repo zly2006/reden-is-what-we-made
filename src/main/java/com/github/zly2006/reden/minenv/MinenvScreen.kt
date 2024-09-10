@@ -76,8 +76,9 @@ class MinenvScreen : BaseOwoScreen<FlowLayout>() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val string = response.body!!.string()
-                response.body!!.close()
+                val string = response.body.use {
+                    it!!.string()
+                }
                 client!!.execute {
                     try {
                         val mevSearch = jsonIgnoreUnknown.decodeFromString<MevSearch>(string)
