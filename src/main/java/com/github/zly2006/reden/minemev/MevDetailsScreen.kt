@@ -124,7 +124,9 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
                                     this@MevDetailsScreen.height * 4 / 5
                                 )
                             }) {
-                                images[index] = Components.label(Text.literal("Failed: ${it.message}").red())
+                                images[index] = Components.label(Text.literal("Failed: ${it.message}").red()).apply {
+                                    maxWidth(this@MevDetailsScreen.width)
+                                }
                             }
                         }
                         this.child(imgContainer)
