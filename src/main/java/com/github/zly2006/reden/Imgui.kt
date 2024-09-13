@@ -72,25 +72,27 @@ private fun initFonts(io: ImGuiIO) {
     fontConfig.mergeMode = true // Enable merge mode to merge cyrillic, japanese and icons with default font
 
     val glyphRanges = rangesBuilder.buildRanges()
-    io.fonts.addFontFromMemoryTTF(
-        ResourceLoader.loadBytes("Tahoma.ttf"),
-        14f,
-        fontConfig,
-        glyphRanges
-    ) // cyrillic glyphs
-    io.fonts.addFontFromMemoryTTF(
-        ResourceLoader.loadBytes("fa-regular-400.ttf"),
-        14f,
-        fontConfig,
-        glyphRanges
-    ) // font awesome
-    io.fonts.addFontFromMemoryTTF(
-        ResourceLoader.loadBytes("fa-solid-900.ttf"),
-        14f,
-        fontConfig,
-        glyphRanges
-    ) // font awesome
-    io.fonts.build()
+    runCatching {
+        io.fonts.addFontFromMemoryTTF(
+            ResourceLoader.loadBytes("Tahoma.ttf"),
+            14f,
+            fontConfig,
+            glyphRanges
+        ) // cyrillic glyphs
+        io.fonts.addFontFromMemoryTTF(
+            ResourceLoader.loadBytes("fa-regular-400.ttf"),
+            14f,
+            fontConfig,
+            glyphRanges
+        ) // font awesome
+        io.fonts.addFontFromMemoryTTF(
+            ResourceLoader.loadBytes("fa-solid-900.ttf"),
+            14f,
+            fontConfig,
+            glyphRanges
+        ) // font awesome
+        io.fonts.build()
+    }
 
     fontConfig.destroy()
 }
