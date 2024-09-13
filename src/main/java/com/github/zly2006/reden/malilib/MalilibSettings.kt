@@ -45,10 +45,10 @@ private fun <T : ConfigBase<*>> T.debug() = apply { (DEBUG_TAB.add(this)) }
 @JvmField val SOLID_FACE_RENDERER = RedenConfigBoolean("solidFaceRenderer").generic()
 @JvmField val ENABLE_CLIENT_GLOW = RCBooleanHotkey("enableClientGlow", true, "LEFT_CONTROL,G").hotkey().generic()
 @JvmField val SOLID_FACE_SHAPE_PREDICATE = RedenConfigOptionList("solidFaceShapePredicate", ShapePredicateOptionEntry.FULL).generic()
+@JvmField val MEV_DOWNLOADS = RedenConfigBoolean("mevDownloads")
 @JvmField val EASTER_EGG_RATE = RedenConfigInteger("easterEggRate", 0, 0, 100).generic()
 // Micro Tick
-@JvmField
-val BREAKPOINT_RENDERER = RCBooleanHotkey("breakpointRenderer", false, "B", KeybindSettings.INGAME_BOTH).hotkey().mt()
+@JvmField val BREAKPOINT_RENDERER = RCBooleanHotkey("breakpointRenderer", false, "B", KeybindSettings.INGAME_BOTH).hotkey().mt()
 @JvmField val EDIT_BREAKPOINTS = RedenConfigHotkey("editBreakpoints", "B,BUTTON_1").mt().hotkey()
 @JvmField val ADD_BREAKPOINT = RedenConfigHotkey("addBreakpoint", "B,BUTTON_2").mt().hotkey()
 @JvmField val VIEW_ALL_BREAKPOINTS = RedenConfigHotkey("viewAllBreakpoints", "RIGHT_SHIFT,SPACE").mt().hotkey()

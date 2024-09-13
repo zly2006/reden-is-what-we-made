@@ -44,6 +44,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.userAgent
 import okio.use
+import java.io.File
 import java.io.IOException
 import java.net.URI
 import java.util.logging.Level
@@ -56,6 +57,12 @@ var key = ""
 
 val httpClient = OkHttpClient.Builder().apply {
     readTimeout(60.seconds.toJavaDuration())
+    cache(
+        Cache(
+            directory = File(".cache", "reden"),
+            maxSize = 100L * 1024L * 1024L // 100 MiB
+        )
+    )
     Logger.getLogger(OkHttpClient::class.java.name).level = Level.FINE
 }.build()
 

@@ -25,7 +25,7 @@ import java.io.IOException
 class MevScreen : BaseOwoScreen<FlowLayout>() {
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
-    var list: List<MevItem> = mutableListOf()
+    var list = mutableListOf<MevItem>()
     val listComponent = Containers.verticalFlow(Sizing.fill(), Sizing.content())!!.apply {
         horizontalAlignment(HorizontalAlignment.CENTER)
     }
@@ -38,29 +38,62 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
     }
     var page = 1
     var totalPages = 1
-        set(value) {
-            field = value
-            btnPrev.active(page > 1)
-            btnNext.active(page < totalPages)
-            pageLabel.text(Text.literal("$page / $totalPages"))
-        }
-    val btnPrev = Components.button(Text.literal("<")) {
-        page--
-        it.active(false)
-        doRequest()
-    }
-    val btnNext = Components.button(Text.literal(">")) {
-        page++
-        it.active(false)
-        doRequest()
-    }
-    val pageLabel = Components.label(Text.empty())
 
     @Serializable
     class MevSearch(
         val posts: List<MevItem>,
         val total_pages: Int
     )
+
+    inner class PostComponent(val mev: MevItem, val isLast: Boolean) :
+        FlowLayout(Sizing.fixed(300), Sizing.fixed(40), Algorithm.HORIZONTAL) {
+        init {
+            child(
+                Containers.verticalFlow(Sizing.expand(), Sizing.fixed(40)).apply {
+                    this.child(Components.label(Text.literal(mev.post_name)))
+                    this.child(Components.label(Text.literal("by ${mev.User}").formatted(GRAY)))
+                    this.child(Components.label(Text.literal(mev.description)))
+                }
+            )
+            gap(5)
+            margins(Insets.vertical(3))
+            mouseDown().subscribe { _, _, b ->
+                if (b == 0) {
+                    client!!.setScreen(MevDetailsScreen(this@MevScreen, mev))
+                    true
+                } else false
+            }
+            mev.display = this
+
+            if (mev.images.isNotEmpty()) {
+                val size = client!!.options.guiScale.value * 40 * 2
+                TextureStorage.getImage("https://www.minemev.com/api/preview/${mev.uuid}?size=$size") {
+                    this.child(0, WebTextureComponent(it, 0, 0, 40, 40))
+                    if (DEBUG_MINENV_THUMBNAIL_COMPARISON.booleanValue) {
+                        TextureStorage.getImage(mev.images.first()) { rawImage ->
+                            this.child(1, WebTextureComponent(rawImage, 0, 0, 40, 40))
+                        }
+                    }
+                }
+            }
+        }
+
+        val currentPage = page
+
+        override fun draw(
+            context: OwoUIDrawContext?,
+            mouseX: Int,
+            mouseY: Int,
+            partialTicks: Float,
+            delta: Float
+        ) {
+            super.draw(context, mouseX, mouseY, partialTicks, delta)
+            if (isLast && currentPage == page && page != totalPages) {
+                page++
+                doRequest()
+            }
+        }
+    }
 
     private fun doRequest() {
         val requestStart = System.currentTimeMillis()
@@ -76,56 +109,24 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val string = response.body.use {
-                    it!!.string()
-                }
+                val string = response.body!!.string()
+                response.body!!.close()
                 client!!.execute {
-                    try {
-                        val mevSearch = jsonIgnoreUnknown.decodeFromString<MevSearch>(string)
-                        list = mevSearch.posts
-                        totalPages = mevSearch.total_pages
-                    } catch (e: Exception) {
-                        list = jsonIgnoreUnknown.decodeFromString<List<MevItem>>(string)
-                        totalPages = 100
+                    if (page == 1) {
+                        listComponent.clearChildren()
+                        list.clear()
                     }
+                    val mevSearch = jsonIgnoreUnknown.decodeFromString<MevSearch>(string)
+                    list.addAll(mevSearch.posts)
+                    totalPages = mevSearch.total_pages
 
-                    listComponent.clearChildren()
-                    list.map { mev ->
-                        val component = Containers.horizontalFlow(Sizing.fixed(300), Sizing.fixed(40))
-                        component.child(
-                            Containers.verticalFlow(Sizing.expand(), Sizing.fixed(40)).apply {
-                                this.child(Components.label(Text.literal(mev.post_name)))
-                                this.child(Components.label(Text.literal("by ${mev.User}").formatted(GRAY)))
-                                this.child(Components.label(Text.literal(mev.description)))
-                            }
-                        )
-                        component.gap(5)
-                        component.mouseDown().subscribe { _, _, b ->
-                            if (b == 0) {
-                                client!!.setScreen(MevDetailsScreen(this@MevScreen, mev))
-                                true
-                            } else false
-                        }
-                        mev.display = component
-                        component.margins(Insets.vertical(3))
-                    }.forEach { listComponent.child(it) }
+                    mevSearch.posts.forEachIndexed { index, mevItem ->
+                        listComponent.child(PostComponent(mevItem, index == mevSearch.posts.size - 1))
+                    }
                     if (list.isEmpty()) {
                         listComponent.child(
                             Components.label(Text.literal("Sorry, didn't found anything."))
                         )
-                    }
-                    list.forEach { mevItem ->
-                        if (mevItem.images.isNotEmpty() && mevItem.display != null) {
-                            val size = client!!.options.guiScale.value * 40 * 2
-                            TextureStorage.getImage("https://www.minemev.com/api/preview/${mevItem.uuid}?size=$size") {
-                                mevItem.display!!.child(0, WebTextureComponent(it, 0, 0, 40, 40))
-                                if (DEBUG_MINENV_THUMBNAIL_COMPARISON.booleanValue) {
-                                    TextureStorage.getImage(mevItem.images.first()) { rawImage ->
-                                        mevItem.display!!.child(1, WebTextureComponent(rawImage, 0, 0, 40, 40))
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -144,13 +145,6 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
                 search,
                 Containers.verticalScroll(Sizing.fill(), Sizing.expand(), listComponent).apply {
                     scrollbar(ScrollContainer.Scrollbar.vanillaFlat())
-                },
-                Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
-                    child(btnPrev)
-                    child(pageLabel)
-                    child(btnNext)
-
-                    verticalAlignment(VerticalAlignment.CENTER)
                 }
             )
         )

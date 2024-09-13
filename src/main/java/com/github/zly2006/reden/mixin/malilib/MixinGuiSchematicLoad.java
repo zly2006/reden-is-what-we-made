@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.malilib;
 
+import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.minemev.MevScreen;
 import com.llamalad7.mixinextras.sugar.Local;
 import fi.dy.masa.litematica.gui.GuiSchematicBrowserBase;
@@ -22,10 +23,12 @@ public abstract class MixinGuiSchematicLoad extends GuiSchematicBrowserBase {
             at = @At(value = "TAIL")
     )
     private void addButton(CallbackInfo ci, @Local(ordinal = 0) int x, @Local(ordinal = 1) int y) {
-        var label = "Download from Web";
-        int buttonWidth = this.getStringWidth(label) + 10;
-        x -= buttonWidth + 4;
-        var button = new ButtonGeneric(x, y, buttonWidth, 20, label);
-        this.addButton(button, (button1, mouseButton) -> client.setScreen(new MevScreen()));
+        if (MalilibSettingsKt.MEV_DOWNLOADS.getBooleanValue()) {
+            var label = "Download from Web";
+            int buttonWidth = this.getStringWidth(label) + 10;
+            x -= buttonWidth + 4;
+            var button = new ButtonGeneric(x, y, buttonWidth, 20, label);
+            this.addButton(button, (button1, mouseButton) -> client.setScreen(new MevScreen()));
+        }
     }
 }
