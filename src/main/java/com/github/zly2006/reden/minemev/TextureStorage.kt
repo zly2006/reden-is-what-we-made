@@ -56,6 +56,7 @@ object TextureStorage {
                             }
                             MinecraftClient.getInstance().execute {
                                 val texture = WebTexture(bytes)
+                                texture.load(MinecraftClient.getInstance().resourceManager)
                                 cache[url] = Result.success(texture)
                                 action(texture)
                             }

@@ -16,6 +16,7 @@ import kotlinx.serialization.Serializable
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting.GRAY
+import net.minecraft.util.Formatting.UNDERLINE
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -47,12 +48,17 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
 
     inner class PostComponent(val mev: MevItem, val isLast: Boolean) :
         FlowLayout(Sizing.fixed(300), Sizing.fixed(40), Algorithm.HORIZONTAL) {
+        private val nameLabel = Components.label(Text.literal(mev.post_name))
+
         init {
             child(
                 Containers.verticalFlow(Sizing.expand(), Sizing.fixed(40)).apply {
-                    this.child(Components.label(Text.literal(mev.post_name)))
+                    this.child(nameLabel)
                     this.child(Components.label(Text.literal("by ${mev.User}").formatted(GRAY)))
-                    this.child(Components.label(Text.literal(mev.description)))
+                    this.child(Components.label(Text.literal(mev.description)).apply {
+                        lineSpacing(0)
+                    })
+                    gap(1)
                 }
             )
             gap(5)
@@ -87,6 +93,11 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
             partialTicks: Float,
             delta: Float
         ) {
+            if (this.isInBoundingBox(mouseX.toDouble(), mouseY.toDouble())) {
+                nameLabel.text(Text.literal(mev.post_name).formatted(UNDERLINE))
+            } else {
+                nameLabel.text(Text.literal(mev.post_name))
+            }
             super.draw(context, mouseX, mouseY, partialTicks, delta)
             if (isLast && currentPage == page && page != totalPages) {
                 page++

@@ -7,7 +7,7 @@ import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.client.texture.ResourceTexture
 import net.minecraft.resource.ResourceManager
 
-class WebTexture(bytes: ByteArray) : NativeImageBackedTexture(NativeImage.read(bytes)) {
+class WebTexture(bytes: ByteArray) : NativeImageBackedTexture(NativeImage.read(bytes.inputStream())) {
     override fun getImage(): NativeImage {
         return super.getImage()!!
     }
