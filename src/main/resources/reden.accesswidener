@@ -131,3 +131,12 @@ accessible class net/minecraft/server/world/ServerChunkLoadingManager$EntityTrac
 accessible field net/minecraft/server/world/ServerChunkLoadingManager$EntityTracker entry Lnet/minecraft/server/network/EntityTrackerEntry;
 accessible method net/minecraft/world/chunk/WorldChunk updateTicker (Lnet/minecraft/block/entity/BlockEntity;)V
 accessible field com/mojang/blaze3d/systems/RenderSystem shaderTextures [I
+accessible field net/minecraft/client/gui/screen/world/WorldListWidget levels Ljava/util/List;
+accessible field net/minecraft/client/gui/screen/world/SelectWorldScreen levelList Lnet/minecraft/client/gui/screen/world/WorldListWidget;
+accessible field net/minecraft/client/gui/screen/world/WorldListWidget levelsFuture Ljava/util/concurrent/CompletableFuture;
+accessible method net/minecraft/client/gui/screen/world/WorldListWidget show (Ljava/util/List;)V
+accessible class net/minecraft/client/gui/screen/world/WorldListWidget$Entry
+accessible field net/minecraft/client/gui/screen/world/WorldListWidget$WorldEntry level Lnet/minecraft/world/level/storage/LevelSummary;
+accessible method net/minecraft/client/gui/widget/EntryListWidget getRowTop (I)I
+accessible field net/minecraft/client/gui/widget/EntryListWidget headerHeight I
+accessible method net/minecraft/client/gui/screen/GameMenuScreen disconnect ()V

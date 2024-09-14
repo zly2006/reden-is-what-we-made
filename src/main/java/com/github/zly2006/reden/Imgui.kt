@@ -34,7 +34,9 @@ fun initImgui(windowHandle: Long) {
     val io = ImGui.getIO()
     io.addConfigFlags(ImGuiConfigFlags.NavEnableKeyboard)
     io.addConfigFlags(ImGuiConfigFlags.DockingEnable)
-    initFonts(io)
+    runCatching {
+        initFonts(io)
+    }
 
     // 初始化 ImGui 的 GLFW 和 OpenGL 实现
     imGuiGlfw.init(windowHandle, true)

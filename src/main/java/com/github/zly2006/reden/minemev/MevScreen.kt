@@ -16,7 +16,6 @@ import kotlinx.serialization.Serializable
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting.GRAY
-import net.minecraft.util.Formatting.UNDERLINE
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -34,6 +33,7 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
         setPlaceholder(Text.literal("Search..."))
         onChanged().subscribe {
             page = 1
+            httpClient.dispatcher.cancelAll()
             doRequest()
         }
     }
@@ -55,10 +55,11 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
                 Containers.verticalFlow(Sizing.expand(), Sizing.fixed(40)).apply {
                     this.child(nameLabel)
                     this.child(Components.label(Text.literal("by ${mev.User}").formatted(GRAY)))
-                    this.child(Components.label(Text.literal(mev.description)).apply {
+                    this.child(Components.label(Text.literal(mev.description.replace("\n", "  "))).apply {
                         lineSpacing(0)
+                        horizontalSizing(Sizing.fill())
                     })
-                    gap(1)
+                    gap(2)
                 }
             )
             gap(5)
@@ -93,11 +94,9 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
             partialTicks: Float,
             delta: Float
         ) {
-            if (this.isInBoundingBox(mouseX.toDouble(), mouseY.toDouble())) {
-                nameLabel.text(Text.literal(mev.post_name).formatted(UNDERLINE))
-            } else {
-                nameLabel.text(Text.literal(mev.post_name))
-            }
+            nameLabel.text(
+                Text.literal(mev.post_name)
+                    .styled { it.withUnderline(isInBoundingBox(mouseX.toDouble(), mouseY.toDouble())) })
             super.draw(context, mouseX, mouseY, partialTicks, delta)
             if (isLast && currentPage == page && page != totalPages) {
                 page++
@@ -116,7 +115,9 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
             Reden.LOGGER.info("Started request: ${request().url}")
         }.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Reden.LOGGER.error("Failed request: ${call.request().url}", e)
+                if (e.message != "Canceled") {
+                    Reden.LOGGER.error("Failed request: ${call.request().url}", e)
+                }
             }
 
             override fun onResponse(call: Call, response: Response) {

@@ -35,7 +35,9 @@ object TextureStorage {
                 url(url)
             }.build()).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    Reden.LOGGER.error("Error request: $url", e)
+                    if (e.message != "Canceled") {
+                        Reden.LOGGER.error("Failed request: ${call.request().url}", e)
+                    }
                 }
 
                 override fun onResponse(call: Call, response: Response) {
@@ -54,9 +56,9 @@ object TextureStorage {
                                     bytes = it.toByteArray()
                                 }
                             }
+                            val texture = WebTexture(bytes)
+                            texture.load(MinecraftClient.getInstance().resourceManager)
                             MinecraftClient.getInstance().execute {
-                                val texture = WebTexture(bytes)
-                                texture.load(MinecraftClient.getInstance().resourceManager)
                                 cache[url] = Result.success(texture)
                                 action(texture)
                             }
