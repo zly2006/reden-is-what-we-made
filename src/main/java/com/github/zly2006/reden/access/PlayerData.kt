@@ -36,6 +36,7 @@ class PlayerData(
         }?.toString()))
     }
 
+    var behalfBy: ServerPlayerEntity? = null
     val canRecord: Boolean
         get() = if (!isClient) {
             RedenCarpetSettings.Options.allowedUndoSizeInBytes != 0

@@ -9,6 +9,7 @@
     "common.MixinServer",
     "common.MixinServerPlayer",
     "common.MixinServerWorld",
+    "common.MixinSPNH",
     "common.remote.MixinMinecraftServer",
     "common.remote.MixinServerWorld",
     "debug.compatTest.MixinMinecraftServet_ct",
