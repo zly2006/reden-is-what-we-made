@@ -367,7 +367,7 @@ dependencies {
     modImplementation("com.terraformersmc:modmenu:11.0.1")
 
     // Runtime only dependencies (game optimization)
-    modRuntimeOnly("maven.modrinth:ferrite-core:7.0.0")
+    modRuntimeOnly("maven.modrinth:ferrite-core:7.0.1-fabric")
 //    modRuntimeOnly("maven.modrinth:notenoughcrashes:4.4.7+1.20.4-fabric")
 }
 
