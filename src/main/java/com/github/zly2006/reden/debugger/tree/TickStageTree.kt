@@ -6,6 +6,7 @@ import com.github.zly2006.reden.debugger.TickStage
 import com.github.zly2006.reden.debugger.TickStageWithWorld
 import com.github.zly2006.reden.debugger.stages.TickStageWorldProvider
 import com.github.zly2006.reden.debugger.tickPackets
+import com.github.zly2006.reden.utils.isDebug
 import com.github.zly2006.reden.utils.server
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -61,8 +62,10 @@ class TickStageTree(
 
     internal fun push(stage: TickStage) {
         checkOnThread()
-        require(stage.parent == activeStage) {
-            "Stage $stage is not a child of $activeStage"
+        if (isDebug) {
+            require(stage.parent == activeStage) {
+                "Stage $stage is not a child of $activeStage"
+            }
         }
         if (stage in activeStages) {
             LOGGER.error("Stage $stage is already active")
