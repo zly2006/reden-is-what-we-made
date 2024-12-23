@@ -278,7 +278,8 @@ fun generateRandomColor(alpha: Int, baseGray: Int, offsetWeight: Float): Int {
 operator fun Surface.plus(other: Surface): Surface = and(other)
 
 val redenApiBaseUrl: String
-    get() = if (isClient && DEVELOPER_MODE.booleanValue) LOCAL_API_BASEURL.stringValue else "https://redenmc.com/api"
+    get() = if (isClient && DEVELOPER_MODE.booleanValue) LOCAL_API_BASEURL.stringValue
+    else "https://api.redenmc.com/api"
 
 infix fun Int.has(flag: Int) = (this and flag) == flag
 

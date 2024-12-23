@@ -194,10 +194,10 @@ private fun Screen.creditsScreenContent(): FlowLayout {
             Util.getOperatingSystem().open(URI("https://www.redenmc.com/policy/PRIVACY.md"))
         })
         this.child(Components.button(Text.literal("Download My Data")) {
-            Util.getOperatingSystem().open(URI("https://www.redenmc.com/api/privacy/data-download.json?key=$key"))
+            Util.getOperatingSystem().open(URI("https://api.redenmc.com/api/privacy/data-download.json?key=$key"))
         })
         this.child(Components.button(Text.literal("Delete My Data").red()) {
-            Util.getOperatingSystem().open(URI("https://www.redenmc.com/privacy/delete?key=$key"))
+            Util.getOperatingSystem().open(URI("https://api.redenmc.com/privacy/delete?key=$key"))
         })
     }))
     return content
