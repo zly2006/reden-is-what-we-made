@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.minemev
+package com.github.zly2006.reden.schematicDownload
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.gui.componments.WebTexture

@@ -5,7 +5,6 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.exceptions.RedenException
 import com.github.zly2006.reden.malilib.DEVELOPER_MODE
 import com.github.zly2006.reden.malilib.LOCAL_API_BASEURL
-import com.github.zly2006.reden.malilib.SELECTION_TOOL
 import com.google.gson.Gson
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import io.wispforest.owo.ui.core.Surface
@@ -18,7 +17,6 @@ import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.widget.ButtonWidget
-import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.network.PacketByteBuf
@@ -29,7 +27,6 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
-import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
@@ -54,12 +51,6 @@ fun Vec3d.toBlockPos(): BlockPos {
 fun PlayerEntity.sendMessage(s: String) {
     sendMessage(Text.literal(s))
 }
-
-val ClientPlayerEntity?.holdingToolItem: Boolean
-    get() {
-        val stack = this?.getStackInHand(Hand.MAIN_HAND) ?: return false
-        return Registries.ITEM.getId(stack.item) == Identifier.tryParse(SELECTION_TOOL.stringValue)
-    }
 
 fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.NOTIFY_LISTENERS) {
 //    setBlockState(pos, state, flags and Block.NOTIFY_NEIGHBORS.inv() or Block.FORCE_STATE or Block.SKIP_DROPS)

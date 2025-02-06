@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.mixin.malilib;
 
 import com.github.zly2006.reden.malilib.MalilibSettingsKt;
-import com.github.zly2006.reden.minemev.MevScreen;
+import com.github.zly2006.reden.schematicDownload.MevScreen;
 import com.llamalad7.mixinextras.sugar.Local;
 import fi.dy.masa.litematica.gui.GuiSchematicBrowserBase;
 import fi.dy.masa.litematica.gui.GuiSchematicLoad;

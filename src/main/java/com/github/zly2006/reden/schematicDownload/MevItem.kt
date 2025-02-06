@@ -1,4 +1,4 @@
-package com.github.zly2006.reden.minemev
+package com.github.zly2006.reden.schematicDownload
 
 import io.wispforest.owo.ui.container.FlowLayout
 import kotlinx.datetime.Instant

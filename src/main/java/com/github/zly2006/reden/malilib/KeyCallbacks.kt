@@ -6,12 +6,12 @@ import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
 import com.github.zly2006.reden.gui.CreditScreen
 import com.github.zly2006.reden.gui.message.ClientMessageQueue
-import com.github.zly2006.reden.minemev.MevScreen
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
 import com.github.zly2006.reden.network.Undo
 import com.github.zly2006.reden.render.BlockBorder
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.report.reportException
+import com.github.zly2006.reden.schematicDownload.MevScreen
 import com.github.zly2006.reden.sponsor.SponsorScreen
 import com.github.zly2006.reden.utils.red
 import com.github.zly2006.reden.utils.sendMessage

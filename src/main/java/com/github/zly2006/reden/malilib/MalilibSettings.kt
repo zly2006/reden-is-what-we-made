@@ -7,9 +7,7 @@ import com.github.zly2006.reden.malilib.options.*
 import com.github.zly2006.reden.render.SolidFaceRenderer.ShapePredicateOptionEntry
 import com.github.zly2006.reden.utils.startDebugAppender
 import com.github.zly2006.reden.utils.stopDebugAppender
-import fi.dy.masa.malilib.config.HudAlignment
 import fi.dy.masa.malilib.config.options.ConfigBase
-import fi.dy.masa.malilib.config.options.ConfigOptionList
 import fi.dy.masa.malilib.hotkeys.IHotkey
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
@@ -18,25 +16,19 @@ import com.github.zly2006.reden.malilib.options.RedenConfigBooleanHotkeyed as RC
 // @formatter:off
 @JvmField val HOTKEYS = mutableListOf<IHotkey>()
 @JvmField val GENERIC_TAB = mutableListOf<ConfigBase<*>>()
-@JvmField val RVC_TAB = mutableListOf<ConfigBase<*>>()
-@JvmField val MICRO_TICK_TAB = mutableListOf<ConfigBase<*>>()
 @JvmField val SUPER_RIGHT_TAB = mutableListOf<ConfigBase<*>>()
 @JvmField val DEBUG_TAB = mutableListOf<ConfigBase<*>>()
 private fun <T : IHotkey> T.hotkey() = this.apply(HOTKEYS::add)
 private fun <T : ConfigBase<*>> T.generic() = apply { (GENERIC_TAB.add(this)) }
-private fun <T : ConfigBase<*>> T.rvc() = apply { (RVC_TAB.add(this)) }
-private fun <T : ConfigBase<*>> T.mt() = apply { (MICRO_TICK_TAB.add(this)) }
 private fun <T : ConfigBase<*>> T.sr() = apply { (SUPER_RIGHT_TAB.add(this)) }
 private fun <T : ConfigBase<*>> T.debug() = apply { (DEBUG_TAB.add(this)) }
 
 // Generic
 @JvmField val REDEN_CONFIG_KEY = RedenConfigHotkey("redenConfigKey", "R,C").generic().hotkey()
-@JvmField val SELECTION_TOOL = RedenConfigString("selectionTool", "minecraft:blaze_rod").generic()
-@JvmField val HUD_POSITION = ConfigOptionList("hudPosition", HudAlignment.BOTTOM_LEFT, "").generic()
-@JvmField val NO_TIME_OUT = RedenConfigBoolean("noTimeOut").generic()
-@JvmField val BLOCK_BORDER_ALPHA = RedenConfigFloat("blockBorderAlpha", 0.1f, 0f, 1f).generic()
 @JvmField val UNDO_KEY = RedenConfigHotkey("undoKey", "LEFT_CONTROL,Z").generic().hotkey()
 @JvmField val REDO_KEY = RedenConfigHotkey("redoKey", "LEFT_CONTROL,Y").generic().hotkey()
+@JvmField val NO_TIME_OUT = RedenConfigBoolean("noTimeOut").generic()
+@JvmField val BLOCK_BORDER_ALPHA = RedenConfigFloat("blockBorderAlpha", 0.1f, 0f, 1f).generic()
 @JvmField val UNDO_SUPPORT_LITEMATICA_OPERATION = RedenConfigBoolean("undoSupportLitematicaOperation", true).generic()
 @JvmField val UNDO_CHEATING_ONLY = RedenConfigBoolean("undoCheatingOnly", true).generic()
 @JvmField val OPEN_NOTIFICATIONS_SCREEN = RedenConfigHotkey("openNotificationsScreen", "R,T").generic().hotkey()
@@ -45,7 +37,7 @@ private fun <T : ConfigBase<*>> T.debug() = apply { (DEBUG_TAB.add(this)) }
 @JvmField val ENABLE_CLIENT_GLOW = RCBooleanHotkey("enableClientGlow", true, "LEFT_CONTROL,G").hotkey().generic()
 @JvmField val SOLID_FACE_SHAPE_PREDICATE = RedenConfigOptionList("solidFaceShapePredicate", ShapePredicateOptionEntry.FULL).generic()
 @JvmField val MEV_DOWNLOADS = RedenConfigBoolean("mevDownloads", true)
-@JvmField val EASTER_EGG_RATE = RedenConfigInteger("easterEggRate", 0, 0, 100).generic()
+@JvmField val EASTER_EGG_RATE = RedenConfigInteger("easterEggRate", 1, 0, 100).generic()
 // Super Right
 @JvmField val CHAT_RIGHT_CLICK_MENU = RedenConfigBoolean("chatRightClickMenu", true).sr()
 @JvmField val STRUCTURE_BLOCK_LOAD = RedenConfigHotkey("structureBlockLoad", "").sr().hotkey()
@@ -60,21 +52,14 @@ private fun <T : ConfigBase<*>> T.debug() = apply { (DEBUG_TAB.add(this)) }
 @JvmField val DEBUG_TAG_BLOCK_POS = RedenConfigHotkey("debugTagBlockPos", "LEFT_CONTROL,LEFT_SHIFT,T").debug().hotkey()
 @JvmField val DEBUG_LOGGER_IGNORE_UNDO_ID_0 = RedenConfigBoolean("debugLoggerIgnoreUndoId0").debug()
 @JvmField val DEBUG_PREVIEW_UNDO = RedenConfigHotkey("debugPreviewUndo", "LEFT_CONTROL,LEFT_SHIFT,Z").debug().hotkey()
-@JvmField val MAX_CHAIN_UPDATES = RedenConfigInteger("maxChainUpdates", -1).debug()
-@JvmField val DO_ASSERTION_CHECKS = RedenConfigBoolean("doAssertionChecks").debug()
 @JvmField val UNDO_REPORT_UN_TRACKED_TNT = RedenConfigBoolean("undoReportUnTrackedTnt").debug()
-@JvmField val OPEN_GITHUB_AUTH_SCREEN = RedenConfigHotkey("openGithubAuthScreen", "R,G").debug().hotkey()
-@JvmField val GITHUB_TOKEN = RedenConfigString("githubToken", "").debug()
 @JvmField val SPONSOR_SCREEN_KEY = RedenConfigHotkey("sponsorScreenKey", "").debug().hotkey()
 @JvmField val CREDIT_SCREEN_KEY = RedenConfigHotkey("creditScreenKey", "").debug().hotkey()
 @JvmField val DEBUG_VIEW_ALL_CONFIGS = RedenConfigHotkey("debugViewAllConfigs", "").debug().hotkey()
 @JvmField val DEVELOPER_MODE = RedenConfigBoolean("developerMode").debug()
 @JvmField val LOCAL_API_BASEURL = RedenConfigString("localApiAddr", "http://localhost:10005/api").debug()
 @JvmField val ENTITY_OUTLINE_RENDER_RAW = RedenConfigBoolean("entityOutlinrRenderRaw").debug()
-@JvmField val DEBUG_DISPLAY_RVC_WORLD_INFO = RedenConfigHotkey("debugDisplayRvcWorldInfo").debug().hotkey()
 @JvmField val DEBUG_NEW_NOTIFICATION = RedenConfigHotkey("debugNewNotification", "").debug().hotkey()
-@JvmField val DEBUG_LITEMATICA_SCHEMATIC_RERENDER = RedenConfigHotkey("debugLitematicaSchematicRerender").debug().hotkey()
-@JvmField val DEBUG_OPEN_TIMELINE_GUI = RedenConfigHotkey("debugOpenTimelineGui").debug().hotkey()
 @JvmField val DEBUG_MINENV_GUI = RedenConfigHotkey("debugMinenvGui").debug().hotkey()
 @JvmField val DEBUG_MINENV_THUMBNAIL_COMPARISON = RedenConfigBoolean("MinenvThumbnailComparison").debug()
 @JvmField val DEBUG_MINENV_NO_CACHE = RedenConfigBoolean("MinenvNoCache").debug()
@@ -91,4 +76,4 @@ object HiddenOption {
 }
 // @formatter:on
 
-fun getAllOptions() = GENERIC_TAB + RVC_TAB + MICRO_TICK_TAB + SUPER_RIGHT_TAB + DEBUG_TAB + HiddenOption.HIDDEN_TAB
+fun getAllOptions() = GENERIC_TAB + SUPER_RIGHT_TAB + DEBUG_TAB + HiddenOption.HIDDEN_TAB
