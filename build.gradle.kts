@@ -1,365 +1,76 @@
-@file:Suppress("PropertyName")
-
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.jetbrains.kotlin.incremental.createDirectory
-import kotlin.io.path.absolutePathString
-import kotlin.math.floor
-
-val maven_group: String by project
-val mod_version: String by project
-val is_main_branch: String by project
-val archives_base_name: String by project
-val minecraft_version: String by project
-val yarn_mappings: String by project
-val loader_version: String by project
-val jgit_version: String by project
-val fabric_version: String by project
-val owo_version: String by project
-val imgui_version: String by project
-
 plugins {
-    kotlin("jvm") version "2.0.0"
-    kotlin("plugin.serialization") version "2.0.0"
-
-    id("fabric-loom") version "1.9.2"
     `maven-publish`
-    id("org.ajoberstar.grgit") version "5.2.2"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("fabric-loom")
+    kotlin("jvm")
+    kotlin("plugin.serialization")
+    id("io.github.goooler.shadow") version "8.1.7"
+    id("dev.kikugie.j52j")
+    id("me.modmuss50.mod-publish-plugin")
 }
 
-val artifactType = Attribute.of("artifactType", String::class.java)
-val publized = Attribute.of("publized", Boolean::class.javaObjectType)
-dependencies {
-    attributesSchema {
-        attribute(publized)
-    }
-    artifactTypes.getByName("jar") {
-        attributes.attribute(publized, false)
-    }
+class ModData {
+    val id = property("mod.id").toString()
+    val name = property("mod.name").toString()
+    val version = property("mod.version").toString()
+    val group = property("mod.group").toString()
 }
 
-configurations.getByName("include") { // only "include" artifacts are "ourselves", so just make them all public!
-    allArtifacts.all {
-        if (isCanBeResolved) {
-            attributes.attribute(publized, true)
-            println("configuration ${this.name} ${allDependencies.toList()}")
-        }
-    }
+class ModDependencies {
+    operator fun get(name: String) = property("deps.$name").toString()
 }
 
-// todo: (gradle bug) incremental transformation
-abstract class Publize : TransformAction<TransformParameters.None> {
-    override fun getParameters() = error("No parameters needed")
+val mod = ModData()
+val deps = ModDependencies()
+val mcVersion = stonecutter.current.version
+val mcDep = property("mod.mc_dep").toString()
 
-    @get:PathSensitive(PathSensitivity.NAME_ONLY)
-    @get:InputArtifact
-    abstract val inputArtifact: Provider<FileSystemLocation>
+version = "${mod.version}+$mcVersion"
+group = mod.group
+base { archivesName.set(mod.id) }
 
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    @get:InputArtifact
-    abstract val input: Provider<FileSystemLocation>
+loom {
+    accessWidenerPath = rootProject.file("src/main/resources/xb.shared.accesswidener")
+}
 
-    @get:Inject
-    abstract val exec: ExecOperations
-
-    override fun transform(outputs: TransformOutputs) {
-        val fileName = inputArtifact.get().asFile.name
-        println("input: ${input.get().asFile.absolutePath} artifact: $fileName")
-        val outputFile = outputs.file("$fileName.publized.jar")
-        println("output: ${outputFile.absolutePath}")
-//        println("AAAAAAA")
-//        try {
-//            val changedFiles = inputChanges.getFileChanges(input)
-//                .filter { it.fileType == FileType.FILE }
-//                .map { it.file to it.changeType }
-//                .toMutableList()
-//            println(changedFiles)
-//            println("AAAAAAA" + outputFile.exists())
-//            if (!outputFile.exists()) {
-//                println("Output file does not exist, transforming...")
-//                changedFiles.add(Pair(inputArtifact.get().asFile, ChangeType.ADDED))
-//            }
-//            changedFiles.forEach { (file, changeType) ->
-//                when (changeType) {
-//                    ChangeType.ADDED,
-//                    ChangeType.MODIFIED -> {
-//                        println("Processing file ${file.name}")
-
-        val file = input.get().asFile
-        outputFile.parentFile.mkdirs()
-
-        this.exec.run {
-            javaexec {
-                classpath(File("classpath/public-jar-1.2-all.jar"))
-                mainClass.set("Main")
-                args(
-                    file.absolutePath,
-                    outputFile.absolutePath,
-                    "--field"
-                )
-            }
-            println("transformed.")
-        }
-
-        println("OK, ${file.absolutePath} -> ${outputFile.absolutePath}")
-//        outputs.file(outputFile)
+repositories {
+    fun strictMaven(url: String, alias: String, vararg groups: String) = exclusiveContent {
+        forRepository { maven(url) { name = alias } }
+        filter { groups.forEach(::includeGroup) }
     }
-
-//                    ChangeType.REMOVED  -> {
-//                        println("Removing leftover output file ${outputFile.absolutePath}")
-//                        outputFile.delete()
-//                    }
-//                }
-//            }
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//        }
-//    }
+    mavenCentral()
+    strictMaven("https://www.cursemaven.com", "CurseForge", "curse.maven")
+    strictMaven("https://api.modrinth.com/maven", "Modrinth", "maven.modrinth")
+    maven("https://maven.creeperhost.net")
 }
 
 dependencies {
-    registerTransform(Publize::class) {
-        from.attribute(publized, false).attribute(artifactType, "jar")
-        to.attribute(publized, true).attribute(artifactType, "jar")
-    }
-}
-
-enum class VersionType(val prereleaseName: String) {
-    RELEASE("stable"), BETA("beta"), DEV("dev")
-}
-
-val versionType = when (System.getenv()["REDEN_BUILD_TYPE"]) {
-    "RELEASE" -> VersionType.RELEASE
-    "BETA" -> VersionType.BETA
-    else   -> VersionType.DEV
-}
-val gitBranch = grgit.branch?.current()?.name ?: "no-git"
-
-version = buildString {
-    val commitsCount = grgit.log()?.size?.toString()
-    val gitHash = grgit.head()?.id?.substring(0, 7) ?: "nogit"
-    val ciNumber =
-        if (System.getenv()["GITHUB_ACTIONS"] == "true") "gh-ci-${System.getenv()["GITHUB_RUN_NUMBER"]}"
-        else null
-    append(mod_version) // major.minor
-    if (commitsCount != null && versionType != VersionType.RELEASE) {
-        append(".")
-        append(commitsCount) // patch
+    fun fapi(vararg modules: String) = modules.forEach {
+        modImplementation(fabricApi.module(it, deps["fabric_api"]))
     }
 
-    append("-")
-    append(versionType.prereleaseName) // pre: stable/beta/dev
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
 
-    append("+") // build
-    append(gitBranch) // branch, usually mc version
-    append(".")
-    append(gitHash)
-    if (ciNumber != null) {
-        append(".")
-        append(ciNumber)
-    }
-}
-group = maven_group
-
-allprojects {
-    repositories {
-        mavenCentral()
-//        maven {
-//            name = "Reden"
-//            url = uri("https://maven.starlight.cool/artifactory/reden")
-//        }
-        maven {
-            name = "Masa Maven"
-            url = uri("https://masa.dy.fi/maven")
-        }
-        maven { url = uri("https://maven.wispforest.io") }
-        maven { url = uri("https://maven.terraformersmc.com/releases/") }
-        maven {
-            name = "CurseForge"
-            url = uri("https://cursemaven.com")
-        }
-        maven {
-            name = "Modrinth"
-            url = uri("https://api.modrinth.com/maven")
-        }
-        maven {
-            name = "CottonMC"
-            url = uri("https://server.bbkr.space/artifactory/libs-release")
-        }
-        maven { url = uri("https://jitpack.io") }
-    }
-
-    tasks {
-        processResources {
-            inputs.property("version", project.version)
-            val buildTime = grgit.head()?.dateTime?.toEpochSecond()?.times(1000L) ?: System.currentTimeMillis()
-            filesMatching("fabric.mod.json") {
-                expand(
-                    mapOf(
-                        "version" to project.version,
-                        "is_main_branch" to is_main_branch,
-                        "build_timestamp" to buildTime,
-                        "git_branch" to gitBranch,
-                        "git_commit" to grgit.head()?.id,
-                    )
-                )
-            }
-        }
-
-        test {
-            workingDir = file("run").also { it.createDirectory() }
-            useJUnitPlatform()
-        }
-
-        jar {
-            from("LICENSE") {
-                rename { "${it}_${base.archivesName.get()}" }
-            }
-        }
-
-        shadowJar {
-            isZip64 = true
-            configurations = listOf(project.configurations.getByName("shadow"))
-            archiveClassifier = "shadow-dev"
-            dependencies {
-                exclude(dependency("org.lwjgl:lwjgl"))
-                exclude(dependency("org.lwjgl:lwjgl-glfw"))
-                exclude(dependency("org.lwjgl:lwjgl-opengl"))
-
-                // glfw is embedded in minecraft
-                exclude("windows/x64/org/lwjgl/**")
-                exclude("windows/x86/org/lwjgl/**")
-                exclude("linux/x64/org/lwjgl/**")
-                exclude("linux/x86/org/lwjgl/**")
-                exclude("macos/x64/org/lwjgl/**")
-                exclude("macos/arm64/org/lwjgl/**")
-                exclude("org/lwjgl/**")
-            }
-        }
-
-        remapJar {
-            dependsOn(shadowJar)
-            inputFile.set(shadowJar.get().archiveFile.get())
-        }
-    }
-
-    kotlin {
-        compilerOptions {
-            freeCompilerArgs.add("-Xjvm-default=all")
-        }
-        jvmToolchain(21)
-    }
-
-    java {
-        withSourcesJar()
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(21))
-        }
-    }
-}
-afterEvaluate {
-    loom.runs.configureEach {// https://fabricmc.net/wiki/tutorial:mixin_hotswaps
-//        vmArg("-javaagent:${ configurations.compileClasspath.find { it.name.contains("sponge-mixin") } }")
-
-        vmArg("-Dmixin.debug.export=true")
-    }
-}
-
-tasks.create<ShadowJar>("exportJat") {
-    /**
-     * Note: use of this shadowJar task is on your own risk.
-     * It contains minecraft classes so make sure to not distribute it.
-     * See Mojang's EULA for more information.
-     */
-
-    isZip64 = true
-    exclude("META-INF/**")
-    exclude("_COROUTINE/**")
-    exclude("kotlin/**")
-    exclude("kotlinx/**")
-    exclude("macos/**")
-    exclude("windows/**")
-    exclude("linux/**")
-    exclude("io/netty/**")
-    exclude("com/ibm/**")
-    exclude("assets/minecraft/textures/**")
-    exclude("*.json")
-    exclude("*.jpg")
-    exclude("*.png")
-    exclude("*.properties")
-    exclude("*.accesswidener")
-    exclude("LICENSE*")
-    exclude("Log4j*")
-    exclude("mixin/**")
-    exclude("mappings/**")
-
-    doLast {
-        val jar = archiveFile.get().asFile
-        println("Jar size: " + floor(jar.length().toDouble() / 1024 / 1024) + "MB")
-
-        javaexec {
-            classpath(File("classpath/public-jar-1.2-all.jar"))
-            mainClass.set("Main")
-            args(
-                jar.absolutePath,
-                jar.toPath().parent.resolve("publiced-" + jar.name).absolutePathString(),
-                "--field"
-            )
-        }
-    }
-}
-
-dependencies {
-    minecraft("com.mojang:minecraft:${minecraft_version}")
-    mappings("net.fabricmc:yarn:${yarn_mappings}:v2")
-    modImplementation("net.fabricmc:fabric-loader:${loader_version}")
-
-
-    implementation("com.google.code.findbugs:jsr305:3.0.2")
-
-//    implementation("io.github.spair:imgui-java-binding:${imgui_version}")
-//    shadow("io.github.spair:imgui-java-binding:${imgui_version}")
-//    implementation("io.github.spair:imgui-java-lwjgl3:${imgui_version}")
-//    shadow("io.github.spair:imgui-java-lwjgl3:${imgui_version}")
-//
-//    implementation("io.github.spair:imgui-java-natives-windows:${imgui_version}")
-//    shadow("io.github.spair:imgui-java-natives-windows:${imgui_version}")
-//    implementation("io.github.spair:imgui-java-natives-linux:${imgui_version}")
-//    shadow("io.github.spair:imgui-java-natives-linux:${imgui_version}")
-//    implementation("io.github.spair:imgui-java-natives-macos:${imgui_version}")
-//    shadow("io.github.spair:imgui-java-natives-macos:${imgui_version}")
-
+    minecraft("com.mojang:minecraft:$mcVersion")
+    mappings("net.fabricmc:yarn:$mcVersion+build.${deps["yarn_build"]}:v2")
+    modImplementation("net.fabricmc:fabric-loader:${deps["fabric_loader"]}")
+    modImplementation("net.fabricmc:fabric-language-kotlin:${deps["kotlin_loader_version"]}")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${deps["fabric_api"]}")
 
     // ImGui, https://github.com/SpaiR/imgui-java/pull/190
-    val imguiAll = "imgui-app-1.86.11-11-gbdf3fc2-all.jar"
-    implementation(files("classpath/$imguiAll"))
-    shadow(files("classpath/$imguiAll"))
+//    val imguiAll = "imgui-app-1.86.11-11-gbdf3fc2-all.jar"
+//    implementation(files("classpath/$imguiAll"))
+//    shadow(files("classpath/$imguiAll"))
 
     // Essential dependencies
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric_version}")
-    modImplementation("net.fabricmc:fabric-language-kotlin:1.11.0+kotlin.2.0.0")
     modImplementation("carpet:fabric-carpet:1.21-1.4.147+v240613")
-    modImplementation("io.wispforest:owo-lib:${owo_version}")
+    modImplementation("io.wispforest:owo-lib:${deps["owo_version"]}")
     modImplementation("com.github.sakura-ryoko:malilib:b012771deb")
     // Game test
-    modImplementation("net.fabricmc:fabric-loader-junit:${loader_version}")
+    modImplementation("net.fabricmc:fabric-loader-junit:${deps["fabric_loader"]}")
     // Embedded dependencies
     include(implementation("com.squareup.okio:okio-jvm:3.2.0")!!)
     include(implementation("com.squareup.okhttp3:okhttp:4.11.0")!!)
-    include(implementation("org.eclipse.jgit:org.eclipse.jgit:${jgit_version}")!!)
     include(implementation("org.sejda.imageio:webp-imageio:0.1.6")!!)
-    constraints {
-        implementation("org.eclipse.jgit:org.eclipse.jgit:${jgit_version}").run {
-            attributes {
-                attribute(publized, true)
-            }
-            version { require(jgit_version) }
-        }
-    }
-    include(implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:${jgit_version}")!!)
-    include(implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.apache:${jgit_version}")!!)
-    include(implementation("com.jcraft:jsch:0.1.55")!!)
-
     // Optional dependencies
     modImplementation("com.github.sakura-ryoko:litematica:8e285513a6")
     modImplementation("com.github.sakura-ryoko:tweakeroo:36a640f2c6")
@@ -371,49 +82,101 @@ dependencies {
 //    modRuntimeOnly("maven.modrinth:notenoughcrashes:4.4.7+1.20.4-fabric")
 }
 
-base {
-    archivesName = archives_base_name
-}
-
 loom {
-    accessWidenerPath = file("src/main/resources/reden.accesswidener")
+    decompilers {
+        get("vineflower").apply { // Adds names to lambdas - useful for mixins
+            options.put("mark-corresponding-synthetics", "1")
+        }
+    }
+
+    runConfigs.all {
+        ideConfigGenerated(true)
+        vmArgs("-Dmixin.debug.export=true")
+        runDir = "../../run"
+    }
 }
 
-task("getVersion") {
-    // generate .reden-version in build/ folder
+val javaVersion =
+    if (stonecutter.eval(mcVersion, ">=1.20.6")) 21
+    else 17
+
+java {
+    withSourcesJar()
+    targetCompatibility = JavaVersion.toVersion(javaVersion)
+    sourceCompatibility = JavaVersion.toVersion(javaVersion)
+}
+
+kotlin {
+    jvmToolchain(javaVersion)
+}
+
+tasks.processResources {
+    inputs.property("id", mod.id)
+    inputs.property("name", mod.name)
+    inputs.property("version", mod.version)
+    inputs.property("mcdep", mcDep)
+
+    val map = mapOf(
+        "id" to mod.id,
+        "name" to mod.name,
+        "version" to mod.version,
+        "mcdep" to mcDep
+    )
+
+    filesMatching("fabric.mod.json") { expand(map) }
+
+    dependsOn(project(":common").tasks.processResources)
+    outputs.upToDateWhen { false }
     doLast {
-        file("build/.reden-version").writeText(project.version as String)
-        file("build/.reden-short-version").writeText(buildString {
-            val commitsCount = grgit.log()?.size?.toString()
-            append(mod_version) // major.minor
-            if (commitsCount != null && versionType != VersionType.RELEASE) {
-                append(".")
-                append(commitsCount)
-            }
-            append("-")
-            append(versionType.prereleaseName)
-            append("+")
-            append(gitBranch)
-        })
+        // copying this is for dev only, int here is a shadowJar task
+        copy {
+            from(project(":common").tasks.processResources.get().outputs.files)
+            into(outputs.files.first())
+        }
     }
 }
 
-// configure the maven publication
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-        }
-    }
+tasks.register<Copy>("buildAndCollect") {
+    group = "build"
+    from(tasks.remapJar.get().archiveFile)
+    into(rootProject.layout.buildDirectory.file("libs/${mod.version}"))
+    dependsOn("build")
+}
 
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        maven {
-            url = uri(System.getenv()["MAVEN_URK"] ?: "https://maven.starlight.cool/artifactory/reden")
-            credentials {
-                username = System.getenv()["MAVEN_USER"]
-                password = System.getenv()["MAVEN_PASSWORD"]
-            }
-        }
-    }
+publishMods {
+    file = tasks.remapJar.get().archiveFile
+    displayName = "${mod.name} ${mod.version} for $mcVersion"
+    version = "${mod.version}+$mcVersion"
+    changelog = rootProject.file("CHANGELOG.md").readText()
+    type = STABLE
+    modLoaders.add("fabric")
+
+//    dryRun = providers.environmentVariable("MODRINTH_TOKEN")
+//        .getOrNull() == null || providers.environmentVariable("CURSEFORGE_TOKEN").getOrNull() == null
+
+//    modrinth {
+//        projectId = property("publish.modrinth").toString()
+//        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+//        minecraftVersions.addAll(
+//            property("mod.mc_targets").toString().split(" ")
+//                .filter { it.isNotBlank() }
+//                .plus(mcVersion)
+//                .distinct()
+//        )
+//        requires("fabric-api", "fabric-language-kotlin")
+//        optional("polylib")
+//    }
+
+//    curseforge {
+//        projectId = property("publish.curseforge").toString()
+//        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+//        minecraftVersions.addAll(
+//            property("mod.mc_targets").toString().split(" ")
+//                .filter { it.isNotBlank() }
+//                .plus(mcVersion)
+//                .distinct()
+//        )
+//        requires("fabric-api", "fabric-language-kotlin")
+//        optional("polylib")
+//    }
 }

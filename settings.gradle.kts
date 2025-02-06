@@ -1,15 +1,29 @@
 pluginManagement {
     repositories {
-        maven {
-            name = "Fabric"
-            url = uri("https://maven.fabricmc.net/")
-        }
         mavenCentral()
-        jcenter()
         gradlePluginPortal()
-        maven {
-            name = "Reden"
-            url = uri("https://maven.starlight.cool/artifactory/reden")
-        }
+        maven("https://maven.fabricmc.net/")
+        maven("https://maven.kikugie.dev/releases/")
     }
+}
+
+plugins {
+    id("dev.kikugie.stonecutter") version "0.4.4"
+}
+
+rootProject.name = "Reden"
+include("common")
+
+stonecutter {
+    kotlinController = true
+    centralScript = "build.gradle.kts"
+
+    shared {
+        versions(
+//            "1.20.4",
+            "1.21.1",
+//            "1.21.4"
+        )
+    }
+    create(rootProject)
 }
