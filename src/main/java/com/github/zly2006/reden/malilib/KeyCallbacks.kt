@@ -2,58 +2,28 @@ package com.github.zly2006.reden.malilib
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.Sounds
-import com.github.zly2006.reden.access.ClientData.Companion.data
 import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.access.ServerData.Companion.serverData
-import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
-import com.github.zly2006.reden.debugger.gui.BreakpointInfoScreen
-import com.github.zly2006.reden.debugger.gui.BreakpointListComponent
-import com.github.zly2006.reden.debugger.gui.DebuggerTimelineScreen
 import com.github.zly2006.reden.gui.CreditScreen
 import com.github.zly2006.reden.gui.message.ClientMessageQueue
 import com.github.zly2006.reden.minemev.MevScreen
 import com.github.zly2006.reden.mixinhelper.StructureBlockHelper
-import com.github.zly2006.reden.network.*
+import com.github.zly2006.reden.network.Undo
 import com.github.zly2006.reden.render.BlockBorder
-import com.github.zly2006.reden.render.BlockOutline
 import com.github.zly2006.reden.report.onFunctionUsed
 import com.github.zly2006.reden.report.reportException
-import com.github.zly2006.reden.rvc.gui.SelectionImportScreen
-import com.github.zly2006.reden.rvc.gui.SelectionListScreen
-import com.github.zly2006.reden.rvc.gui.git.RvcCommitScreen
-import com.github.zly2006.reden.rvc.gui.hud.gameplay.RvcMoveStructureLitematicaTask
-import com.github.zly2006.reden.rvc.gui.selectedRepository
-import com.github.zly2006.reden.rvc.gui.selectedStructure
-import com.github.zly2006.reden.rvc.remote.github.GithubAuthScreen
-import com.github.zly2006.reden.rvc.tracking.WorldInfo.Companion.getWorldInfo
 import com.github.zly2006.reden.sponsor.SponsorScreen
-import com.github.zly2006.reden.task.taskStack
 import com.github.zly2006.reden.utils.red
 import com.github.zly2006.reden.utils.sendMessage
 import com.github.zly2006.reden.utils.toBlockPos
 import com.github.zly2006.reden.utils.translateMessage
-import com.github.zly2006.reden.wormhole.Wormhole
 import fi.dy.masa.malilib.config.options.ConfigHotkey
-import fi.dy.masa.malilib.event.InputEventHandler
 import fi.dy.masa.malilib.gui.GuiConfigsBase
-import fi.dy.masa.malilib.hotkeys.IMouseInputHandler
-import io.wispforest.owo.ui.component.Components
-import io.wispforest.owo.ui.container.Containers
-import io.wispforest.owo.ui.core.Insets
-import io.wispforest.owo.ui.core.Positioning
-import io.wispforest.owo.ui.core.Sizing
-import io.wispforest.owo.ui.core.Surface
-import io.wispforest.owo.ui.hud.Hud
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents
-import net.minecraft.block.Blocks
 import net.minecraft.block.entity.StructureBlockBlockEntity
 import net.minecraft.block.enums.StructureBlockMode
 import net.minecraft.client.MinecraftClient
@@ -61,16 +31,7 @@ import net.minecraft.client.sound.AbstractSoundInstance
 import net.minecraft.network.packet.c2s.play.UpdateStructureBlockC2SPacket
 import net.minecraft.sound.SoundCategory
 import net.minecraft.text.Text
-import net.minecraft.util.Formatting
-import net.minecraft.util.hit.BlockHitResult
-import net.minecraft.util.hit.HitResult
-import net.minecraft.util.math.Vec3d
 import net.minecraft.world.GameMode
-import org.lwjgl.glfw.GLFW
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.sign
-import kotlin.math.sin
 import kotlin.random.Random
 
 fun configureKeyCallbacks(mc: MinecraftClient) {
@@ -152,11 +113,6 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         }
         return@callback false
     }
-    OPEN_GITHUB_AUTH_SCREEN.callback {
-        onFunctionUsed("rvc.github")
-        mc.setScreen(GithubAuthScreen())
-        true
-    }
     STRUCTURE_BLOCK_LOAD.callback {
         if (StructureBlockHelper.isValid) {
             val structureBlock = mc.world!!.getBlockEntity(StructureBlockHelper.lastUsed!!) as StructureBlockBlockEntity
@@ -207,84 +163,6 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         }
         true
     }
-    OPEN_IMPORT_SCREEN.callback {
-        mc.setScreen(SelectionImportScreen())
-        true
-    }
-    var selectedWormhole: Wormhole? = null
-    WORMHOLE_SELECT.callback {
-        selectedWormhole = null
-        BlockOutline.blocks = mapOf()
-        true
-    }
-    ClientTickEvents.START_CLIENT_TICK.register {
-        if (mc.player != null) {
-            val cosPitch = abs(cos(Math.toRadians(mc.player!!.pitch.toDouble())))
-            val pos = Vec3d(
-                -sin(Math.toRadians(mc.player!!.yaw.toDouble())) * cosPitch,
-                -sin(Math.toRadians(mc.player!!.pitch.toDouble())),
-                cos(Math.toRadians(mc.player!!.yaw.toDouble())) * cosPitch
-            ).normalize()
-
-            fun eval(it: Wormhole): Double {
-                /*
-            val xOyDistance = mc.player!!.eyePos.withAxis(Direction.Axis.Y, 0.0)
-                .distanceTo(it.destination.toCenterPos().withAxis(Direction.Axis.Y, 0.0))
-            val yaw = Math.toDegrees(atan2(-(it.destination.toCenterPos().x - mc.player!!.eyePos.x), (it.destination.toCenterPos().z - mc.player!!.eyePos.z)))
-            val pitch = Math.toDegrees(atan2(abs(mc.player!!.eyePos.y - it.destination.toCenterPos().y), xOyDistance))
-
-            val d = abs((yaw - mc.player!!.yaw).mod(360.0)) + abs((pitch - mc.player!!.pitch).mod(360.0))
-             */
-                val d = pos.distanceTo(it.destination.toCenterPos().subtract(mc.player!!.eyePos).normalize())
-                return d
-            }
-            if (WORMHOLE_SELECT.keybind.isPressed) {
-                selectedWormhole = null
-                BlockOutline.blocks = mapOf()
-                mc.data.wormholes.minByOrNull(::eval)?.let {
-                    if (eval(it) > 0.4) return@let
-                    selectedWormhole = it
-                    BlockOutline.blocks = mapOf(
-                        it.destination to Blocks.STONE.defaultState
-                    )
-                }
-            }
-        }
-    }
-    InputEventHandler.getInputManager().registerMouseInputHandler(object : IMouseInputHandler {
-        override fun onMouseClick(mouseX: Int, mouseY: Int, eventButton: Int, eventButtonState: Boolean): Boolean {
-            if (!WORMHOLE_SELECT.keybind.isPressed) return false
-            if (eventButton == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
-                mc.data.wormholes.removeIf { it.destination == (mc.crosshairTarget as? BlockHitResult?)?.blockPos }
-                mc.data.wormholes.add(
-                    Wormhole(
-                        (mc.crosshairTarget as? BlockHitResult?)?.blockPos ?: return false,
-                        "Wormhole 1",
-                        mc.player?.pos ?: return false,
-                        mc.player?.yaw ?: return false,
-                        mc.player?.pitch ?: return false,
-                    )
-                )
-                return true
-            } else if (eventButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                val wormhole = selectedWormhole ?: return false
-                if (mc.server == null) {
-                    mc.networkHandler?.sendChatCommand("tp @s ${wormhole.tpPosition.x} ${wormhole.tpPosition.y} ${wormhole.tpPosition.z} ${wormhole.tpYaw} ${wormhole.tpPitch}")
-                } else {
-                    mc.server!!.playerManager.getPlayer(mc.player!!.uuid)!!
-                        .teleport(wormhole.tpPosition.x, wormhole.tpPosition.y, wormhole.tpPosition.z, false)
-                    mc.player!!.yaw = wormhole.tpYaw
-                    mc.player!!.pitch = wormhole.tpPitch
-                }
-                return true
-            }
-            return false
-        }
-    })
-    OPEN_SELECTION_LIST.callback {
-        mc.setScreen(SelectionListScreen())
-        true
-    }
     SPONSOR_SCREEN_KEY.callback {
         mc.setScreen(SponsorScreen())
         true
@@ -304,95 +182,6 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
         })
         true
     }
-    PAUSE_KEY.callback {
-        ClientPlayNetworking.send(Pause(true))
-        true
-    }
-    CONTINUE_KEY.callback {
-        ClientPlayNetworking.send(Continue())
-        true
-    }
-    STEP_INTO_KEY.callback {
-        ClientPlayNetworking.send(StepInto())
-        true
-    }
-    STEP_OVER_KEY.callback {
-        val id = mc.serverData?.tickStageTree?.activeStage?.id
-        if (id == null) return@callback false
-        else ClientPlayNetworking.send(StepOver(id))
-        true
-    }
-    VIEW_ALL_BREAKPOINTS.callback {
-        mc.setScreen(BreakpointListComponent.Screen(mc.data.breakpoints.breakpointMap.values))
-        true
-    }
-    val pointTypes = BreakpointsManager.getBreakpointManager().registry.values.toList()
-    var index = 0
-    ADD_BREAKPOINT.callback {
-        if (mc.crosshairTarget?.type != HitResult.Type.BLOCK) return@callback false
-        val pos = (mc.crosshairTarget as? BlockHitResult?)?.blockPos ?: return@callback false
-        val manager = mc.data.breakpoints
-        manager.createBreakpointDefault(
-            pointTypes[index],
-            mc.world!!,
-            pos
-        )
-        BlockBorder[pos] = TagBlockPos.green
-        true
-    }
-    EDIT_BREAKPOINTS.callback {
-        val breakpoints = mc.data.breakpoints.breakpointMap.values.filter {
-            it.world == mc.world?.registryKey?.value && it.pos == mc.crosshairTarget?.pos?.toBlockPos()
-        }.ifEmpty {
-            mc.player?.sendMessage("Not found")
-            return@callback true
-        }
-        if (breakpoints.size == 1)
-            mc.setScreen(BreakpointInfoScreen(breakpoints.first()))
-        else
-            mc.setScreen(BreakpointListComponent.Screen(breakpoints))
-        true
-    }
-    ScreenEvents.BEFORE_INIT.register { _, _, _, _ ->
-        BREAKPOINT_RENDERER.booleanValue = false
-    }
-    BREAKPOINT_RENDERER.setValueChangeCallback {
-        if (it.booleanValue) {
-            Hud.add(Reden.identifier("breakpoint-tutorial")) {
-                Containers.verticalFlow(Sizing.content(), Sizing.content()).apply {
-                    surface(Surface.TOOLTIP)
-                    padding(Insets.of(6))
-                    gap(3)
-                    positioning(Positioning.across(50, 60))
-                    fun format(text: String) = Text.empty().append(Text.literal(text.replace(",", " + "))
-                        .formatted(Formatting.GOLD))
-                    child(Components.label(format(EDIT_BREAKPOINTS.stringValue).append(" to edit breakpoints")))
-                    child(Components.label(format(BREAKPOINT_RENDERER.keybind.stringValue + " + Scroll").append(" to change breakpoint type")))
-                    child(Components.label(format(ADD_BREAKPOINT.stringValue).append(" to add breakpoints")))
-                    child(Components.label(format(VIEW_ALL_BREAKPOINTS.stringValue).append(" to view all breakpoints")))
-                }
-            }
-        } else Hud.remove(Reden.identifier("breakpoint-tutorial"))
-    }
-    InputEventHandler.getInputManager().registerMouseInputHandler(object : IMouseInputHandler {
-        var scrollStartTime = 0L
-        override fun onMouseScroll(mouseX: Int, mouseY: Int, amount: Double): Boolean {
-            if (BREAKPOINT_RENDERER.booleanValue) {
-                if (System.currentTimeMillis() - scrollStartTime < 250) return false
-                scrollStartTime = System.currentTimeMillis()
-                index += amount.sign.toInt()
-                index = index.mod(pointTypes.size)
-                val type = pointTypes[index]
-                mc.player?.sendMessage(Text.literal("Type now is ").append(type.description))
-                return true
-            } else return false
-        }
-    })
-    DEBUG_DISPLAY_RVC_WORLD_INFO.callback {
-        val info = mc.getWorldInfo()
-        MinecraftClient.getInstance().player?.sendMessage(Text.literal(Json.encodeToString(info)))
-        true
-    }
     OPEN_NOTIFICATIONS_SCREEN.callback {
         ClientMessageQueue.openScreen()
         true
@@ -410,31 +199,6 @@ fun configureKeyCallbacks(mc: MinecraftClient) {
                 }
             )
         )
-        true
-    }
-    RVC_CONFIRM_KEY.callback { taskStack.last().onConfirm() }
-    RVC_CANCEL_KEY.callback { taskStack.last().onCancel() }
-    DEBUG_LITEMATICA_SCHEMATIC_RERENDER.callback {
-        (taskStack.last() as RvcMoveStructureLitematicaTask).apply {
-            currentOrigin = currentOrigin
-        }
-        true
-    }
-    RVC_SAVE_KEY.callback {
-        if (selectedRepository == null) {
-            mc.player?.sendMessage(
-                Text.literal(
-                    "Cannot save this structure: Not found, please select a structure by pressing " +
-                            OPEN_SELECTION_LIST.stringValue
-                ).red()
-            )
-            return@callback false
-        }
-        mc.setScreen(RvcCommitScreen(selectedRepository!!, selectedStructure!!))
-        true
-    }
-    DEBUG_OPEN_TIMELINE_GUI.callback {
-        mc.setScreen(DebuggerTimelineScreen())
         true
     }
     DEBUG_MINENV_GUI.callback {

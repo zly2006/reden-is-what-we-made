@@ -8,8 +8,6 @@ import com.github.zly2006.reden.behalf.registerBehalf
 import com.github.zly2006.reden.carpet.RedenCarpetSettings
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
 import com.github.zly2006.reden.network.registerChannels
-import com.github.zly2006.reden.rvc.registerRvc
-import com.github.zly2006.reden.transformers.ThisIsReden
 import com.github.zly2006.reden.utils.ResourceLoader.loadLang
 import com.github.zly2006.reden.utils.TaskScheduler
 import com.github.zly2006.reden.utils.server
@@ -175,13 +173,6 @@ class Reden : ModInitializer, CarpetExtension {
                         }
                     }
                 }
-            }
-            registerRvc(dispatcher)
-            if (dispatcher !is ThisIsReden) {
-                throw RuntimeException("This is not Reden!")
-            }
-            else {
-                LOGGER.info("This is Reden!")
             }
         }
         ServerTickEvents.END_SERVER_TICK.register(TaskScheduler)

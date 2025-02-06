@@ -5,6 +5,7 @@ plugins {
     kotlin("plugin.serialization")
     id("io.github.goooler.shadow") version "8.1.7"
     id("dev.kikugie.j52j")
+    id("org.ajoberstar.grgit")
     id("me.modmuss50.mod-publish-plugin")
 }
 
@@ -29,7 +30,7 @@ group = mod.group
 base { archivesName.set(mod.id) }
 
 loom {
-    accessWidenerPath = rootProject.file("src/main/resources/xb.shared.accesswidener")
+    accessWidenerPath = rootProject.file("src/main/resources/reden.accesswidener")
 }
 
 repositories {
@@ -40,6 +41,17 @@ repositories {
     mavenCentral()
     strictMaven("https://www.cursemaven.com", "CurseForge", "curse.maven")
     strictMaven("https://api.modrinth.com/maven", "Modrinth", "maven.modrinth")
+    maven {
+        name = "Masa Maven"
+        url = uri("https://masa.dy.fi/maven")
+    }
+    maven { url = uri("https://maven.wispforest.io") }
+    maven { url = uri("https://maven.terraformersmc.com/releases/") }
+    maven {
+        name = "CottonMC"
+        url = uri("https://server.bbkr.space/artifactory/libs-release")
+    }
+    maven { url = uri("https://jitpack.io") }
     maven("https://maven.creeperhost.net")
 }
 
@@ -62,7 +74,7 @@ dependencies {
 //    shadow(files("classpath/$imguiAll"))
 
     // Essential dependencies
-    modImplementation("carpet:fabric-carpet:1.21-1.4.147+v240613")
+    modImplementation("carpet:fabric-carpet:${deps["carpet"]}")
     modImplementation("io.wispforest:owo-lib:${deps["owo_version"]}")
     modImplementation("com.github.sakura-ryoko:malilib:b012771deb")
     // Game test
@@ -116,11 +128,13 @@ tasks.processResources {
     inputs.property("version", mod.version)
     inputs.property("mcdep", mcDep)
 
+    val buildTime = grgit.head()?.dateTime?.toEpochSecond()?.times(1000L) ?: System.currentTimeMillis()
     val map = mapOf(
         "id" to mod.id,
         "name" to mod.name,
         "version" to mod.version,
-        "mcdep" to mcDep
+        "mcdep" to mcDep,
+        "build_timestamp" to buildTime,
     )
 
     filesMatching("fabric.mod.json") { expand(map) }

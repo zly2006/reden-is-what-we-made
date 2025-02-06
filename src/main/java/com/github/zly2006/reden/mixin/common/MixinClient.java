@@ -2,13 +2,9 @@ package com.github.zly2006.reden.mixin.common;
 
 import com.github.zly2006.reden.access.ClientData;
 import com.github.zly2006.reden.access.ServerData;
-import com.github.zly2006.reden.rvc.gui.SelectionListScreenKt;
-import com.github.zly2006.reden.rvc.tracking.RvcRepository;
-import com.github.zly2006.reden.task.TaskKt;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -47,17 +43,6 @@ public abstract class MixinClient implements ClientData.ClientDataAccess, Server
     private void resetServerDataOnDisconnect(Screen screen, CallbackInfo ci) {
         if (player == null) {
             serverData = null;
-            clientData.getBreakpoints().clear();
         }
-    }
-
-    @Inject(
-            method = "setWorld",
-            at = @At("HEAD")
-    )
-    private void onWorldChange(ClientWorld world, CallbackInfo ci) {
-        getClientData$reden().getRvc().getRepositories().values().forEach(RvcRepository::clearCache);
-        SelectionListScreenKt.setSelectedRepository(null);
-        TaskKt.getTaskStack().forEach(it -> it.onClientSideWorldChanged(world));
     }
 }

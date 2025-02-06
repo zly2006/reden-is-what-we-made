@@ -53,7 +53,6 @@
   },
   "custom": {
     "reden": {
-      "is_main_branch": "${is_main_branch}",
       "build_timestamp": "${build_timestamp}"
     },
     "modmenu": {

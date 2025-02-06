@@ -11,7 +11,6 @@ import fi.dy.masa.malilib.config.HudAlignment
 import fi.dy.masa.malilib.config.options.ConfigBase
 import fi.dy.masa.malilib.config.options.ConfigOptionList
 import fi.dy.masa.malilib.hotkeys.IHotkey
-import fi.dy.masa.malilib.hotkeys.KeybindSettings
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import com.github.zly2006.reden.malilib.options.RedenConfigBooleanHotkeyed as RCBooleanHotkey
@@ -47,31 +46,10 @@ private fun <T : ConfigBase<*>> T.debug() = apply { (DEBUG_TAB.add(this)) }
 @JvmField val SOLID_FACE_SHAPE_PREDICATE = RedenConfigOptionList("solidFaceShapePredicate", ShapePredicateOptionEntry.FULL).generic()
 @JvmField val MEV_DOWNLOADS = RedenConfigBoolean("mevDownloads", true)
 @JvmField val EASTER_EGG_RATE = RedenConfigInteger("easterEggRate", 0, 0, 100).generic()
-// Micro Tick
-@JvmField val BREAKPOINT_RENDERER = RCBooleanHotkey("breakpointRenderer", false, "B", KeybindSettings.INGAME_BOTH).hotkey().mt()
-@JvmField val EDIT_BREAKPOINTS = RedenConfigHotkey("editBreakpoints", "B,BUTTON_1").mt().hotkey()
-@JvmField val ADD_BREAKPOINT = RedenConfigHotkey("addBreakpoint", "B,BUTTON_2").mt().hotkey()
-@JvmField val VIEW_ALL_BREAKPOINTS = RedenConfigHotkey("viewAllBreakpoints", "RIGHT_SHIFT,SPACE").mt().hotkey()
-@JvmField val PAUSE_KEY = RedenConfigHotkey("pauseKey", "LEFT_CONTROL,LEFT_SHIFT,P").mt().hotkey()
-@JvmField val CONTINUE_KEY = RedenConfigHotkey("continueKey", "").mt().hotkey()
-@JvmField val STEP_INTO_KEY = RedenConfigHotkey("stepIntoKey", "").mt().hotkey()
-@JvmField val STEP_OVER_KEY = RedenConfigHotkey("stepOverKey", "").mt().hotkey()
-@JvmField val TOGGLE_FORCE_ENTITY_POS_SYNC = RCBooleanHotkey("toggleForceEntityPosSync", false, "LEFT_CONTROL,LEFT_SHIFT,V").hotkey().mt()
-// RVC
-@JvmField val OPEN_RVC_SCREEN = RedenConfigHotkey("openRvcScreen", "", KeybindSettings.RELEASE).rvc().hotkey()
-@JvmField val OPEN_SELECTION_LIST = RedenConfigHotkey("openSelectionList", "").rvc().hotkey()
-@JvmField val OPEN_EXPORT_SCREEN = RedenConfigHotkey("openExportScreen", "").rvc().hotkey()
-@JvmField val OPEN_IMPORT_SCREEN = RedenConfigHotkey("openImportScreen", "").rvc().hotkey()
-@JvmField val RVC_SAVE_KEY = RedenConfigHotkey("redenSaveKey", "").rvc().hotkey()
-@JvmField val RVC_RECORD_MULTIPLAYER = RedenConfigBoolean("rvcRecordMultiplayer", true).rvc()
-@JvmField val RVC_FORCE_LOCALLY = RedenConfigBoolean("rvcForceLocally").rvc()
-@JvmField val RVC_CONFIRM_KEY = RedenConfigHotkey("rvcConfirmKey", "RIGHT_SHIFT,ENTER").rvc().hotkey()
-@JvmField val RVC_CANCEL_KEY = RedenConfigHotkey("rvcCancelKey", "BACKSPACE").rvc().hotkey()
 // Super Right
 @JvmField val CHAT_RIGHT_CLICK_MENU = RedenConfigBoolean("chatRightClickMenu", true).sr()
 @JvmField val STRUCTURE_BLOCK_LOAD = RedenConfigHotkey("structureBlockLoad", "").sr().hotkey()
 @JvmField val STRUCTURE_BLOCK_SAVE = RedenConfigHotkey("structureBlockSave", "").sr().hotkey()
-@JvmField val WORMHOLE_SELECT = RedenConfigHotkey("wormholeSelect", "", KeybindSettings.INGAME_BOTH).sr().hotkey()
 @JvmField val RUN_COMMAND = RedenConfigCommandHotkeyList("runCommand").sr()
 // Debug
 @JvmField val DEBUG_LOGGER = RedenConfigBoolean("debugLogger") {

@@ -5,15 +5,8 @@ import com.github.zly2006.reden.malilib.HOTKEYS
 import com.github.zly2006.reden.malilib.RUN_COMMAND
 import com.github.zly2006.reden.malilib.configureKeyCallbacks
 import com.github.zly2006.reden.malilib.getAllOptions
-import com.github.zly2006.reden.pearl.PearlTask.Companion.registerPearls
 import com.github.zly2006.reden.report.redenSetup
-import com.github.zly2006.reden.rvc.gui.RvcHudRenderer
-import com.github.zly2006.reden.rvc.gui.hud.gameplay.registerHud
-import com.github.zly2006.reden.rvc.registerRvcLocal
-import com.github.zly2006.reden.rvc.tracking.client.registerSelectionTool
 import com.github.zly2006.reden.sponsor.LuckToday.Companion.luckValue
-import com.github.zly2006.reden.task.taskStack
-import com.github.zly2006.reden.update.relaunch
 import com.github.zly2006.reden.utils.checkMalilib
 import com.github.zly2006.reden.utils.isDebug
 import com.github.zly2006.reden.utils.startDebugAppender
@@ -26,7 +19,6 @@ import fi.dy.masa.malilib.config.ConfigUtils
 import fi.dy.masa.malilib.config.IConfigHandler
 import fi.dy.masa.malilib.event.InitializationHandler
 import fi.dy.masa.malilib.event.InputEventHandler
-import fi.dy.masa.malilib.event.RenderEventHandler
 import fi.dy.masa.malilib.hotkeys.IKeybindManager
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider
 import fi.dy.masa.malilib.util.FileUtils
@@ -66,11 +58,8 @@ fun saveMalilibOptions() {
 class RedenClient : ClientModInitializer {
     override fun onInitializeClient() {
         checkMalilib()
-        registerPearls()
-        registerHud()
         registerGreenstone()
         InitializationHandler.getInstance().registerInitializationHandler {
-            RenderEventHandler.getInstance().registerGameOverlayRenderer(RvcHudRenderer)
             ConfigManager.getInstance().registerConfigHandler("reden", object : IConfigHandler {
                 override fun load() {
                     loadMalilibSettings()
@@ -81,7 +70,6 @@ class RedenClient : ClientModInitializer {
                 }
             })
             loadMalilibSettings()
-            registerSelectionTool()
             InputEventHandler.getKeybindManager().registerKeybindProvider(object : IKeybindProvider {
                 override fun addKeysToMap(iKeybindManager: IKeybindManager) {
                     HOTKEYS.forEach { iKeybindManager.addKeybindToMap(it.keybind) }
@@ -114,19 +102,9 @@ class RedenClient : ClientModInitializer {
         }
         ClientLifecycleEvents.CLIENT_STARTED.register(ClientStarted { client -> redenSetup(client) })
         ClientCommandRegistrationCallback.EVENT.register(ClientCommandRegistrationCallback { dispatcher, registryAccess ->
-            registerRvcLocal(dispatcher)
             registerClientGlow(dispatcher)
             dispatcher.register {
                 literal("reden-debug-client").then {
-                    literal("task").then {
-                        literal("list").executes { context ->
-                            context.source.sendFeedback(Text.literal(taskStack.size.toString()))
-                            for (task in taskStack) {
-                                context.source.sendFeedback(Text.literal(task.toString()))
-                            }
-                            1
-                        }
-                    }
                     literal("floating-item").then {
                         argument("item", ItemStackArgumentType.itemStack(registryAccess)).executes { context ->
                             val client = MinecraftClient.getInstance()
@@ -155,10 +133,6 @@ class RedenClient : ClientModInitializer {
                         context.source.sendFeedback(
                             Text.literal(luckValue.data.toString())
                         )
-                        1
-                    }
-                    literal("relaunch").executes {
-                        relaunch(null)
                         1
                     }
                 }

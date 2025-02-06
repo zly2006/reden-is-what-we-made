@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.network
 
-import com.github.zly2006.reden.debugger.breakpoint.BreakpointsManager
 import com.github.zly2006.reden.utils.codec.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.cbor.Cbor
@@ -20,7 +19,6 @@ interface PacketCodecHelper<T : CustomPayload> {
     companion object {
         val cbor = Cbor {
             serializersModule = SerializersModule {
-                include(serializersModuleOf(BreakpointsManager.Companion.Serializer))
                 include(serializersModuleOf(UUIDSerializer))
                 include(serializersModuleOf(BlockPosSerializer))
                 include(serializersModuleOf(IdentifierSerializer))
