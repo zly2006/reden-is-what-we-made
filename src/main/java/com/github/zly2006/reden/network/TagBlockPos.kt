@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.minecraft.network.packet.CustomPayload
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Vec3d
 
 class TagBlockPos(
     val world: Identifier,
@@ -30,8 +29,4 @@ class TagBlockPos(
             }
         }
     }
-}
-
-private operator fun Vec3d.minus(pos: Vec3d): Vec3d {
-    return Vec3d(x - pos.x, y - pos.y, z - pos.z)
 }
