@@ -16,7 +16,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.github.zly2006.reden.TemplateMod"
+      "com.github.zly2006.reden.Reden"
     ],
     "client": [
       "com.github.zly2006.reden.TemplateModClient"
@@ -33,6 +33,6 @@
   "depends": {
     "fabricloader": ">=0.15",
     "minecraft": "${mcdep}",
-    "fabric-api": "*"
+    "fabric-networking-api-v1": "*"
   }
 }

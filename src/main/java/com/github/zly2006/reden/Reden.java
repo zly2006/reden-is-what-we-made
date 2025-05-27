@@ -4,9 +4,10 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TemplateMod implements ModInitializer {
+public class Reden implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("template");
-    public static final String VERSION = /*$ mod_version*/ "0.1.0";
+    public static final String MOD_VERSION = /*$ mod_version*/ "0.1.0";
+    public static final String MOD_NAME = "Reden";
 
     @Override
     public void onInitialize() {

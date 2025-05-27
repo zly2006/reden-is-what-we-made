@@ -2,6 +2,7 @@ plugins {
     `maven-publish`
     id("fabric-loom")
     kotlin("jvm")
+    kotlin("plugin.serialization")
     //id("dev.kikugie.j52j")
     id("me.modmuss50.mod-publish-plugin")
 }
@@ -55,9 +56,14 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
     modImplementation("maven.modrinth:malilib:${property("deps.malilib")}")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.1")
+
     fapi(
         // Add modules from https://github.com/FabricMC/fabric
         "fabric-lifecycle-events-v1",
+        "fabric-networking-api-v1",
+        "fabric-resource-loader-v0"
     )
 }
 
