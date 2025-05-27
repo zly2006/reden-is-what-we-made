@@ -36,7 +36,17 @@ public class MixinPlayerMode {
     }
 
     // Inject after onBroken
-    @Inject(method = "destroyBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayerGameMode;isCreative()Z"))
+    @Inject(
+        method = "destroyBlock",
+        at = @At(
+            value = "INVOKE",
+            //? if < 1.21.5 {
+            /*target = "Lnet/minecraft/server/level/ServerPlayerGameMode;isCreative()Z"
+            *///?} else {
+            target = "Lnet/minecraft/server/level/ServerPlayer;preventsBlockDrops()Z"
+            //?}
+        )
+    )
     private void afterDestroy(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         UpdateMonitorHelper.playerStopRecording(player);
     }

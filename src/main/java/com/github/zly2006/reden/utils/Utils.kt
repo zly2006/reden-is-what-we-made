@@ -245,7 +245,11 @@ fun Class<*>.shortenName(): String {
     return this.name.split('.').dropLast(1).joinToString(".") { it[0].toString() } + "." + simple
 }
 
+//? if < 1.21.5 {
+/*fun MinecraftServer.send(task: () -> Unit) = tell(TickTask(tickCount, task))
+*///?} else {
 fun MinecraftServer.send(task: () -> Unit) = schedule(TickTask(tickCount, task))
+//?}
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun error(reason: String): Nothing =
