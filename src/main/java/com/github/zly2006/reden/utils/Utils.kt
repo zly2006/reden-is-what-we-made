@@ -64,8 +64,8 @@ fun Level.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.UPDA
         this.heightmaps[Heightmap.Types.OCEAN_FLOOR]!!.update(pos.x and 15, pos.y, pos.z and 15, state)
         this.heightmaps[Heightmap.Types.WORLD_SURFACE]!!.update(pos.x and 15, pos.y, pos.z and 15, state)
         //? if <= 1.21.1 {
-        /*isUnsaved = true*/
-        //?} else {
+        /*isUnsaved = true
+        *///?} else {
         markUnsaved()
         //?}
 
@@ -100,10 +100,10 @@ fun Level.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.UPDA
     }
 
     //? if < 1.21.5 {
-    this.onBlockStateChange(pos, stateBefore, state)
-    //?} else {
-    /*this.updatePOIOnBlockStateChange(pos, stateBefore, state)
-    *///?}
+    /*this.onBlockStateChange(pos, stateBefore, state)
+    *///?} else {
+    this.updatePOIOnBlockStateChange(pos, stateBefore, state)
+    //?}
 }
 
 val isClient: Boolean get() = FabricLoader.getInstance().environmentType == EnvType.CLIENT
@@ -246,10 +246,10 @@ fun Class<*>.shortenName(): String {
 }
 
 //? if <= 1.21.1 {
-fun MinecraftServer.send(task: () -> Unit) = tell(TickTask(tickCount, task))
-//?} else {
-/*fun MinecraftServer.send(task: () -> Unit) = schedule(TickTask(tickCount, task))
-*///?}
+/*fun MinecraftServer.send(task: () -> Unit) = tell(TickTask(tickCount, task))
+*///?} else {
+fun MinecraftServer.send(task: () -> Unit) = schedule(TickTask(tickCount, task))
+//?}
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun error(reason: String): Nothing =

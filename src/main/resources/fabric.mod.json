@@ -35,5 +35,10 @@
     "minecraft": "${mcdep}",
     "fabric-networking-api-v1": "*",
     "fabric-language-kotlin": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "modrinth": "xRu8OXEJ"
+    }
   }
 }

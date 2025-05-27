@@ -41,10 +41,10 @@ public class MixinPlayerMode {
         at = @At(
             value = "INVOKE",
             //? if < 1.21.5 {
-            target = "Lnet/minecraft/server/level/ServerPlayerGameMode;isCreative()Z"
-            //?} else {
-            /*target = "Lnet/minecraft/server/level/ServerPlayer;preventsBlockDrops()Z"
-            *///?}
+            /*target = "Lnet/minecraft/server/level/ServerPlayerGameMode;isCreative()Z"
+            *///?} else {
+            target = "Lnet/minecraft/server/level/ServerPlayer;preventsBlockDrops()Z"
+            //?}
         )
     )
     private void afterDestroy(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
