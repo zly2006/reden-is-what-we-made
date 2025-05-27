@@ -14,7 +14,6 @@ import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.recording
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.undoRecords
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.undoRecordsMap
 import com.github.zly2006.reden.utils.debugLogger
-import com.github.zly2006.reden.utils.server
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
@@ -131,7 +130,7 @@ object UpdateMonitorHelper {
         recording?.data?.computeIfAbsent(pos.asLong()) {
             recording!!.fromWorld(world, pos, true)
         }
-        recording?.lastChangedTick = server.tickCount
+        recording?.lastChangedTick = world.server.tickCount
     }
 
     fun ServerLevel.modified(pos: BlockPos, time: Int = server.tickCount) = getChunk(pos).run {
@@ -175,14 +174,15 @@ object UpdateMonitorHelper {
      * 此缓存可能在没有确认的情况下不经检查直接调用
      */
     private fun addRecord(
-        cause: PlayerData.UndoRecord.Cause
+        cause: PlayerData.UndoRecord.Cause,
+        player: ServerPlayer
     ): PlayerData.UndoRecord {
         if (undoRecords.size != 0) {
             throw IllegalStateException("Cannot add record when there is already one.")
         }
         val undoRecord = PlayerData.UndoRecord(
             id = recordId,
-            lastChangedTick = server.tickCount,
+            lastChangedTick = player.server.tickCount,
             cause = cause
         )
         undoRecordsMap[recordId] = undoRecord
@@ -204,7 +204,7 @@ object UpdateMonitorHelper {
         if (!playerView.canRecord) return
         if (!playerView.isRecording) {
             playerView.isRecording = true
-            val record = addRecord(cause)
+            val record = addRecord(cause, player)
             playerView.undo.add(record)
             pushRecord(record.id) { "player recording/${player.scoreboardName}/$cause" }
         }

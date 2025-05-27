@@ -1,6 +1,8 @@
 package com.github.zly2006.reden;
 
+import com.github.zly2006.reden.utils.UtilsKt;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,9 @@ public class Reden implements ModInitializer {
         //?}
 
         ChannelsKt.registerChannelServer();
+        ServerLifecycleEvents.SERVER_STARTED.register(minecraftServer -> {
+            UtilsKt.setServer(minecraftServer);
+        });
     }
 
     public static ResourceLocation identifier(String path) {

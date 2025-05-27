@@ -3,6 +3,7 @@
   "package": "com.github.zly2006.reden.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "access.MixinServerPlayer",
     "undo.MixinBlockEntity",
     "undo.MixinBlockEvent",
     "undo.MixinCommands",

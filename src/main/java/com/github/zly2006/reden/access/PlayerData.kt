@@ -29,7 +29,7 @@ class PlayerData(
     }
 
     var behalfBy: ServerPlayer? = null
-    val canRecord: Boolean = player.isCreative
+    val canRecord: Boolean get() = player.isCreative
     val undo: MutableList<UndoRecord> = mutableListOf()
     val redo: MutableList<RedoRecord> = mutableListOf()
     var isRecording: Boolean = false
@@ -43,13 +43,14 @@ class PlayerData(
         fun getMemorySize() = (blockEntity?.sizeInBytes() ?: 0) + 20
     }
 
+    @Suppress("INAPPLICABLE_JVM_NAME")
     internal interface PlayerDataAccess {
-        fun getRedenPlayerData(): PlayerData
+        fun `reden$playerData`(): PlayerData
     }
 
     companion object {
         fun ServerPlayer.data(): PlayerData {
-            return (this as PlayerDataAccess).getRedenPlayerData()
+            return (this as PlayerDataAccess).`reden$playerData`()
         }
     }
 

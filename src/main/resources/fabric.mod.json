@@ -12,7 +12,7 @@
     "sources": "https://github.com/zly2006/reden-is-what-we-made"
   },
   "license": "LGPL-v3.0-only",
-  "icon": "assets/template/icon.png",
+  "icon": "assets/reden/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [

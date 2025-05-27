@@ -20,7 +20,7 @@ fun registerClientPackets() {
         Reden.LOGGER.info("Feature set: " + packet.featureSet.joinToString())
         packet.featureSet.forEach { name ->
             when (name) {
-                "undo" -> ClientPlayNetworking.registerReceiver(Undo.ID) { packet, context ->
+                "undo" -> ClientPlayNetworking.registerGlobalReceiver(Undo.ID) { packet, context ->
                     context.player().sendSystemMessage(
                         when (packet.status) {
                             0     -> translateMessage("undo", "rollback_success")
