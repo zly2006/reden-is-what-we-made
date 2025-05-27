@@ -6,23 +6,23 @@ import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import net.minecraft.nbt.NbtCompound
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.NbtAccounter
 import net.minecraft.nbt.NbtIo
-import net.minecraft.nbt.NbtSizeTracker
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 
-object NbtSerializer : KSerializer<NbtCompound> {
+object NbtSerializer : KSerializer<CompoundTag> {
     override val descriptor = PrimitiveSerialDescriptor("minecraft.NbtCompound", PrimitiveKind.STRING)
 
-    override fun deserialize(decoder: Decoder): NbtCompound = NbtIo.read(
+    override fun deserialize(decoder: Decoder): CompoundTag = NbtIo.read(
         DataInputStream(ByteArrayInputStream(decoder.decodeSerializableValue(ByteArraySerializer()))),
-        NbtSizeTracker.ofUnlimitedBytes()
-    ) as NbtCompound
+        NbtAccounter.create(1024 * 1024) // 1 MB
+    ) as CompoundTag
 
-    override fun serialize(encoder: Encoder, value: NbtCompound) {
+    override fun serialize(encoder: Encoder, value: CompoundTag) {
         val stream = ByteArrayOutputStream()
         NbtIo.write(value, DataOutputStream(stream))
         encoder.encodeSerializableValue(ByteArraySerializer(), stream.toByteArray())

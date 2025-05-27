@@ -7,7 +7,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.listSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 
 object BlockPosSerializer : KSerializer<BlockPos> {
     @OptIn(ExperimentalSerializationApi::class)

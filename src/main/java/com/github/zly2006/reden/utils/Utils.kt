@@ -14,8 +14,11 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.Position
 import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.TickTask
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.BaseEntityBlock
@@ -24,6 +27,8 @@ import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.levelgen.Heightmap
+import net.minecraft.world.level.lighting.LevelLightEngine
+import net.minecraft.world.level.lighting.LightEngine
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
@@ -52,25 +57,25 @@ fun Level.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.UPDA
         .setBlockState(pos.x and 15, pos.y and 15, pos.z and 15, state, false)
     getChunkAt(pos).run {
         this.heightmaps[Heightmap.Types.MOTION_BLOCKING]!!.update(pos.x and 15, pos.y, pos.z and 15, state)
-        this.heightmaps[Heightmap.Types.MOTION_BLOCKING_NO_LEAVES]!!.trackUpdate(
+        this.heightmaps[Heightmap.Types.MOTION_BLOCKING_NO_LEAVES]!!.update(
             pos.x and 15,
             pos.y,
             pos.z and 15,
             state
         )
-        this.heightmaps[Heightmap.Types.OCEAN_FLOOR]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
-        this.heightmaps[Heightmap.Types.WORLD_SURFACE]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
-        setNeedsSaving(true)
+        this.heightmaps[Heightmap.Types.OCEAN_FLOOR]!!.update(pos.x and 15, pos.y, pos.z and 15, state)
+        this.heightmaps[Heightmap.Types.WORLD_SURFACE]!!.update(pos.x and 15, pos.y, pos.z and 15, state)
+        isUnsaved = true
 
-        if (ChunkLightProvider.needsLightUpdate(this, pos, stateBefore, state)) {
+        if (LightEngine.hasDifferentLightProperties(this, pos, stateBefore, state)) {
             profiler.push("updateSkyLightSources")
-            chunkSkyLight.isSkyLightAccessible(this, pos.x and 15, pos.y and 15, pos.z and 15)
-            profiler.swap("queueCheckLight")
-            chunkManager.lightingProvider.checkBlock(pos)
+            skyLightSources.update(this, pos.x and 15, pos.y and 15, pos.z and 15)
+            profiler.popPush("queueCheckLight")
+            chunkSource.lightEngine.checkBlock(pos)
             profiler.pop()
         }
 
-        if (!state.isOf(stateBefore.block) && stateBefore.hasBlockEntity()) {
+        if (!state.`is`(stateBefore.block) && stateBefore.hasBlockEntity()) {
             this.removeBlockEntity(pos)
         }
 
@@ -78,24 +83,20 @@ fun Level.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.UPDA
             var blockEntity = this.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK)
             if (blockEntity == null) {
                 blockEntity = (state.block as EntityBlock).newBlockEntity(pos, state)
-                if (blockEntity != null) {
-                    this.setBlockEntity(blockEntity)
-                }
-            } else {
-                @Suppress("DEPRECATION")
-                blockEntity.cachedState = state
-                this.updateTicker(blockEntity)
+            }
+            if (blockEntity != null) {
+                this.setBlockEntity(blockEntity)
             }
         }
     }
-    if (this is ServerWorld) {
-        chunkManager.markForUpdate(pos)
+    if (this is ServerLevel) {
+        chunkSource.blockChanged(pos)
     }
-    if (flags and Block.NOTIFY_LISTENERS != 0) {
-        updateListeners(pos, stateBefore, state, flags)
+    if (flags and Block.UPDATE_CLIENTS != 0) {
+        sendBlockUpdated(pos, stateBefore, state, flags)
     }
     // poi
-    this.onBlockChanged(pos, stateBefore, state)
+    this.onBlockStateChange(pos, stateBefore, state)
     profiler.pop()
 }
 
@@ -226,7 +227,7 @@ inline fun redenError(message: String, throwable: Throwable? = null, log: Boolea
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun redenError(message: Text, throwable: Throwable? = null, log: Boolean = false): Nothing {
+inline fun redenError(message: Component, throwable: Throwable? = null, log: Boolean = false): Nothing {
     if (log) {
         Reden.LOGGER.error(message.string, throwable)
     }
@@ -238,7 +239,7 @@ fun Class<*>.shortenName(): String {
     return this.name.split('.').dropLast(1).joinToString(".") { it[0].toString() } + "." + simple
 }
 
-fun MinecraftServer.send(task: () -> Unit) = send(ServerTask(ticks, task))
+fun MinecraftServer.send(task: () -> Unit) = tell(TickTask(tickCount, task))
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun error(reason: String): Nothing =
