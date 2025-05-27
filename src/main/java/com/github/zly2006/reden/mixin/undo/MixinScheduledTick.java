@@ -1,11 +1,11 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.UndoableAccess;
-import net.minecraft.world.tick.OrderedTick;
+import net.minecraft.world.ticks.ScheduledTick;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(OrderedTick.class)
+@Mixin(ScheduledTick.class)
 public class MixinScheduledTick implements UndoableAccess {
     @Unique
     long undoId;

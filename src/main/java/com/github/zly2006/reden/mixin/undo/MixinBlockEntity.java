@@ -3,13 +3,13 @@ package com.github.zly2006.reden.mixin.undo;
 import com.github.zly2006.reden.access.BlockEntityInterface;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,52 +21,50 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BlockEntity.class)
 public abstract class MixinBlockEntity implements BlockEntityInterface {
-    @Shadow @Nullable protected World world;
+    @Shadow @Nullable protected Level level;
+    @Final @Shadow protected BlockPos worldPosition;
+    @Shadow private BlockState blockState;
 
-    @Shadow private BlockState cachedState;
-    @Shadow @Final protected BlockPos pos;
+    @Shadow public abstract CompoundTag saveWithId(HolderLookup.Provider provider);
 
-    @Shadow
-    public abstract NbtCompound createNbtWithId(RegistryWrapper.WrapperLookup registryLookup);
-
-    @Unique NbtCompound lastSavedNbt = null;
+    @Unique CompoundTag lastSavedNbt = null;
 
     @Override
     public void saveLastNbt$reden() {
-        if (world != null && !world.isClient) {
-            DebugKt.debugLogger.invoke("before saving lastNBT at " + pos.toShortString() + ", data=" + lastSavedNbt);
-            lastSavedNbt = this.createNbtWithId(world.getRegistryManager()).copy();
-            DebugKt.debugLogger.invoke("saved lastNBT at " + pos.toShortString() + ", cause=manual, " + lastSavedNbt);
+        if (level != null && !level.isClientSide) {
+            DebugKt.debugLogger.invoke("before saving lastNBT at " + worldPosition.toShortString() + ", data=" + lastSavedNbt);
+            lastSavedNbt = this.saveWithId(level.registryAccess()).copy();
+            DebugKt.debugLogger.invoke("saved lastNBT at " + worldPosition.toShortString() + ", cause=manual, " + lastSavedNbt);
         }
     }
 
     @Override
     @Nullable
-    public NbtCompound getLastSavedNbt$reden() {
+    public CompoundTag getLastSavedNbt$reden() {
         return lastSavedNbt;
     }
 
     @Inject(
-            method = "markDirty()V",
+            method = "setChanged()V",
             at = @At("HEAD")
     )
     private void onBlockEntityChanged(CallbackInfo ci) {
-        if (world instanceof ServerWorld serverWorld) {
-            UpdateMonitorHelper.postSetBlock(serverWorld, pos, cachedState, true);
+        if (level instanceof ServerLevel serverLevel) {
+            UpdateMonitorHelper.postSetBlock(serverLevel, worldPosition, blockState, true);
         }
     }
 
     @Inject(
-            method = "read",
+            method = "loadWithComponents",
             at = @At("TAIL")
     )
-    private void onReadNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
-        DebugKt.debugLogger.invoke("before saving lastNBT at " + pos.toShortString() + ", data=" + lastSavedNbt);
+    private void onReadNbt(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
+        DebugKt.debugLogger.invoke("before saving lastNBT at " + worldPosition.toShortString() + ", data=" + lastSavedNbt);
         if (lastSavedNbt == null) {
             lastSavedNbt = nbt.copy();
-            DebugKt.debugLogger.invoke("saved lastNBT at " + pos.toShortString() + ", cause=read, " + lastSavedNbt);
+            DebugKt.debugLogger.invoke("saved lastNBT at " + worldPosition.toShortString() + ", cause=read, " + lastSavedNbt);
         } else {
-            DebugKt.debugLogger.invoke("skip saving lastNBT at " + pos.toShortString());
+            DebugKt.debugLogger.invoke("skip saving lastNBT at " + worldPosition.toShortString());
         }
     }
 }

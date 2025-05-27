@@ -2,53 +2,54 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.brigadier.ParseResults;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(CommandManager.class)
+@Mixin(Commands.class)
 public class MixinCommands {
-    @Redirect(
-            method = "execute",
+    @WrapOperation(
+            method = "performCommand",
             at = @At(
                     value = "FIELD",
-                    target = "Lnet/minecraft/SharedConstants;isDevelopment:Z"
+                    target = "Lnet/minecraft/SharedConstants;IS_RUNNING_IN_IDE:Z"
             )
     )
-    private boolean printException() {
+    private boolean printException(Operation<Boolean> original) {
         return true;
     }
 
     @Inject(
-            method = "execute",
+            method = "performCommand",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/command/CommandManager;callWithContext(Lnet/minecraft/server/command/ServerCommandSource;Ljava/util/function/Consumer;)V",
+                    target = "Lnet/minecraft/commands/Commands;executeCommandInContext(Lnet/minecraft/commands/CommandSourceStack;Ljava/util/function/Consumer;)V",
                     shift = At.Shift.BEFORE
             )
     )
-    private void onExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfo ci) {
-        if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {
+    private void onExecute(ParseResults<CommandSourceStack> parseResults, String command, CallbackInfo ci) {
+        if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayer player) {
             UpdateMonitorHelper.playerStartRecording(player, PlayerData.UndoRecord.Cause.COMMAND);
         }
     }
 
     @Inject(
-            method = "execute",
+            method = "performCommand",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/command/CommandManager;callWithContext(Lnet/minecraft/server/command/ServerCommandSource;Ljava/util/function/Consumer;)V",
+                    target = "Lnet/minecraft/commands/Commands;executeCommandInContext(Lnet/minecraft/commands/CommandSourceStack;Ljava/util/function/Consumer;)V",
                     shift = At.Shift.AFTER
             )
     )
-    private void afterExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfo ci) {
-        if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayerEntity player) {
+    private void afterExecute(ParseResults<CommandSourceStack> parseResults, String command, CallbackInfo ci) {
+        if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayer player) {
             UpdateMonitorHelper.playerStopRecording(player);
         }
     }

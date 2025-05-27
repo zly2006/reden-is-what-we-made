@@ -1,22 +1,23 @@
 package com.github.zly2006.reden.gui;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class QuickMenuWidget implements Selectable, Drawable, Element {
+public abstract class QuickMenuWidget implements NarratableEntry, Renderable, GuiEventListener {
     private final Screen parent;
     private final List<MenuEntry> entries = new ArrayList<>();
-    private final MinecraftClient client = MinecraftClient.getInstance();
+    private final Minecraft client = Minecraft.getInstance();
     int x;
     int y;
     int width;
@@ -33,10 +34,10 @@ public abstract class QuickMenuWidget implements Selectable, Drawable, Element {
     public static final ClickAction CLOSE_ACTION = (entry, button) -> entry.getParent().remove();
     public static final ClickAction EMPTY_ACTION = (entry, button) -> { };
     public class MenuEntry {
-        Text name;
+        Component name;
         ClickAction action;
 
-        public MenuEntry(Text name, ClickAction action) {
+        public MenuEntry(Component name, ClickAction action) {
             this.name = name;
             this.action = action;
         }
@@ -45,7 +46,7 @@ public abstract class QuickMenuWidget implements Selectable, Drawable, Element {
             return QuickMenuWidget.this;
         }
 
-        public void setName(Text name) {
+        public void setName(Component name) {
             this.name = name;
         }
 
@@ -53,7 +54,7 @@ public abstract class QuickMenuWidget implements Selectable, Drawable, Element {
             this.action = action;
         }
 
-        public Text getName() {
+        public Component getName() {
             return name;
         }
 
@@ -61,21 +62,21 @@ public abstract class QuickMenuWidget implements Selectable, Drawable, Element {
             return action;
         }
     }
-    public void addEntry(Text name, ClickAction action) {
+    public void addEntry(Component name, ClickAction action) {
         entries.add(new MenuEntry(name, action));
     }
 
     public abstract void remove();
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (entries.isEmpty()) {
             remove();
             return;
         }
         int height = entries.size() * 14;
         width = Integer.max(entries.stream()
-            .map(x -> client.textRenderer.getWidth(x.name))
+            .map(x -> client.font.width(x.name))
             .max(Integer::compareTo)
             .get(), 80);
         if (x + width > parent.width) {
@@ -84,18 +85,18 @@ public abstract class QuickMenuWidget implements Selectable, Drawable, Element {
         if (y + height > parent.height) {
             y = parent.height - height;
         }
-        context.getMatrices().push();
-        context.getMatrices().translate(0.0F, 0.0F, 100);
-        context.fillGradient(RenderLayer.getGuiOverlay(), x, y, x + width, y + height, 0x80000000, 0x80000000, 0);
+        context.pose().pushPose();
+        context.pose().translate(0.0F, 0.0F, 100);
+        context.fillGradient(RenderType.guiOverlay(), x, y, x + width, y + height, 0x80000000, 0x80000000, 0);
         for (int i = 0; i < entries.size(); i++) {
             MenuEntry entry = entries.get(i);
             int color = 0xFFFFFF;
             if (mouseX >= x && mouseX <= x + width && mouseY >= y + i * 14 && mouseY <= y + i * 14 + 14) {
                 color = 0xFFFF00;
             }
-            context.drawCenteredTextWithShadow(client.textRenderer, entry.name, x + width / 2, y + i * 14 + 2, color);
+            context.drawCenteredString(client.font, entry.name, x + width / 2, y + i * 14 + 2, color);
         }
-        context.getMatrices().pop();
+        context.pose().popPose();
     }
 
     @Override
@@ -105,7 +106,6 @@ public abstract class QuickMenuWidget implements Selectable, Drawable, Element {
         }
         for (int i = 0; i < entries.size(); i++) {
             MenuEntry entry = entries.get(i);
-            entry.getName().copy().append(Text.of("ssšśæaāàáãppįìłmñńņňŋŕřśšşŧūùúŭýÿźżž"));
             if (mouseX >= x && mouseX <= x + width && mouseY >= y + i * 14 && mouseY <= y + i * 14 + 14) {
                 ClickAction action = entry.action;
                 entry.action = CLOSE_ACTION;
@@ -134,9 +134,10 @@ public abstract class QuickMenuWidget implements Selectable, Drawable, Element {
     }
 
     @Override
-    public SelectionType getType() {
-        return SelectionType.NONE;
+    public @NotNull NarrationPriority narrationPriority() {
+        return NarrationPriority.NONE;
     }
+
     @Override
-    public void appendNarrations(NarrationMessageBuilder builder) { }
+    public void updateNarration(NarrationElementOutput narrationElementOutput) { }
 }

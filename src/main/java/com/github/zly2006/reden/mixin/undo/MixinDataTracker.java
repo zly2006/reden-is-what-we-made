@@ -1,10 +1,10 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.data.DataTracked;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SyncedDataHolder;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -12,27 +12,20 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(DataTracker.class)
+@Mixin(SynchedEntityData.class)
 public class MixinDataTracker {
     @Shadow
     @Final
-    private DataTracked trackedEntity;
+    private SyncedDataHolder entity;
 
     @Inject(
-            method = "set(Lnet/minecraft/entity/data/TrackedData;Ljava/lang/Object;Z)V",
+            method = "set(Lnet/minecraft/network/syncher/EntityDataAccessor;Ljava/lang/Object;Z)V",
             at = @At("HEAD")
     )
-    private <T> void beforeDataSet(TrackedData<T> key, T value, boolean force, CallbackInfo ci) {
-        if (trackedEntity instanceof Entity entity) {
-            if (entity.getWorld().isClient) return;
-            UpdateMonitorHelper.tryAddRelatedEntity(entity);
+    private <T> void beforeDataSet(EntityDataAccessor<T> entityDataAccessor, T object, boolean bl, CallbackInfo ci) {
+        if (entity instanceof Entity modifiedEntity) {
+            if (modifiedEntity.level().isClientSide()) return;
+            UpdateMonitorHelper.tryAddRelatedEntity(modifiedEntity);
         }
-    }
-    @Inject(
-            method = "set(Lnet/minecraft/entity/data/TrackedData;Ljava/lang/Object;Z)V",
-            at = @At("RETURN")
-    )
-    private <T> void afterDataSet(TrackedData<T> key, T value, boolean force, CallbackInfo ci) {
-        // empty
     }
 }

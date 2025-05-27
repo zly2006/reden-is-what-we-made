@@ -4,61 +4,58 @@ import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.tick.OrderedTick;
-import net.minecraft.world.tick.WorldTickScheduler;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.ticks.LevelTicks;
+import net.minecraft.world.ticks.ScheduledTick;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.function.BiConsumer;
 
-@Mixin(WorldTickScheduler.class)
+@Mixin(LevelTicks.class)
 @SuppressWarnings("rawtypes")
 public class MixinSchedule {
     @Inject(
-            method = "tick(Ljava/util/function/BiConsumer;)V",
+            method = "runCollectedTicks",
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/util/List;add(Ljava/lang/Object;)Z"
-            ),
-            locals = LocalCapture.CAPTURE_FAILSOFT
+            )
     )
-    private <T> void onRunSchedule(BiConsumer<BlockPos, T> ticker, CallbackInfo ci, OrderedTick orderedTick) {
+    private <T> void onRunSchedule(BiConsumer<BlockPos, T> biConsumer, CallbackInfo ci, @Local ScheduledTick scheduledTick) {
         if (1 == 1) {
-            long undoId = ((UndoableAccess) orderedTick).getUndoId$reden();
-            UpdateMonitorHelper.pushRecord(undoId, () -> "scheduled tick/" + orderedTick.pos().toShortString());
+            long undoId = ((UndoableAccess) scheduledTick).getUndoId$reden();
+            UpdateMonitorHelper.pushRecord(undoId, () -> "scheduled tick/" + scheduledTick.pos().toShortString());
         }
     }
     @Inject(
-            method = "tick(Ljava/util/function/BiConsumer;)V",
+            method = "runCollectedTicks",
             at = @At(
                     value = "INVOKE",
                     shift = At.Shift.AFTER,
                     target = "Ljava/util/function/BiConsumer;accept(Ljava/lang/Object;Ljava/lang/Object;)V"
-            ),
-            locals = LocalCapture.CAPTURE_FAILSOFT
+            )
     )
-    private void afterRunSchedule(BiConsumer<BlockPos, ?> ticker, CallbackInfo ci, OrderedTick orderedTick) {
+    private <T> void afterRunSchedule(BiConsumer<BlockPos, T> biConsumer, CallbackInfo ci, @Local ScheduledTick scheduledTick) {
         if (1 == 1) {
-            UpdateMonitorHelper.popRecord(() -> "scheduled tick/" + orderedTick.pos().toShortString());
+            UpdateMonitorHelper.popRecord(() -> "scheduled tick/" + scheduledTick.pos().toShortString());
         }
     }
     @Inject(
-            method = "scheduleTick",
+            method = "schedule",
             at = @At(
                     value = "HEAD"
             )
     )
-    private <T> void onAddSchedule(OrderedTick<T> orderedTick, CallbackInfo ci) {
-        UndoableAccess access = (UndoableAccess) orderedTick;
+    private <T> void onAddSchedule(ScheduledTick<T> scheduledTick, CallbackInfo ci) {
         PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
         if (recording != null) {
-            DebugKt.debugLogger.invoke("Scheduled tick at " + orderedTick.pos() + ", adding it into record " + recording.getId());
+            DebugKt.debugLogger.invoke("Scheduled tick at " + scheduledTick.pos() + ", adding it into record " + recording.getId());
             // inherit parent id
-            access.setUndoId$reden(recording.getId());
+            ((UndoableAccess) scheduledTick).setUndoId$reden(recording.getId());
         }
     }
 }

@@ -1,13 +1,13 @@
 package com.github.zly2006.reden.mixin.undo.data;
 
 import com.github.zly2006.reden.access.ChunkSectionInterface;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(ChunkSection.class)
+@Mixin(LevelChunkSection.class)
 public class MixinChunkSection implements ChunkSectionInterface {
     @Unique int[] modifyTime;
 

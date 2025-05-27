@@ -4,14 +4,14 @@ import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
-import net.minecraft.block.entity.PistonBlockEntity;
+import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(PistonBlockEntity.class)
+@Mixin(PistonMovingBlockEntity.class)
 public class MixinPistonEntity implements UndoableAccess {
     @Unique
     long undoId;
@@ -26,7 +26,7 @@ public class MixinPistonEntity implements UndoableAccess {
         this.undoId = undoId;
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/Direction;ZZ)V", at = @At("RETURN"))
     private void onInit(CallbackInfo ci) {
         PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
         if (recording != null) {
@@ -34,7 +34,7 @@ public class MixinPistonEntity implements UndoableAccess {
         }
     }
 
-    @Inject(method = "finish", at = @At("HEAD"))
+    @Inject(method = "finalTick", at = @At("HEAD"))
     private void beforeFinish(CallbackInfo ci) {
         if (undoId != 0) {
             DebugKt.debugLogger.invoke("---Piston finishing, setting it to record "+ undoId);
@@ -42,7 +42,7 @@ public class MixinPistonEntity implements UndoableAccess {
         }
     }
 
-    @Inject(method = "finish", at = @At("RETURN"))
+    @Inject(method = "finalTick", at = @At("RETURN"))
     private void afterFinish(CallbackInfo ci) {
         if (undoId != 0) {
             DebugKt.debugLogger.invoke("---Piston finished, removing it from record "+ undoId);

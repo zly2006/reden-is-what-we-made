@@ -4,8 +4,8 @@ import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
-import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,15 +16,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Explosion.class)
 public class MixinExplosion implements UndoableAccess {
-    @Shadow @Final private World world;
+    @Shadow @Final private Level level;
     @Unique long undoId;
 
     @Inject(
-            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/damage/DamageSource;Lnet/minecraft/world/explosion/ExplosionBehavior;DDDFZLnet/minecraft/world/explosion/Explosion$DestructionType;Lnet/minecraft/particle/ParticleEffect;Lnet/minecraft/particle/ParticleEffect;Lnet/minecraft/registry/entry/RegistryEntry;)V",
+            method = "<init>(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;Lnet/minecraft/world/level/ExplosionDamageCalculator;DDDFZLnet/minecraft/world/level/Explosion$BlockInteraction;Lnet/minecraft/core/particles/ParticleOptions;Lnet/minecraft/core/particles/ParticleOptions;Lnet/minecraft/core/Holder;)V",
             at = @At("RETURN")
     )
     private void onInit(CallbackInfo ci) {
-        if (world.isClient) return;
+        if (level.isClientSide) return;
         PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
         if (recording != null) {
             DebugKt.debugLogger.invoke("Explosion happened, adding it into record "+ recording.getId());
@@ -32,27 +32,27 @@ public class MixinExplosion implements UndoableAccess {
         }
     }
 
-    @Inject(method = "affectWorld", at = @At("HEAD"))
+    @Inject(method = "finalizeExplosion", at = @At("HEAD"))
     private void beforeAffectWorld(boolean particles, CallbackInfo ci) {
-        if (world.isClient) return;
+        if (level.isClientSide) return;
         UpdateMonitorHelper.pushRecord(undoId, () -> "explosion.blocks");
     }
 
-    @Inject(method = "affectWorld", at = @At("RETURN"))
+    @Inject(method = "finalizeExplosion", at = @At("RETURN"))
     private void afterAffectWorld(boolean particles, CallbackInfo ci) {
-        if (world.isClient) return;
+        if (level.isClientSide) return;
         UpdateMonitorHelper.popRecord(() -> "explosion.blocks");
     }
 
-    @Inject(method = "collectBlocksAndDamageEntities", at = @At("HEAD"))
+    @Inject(method = "explode", at = @At("HEAD"))
     private void beforeDamageEntities(CallbackInfo ci) {
-        if (world.isClient) return;
+        if (level.isClientSide) return;
         UpdateMonitorHelper.pushRecord(undoId, () -> "explosion.entities");
     }
 
-    @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
+    @Inject(method = "explode", at = @At("RETURN"))
     private void afterDamageEntities(CallbackInfo ci) {
-        if (world.isClient) return;
+        if (level.isClientSide) return;
         UpdateMonitorHelper.popRecord(() -> "explosion.entities");
     }
 

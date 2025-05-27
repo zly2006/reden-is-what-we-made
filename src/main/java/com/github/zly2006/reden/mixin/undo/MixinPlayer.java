@@ -2,43 +2,44 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerPlayerEntity.class)
+@Mixin(ServerPlayer.class)
 public class MixinPlayer {
-    @Shadow public ServerPlayNetworkHandler networkHandler;
+    @Unique
+    private ServerPlayer self() {
+        return (ServerPlayer) (Object) this;
+    }
 
     @Inject(
             method = "attack",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/player/PlayerEntity;attack(Lnet/minecraft/entity/Entity;)V",
+                    target = "Lnet/minecraft/world/entity/player/Player;attack(Lnet/minecraft/world/entity/Entity;)V",
                     shift = At.Shift.BEFORE
             )
     )
-    private void onAttack(Entity target, CallbackInfo ci) {
+    private void onAttack(CallbackInfo ci) {
         if (1 == 1) {
-            UpdateMonitorHelper.playerStartRecording(networkHandler.player, PlayerData.UndoRecord.Cause.ATTACK_ENTITY);
+            UpdateMonitorHelper.playerStartRecording(self(), PlayerData.UndoRecord.Cause.ATTACK_ENTITY);
         }
     }
     @Inject(
             method = "attack",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/player/PlayerEntity;attack(Lnet/minecraft/entity/Entity;)V",
+                    target = "Lnet/minecraft/world/entity/player/Player;attack(Lnet/minecraft/world/entity/Entity;)V",
                     shift = At.Shift.AFTER
             )
     )
-    private void afterAttack(Entity target, CallbackInfo ci) {
+    private void afterAttack(CallbackInfo ci) {
         if (1 == 1) {
-            UpdateMonitorHelper.playerStopRecording(networkHandler.player);
+            UpdateMonitorHelper.playerStopRecording(self());
         }
     }
 }

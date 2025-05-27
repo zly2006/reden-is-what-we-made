@@ -3,7 +3,24 @@
   "package": "com.github.zly2006.reden.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "ExampleMixin"
+    "undo.MixinBlockEntity",
+    "undo.MixinBlockEvent",
+    "undo.MixinCommands",
+    "undo.MixinDataTracker",
+    "undo.MixinEntity",
+    "undo.MixinExplosion",
+    "undo.MixinLivingEntity",
+    "undo.MixinPistonEntity",
+    "undo.MixinPlayer",
+    "undo.MixinPlayerMode",
+    "undo.MixinProjectileEntity",
+    "undo.MixinSchedule",
+    "undo.MixinScheduledTick",
+    "undo.MixinServerPlayNetworkHandler",
+    "undo.MixinServerWorld",
+    "undo.MixinServerWorldChunk",
+    "undo.MixinTntEntity",
+    "undo.data.MixinChunkSection"
   ],
   "injectors": {
     "defaultRequire": 1

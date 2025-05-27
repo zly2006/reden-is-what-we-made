@@ -1,19 +1,15 @@
 package com.github.zly2006.reden.mixin.client.chat;
 
-import com.github.zly2006.reden.access.VisibleChatHudLineAccess;
 import com.github.zly2006.reden.gui.QuickMenuWidget;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.client.gui.hud.ChatHudLine;
-import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import com.github.zly2006.reden.mixinhelper.ChatMixinHelper;
+import net.minecraft.client.GuiMessage;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,20 +27,18 @@ import java.util.regex.Pattern;
 
 @Mixin(ChatScreen.class)
 public abstract class ChatScreenMixin extends Screen {
-    private static final Pattern urlPattern = Pattern.compile("(https?://)?[a-zA-Z0-9\\-.]+\\.[a-zA-Z]{2,8}(/\\S*)?");
+    @Shadow @Nullable protected abstract Style getComponentStyleAt(double d, double e);
     @Unique
     QuickMenuWidget quickMenuWidget = null;
 
-    protected ChatScreenMixin(Text title) {
+    protected ChatScreenMixin(Component title) {
         super(title);
     }
 
-    @Shadow @Nullable protected abstract Style getTextStyleAt(double x, double y);
-
-    @Redirect(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setScreen(Lnet/minecraft/client/gui/screen/Screen;)V"))
-    private void keyPressed(MinecraftClient client, Screen screen) {
+    @Redirect(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V"))
+    private void keyPressed(Minecraft client, Screen screen) {
         if (screen == null) {
-            if (client.currentScreen == ct$getThis()) {
+            if (client.screen == reden$getThis()) {
                 client.setScreen(null);
             }
         } else {
@@ -62,19 +56,16 @@ public abstract class ChatScreenMixin extends Screen {
             }
         }
         if (button == GLFW.GLFW_MOUSE_BUTTON_2) { // Right click
-            MinecraftClient client = MinecraftClient.getInstance();
-            ChatHudLine.Visible visible = ct$geMessageAt(mouseX, mouseY);
-            if (visible != null) {
-                Text text = ((VisibleChatHudLineAccess) (Object) visible).getText$reden();
-                if (text != null) {
-                    rightClickMenu((int) mouseX, (int) mouseY, client, text);
-                    cir.setReturnValue(true);
-                }
+            Minecraft client = Minecraft.getInstance();
+            GuiMessage.Line line = reden$geMessageAt(mouseX, mouseY);
+            if (line != null) {
+                rightClickMenu((int) mouseX, (int) mouseY, client, line, getComponentStyleAt(mouseX, mouseY));
+                cir.setReturnValue(true);
             }
         }
     }
 
-    @Unique private void rightClickMenu(int mouseX, int mouseY, MinecraftClient client, Text text) {
+    @Unique private void rightClickMenu(int mouseX, int mouseY, Minecraft client, GuiMessage.Line line, Style style) {
         if (quickMenuWidget != null) {
             quickMenuWidget.remove();
         }
@@ -84,114 +75,42 @@ public abstract class ChatScreenMixin extends Screen {
                 quickMenuWidget = null;
             }
         };
-//        quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.about"), (e, b) ->
-//                client.setScreen(new SuperRightIntro()));
-        String message = text.getString();
-        Matcher matcher = urlPattern.matcher(message);
-        Style style = getTextStyleAt(mouseX, mouseY);
-        if (matcher.find()) {
-            String url = matcher.group();
-            if (!url.startsWith("http")) {
-                url = "http://" + url;
-            }
-            String finalUrl = url;
-            quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_url"), (entry, button) -> {
-                client.keyboard.setClipboard(finalUrl);
-                entry.setName(Text.translatable("reden.widget.chat.copied"));
-            });
-        }
-        quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_raw"), (entry, button) -> {
-            client.keyboard.setClipboard(Text.Serialization.toJsonString(text, client.world.getRegistryManager()));
-            entry.setName(Text.translatable("reden.widget.chat.copied"));
-        });
-        quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy"), (entry, button) -> {
-            client.keyboard.setClipboard(message);
-            entry.setName(Text.translatable("reden.widget.chat.copied"));
-        });
-        if (style != null) {
-            if (style.getHoverEvent() != null) {
-                HoverEvent.Action<?> action = style.getHoverEvent().getAction();
-                if (action == HoverEvent.Action.SHOW_TEXT) {
-                    quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_hover_raw"), (entry, button) -> {
-                        Text hoverText = style.getHoverEvent().getValue(HoverEvent.Action.SHOW_TEXT);
-                        client.keyboard.setClipboard(Text.Serialization.toJsonString(hoverText, client.world.getRegistryManager()));
-                        entry.setName(Text.translatable("reden.widget.chat.copied"));
-                    });
-                }
-                if (action == HoverEvent.Action.SHOW_ITEM) {
-                    quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.give_hover_item"), (entry, button) -> {
-                        @SuppressWarnings("DataFlowIssue")
-                        ItemStack stack = style.getHoverEvent().getValue(HoverEvent.Action.SHOW_ITEM).asStack();
-                        if (stack.getComponents().isEmpty()) {
-                            //noinspection DataFlowIssue
-                            client.getNetworkHandler().sendChatCommand(
-                                "give @s " + Registries.ITEM.getId(stack.getItem())
-                            );
-                        } else {
-                            // todo
-                        }
-                        entry.setName(Text.translatable("reden.widget.chat.done"));
-                    });
-                }
-                if (action == HoverEvent.Action.SHOW_ENTITY) {
-                    quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_hover_uuid"), (entry, button) -> {
-                        UUID uuid = style.getHoverEvent().getValue(HoverEvent.Action.SHOW_ENTITY).uuid;
-                        client.keyboard.setClipboard(uuid.toString());
-                        entry.setName(Text.translatable("reden.widget.chat.copied"));
-                    });
-                }
-            }
-            if (style.getClickEvent() != null) {
-                if (style.getClickEvent().getAction() == ClickEvent.Action.RUN_COMMAND) {
-                    quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_click_command"), (entry, button) -> {
-                        String command = style.getClickEvent().getValue();
-                        client.keyboard.setClipboard(command);
-                        entry.setName(Text.translatable("reden.widget.chat.copied"));
-                    });
-                }
-                if (style.getClickEvent().getAction() == ClickEvent.Action.OPEN_FILE) {
-                    quickMenuWidget.addEntry(Text.translatable("reden.widget.chat.copy_click_file"), (entry, button) -> {
-                        String file = style.getClickEvent().getValue();
-                        client.keyboard.setClipboard(file);
-                        entry.setName(Text.translatable("reden.widget.chat.copied"));
-                    });
-                }
-            }
-        }
+        ChatMixinHelper.initRightClickMenu(quickMenuWidget, line, style);
     }
 
-    private ChatHudLine.Visible ct$geMessageAt(double x, double y) {
-        ChatHud chatHud = MinecraftClient.getInstance().inGameHud.getChatHud();
-        double d = chatHud.toChatLineX(x);
-        int i = chatHud.getMessageLineIndex(d, chatHud.toChatLineY(y));
-        if (i >= 0 && i < chatHud.visibleMessages.size()) {
-            return chatHud.visibleMessages.get(i);
+    @Unique
+    private GuiMessage.Line reden$geMessageAt(double x, double y) {
+        ChatComponent chat = Minecraft.getInstance().gui.getChat();
+        int i = chat.getMessageLineIndexAt(0, chat.screenToChatY(y));
+        if (i >= 0 && i < chat.trimmedMessages.size()) {
+            return chat.trimmedMessages.get(i);
         }
         return null;
     }
 
-    @Inject(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;keyPressed(III)Z"), cancellable = true)
+    @Inject(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;keyPressed(III)Z"), cancellable = true)
     private void ct$keyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
         if (ChatScreen.hasControlDown()) {
             if (keyCode == GLFW.GLFW_KEY_UP) {
-                MinecraftClient.getInstance().inGameHud.getChatHud().scroll(1);
+                Minecraft.getInstance().gui.getChat().scrollChat(1);
                 cir.setReturnValue(true);
             }
             if (keyCode == GLFW.GLFW_KEY_DOWN) {
-                MinecraftClient.getInstance().inGameHud.getChatHud().scroll(-1);
+                Minecraft.getInstance().gui.getChat().scrollChat(-1);
                 cir.setReturnValue(true);
             }
         }
     }
 
     @Inject(method = "render", at = @At("TAIL"))
-    private void render(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    private void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (quickMenuWidget != null) {
-            quickMenuWidget.render(context, mouseX, mouseY, delta);
+            quickMenuWidget.render(guiGraphics, mouseX, mouseY, delta);
         }
     }
 
-    private ChatScreen ct$getThis() {
+    @Unique
+    private ChatScreen reden$getThis() {
         return (ChatScreen) (Object) this;
     }
 }
