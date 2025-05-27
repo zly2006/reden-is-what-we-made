@@ -19,7 +19,7 @@
       "com.github.zly2006.reden.Reden"
     ],
     "client": [
-      "com.github.zly2006.reden.TemplateModClient"
+      "com.github.zly2006.reden.RedenClient"
     ]
   },
   "accessWidener": "reden.accesswidener",
@@ -33,6 +33,7 @@
   "depends": {
     "fabricloader": ">=0.15",
     "minecraft": "${mcdep}",
-    "fabric-networking-api-v1": "*"
+    "fabric-networking-api-v1": "*",
+    "fabric-language-kotlin": "*"
   }
 }

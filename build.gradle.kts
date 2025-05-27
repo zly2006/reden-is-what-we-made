@@ -55,9 +55,7 @@ dependencies {
     mappings(loom.officialMojangMappings())
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
     modImplementation("maven.modrinth:malilib:${property("deps.malilib")}")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.8.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.1")
+    modImplementation("net.fabricmc:fabric-language-kotlin:${property("deps.fabric_language_kotlin")}")
 
     fapi(
         // Add modules from https://github.com/FabricMC/fabric
