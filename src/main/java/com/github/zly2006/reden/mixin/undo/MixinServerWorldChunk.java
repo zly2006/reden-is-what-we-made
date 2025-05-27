@@ -34,7 +34,11 @@ public abstract class MixinServerWorldChunk extends ChunkAccess {
             method = "setBlockState",
             at = @At("HEAD")
     )
-    private void monitorSetBlock(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
+    //? if < 1.21.5 {
+    /*private void monitorSetBlock(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
+    *///?} else {
+    private void monitorSetBlock(BlockPos pos, BlockState state, int i, CallbackInfoReturnable<BlockState> cir) {
+    //?}
         if (level instanceof ServerLevel serverLevel) {
             UpdateMonitorHelper.monitorSetBlock(serverLevel, pos, state);
         }
@@ -44,7 +48,11 @@ public abstract class MixinServerWorldChunk extends ChunkAccess {
             method = "setBlockState",
             at = @At("TAIL")
     )
-    private void afterSetBlock(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
+    //? if < 1.21.5 {
+    /*private void afterSetBlock(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
+    *///?} else {
+    private void afterSetBlock(BlockPos pos, BlockState state, int i, CallbackInfoReturnable<BlockState> cir) {
+    //?}
         if (level instanceof ServerLevel serverLevel) {
             UpdateMonitorHelper.postSetBlock(serverLevel, pos, state, false);
         }

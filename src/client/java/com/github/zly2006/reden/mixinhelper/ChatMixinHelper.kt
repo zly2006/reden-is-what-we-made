@@ -50,7 +50,8 @@ object ChatMixinHelper {
         }
         if (style != null) {
             if (style.getHoverEvent() != null) {
-                val action: HoverEvent.Action<*> = style.getHoverEvent()!!.action
+                //? if < 1.21.5 {
+                /*val action: HoverEvent.Action<*> = style.getHoverEvent()!!.action
                 if (action === HoverEvent.Action.SHOW_TEXT) {
                     menu.addEntry(
                         Text.translatable("reden.widget.chat.copy_hover_raw")
@@ -72,9 +73,36 @@ object ChatMixinHelper {
                         entry.setName(Text.translatable("reden.widget.chat.copied"))
                     }
                 }
+                *///?} else {
+                when (val event = style.getHoverEvent()) {
+                    is HoverEvent.ShowText -> {
+                        menu.addEntry(
+                            Text.translatable("reden.widget.chat.copy_hover_text")
+                        ) { entry, button ->
+                            client.keyboardHandler.clipboard = event.value.string
+                        }
+                        menu.addEntry(
+                            Text.translatable("reden.widget.chat.copy_hover_raw")
+                        ) { entry, button ->
+                            client.keyboardHandler.clipboard = Component.Serializer.toJson(
+                                event.value,
+                                client.level!!.registryAccess()
+                            )
+                        }
+                    }
+                    is HoverEvent.ShowEntity -> {
+                        menu.addEntry(
+                            Text.translatable("reden.widget.chat.copy_hover_uuid")
+                        ) { entry, button ->
+                            client.keyboardHandler.clipboard = event.entity.uuid.toString()
+                        }
+                    }
+                }
+                //?}
             }
             if (style.getClickEvent() != null) {
-                if (style.getClickEvent()!!.action == ClickEvent.Action.RUN_COMMAND) {
+                //? if < 1.21.5 {
+                /*if (style.getClickEvent()!!.action == ClickEvent.Action.RUN_COMMAND) {
                     menu.addEntry(
                         Text.translatable("reden.widget.chat.copy_click_command")
                     ) { entry, button ->
@@ -92,6 +120,24 @@ object ChatMixinHelper {
                         entry.setName(Text.translatable("reden.widget.chat.copied"))
                     }
                 }
+                *///?} else {
+                when (val event = style.getClickEvent()) {
+                    is ClickEvent.RunCommand -> {
+                        menu.addEntry(
+                            Text.translatable("reden.widget.chat.copy_click_command")
+                        ) { entry, button ->
+                            client.keyboardHandler.clipboard = event.command
+                        }
+                    }
+                    is ClickEvent.OpenFile -> {
+                        menu.addEntry(
+                            Text.translatable("reden.widget.chat.copy_click_file")
+                        ) { entry, button ->
+                            client.keyboardHandler.clipboard = event.path
+                        }
+                    }
+                }
+                //?}
             }
         }
     }

@@ -5,15 +5,12 @@ import com.github.zly2006.reden.exceptions.RedenException
 import com.github.zly2006.reden.utils.multiver.Text
 import com.google.gson.Gson
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
-import fi.dy.masa.malilib.util.position.Vec3d
 import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.impl.discovery.ModResolutionException
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
-import net.minecraft.core.Direction
 import net.minecraft.core.Position
-import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
@@ -21,13 +18,11 @@ import net.minecraft.server.TickTask
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
-import net.minecraft.world.level.block.BaseEntityBlock
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.levelgen.Heightmap
-import net.minecraft.world.level.lighting.LevelLightEngine
 import net.minecraft.world.level.lighting.LightEngine
 import java.io.IOException
 import java.io.InputStream
@@ -103,8 +98,12 @@ fun Level.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.UPDA
     if (flags and Block.UPDATE_CLIENTS != 0) {
         sendBlockUpdated(pos, stateBefore, state, flags)
     }
-    // poi
-    this.onBlockStateChange(pos, stateBefore, state)
+
+    //? if < 1.21.5 {
+    /*this.onBlockStateChange(pos, stateBefore, state)
+    *///?} else {
+    this.updatePOIOnBlockStateChange(pos, stateBefore, state)
+    //?}
 }
 
 val isClient: Boolean get() = FabricLoader.getInstance().environmentType == EnvType.CLIENT
