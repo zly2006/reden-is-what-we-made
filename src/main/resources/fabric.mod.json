@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "zly2006"
+  ],
+  "contact": {
+    "homepage": "https://redenmc.com/",
+    "sources": "https://github.com/zly2006/reden-is-what-we-made"
+  },
+  "license": "LGPL-v3.0-only",
+  "icon": "assets/template/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.github.zly2006.reden.TemplateMod"
+    ],
+    "client": [
+      "com.github.zly2006.reden.TemplateModClient"
+    ]
+  },
+  "accessWidener": "reden.accesswidener",
+  "mixins": [
+    "reden.mixins.json",
+    {
+      "config": "reden.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.15",
+    "minecraft": "${mcdep}",
+    "fabric-api": "*"
+  }
+}

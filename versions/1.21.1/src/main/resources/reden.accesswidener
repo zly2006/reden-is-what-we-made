@@ -1,0 +1,142 @@
+accessWidener	v1  named
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$Entry
+accessible field net/minecraft/world/World neighborUpdater Lnet/minecraft/world/block/NeighborUpdater;
+accessible class net/minecraft/server/command/DataCommand$ModifyOperation
+accessible field net/minecraft/block/AbstractBlock settings Lnet/minecraft/block/AbstractBlock$Settings;
+accessible field net/minecraft/block/AbstractBlock$Settings mapColorProvider Ljava/util/function/Function;
+accessible field net/minecraft/block/MapColor COLORS [Lnet/minecraft/block/MapColor;
+accessible method net/minecraft/client/gui/screen/Screen remove (Lnet/minecraft/client/gui/Element;)V
+accessible method net/minecraft/client/gui/hud/ChatHud toChatLineX (D)D
+accessible method net/minecraft/client/gui/hud/ChatHud getMessageLineIndex (DD)I
+accessible method net/minecraft/client/gui/hud/ChatHud toChatLineY (D)D
+accessible field net/minecraft/client/gui/hud/ChatHud visibleMessages Ljava/util/List;
+accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$RebuildTask
+accessible field net/minecraft/client/render/BufferBuilder format Lnet/minecraft/client/render/VertexFormat;
+accessible field net/minecraft/nbt/NbtCompound entries Ljava/util/Map;
+accessible field net/minecraft/structure/StructureTemplate size Lnet/minecraft/util/math/Vec3i;
+accessible method net/minecraft/structure/StructureTemplate$PalettedBlockInfoList <init> (Ljava/util/List;)V
+accessible field net/minecraft/structure/StructureTemplate blockInfoLists Ljava/util/List;
+accessible field net/minecraft/structure/StructureTemplate entities Ljava/util/List;
+accessible method net/minecraft/client/gui/widget/ButtonWidget <init> (IIIILnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;Lnet/minecraft/client/gui/widget/ButtonWidget$NarrationSupplier;)V
+mutable field net/minecraft/util/math/Vec3d x D
+mutable field net/minecraft/util/math/Vec3d y D
+mutable field net/minecraft/util/math/Vec3d z D
+accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientX D
+accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientY D
+accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientZ D
+extendable class net/minecraft/world/tick/OrderedTick
+extendable class net/minecraft/server/world/BlockEvent
+accessible method net/minecraft/world/World getDestructionType (Lnet/minecraft/world/GameRules$Key;)Lnet/minecraft/world/explosion/Explosion$DestructionType;
+accessible field net/minecraft/world/chunk/Chunk heightmaps Ljava/util/Map;
+accessible field net/minecraft/command/EntitySelector PASSTHROUGH_FILTER Lnet/minecraft/util/TypeFilter;
+accessible field net/minecraft/server/integrated/IntegratedServer localPlayerUuid Ljava/util/UUID;
+accessible field net/minecraft/server/world/ServerWorld syncedBlockEventQueue Lit/unimi/dsi/fastutil/objects/ObjectLinkedOpenHashSet;
+accessible field net/minecraft/world/tick/WorldTickScheduler tickableTicks Ljava/util/Queue;
+accessible field net/minecraft/world/tick/WorldTickScheduler tickedTicks Ljava/util/List;
+accessible field net/minecraft/world/tick/WorldTickScheduler copiedTickableTicksList Ljava/util/Set;
+accessible field net/minecraft/world/tick/ChunkTickScheduler queuedTicks Ljava/util/Set;
+accessible field net/minecraft/block/entity/PistonBlockEntity progress F
+accessible field net/minecraft/block/entity/PistonBlockEntity lastProgress F
+accessible field net/minecraft/registry/Registries ROOT Lnet/minecraft/registry/MutableRegistry;
+accessible method net/minecraft/client/network/ClientPlayerInteractionManager sendSequencedPacket (Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/client/network/SequencedPacketCreator;)V
+accessible field net/minecraft/world/tick/ChunkTickScheduler tickQueue Ljava/util/Queue;
+accessible field net/minecraft/server/world/ServerWorld entityManager Lnet/minecraft/server/world/ServerEntityManager;
+accessible field net/minecraft/server/world/ServerChunkManager ticketManager Lnet/minecraft/server/world/ChunkTicketManager;
+accessible field net/minecraft/server/world/ChunkHolder accessibleFuture Ljava/util/concurrent/CompletableFuture;
+accessible field net/minecraft/server/world/ChunkHolder tickingFuture Ljava/util/concurrent/CompletableFuture;
+accessible field net/minecraft/server/world/ChunkHolder entityTickingFuture Ljava/util/concurrent/CompletableFuture;
+accessible field net/minecraft/server/world/ChunkHolder UNLOADED_WORLD_CHUNK_FUTURE Ljava/util/concurrent/CompletableFuture;
+accessible field net/minecraft/server/world/ChunkHolder lastTickLevel I
+accessible field net/minecraft/server/world/ChunkTicketManager ticketsByPosition Lit/unimi/dsi/fastutil/longs/Long2ObjectOpenHashMap;
+mutable field net/minecraft/server/world/ChunkTicketManager ticketsByPosition Lit/unimi/dsi/fastutil/longs/Long2ObjectOpenHashMap;
+accessible field net/minecraft/server/world/ChunkTicketManager playersByChunkPos Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
+mutable field net/minecraft/server/world/ChunkTicketManager playersByChunkPos Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
+accessible method net/minecraft/server/world/ChunkTicketManager purge ()V
+accessible field net/minecraft/server/world/ChunkTicketManager simulationDistanceTracker Lnet/minecraft/world/SimulationDistanceLevelPropagator;
+accessible field net/minecraft/server/world/ChunkTicketManager distanceFromTicketTracker Lnet/minecraft/server/world/ChunkTicketManager$TicketDistanceLevelPropagator;
+accessible class net/minecraft/server/world/ChunkTicketManager$TicketDistanceLevelPropagator
+accessible method net/minecraft/server/world/ChunkTicketManager getLevel (Lnet/minecraft/util/collection/SortedArraySet;)I
+accessible method net/minecraft/server/world/ServerLightingProvider updateChunkStatus (Lnet/minecraft/util/math/ChunkPos;)V
+accessible method net/minecraft/server/world/ServerChunkManager initChunkCaches ()V
+accessible class net/minecraft/server/world/ServerEntityManager$Status
+accessible method net/minecraft/server/world/ChunkTicketManager addTicket (JLnet/minecraft/server/world/ChunkTicket;)V
+accessible method net/minecraft/util/thread/ThreadExecutor runTasks ()V
+accessible field net/minecraft/server/world/ServerEntityManager managedStatuses Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
+accessible field net/minecraft/server/world/ServerEntityManager cache Lnet/minecraft/world/entity/SectionedEntityCache;
+accessible field net/minecraft/client/MinecraftClient userApiService Lcom/mojang/authlib/minecraft/UserApiService;
+accessible field net/minecraft/screen/HopperScreenHandler inventory Lnet/minecraft/inventory/Inventory;
+accessible field net/minecraft/block/entity/HopperBlockEntity transferCooldown I
+mutable field net/minecraft/client/gui/screen/Screen title Lnet/minecraft/text/Text;
+accessible method net/minecraft/server/MinecraftServer shouldKeepTicking ()Z
+accessible method net/minecraft/server/MinecraftServer runTasksTillTickEnd ()V
+accessible field net/minecraft/client/util/NarratorManager narrator Lcom/mojang/text2speech/Narrator;
+accessible field net/minecraft/server/PlayerManager players Ljava/util/List;
+accessible field net/minecraft/server/PlayerManager playerMap Ljava/util/Map;
+accessible field net/minecraft/server/network/ServerCommonNetworkHandler connection Lnet/minecraft/network/ClientConnection;
+accessible field net/minecraft/network/ClientConnection channel Lio/netty/channel/Channel;
+accessible field net/minecraft/network/ClientConnection address Ljava/net/SocketAddress;
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$StatefulEntry
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$SimpleEntry
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$StateReplacementEntry
+accessible field net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry currentDirectionIndex I
+accessible field net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry pos Lnet/minecraft/util/math/BlockPos;
+accessible method net/minecraft/world/block/ChainRestrictedNeighborUpdater$StatefulEntry <init> (Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V
+accessible method net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry <init> (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/Direction;)V
+accessible field net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry sourceBlock Lnet/minecraft/block/Block;
+accessible field net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry except Lnet/minecraft/util/math/Direction;
+accessible method net/minecraft/world/block/ChainRestrictedNeighborUpdater runQueuedUpdates ()V
+accessible method net/minecraft/world/block/ChainRestrictedNeighborUpdater$SimpleEntry <init> (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;)V
+accessible method net/minecraft/world/block/ChainRestrictedNeighborUpdater$StateReplacementEntry <init> (Lnet/minecraft/util/math/Direction;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;II)V
+accessible field net/minecraft/entity/ItemEntity STACK Lnet/minecraft/entity/data/TrackedData;
+extendable class net/minecraft/item/ItemStack
+accessible field net/minecraft/client/gui/screen/Screen client Lnet/minecraft/client/MinecraftClient;
+accessible method net/minecraft/entity/Entity setFlag (IZ)V
+accessible field net/minecraft/command/EntitySelector box Lnet/minecraft/util/math/Box;
+accessible field net/minecraft/command/EntitySelector playerName Ljava/lang/String;
+accessible field net/minecraft/command/EntitySelector uuid Ljava/util/UUID;
+accessible field net/minecraft/command/EntitySelector positionOffset Ljava/util/function/Function;
+accessible method net/minecraft/command/EntitySelector getPositionPredicate (Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/resource/featuretoggle/FeatureSet;)Ljava/util/function/Predicate;
+accessible field net/minecraft/command/EntitySelector senderOnly Z
+accessible field net/minecraft/command/EntitySelector entityFilter Lnet/minecraft/util/TypeFilter;
+accessible method net/minecraft/command/EntitySelector getAppendLimit ()I
+accessible method net/minecraft/client/world/ClientWorld getEntityLookup ()Lnet/minecraft/world/entity/EntityLookup;
+accessible field net/minecraft/command/EntitySelector sorter Ljava/util/function/BiConsumer;
+accessible class net/minecraft/server/world/ServerChunkManager$ChunkWithHolder
+accessible method net/minecraft/server/world/ServerChunkManager$ChunkWithHolder <init> (Lnet/minecraft/world/chunk/WorldChunk;Lnet/minecraft/server/world/ChunkHolder;)V
+accessible field net/minecraft/server/world/ServerChunkManager$ChunkWithHolder holder Lnet/minecraft/server/world/ChunkHolder;
+accessible field net/minecraft/server/world/ServerChunkManager$ChunkWithHolder chunk Lnet/minecraft/world/chunk/WorldChunk;
+accessible field net/minecraft/server/world/ServerChunkManager spawnAnimals Z
+accessible field net/minecraft/server/world/ServerChunkManager spawnMonsters Z
+accessible method net/minecraft/world/tick/WorldTickScheduler tick (Ljava/util/function/BiConsumer;)V
+accessible method net/minecraft/server/world/ServerWorld tickBlock (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;)V
+accessible method net/minecraft/server/world/ServerWorld tickFluid (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/fluid/Fluid;)V
+accessible field net/minecraft/server/world/ServerWorld inBlockTick Z
+accessible method net/minecraft/server/world/ServerWorld processSyncedBlockEvents ()V
+accessible method net/minecraft/entity/mob/MobEntity initGoals ()V
+accessible method net/minecraft/world/World tickBlockEntities ()V
+accessible class net/minecraft/world/chunk/WorldChunk$DirectBlockEntityTickInvoker
+accessible class net/minecraft/world/chunk/WorldChunk$WrappedBlockEntityTickInvoker
+accessible field net/minecraft/world/chunk/WorldChunk$WrappedBlockEntityTickInvoker wrapped Lnet/minecraft/world/chunk/BlockEntityTickInvoker;
+accessible field net/minecraft/world/chunk/WorldChunk$DirectBlockEntityTickInvoker blockEntity Lnet/minecraft/block/entity/BlockEntity;
+accessible field net/minecraft/util/thread/ReentrantThreadExecutor runningTasks I
+accessible field net/minecraft/client/gui/hud/InGameHud overlayRemaining I
+accessible field net/minecraft/server/MinecraftServer tickStartTimeNanos J
+accessible field net/minecraft/util/thread/ThreadExecutor executionsInProgress I
+accessible field net/minecraft/server/MinecraftServer session Lnet/minecraft/world/level/storage/LevelStorage$Session;
+accessible method net/minecraft/client/gui/widget/TextIconButtonWidget <init> (IILnet/minecraft/text/Text;IILnet/minecraft/util/Identifier;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;Lnet/minecraft/client/gui/widget/ButtonWidget$NarrationSupplier;)V
+accessible field net/minecraft/server/world/ServerChunkLoadingManager chunkHolders Lit/unimi/dsi/fastutil/longs/Long2ObjectLinkedOpenHashMap;
+accessible field net/minecraft/server/world/ServerChunkLoadingManager entityTrackers Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;
+accessible class net/minecraft/server/world/ServerChunkLoadingManager$EntityTracker
+accessible field net/minecraft/server/world/ServerChunkLoadingManager$EntityTracker entry Lnet/minecraft/server/network/EntityTrackerEntry;
+accessible method net/minecraft/world/chunk/WorldChunk updateTicker (Lnet/minecraft/block/entity/BlockEntity;)V
+accessible field com/mojang/blaze3d/systems/RenderSystem shaderTextures [I
+accessible field net/minecraft/client/gui/screen/world/WorldListWidget levels Ljava/util/List;
+accessible field net/minecraft/client/gui/screen/world/SelectWorldScreen levelList Lnet/minecraft/client/gui/screen/world/WorldListWidget;
+accessible field net/minecraft/client/gui/screen/world/WorldListWidget levelsFuture Ljava/util/concurrent/CompletableFuture;
+accessible method net/minecraft/client/gui/screen/world/WorldListWidget show (Ljava/util/List;)V
+accessible class net/minecraft/client/gui/screen/world/WorldListWidget$Entry
+accessible field net/minecraft/client/gui/screen/world/WorldListWidget$WorldEntry level Lnet/minecraft/world/level/storage/LevelSummary;
+accessible method net/minecraft/client/gui/widget/EntryListWidget getRowTop (I)I
+accessible field net/minecraft/client/gui/widget/EntryListWidget headerHeight I
+accessible method net/minecraft/client/gui/screen/GameMenuScreen disconnect ()V
