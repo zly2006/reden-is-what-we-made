@@ -1,6 +1,5 @@
 package com.github.zly2006.reden.mixinhelper
 
-import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.access.BlockEntityInterface
 import com.github.zly2006.reden.access.ChunkSectionInterface
 import com.github.zly2006.reden.access.PlayerData
@@ -15,17 +14,14 @@ import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.recording
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.undoRecords
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.undoRecordsMap
 import com.github.zly2006.reden.utils.debugLogger
-import com.github.zly2006.reden.utils.isClient
 import com.github.zly2006.reden.utils.server
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
-import net.minecraft.block.BlockState
-import net.minecraft.entity.Entity
-import net.minecraft.nbt.NbtCompound
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.server.world.ServerWorld
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.level.block.state.BlockState
 
 /**
  * # Undo
@@ -127,7 +123,7 @@ object UpdateMonitorHelper {
      * @param blockState only be `null` if the state does not change
      */
     @JvmStatic
-    fun monitorSetBlock(world: ServerWorld, pos: BlockPos, blockState: BlockState) {
+    fun monitorSetBlock(world: ServerLevel, pos: BlockPos, blockState: BlockState) {
         debugLogger("id ${recording?.id ?: 0}: set$pos, ${world.getBlockState(pos)} -> $blockState")
         // update modified time, so undo can work properly
         world.modified(pos)
@@ -135,11 +131,11 @@ object UpdateMonitorHelper {
         recording?.data?.computeIfAbsent(pos.asLong()) {
             recording!!.fromWorld(world, pos, true)
         }
-        recording?.lastChangedTick = server.ticks
+        recording?.lastChangedTick = server.tickCount
     }
 
-    fun ServerWorld.modified(pos: BlockPos, time: Int = server.ticks) = getChunk(pos).run {
-        setNeedsSaving(true)
+    fun ServerLevel.modified(pos: BlockPos, time: Int = server.tickCount) = getChunk(pos).run {
+        isUnsaved = true
         getSection(getSectionIndex(pos.y)) as ChunkSectionInterface
     }.setModifyTime(pos, time)
 
@@ -148,7 +144,7 @@ object UpdateMonitorHelper {
      *   so we should record it here
      */
     @JvmStatic
-    fun postSetBlock(world: ServerWorld, pos: BlockPos, finalState: BlockState, beChangeOnly: Boolean) {
+    fun postSetBlock(world: ServerLevel, pos: BlockPos, finalState: BlockState, beChangeOnly: Boolean) {
         val be = world.getBlockEntity(pos) as BlockEntityInterface?
 //        if (be != null && RedenCarpetSettings.Options.undoBlockEntities) {
         if (be != null) {
@@ -186,7 +182,7 @@ object UpdateMonitorHelper {
         }
         val undoRecord = PlayerData.UndoRecord(
             id = recordId,
-            lastChangedTick = server.ticks,
+            lastChangedTick = server.tickCount,
             cause = cause
         )
         undoRecordsMap[recordId] = undoRecord
@@ -198,10 +194,10 @@ object UpdateMonitorHelper {
 
     @Suppress("unused")
     @JvmStatic
-    fun playerStartRecording(player: ServerPlayerEntity) = playerStartRecording(player, PlayerData.UndoRecord.Cause.UNKNOWN)
+    fun playerStartRecording(player: ServerPlayer) = playerStartRecording(player, PlayerData.UndoRecord.Cause.UNKNOWN)
     @JvmStatic
     fun playerStartRecording(
-        player: ServerPlayerEntity,
+        player: ServerPlayer,
         cause: PlayerData.UndoRecord.Cause
     ) {
         val playerView = player.data()
@@ -210,16 +206,16 @@ object UpdateMonitorHelper {
             playerView.isRecording = true
             val record = addRecord(cause)
             playerView.undo.add(record)
-            pushRecord(record.id) { "player recording/${player.nameForScoreboard}/$cause" }
+            pushRecord(record.id) { "player recording/${player.scoreboardName}/$cause" }
         }
     }
 
     @JvmStatic
-    fun playerStopRecording(player: ServerPlayerEntity) {
+    fun playerStopRecording(player: ServerPlayer) {
         val playerView = player.data()
         if (playerView.isRecording) {
             playerView.isRecording = false
-            popRecord { "player recording/${player.nameForScoreboard}/${recording?.cause}" }
+            popRecord { "player recording/${player.scoreboardName}/${recording?.cause}" }
             playerView.redo
                 .onEach { removeRecord(it.id) }
                 .clear()
@@ -237,21 +233,21 @@ object UpdateMonitorHelper {
         }
     }
 
-    private fun playerQuit(player: ServerPlayerEntity) =
+    private fun playerQuit(player: ServerPlayer) =
         player.data().undo.forEach { removeRecord(it.id) }
 
     @JvmStatic
     fun tryAddRelatedEntity(entity: Entity) {
-        if (entity.noClip) return
-        if (entity is ServerPlayerEntity) return
+        if (entity.noPhysics) return
+        if (entity is ServerPlayer) return
         if (!isInitializingEntity) {
             if (filterLogById(recording?.id ?: 0))
-                debugLogger("id ${recording?.id ?: 0}: add ${entity.uuid}, type ${entity.type.name}")
+                debugLogger("id ${recording?.id ?: 0}: add ${entity.uuid}, type ${entity.type.toShortString()}")
             recording?.entities?.computeIfAbsent(entity.uuid) {
                 PlayerData.EntityEntryImpl(
                     entity.type,
-                    NbtCompound().apply(entity::writeNbt),
-                    entity.blockPos
+                    CompoundTag().apply(entity::save),
+                    entity.blockPosition()
                 )
             }
         }
@@ -266,9 +262,9 @@ object UpdateMonitorHelper {
 
     @JvmStatic
     fun entitySpawned(entity: Entity) {
-        if (entity is ServerPlayerEntity) return
+        if (entity is ServerPlayer) return
         if (filterLogById(recording?.id ?: 0))
-            debugLogger("id ${recording?.id ?: 0}: spawn ${entity.uuid}, type ${entity.type.name}")
+            debugLogger("id ${recording?.id ?: 0}: spawn ${entity.uuid}, type ${entity.type.toShortString()}")
         recording?.entities?.putIfAbsent(entity.uuid, PlayerData.NotExistEntityEntry)
     }
 

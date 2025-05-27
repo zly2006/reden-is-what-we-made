@@ -1,34 +1,34 @@
 package com.github.zly2006.reden.access
 
-import net.minecraft.block.BlockState
-import net.minecraft.block.entity.BlockEntity
-import net.minecraft.command.EntitySelector
-import net.minecraft.entity.EntityType
-import net.minecraft.entity.TntEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.nbt.NbtCompound
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.server.world.ServerWorld
-import net.minecraft.text.Text
-import net.minecraft.util.math.BlockPos
+import com.github.zly2006.reden.utils.multiver.Text
+import net.minecraft.commands.arguments.selector.EntitySelector
+import net.minecraft.core.BlockPos
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.item.PrimedTnt
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.state.BlockState
 import java.util.*
 
 class PlayerData(
-    val player: ServerPlayerEntity,
+    val player: ServerPlayer,
 ) {
     fun topRedo() {
-        player.sendMessage(Text.of(redo.lastOrNull {
+        player.sendSystemMessage(Text.of(redo.lastOrNull {
             it.data.isNotEmpty() && it.entities.isNotEmpty()
         }?.toString()))
     }
 
     fun topUndo() {
-        player.sendMessage(Text.of(undo.lastOrNull {
+        player.sendSystemMessage(Text.of(undo.lastOrNull {
             it.data.isNotEmpty() && it.entities.isNotEmpty()
         }?.toString()))
     }
 
-    var behalfBy: ServerPlayerEntity? = null
+    var behalfBy: ServerPlayer? = null
     val canRecord: Boolean = player.isCreative
     val undo: MutableList<UndoRecord> = mutableListOf()
     val redo: MutableList<RedoRecord> = mutableListOf()
@@ -37,10 +37,10 @@ class PlayerData(
 
     data class Entry(
         val state: BlockState,
-        val blockEntity: NbtCompound?,
+        val blockEntity: CompoundTag?,
         val time: Int
     ) {
-        fun getMemorySize() = (blockEntity?.sizeInBytes ?: 0) + 20
+        fun getMemorySize() = (blockEntity?.sizeInBytes() ?: 0) + 20
     }
 
     internal interface PlayerDataAccess {
@@ -48,7 +48,7 @@ class PlayerData(
     }
 
     companion object {
-        fun ServerPlayerEntity.data(): PlayerData {
+        fun ServerPlayer.data(): PlayerData {
             return (this as PlayerDataAccess).getRedenPlayerData()
         }
     }
@@ -66,29 +66,29 @@ class PlayerData(
 + entities:
 ${entities.map { "${it.key} = ${it.value}" }.joinToString("\n")}
 + blocks:
-${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" }.joinToString("\n")}
+${data.map { "${BlockPos.of(it.key).toShortString()} = ${it.value.state}" }.joinToString("\n")}
             """.trimIndent()
         }
 
-        fun fromWorld(world: ServerWorld, pos: BlockPos, putNearByEntities: Boolean): Entry {
+        fun fromWorld(world: ServerLevel, pos: BlockPos, putNearByEntities: Boolean): Entry {
             val be = world.getBlockEntity(pos)
             val state = world.getBlockState(pos)
-            return Entry(state, be?.lastSavedNbt(), world.server.ticks).apply {
+            return Entry(state, be?.lastSavedNbt(), world.server.tickCount).apply {
                 if (state.hasBlockEntity() && blockEntity == null) {
 //                    Reden.LOGGER.error("BlockEntity $be at $pos has no last saved nbt")
                 }
                 if (putNearByEntities &&
-                    world.getBlockState(pos).getCollisionShape(world, pos).boundingBoxes.size != 0
+                    world.getBlockState(pos).getCollisionShape(world, pos).toAabbs().isNotEmpty()
                 ) {
-                    val list = world.getEntitiesByType(
-                        EntitySelector.PASSTHROUGH_FILTER,
-                        world.getBlockState(pos).getCollisionShape(world, pos).boundingBox
-                            .offset(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
-                            .expand(0.1),
-                    ) { x -> x !is PlayerEntity && x !is TntEntity }
+                    val list = world.getEntities(
+                        EntitySelector.ANY_TYPE,
+                        world.getBlockState(pos).getCollisionShape(world, pos).bounds()
+                            .move(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
+                            .inflate(0.1),
+                    ) { x -> x !is ServerPlayer && x !is PrimedTnt }
                     list.forEach { entity ->
                         this@UndoRedoRecord.entities.computeIfAbsent(entity.uuid) {
-                            EntityEntryImpl(entity.type, NbtCompound().apply(entity::writeNbt), entity.blockPos)
+                            EntityEntryImpl(entity.type, CompoundTag().apply(entity::save), entity.blockPosition())
                         }
                     }
                 }
@@ -97,7 +97,7 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
 
         open fun getMemorySize() = data.asSequence().map { it.value.getMemorySize() }.sum() +
                 data.size * 16 +
-                entities.map { 16 + it.value.nbt.sizeInBytes }.sum()
+                entities.map { 16 + it.value.nbt.sizeInBytes() }.sum()
     }
 
     class UndoRecord(
@@ -109,7 +109,7 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
     ) : UndoRedoRecord(id, lastChangedTick, entities, data) {
         var notified = false
 
-        enum class Cause(val message: Text) {
+        enum class Cause(val message: Component) {
             BREAK_BLOCK(Text.translatable("reden.feature.undo.cause.break_block")),
             USE_BLOCK(Text.translatable("reden.feature.undo.cause.use_block")),
             USE_ITEM(Text.translatable("reden.feature.undo.cause.use_item")),
@@ -137,22 +137,22 @@ ${data.map { "${BlockPos.fromLong(it.key).toShortString()} = ${it.value.state}" 
 
     interface EntityEntry {
         val entity: EntityType<*>?
-        val nbt: NbtCompound
+        val nbt: CompoundTag
         val pos: BlockPos
     }
 
     class EntityEntryImpl(
         override val entity: EntityType<*>,
-        override val nbt: NbtCompound,
+        override val nbt: CompoundTag,
         override val pos: BlockPos
     ) : EntityEntry {
-        override fun toString() = "EntityEntryImpl(entity=$entity, nbt={${nbt.size} items}, pos=$pos)"
+        override fun toString() = "EntityEntryImpl(entity=$entity, nbt={${nbt.size()} items}, pos=$pos)"
     }
 
     data object NotExistEntityEntry : EntityEntry {
         override val entity = null
-        override val nbt: NbtCompound = NbtCompound()
-        override val pos: BlockPos = BlockPos.ORIGIN
+        override val nbt: CompoundTag = CompoundTag()
+        override val pos: BlockPos = BlockPos.ZERO
     }
 }
 

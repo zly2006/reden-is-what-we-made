@@ -1,18 +1,19 @@
 package com.github.zly2006.reden.exceptions
 
-import net.minecraft.text.Text
+import com.github.zly2006.reden.utils.multiver.Text
+import net.minecraft.network.chat.Component
 
 /**
  * Reden mod base exception
  */
 class RedenException : Exception {
-    val displayMessage: Text
+    val displayMessage: Component
 
     constructor(message: String) : super(message) {
         this.displayMessage = Text.of(message)
     }
 
-    constructor(message: Text) : super(message.string) {
+    constructor(message: Component) : super(message.string) {
         this.displayMessage = message
     }
 
@@ -20,7 +21,7 @@ class RedenException : Exception {
         this.displayMessage = Text.of(message)
     }
 
-    constructor(message: Text, cause: Throwable) : super(message.string, cause) {
+    constructor(message: Component, cause: Throwable) : super(message.string, cause) {
         this.displayMessage = message
     }
 

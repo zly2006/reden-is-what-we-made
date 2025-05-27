@@ -2,33 +2,28 @@ package com.github.zly2006.reden.utils
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.exceptions.RedenException
+import com.github.zly2006.reden.utils.multiver.Text
 import com.google.gson.Gson
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
+import fi.dy.masa.malilib.util.position.Vec3d
 import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.impl.discovery.ModResolutionException
-import net.minecraft.block.Block
-import net.minecraft.block.BlockEntityProvider
-import net.minecraft.block.BlockState
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.nbt.NbtHelper
-import net.minecraft.network.PacketByteBuf
-import net.minecraft.registry.Registries
+import net.minecraft.ChatFormatting
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.core.Position
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.ServerTask
-import net.minecraft.server.world.ServerWorld
-import net.minecraft.text.MutableText
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
-import net.minecraft.util.Hand
-import net.minecraft.util.Identifier
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Direction
-import net.minecraft.util.math.Vec3d
-import net.minecraft.world.Heightmap
-import net.minecraft.world.World
-import net.minecraft.world.chunk.WorldChunk
-import net.minecraft.world.chunk.light.ChunkLightProvider
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.BaseEntityBlock
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.EntityBlock
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.chunk.LevelChunk
+import net.minecraft.world.level.levelgen.Heightmap
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
@@ -38,15 +33,15 @@ import kotlin.math.min
 
 lateinit var server: MinecraftServer
 
-fun Vec3d.toBlockPos(): BlockPos {
-    return BlockPos.ofFloored(this)
+fun Position.toBlockPos(): BlockPos {
+    return BlockPos.containing(this)
 }
 
-fun PlayerEntity.sendMessage(s: String) {
-    sendMessage(Text.literal(s))
+fun Player.sendMessage(s: String) {
+    sendSystemMessage(Text.literal(s))
 }
 
-fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.NOTIFY_LISTENERS) {
+fun Level.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.UPDATE_CLIENTS) {
 //    setBlockState(pos, state, flags and Block.NOTIFY_NEIGHBORS.inv() or Block.FORCE_STATE or Block.SKIP_DROPS)
     profiler.push("reden_setBlockState_noPP")
     val stateBefore = getBlockState(pos)
@@ -55,16 +50,16 @@ fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.NOTI
     }
     getChunk(pos).run { getSection(getSectionIndex(pos.y)) }
         .setBlockState(pos.x and 15, pos.y and 15, pos.z and 15, state, false)
-    getWorldChunk(pos).run {
-        this.heightmaps[Heightmap.Type.MOTION_BLOCKING]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
-        this.heightmaps[Heightmap.Type.MOTION_BLOCKING_NO_LEAVES]!!.trackUpdate(
+    getChunkAt(pos).run {
+        this.heightmaps[Heightmap.Types.MOTION_BLOCKING]!!.update(pos.x and 15, pos.y, pos.z and 15, state)
+        this.heightmaps[Heightmap.Types.MOTION_BLOCKING_NO_LEAVES]!!.trackUpdate(
             pos.x and 15,
             pos.y,
             pos.z and 15,
             state
         )
-        this.heightmaps[Heightmap.Type.OCEAN_FLOOR]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
-        this.heightmaps[Heightmap.Type.WORLD_SURFACE]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
+        this.heightmaps[Heightmap.Types.OCEAN_FLOOR]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
+        this.heightmaps[Heightmap.Types.WORLD_SURFACE]!!.trackUpdate(pos.x and 15, pos.y, pos.z and 15, state)
         setNeedsSaving(true)
 
         if (ChunkLightProvider.needsLightUpdate(this, pos, stateBefore, state)) {
@@ -80,11 +75,11 @@ fun World.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.NOTI
         }
 
         if (state.hasBlockEntity()) {
-            var blockEntity = this.getBlockEntity(pos, WorldChunk.CreationType.CHECK)
+            var blockEntity = this.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK)
             if (blockEntity == null) {
-                blockEntity = (state.block as BlockEntityProvider).createBlockEntity(pos, state)
+                blockEntity = (state.block as EntityBlock).newBlockEntity(pos, state)
                 if (blockEntity != null) {
-                    this.addBlockEntity(blockEntity)
+                    this.setBlockEntity(blockEntity)
                 }
             } else {
                 @Suppress("DEPRECATION")
@@ -139,31 +134,7 @@ fun memorySizeToString(size: Int) {
     println("%.2f".format(s) + unit[i])
 }
 
-fun MutableText.red() = formatted(Formatting.RED)!!
-
-fun PacketByteBuf.writeBlockState(state: BlockState) {
-    writeNbt(NbtHelper.fromBlockState(state))
-}
-
-fun PacketByteBuf.readBlockState(): BlockState {
-    return NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, readNbt())
-}
-
-fun PacketByteBuf.writeBlock(block: Block) {
-    writeIdentifier(Registries.BLOCK.getId(block))
-}
-
-fun PacketByteBuf.readBlock(): Block {
-    return Registries.BLOCK.get(readIdentifier())
-}
-
-fun PacketByteBuf.readDirection(): Direction {
-    return Direction.byId(readVarInt())
-}
-
-fun PacketByteBuf.writeDirection(direction: Direction) {
-    writeVarInt(direction.id)
-}
+fun MutableComponent.red() = withStyle(ChatFormatting.RED)!!
 
 fun URL.openStreamRetrying(retries: Int = 3): InputStream {
     var retry = retries

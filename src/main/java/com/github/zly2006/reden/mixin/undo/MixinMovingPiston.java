@@ -2,17 +2,17 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.PistonExtensionBlock;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.piston.MovingPistonBlock;
+import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
-@Mixin(PistonExtensionBlock.class)
+@Mixin(MovingPistonBlock.class)
 public class MixinMovingPiston {
     /**
      * @author zly2006
@@ -20,16 +20,16 @@ public class MixinMovingPiston {
      */
     @Overwrite
     @Nullable
-    public <T extends PistonBlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+    public BlockEntityTicker<PistonMovingBlockEntity> getTicker(Level level, BlockState blockState, BlockEntityType<PistonMovingBlockEntity> type) {
         return (type == BlockEntityType.PISTON) ? (world1, pos, state1, be) -> {
             boolean shouldTrack = be.getProgress(1) >= 1.0f // current progress, delta=1
-                    && !world1.isClient; // server side
+                    && !world1.isClientSide; // server side
             if (shouldTrack) {
                 if (be instanceof UndoableAccess access) {
                     UpdateMonitorHelper.pushRecord(access.getUndoId$reden(), () -> "piston block entity tick/" + pos.toShortString());
                 }
             }
-            PistonBlockEntity.tick(world1, pos, state1, be);
+            PistonMovingBlockEntity.tick(world1, pos, state1, be);
             if (shouldTrack) {
                 if (be instanceof UndoableAccess) {
                     UpdateMonitorHelper.popRecord(() -> "piston block entity tick/" + pos.toShortString());

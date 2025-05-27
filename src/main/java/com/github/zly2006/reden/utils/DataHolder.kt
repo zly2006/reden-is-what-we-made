@@ -1,8 +1,8 @@
 package com.github.zly2006.reden.utils
 
-import net.minecraft.nbt.NbtCompound
+import net.minecraft.nbt.CompoundTag
 
 interface DataHolder {
-    fun load(): NbtCompound
-    fun set(nbt: NbtCompound)
+    fun load(): CompoundTag
+    fun set(nbt: CompoundTag)
 }

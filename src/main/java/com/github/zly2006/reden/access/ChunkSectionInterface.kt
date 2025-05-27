@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.access
 
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 
 @Suppress("INAPPLICABLE_JVM_NAME")
 interface ChunkSectionInterface {
