@@ -51,7 +51,7 @@ object ChatMixinHelper {
         if (style != null) {
             if (style.getHoverEvent() != null) {
                 //? if < 1.21.5 {
-                /*val action: HoverEvent.Action<*> = style.getHoverEvent()!!.action
+                val action: HoverEvent.Action<*> = style.getHoverEvent()!!.action
                 if (action === HoverEvent.Action.SHOW_TEXT) {
                     menu.addEntry(
                         Text.translatable("reden.widget.chat.copy_hover_raw")
@@ -73,8 +73,8 @@ object ChatMixinHelper {
                         entry.setName(Text.translatable("reden.widget.chat.copied"))
                     }
                 }
-                *///?} else {
-                when (val event = style.getHoverEvent()) {
+                //?} else {
+                /*when (val event = style.getHoverEvent()) {
                     is HoverEvent.ShowText -> {
                         menu.addEntry(
                             Text.translatable("reden.widget.chat.copy_hover_text")
@@ -98,11 +98,11 @@ object ChatMixinHelper {
                         }
                     }
                 }
-                //?}
+                *///?}
             }
             if (style.getClickEvent() != null) {
                 //? if < 1.21.5 {
-                /*if (style.getClickEvent()!!.action == ClickEvent.Action.RUN_COMMAND) {
+                if (style.getClickEvent()!!.action == ClickEvent.Action.RUN_COMMAND) {
                     menu.addEntry(
                         Text.translatable("reden.widget.chat.copy_click_command")
                     ) { entry, button ->
@@ -120,8 +120,8 @@ object ChatMixinHelper {
                         entry.setName(Text.translatable("reden.widget.chat.copied"))
                     }
                 }
-                *///?} else {
-                when (val event = style.getClickEvent()) {
+                //?} else {
+                /*when (val event = style.getClickEvent()) {
                     is ClickEvent.RunCommand -> {
                         menu.addEntry(
                             Text.translatable("reden.widget.chat.copy_click_command")
@@ -137,7 +137,7 @@ object ChatMixinHelper {
                         }
                     }
                 }
-                //?}
+                *///?}
             }
         }
     }

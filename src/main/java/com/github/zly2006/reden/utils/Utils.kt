@@ -100,10 +100,10 @@ fun Level.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.UPDA
     }
 
     //? if < 1.21.5 {
-    /*this.onBlockStateChange(pos, stateBefore, state)
-    *///?} else {
-    this.updatePOIOnBlockStateChange(pos, stateBefore, state)
-    //?}
+    this.onBlockStateChange(pos, stateBefore, state)
+    //?} else {
+    /*this.updatePOIOnBlockStateChange(pos, stateBefore, state)
+    *///?}
 }
 
 val isClient: Boolean get() = FabricLoader.getInstance().environmentType == EnvType.CLIENT
@@ -245,11 +245,11 @@ fun Class<*>.shortenName(): String {
     return this.name.split('.').dropLast(1).joinToString(".") { it[0].toString() } + "." + simple
 }
 
-//? if < 1.21.5 {
-/*fun MinecraftServer.send(task: () -> Unit) = tell(TickTask(tickCount, task))
-*///?} else {
-fun MinecraftServer.send(task: () -> Unit) = schedule(TickTask(tickCount, task))
-//?}
+//? if <= 1.21.1 {
+fun MinecraftServer.send(task: () -> Unit) = tell(TickTask(tickCount, task))
+//?} else {
+/*fun MinecraftServer.send(task: () -> Unit) = schedule(TickTask(tickCount, task))
+*///?}
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun error(reason: String): Nothing =
