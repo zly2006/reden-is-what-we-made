@@ -38,7 +38,11 @@ private fun ConfigHotkey.callback(action: () -> Boolean) {
         } catch (e: Exception) {
             Reden.LOGGER.error("Error when executing hotkey $name", e)
 //            reportException(e)
-            Minecraft.getInstance().player?.sendSystemMessage(Text.literal("Error when executing hotkey $name").red())
+//? if <= 1.21.1 {
+            /*Minecraft.getInstance().player?.sendSystemMessage(Text.literal("Error when executing hotkey $name").red())
+*///?} else {
+            Minecraft.getInstance().player?.displayClientMessage(Text.literal("Error when executing hotkey $name").red(), false)
+//?}
             false
         }
     }

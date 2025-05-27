@@ -10,7 +10,7 @@ import com.github.zly2006.reden.network.ChannelsKt;
 
 public class Reden implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("template");
-    public static final String MOD_VERSION = /*$ mod_version*/ "0.1.0";
+    public static final String MOD_VERSION = /*$ mod_version*/ "0.10.0";
     public static final String MOD_ID = "reden";
     public static final String MOD_NAME = "Reden";
 
@@ -19,12 +19,12 @@ public class Reden implements ModInitializer {
         LOGGER.info("Hello Fabric world!");
 
         //? if !release
-        LOGGER.warn("I'm still a template!");
+        /*LOGGER.warn("I'm still a template!");*/
 
         //? if fapi: <0.95 {
-        LOGGER.info("Fabric API is old on this version");
+        /*LOGGER.info("Fabric API is old on this version");
         LOGGER.info("Please update!");
-        //?}
+        *///?}
 
         ChannelsKt.registerChannelServer();
         ServerLifecycleEvents.SERVER_STARTED.register(minecraftServer -> {

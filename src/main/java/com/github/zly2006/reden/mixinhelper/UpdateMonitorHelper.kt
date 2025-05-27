@@ -134,7 +134,10 @@ object UpdateMonitorHelper {
     }
 
     fun ServerLevel.modified(pos: BlockPos, time: Int = server.tickCount) = getChunk(pos).run {
-        isUnsaved = true
+        //? if <= 1.21.1
+        /*isUnsaved = true*/
+        //? if >= 1.21.2
+        markUnsaved()
         getSection(getSectionIndex(pos.y)) as ChunkSectionInterface
     }.setModifyTime(pos, time)
 

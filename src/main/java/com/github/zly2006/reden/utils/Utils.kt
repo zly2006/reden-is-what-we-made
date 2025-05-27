@@ -43,12 +43,15 @@ fun Position.toBlockPos(): BlockPos {
 }
 
 fun Player.sendMessage(s: String) {
-    sendSystemMessage(Text.literal(s))
+    //? if <= 1.21.1 {
+    /*sendSystemMessage(Text.literal(s))
+    *///?} else {
+    displayClientMessage(Text.literal(s), false)
+    //?}
 }
 
 fun Level.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.UPDATE_CLIENTS) {
 //    setBlockState(pos, state, flags and Block.NOTIFY_NEIGHBORS.inv() or Block.FORCE_STATE or Block.SKIP_DROPS)
-    profiler.push("reden_setBlockState_noPP")
     val stateBefore = getBlockState(pos)
     if (stateBefore.hasBlockEntity()) {
         removeBlockEntity(pos)
@@ -65,14 +68,19 @@ fun Level.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.UPDA
         )
         this.heightmaps[Heightmap.Types.OCEAN_FLOOR]!!.update(pos.x and 15, pos.y, pos.z and 15, state)
         this.heightmaps[Heightmap.Types.WORLD_SURFACE]!!.update(pos.x and 15, pos.y, pos.z and 15, state)
-        isUnsaved = true
+        //? if <= 1.21.1 {
+        /*isUnsaved = true*/
+        //?} else {
+        markUnsaved()
+        //?}
 
-        if (LightEngine.hasDifferentLightProperties(this, pos, stateBefore, state)) {
-            profiler.push("updateSkyLightSources")
+        //? if <= 1.21.1 {
+        /*if (LightEngine.hasDifferentLightProperties(this, pos, stateBefore, state)) {
+        *///?} else {
+        if (LightEngine.hasDifferentLightProperties(stateBefore, state)) {
+        //?}
             skyLightSources.update(this, pos.x and 15, pos.y and 15, pos.z and 15)
-            profiler.popPush("queueCheckLight")
             chunkSource.lightEngine.checkBlock(pos)
-            profiler.pop()
         }
 
         if (!state.`is`(stateBefore.block) && stateBefore.hasBlockEntity()) {
@@ -97,7 +105,6 @@ fun Level.setBlockNoPP(pos: BlockPos, state: BlockState, flags: Int = Block.UPDA
     }
     // poi
     this.onBlockStateChange(pos, stateBefore, state)
-    profiler.pop()
 }
 
 val isClient: Boolean get() = FabricLoader.getInstance().environmentType == EnvType.CLIENT
@@ -239,7 +246,7 @@ fun Class<*>.shortenName(): String {
     return this.name.split('.').dropLast(1).joinToString(".") { it[0].toString() } + "." + simple
 }
 
-fun MinecraftServer.send(task: () -> Unit) = tell(TickTask(tickCount, task))
+fun MinecraftServer.send(task: () -> Unit) = schedule(TickTask(tickCount, task))
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun error(reason: String): Nothing =

@@ -4,6 +4,7 @@ import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.access.UndoableAccess;
 import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
 import com.github.zly2006.reden.utils.DebugKt;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
@@ -13,12 +14,16 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-@Mixin(Explosion.class)
+//? if <= 1.21.1 {
+/*@Mixin(Explosion.class)
+*///?} else {
+@Mixin(net.minecraft.world.level.ServerExplosion.class)
+//?}
 public class MixinExplosion implements UndoableAccess {
-    @Shadow @Final private Level level;
     @Unique long undoId;
-
+    //? if <= 1.21.1 {
+    /*
+    @Shadow @Final private Level level;
     @Inject(
             method = "<init>(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;Lnet/minecraft/world/level/ExplosionDamageCalculator;DDDFZLnet/minecraft/world/level/Explosion$BlockInteraction;Lnet/minecraft/core/particles/ParticleOptions;Lnet/minecraft/core/particles/ParticleOptions;Lnet/minecraft/core/Holder;)V",
             at = @At("RETURN")
@@ -55,6 +60,31 @@ public class MixinExplosion implements UndoableAccess {
         if (level.isClientSide) return;
         UpdateMonitorHelper.popRecord(() -> "explosion.entities");
     }
+    *///?} else {
+    @Shadow @Final private ServerLevel level;
+
+    @Inject(
+        method = "<init>",
+        at = @At("RETURN")
+    )
+    private void onInit(CallbackInfo ci) {
+        PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
+        if (recording != null) {
+            DebugKt.debugLogger.invoke("Explosion happened, adding it into record "+ recording.getId());
+            undoId = recording.getId();
+        }
+    }
+
+    @Inject(method = "explode", at = @At("HEAD"))
+    private void beforeDamageEntities(CallbackInfo ci) {
+        UpdateMonitorHelper.pushRecord(undoId, () -> "explosion");
+    }
+
+    @Inject(method = "explode", at = @At("RETURN"))
+    private void afterDamageEntities(CallbackInfo ci) {
+        UpdateMonitorHelper.popRecord(() -> "explosion");
+    }
+    //?}
 
     @Override
     public void setUndoId$reden(long undoId) {

@@ -18,7 +18,6 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Mob
-import net.minecraft.world.entity.MobSpawnType
 import net.minecraft.world.level.block.entity.BlockEntity
 
 @Serializable
@@ -69,7 +68,12 @@ class Undo(
                         val newEntity = entry.entity!!.spawn(world, { newEntity ->
                             // Note: uuid is different from the original one, set it manually
                             newEntity.uuid = it.key
-                        }, entry.pos, MobSpawnType.COMMAND, false, false)
+                        },
+//? if <= 1.21.1 {
+                        /*entry.pos, net.minecraft.world.entity.MobSpawnType.COMMAND, false, false)
+*///?} else {
+                        entry.pos, net.minecraft.world.entity.EntitySpawnReason.COMMAND, false, false)
+//?}
                         if (newEntity != null) {
                             newEntity.load(entry.nbt)
                             redoRecord?.entities?.put(it.key, PlayerData.NotExistEntityEntry) // add entity info to redo record

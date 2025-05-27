@@ -7,6 +7,11 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworkin
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.network.chat.Component
 
+// @formatter:off
+//? if > 1.21.1 {
+import com.github.zly2006.reden.utils.multiver.sendSystemMessage
+//?}
+
 private const val MESSAGE_PREFIX = "${Reden.MOD_ID}.message."
 
 fun translateMessage(category: String, key: String, vararg args: Any): Component {
