@@ -16,20 +16,8 @@ public class Reden implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        LOGGER.info("Hello Fabric world!");
-
-        //? if !release
-        /*LOGGER.warn("I'm still a template!");*/
-
-        //? if fapi: <0.95 {
-        /*LOGGER.info("Fabric API is old on this version");
-        LOGGER.info("Please update!");
-        *///?}
-
         ChannelsKt.registerChannelServer();
-        ServerLifecycleEvents.SERVER_STARTED.register(minecraftServer -> {
-            UtilsKt.setServer(minecraftServer);
-        });
+        ServerLifecycleEvents.SERVER_STARTED.register(UtilsKt::setServer);
     }
 
     public static ResourceLocation identifier(String path) {

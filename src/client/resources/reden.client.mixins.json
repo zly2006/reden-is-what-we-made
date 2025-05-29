@@ -5,9 +5,13 @@
   "client": [
     "chat.ChatHudMixin",
     "chat.ChatScreenMixin",
-    "chat.VisibleChatHudLineMixin"
+    "chat.VisibleChatHudLineMixin",
+    "keybind.MixinKeyMapping"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "mixins": [
+    "noTimeOut.MixinReadTimeoutHandler"
+  ]
 }

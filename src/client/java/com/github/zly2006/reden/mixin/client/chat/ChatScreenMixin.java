@@ -21,10 +21,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @Mixin(ChatScreen.class)
 public abstract class ChatScreenMixin extends Screen {
     @Shadow @Nullable protected abstract Style getComponentStyleAt(double d, double e);
