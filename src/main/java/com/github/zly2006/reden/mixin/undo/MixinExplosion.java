@@ -12,12 +12,15 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+// @formatter:off
 //? if <= 1.21.1 {
-/*@Mixin(net.minecraft.world.level.Explosion.class)
+/*import net.minecraft.world.level.Level;
+@Mixin(net.minecraft.world.level.Explosion.class)
 *///?} else {
 @Mixin(net.minecraft.world.level.ServerExplosion.class)
 //?}
 public class MixinExplosion implements UndoableAccess {
+// @formatter:on
     @Unique long undoId;
     //? if <= 1.21.1 {
     
@@ -28,7 +31,7 @@ public class MixinExplosion implements UndoableAccess {
     )
     private void onInit(CallbackInfo ci) {
         if (level.isClientSide) return;
-        PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
+        PlayerData.UndoRecord recording = UndoMixinHelper.INSTANCE.getRecording();
         if (recording != null) {
             DebugKt.debugLogger.invoke("Explosion happened, adding it into record "+ recording.getId());
             undoId = recording.getId();
@@ -38,25 +41,25 @@ public class MixinExplosion implements UndoableAccess {
     @Inject(method = "finalizeExplosion", at = @At("HEAD"))
     private void beforeAffectWorld(boolean particles, CallbackInfo ci) {
         if (level.isClientSide) return;
-        UpdateMonitorHelper.pushRecord(undoId, () -> "explosion.blocks");
+        UndoMixinHelper.pushRecord(undoId, () -> "explosion.blocks");
     }
 
     @Inject(method = "finalizeExplosion", at = @At("RETURN"))
     private void afterAffectWorld(boolean particles, CallbackInfo ci) {
         if (level.isClientSide) return;
-        UpdateMonitorHelper.popRecord(() -> "explosion.blocks");
+        UndoMixinHelper.popRecord(() -> "explosion.blocks");
     }
 
     @Inject(method = "explode", at = @At("HEAD"))
     private void beforeDamageEntities(CallbackInfo ci) {
         if (level.isClientSide) return;
-        UpdateMonitorHelper.pushRecord(undoId, () -> "explosion.entities");
+        UndoMixinHelper.pushRecord(undoId, () -> "explosion.entities");
     }
 
     @Inject(method = "explode", at = @At("RETURN"))
     private void afterDamageEntities(CallbackInfo ci) {
         if (level.isClientSide) return;
-        UpdateMonitorHelper.popRecord(() -> "explosion.entities");
+        UndoMixinHelper.popRecord(() -> "explosion.entities");
     }
     *///?} else {
     @Shadow @Final private ServerLevel level;
