@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -26,7 +26,7 @@ public class MixinPlayer {
     )
     private void onAttack(CallbackInfo ci) {
         if (1 == 1) {
-            UpdateMonitorHelper.playerStartRecording(self(), PlayerData.UndoRecord.Cause.ATTACK_ENTITY);
+            UndoMixinHelper.playerStartRecording(self(), PlayerData.UndoRecord.Cause.ATTACK_ENTITY);
         }
     }
     @Inject(
@@ -39,7 +39,7 @@ public class MixinPlayer {
     )
     private void afterAttack(CallbackInfo ci) {
         if (1 == 1) {
-            UpdateMonitorHelper.playerStopRecording(self());
+            UndoMixinHelper.playerStopRecording(self());
         }
     }
 }

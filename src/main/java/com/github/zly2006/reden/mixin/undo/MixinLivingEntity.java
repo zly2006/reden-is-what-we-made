@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -25,7 +25,7 @@ public abstract class MixinLivingEntity extends Entity {
     )
     private void stopUsingItem(CallbackInfo ci) {
         if ((Object)this instanceof ServerPlayer player) {
-            UpdateMonitorHelper.playerStartRecording(player, PlayerData.UndoRecord.Cause.USE_ITEM);
+            UndoMixinHelper.playerStartRecording(player, PlayerData.UndoRecord.Cause.USE_ITEM);
         }
     }
 
@@ -35,7 +35,7 @@ public abstract class MixinLivingEntity extends Entity {
     )
     private void afterStopUsingItem(CallbackInfo ci) {
         if ((Object)this instanceof ServerPlayer player) {
-            UpdateMonitorHelper.playerStopRecording(player);
+            UndoMixinHelper.playerStopRecording(player);
         }
     }
 
@@ -44,6 +44,6 @@ public abstract class MixinLivingEntity extends Entity {
             at = @At("HEAD")
     )
     private void onDeath(DamageSource damageSource, CallbackInfo ci) {
-        UpdateMonitorHelper.tryAddRelatedEntity(this);
+        UndoMixinHelper.tryAddRelatedEntity(this);
     }
 }

@@ -2,7 +2,7 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.access.UndoableAccess;
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,7 +28,7 @@ public class MixinPistonEntity implements UndoableAccess {
 
     @Inject(method = "<init>(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/Direction;ZZ)V", at = @At("RETURN"))
     private void onInit(CallbackInfo ci) {
-        PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
+        PlayerData.UndoRecord recording = UndoMixinHelper.INSTANCE.getRecording();
         if (recording != null) {
             undoId = recording.getId();
         }

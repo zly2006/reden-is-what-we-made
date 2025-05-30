@@ -2,7 +2,7 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.access.UndoableAccess;
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -24,7 +24,7 @@ public abstract class MixinTntEntity extends Entity implements UndoableAccess {
             at = @At("RETURN")
     )
     private void onInit(EntityType<?> entityType, Level level, CallbackInfo ci) {
-        PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
+        PlayerData.UndoRecord recording = UndoMixinHelper.INSTANCE.getRecording();
         if (!level.isClientSide && recording != null) {
             DebugKt.debugLogger.invoke("TNT spawned, adding it into record " + recording.getId());
             setUndoId$reden(recording.getId());
@@ -33,11 +33,11 @@ public abstract class MixinTntEntity extends Entity implements UndoableAccess {
 
     @Inject(method = "explode", at = @At("HEAD"))
     private void beforeExplode(CallbackInfo ci) {
-        UpdateMonitorHelper.pushRecord(getUndoId$reden(), () -> "tnt explode/" + getId());
+        UndoMixinHelper.pushRecord(getUndoId$reden(), () -> "tnt explode/" + getId());
     }
 
     @Inject(method = "explode", at = @At("TAIL"))
     private void afterExplode(CallbackInfo ci) {
-        UpdateMonitorHelper.popRecord(() -> "tnt explode/" + getId());
+        UndoMixinHelper.popRecord(() -> "tnt explode/" + getId());
     }
 }

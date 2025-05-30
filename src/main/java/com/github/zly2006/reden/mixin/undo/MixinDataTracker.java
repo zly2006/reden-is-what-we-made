@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.mixin.undo;
 
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SyncedDataHolder;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -25,7 +25,7 @@ public class MixinDataTracker {
     private <T> void beforeDataSet(EntityDataAccessor<T> entityDataAccessor, T object, boolean bl, CallbackInfo ci) {
         if (entity instanceof Entity modifiedEntity) {
             if (modifiedEntity.level().isClientSide()) return;
-            UpdateMonitorHelper.tryAddRelatedEntity(modifiedEntity);
+            UndoMixinHelper.tryAddRelatedEntity(modifiedEntity);
         }
     }
 }

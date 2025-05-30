@@ -2,7 +2,7 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.access.UndoableAccess;
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import com.github.zly2006.reden.utils.DebugKt;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.BlockPos;
@@ -28,7 +28,7 @@ public class MixinSchedule {
     private <T> void onRunSchedule(BiConsumer<BlockPos, T> biConsumer, CallbackInfo ci, @Local ScheduledTick scheduledTick) {
         if (1 == 1) {
             long undoId = ((UndoableAccess) scheduledTick).getUndoId$reden();
-            UpdateMonitorHelper.pushRecord(undoId, () -> "scheduled tick/" + scheduledTick.pos().toShortString());
+            UndoMixinHelper.pushRecord(undoId, () -> "scheduled tick/" + scheduledTick.pos().toShortString());
         }
     }
     @Inject(
@@ -41,7 +41,7 @@ public class MixinSchedule {
     )
     private <T> void afterRunSchedule(BiConsumer<BlockPos, T> biConsumer, CallbackInfo ci, @Local ScheduledTick scheduledTick) {
         if (1 == 1) {
-            UpdateMonitorHelper.popRecord(() -> "scheduled tick/" + scheduledTick.pos().toShortString());
+            UndoMixinHelper.popRecord(() -> "scheduled tick/" + scheduledTick.pos().toShortString());
         }
     }
     @Inject(
@@ -51,7 +51,7 @@ public class MixinSchedule {
             )
     )
     private <T> void onAddSchedule(ScheduledTick<T> scheduledTick, CallbackInfo ci) {
-        PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
+        PlayerData.UndoRecord recording = UndoMixinHelper.INSTANCE.getRecording();
         if (recording != null) {
             DebugKt.debugLogger.invoke("Scheduled tick at " + scheduledTick.pos() + ", adding it into record " + recording.getId());
             // inherit parent id

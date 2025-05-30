@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.brigadier.ParseResults;
@@ -36,7 +36,7 @@ public class MixinCommands {
     )
     private void onExecute(ParseResults<CommandSourceStack> parseResults, String command, CallbackInfo ci) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayer player) {
-            UpdateMonitorHelper.playerStartRecording(player, PlayerData.UndoRecord.Cause.COMMAND);
+            UndoMixinHelper.playerStartRecording(player, PlayerData.UndoRecord.Cause.COMMAND);
         }
     }
 
@@ -50,7 +50,7 @@ public class MixinCommands {
     )
     private void afterExecute(ParseResults<CommandSourceStack> parseResults, String command, CallbackInfo ci) {
         if (parseResults.getContext().getSource().getEntity() instanceof ServerPlayer player) {
-            UpdateMonitorHelper.playerStopRecording(player);
+            UndoMixinHelper.playerStopRecording(player);
         }
     }
 }

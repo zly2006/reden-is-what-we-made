@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.spongepowered.asm.mixin.Final;
@@ -20,14 +20,14 @@ public abstract class MixinServerPlayNetworkHandler implements ServerboundIntera
     @Inject(method = "performInteraction", at = @At(value = "HEAD"))
     public void beforePlayerUseEntity(CallbackInfo ci) {
         if (1 == 1) {
-            UpdateMonitorHelper.playerStartRecording(field_28963.player, PlayerData.UndoRecord.Cause.USE_ENTITY);
+            UndoMixinHelper.playerStartRecording(field_28963.player, PlayerData.UndoRecord.Cause.USE_ENTITY);
         }
     }
 
     @Inject(method = "performInteraction", at = @At(value = "RETURN"))
     public void afterPlayerUseEntity(CallbackInfo info) {
         if (1 == 1) {
-            UpdateMonitorHelper.playerStopRecording(field_28963.player);
+            UndoMixinHelper.playerStopRecording(field_28963.player);
         }
     }
 }

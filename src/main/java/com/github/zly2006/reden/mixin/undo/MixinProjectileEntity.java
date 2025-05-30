@@ -2,7 +2,7 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.access.UndoableAccess;
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -28,7 +28,7 @@ public abstract class MixinProjectileEntity extends Entity implements UndoableAc
     )
     private void beforeHit(HitResult hitResult, CallbackInfo ci) {
         if (this.getOwner() instanceof ServerPlayer) {
-            UpdateMonitorHelper.pushRecord(getUndoId$reden(), () -> "projectile hit/" + getId());
+            UndoMixinHelper.pushRecord(getUndoId$reden(), () -> "projectile hit/" + getId());
         }
     }
 
@@ -38,7 +38,7 @@ public abstract class MixinProjectileEntity extends Entity implements UndoableAc
     )
     private void afterHit(HitResult hitResult, CallbackInfo ci) {
         if (this.getOwner() instanceof ServerPlayer) {
-            UpdateMonitorHelper.popRecord(() -> "projectile hit/" + getId());
+            UndoMixinHelper.popRecord(() -> "projectile hit/" + getId());
         }
     }
 
@@ -48,7 +48,7 @@ public abstract class MixinProjectileEntity extends Entity implements UndoableAc
     )
     private void initUndoId(EntityType<?> entityType, Level level, CallbackInfo ci) {
         if (!level.isClientSide) {
-            PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
+            PlayerData.UndoRecord recording = UndoMixinHelper.INSTANCE.getRecording();
             if (recording != null) {
                 DebugKt.debugLogger.invoke("Projectile spawned, adding it into record " + recording.getId());
                 setUndoId$reden(recording.getId());

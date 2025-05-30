@@ -2,11 +2,9 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.access.UndoableAccess;
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -68,7 +66,7 @@ public class MixinExplosion implements UndoableAccess {
         at = @At("RETURN")
     )
     private void onInit(CallbackInfo ci) {
-        PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
+        PlayerData.UndoRecord recording = UndoMixinHelper.INSTANCE.getRecording();
         if (recording != null) {
             DebugKt.debugLogger.invoke("Explosion happened, adding it into record "+ recording.getId());
             undoId = recording.getId();
@@ -77,12 +75,12 @@ public class MixinExplosion implements UndoableAccess {
 
     @Inject(method = "explode", at = @At("HEAD"))
     private void beforeDamageEntities(CallbackInfo ci) {
-        UpdateMonitorHelper.pushRecord(undoId, () -> "explosion");
+        UndoMixinHelper.pushRecord(undoId, () -> "explosion");
     }
 
     @Inject(method = "explode", at = @At("RETURN"))
     private void afterDamageEntities(CallbackInfo ci) {
-        UpdateMonitorHelper.popRecord(() -> "explosion");
+        UndoMixinHelper.popRecord(() -> "explosion");
     }
     //?}
 

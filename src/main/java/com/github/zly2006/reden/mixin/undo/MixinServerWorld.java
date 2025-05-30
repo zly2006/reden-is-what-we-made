@@ -2,7 +2,7 @@ package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.PlayerData;
 import com.github.zly2006.reden.access.UndoableAccess;
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockEventData;
@@ -24,7 +24,7 @@ public abstract class MixinServerWorld {
     )
     private Object beforeAddSyncedBlockEvent(Object event) { // BlockEvent
         if (event instanceof UndoableAccess access) {
-            PlayerData.UndoRecord recording = UpdateMonitorHelper.INSTANCE.getRecording();
+            PlayerData.UndoRecord recording = UndoMixinHelper.INSTANCE.getRecording();
             if (recording != null) {
                 access.setUndoId$reden(recording.getId());
             }
@@ -42,7 +42,7 @@ public abstract class MixinServerWorld {
     )
     private void beforeProcessBlockEvent(BlockEventData event, CallbackInfoReturnable<Boolean> cir) {
         long undoId = ((UndoableAccess) event).getUndoId$reden();
-        UpdateMonitorHelper.pushRecord(undoId, () -> "block event/" + event.pos().toShortString());
+        UndoMixinHelper.pushRecord(undoId, () -> "block event/" + event.pos().toShortString());
     }
 
     @Inject(
@@ -54,7 +54,7 @@ public abstract class MixinServerWorld {
             )
     )
     private void afterProcessBlockEvent(BlockEventData event, CallbackInfoReturnable<Boolean> cir) {
-        UpdateMonitorHelper.popRecord(() -> "block event/" + event.pos().toShortString());
+        UndoMixinHelper.popRecord(() -> "block event/" + event.pos().toShortString());
     }
 
     @Inject(
@@ -62,6 +62,6 @@ public abstract class MixinServerWorld {
             at = @At("RETURN")
     )
     private void afterSpawn(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        UpdateMonitorHelper.isInitializingEntity = false;
+        UndoMixinHelper.isInitializingEntity = false;
     }
 }

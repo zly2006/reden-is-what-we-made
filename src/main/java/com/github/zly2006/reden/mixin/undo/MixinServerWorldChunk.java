@@ -1,6 +1,6 @@
 package com.github.zly2006.reden.mixin.undo;
 
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
@@ -40,7 +40,7 @@ public abstract class MixinServerWorldChunk extends ChunkAccess {
     private void monitorSetBlock(BlockPos pos, BlockState state, int i, CallbackInfoReturnable<BlockState> cir) {
     //?}
         if (level instanceof ServerLevel serverLevel) {
-            UpdateMonitorHelper.monitorSetBlock(serverLevel, pos, state);
+            UndoMixinHelper.monitorSetBlock(serverLevel, pos, state);
         }
     }
 
@@ -54,7 +54,7 @@ public abstract class MixinServerWorldChunk extends ChunkAccess {
     private void afterSetBlock(BlockPos pos, BlockState state, int i, CallbackInfoReturnable<BlockState> cir) {
     //?}
         if (level instanceof ServerLevel serverLevel) {
-            UpdateMonitorHelper.postSetBlock(serverLevel, pos, state, false);
+            UndoMixinHelper.postSetBlock(serverLevel, pos, state, false);
         }
     }
 }

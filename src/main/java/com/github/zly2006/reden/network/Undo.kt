@@ -5,8 +5,8 @@ import com.github.zly2006.reden.access.BlockEntityInterface
 import com.github.zly2006.reden.access.ChunkSectionInterface
 import com.github.zly2006.reden.access.PlayerData
 import com.github.zly2006.reden.access.PlayerData.Companion.data
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper.modified
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper.modified
 import com.github.zly2006.reden.utils.debugLogger
 import com.github.zly2006.reden.utils.server
 import com.github.zly2006.reden.utils.setBlockNoPP
@@ -108,7 +108,7 @@ class Undo(
                     return last
                 }
                 // if the last record is empty, remove it
-                UpdateMonitorHelper.removeRecord(last.id)
+                UndoMixinHelper.removeRecord(last.id)
                 this.removeLast()
             }
             return null
@@ -123,16 +123,16 @@ class Undo(
                     sendStatus(16)
                     return@registerGlobalReceiver
                 }
-                UpdateMonitorHelper.playerStopRecording(context.player())
-                if (UpdateMonitorHelper.recording != null) {
-                    Reden.LOGGER.error("Undo when a record is still active, id=" + UpdateMonitorHelper.recording?.id)
+                UndoMixinHelper.playerStopRecording(context.player())
+                if (UndoMixinHelper.recording != null) {
+                    Reden.LOGGER.error("Undo when a record is still active, id=" + UndoMixinHelper.recording?.id)
                     // 不取消跟踪会导致undo的更改也被记录，边读边写异常
-                    UpdateMonitorHelper.undoRecords.clear()
+                    UndoMixinHelper.undoRecords.clear()
                 }
                 when (packet.status) {
                     0 -> view.undo.lastValid()?.let { undoRecord ->
                         view.undo.removeLast()
-                        UpdateMonitorHelper.removeRecord(undoRecord.id) // no longer monitoring rollbacked record
+                        UndoMixinHelper.removeRecord(undoRecord.id) // no longer monitoring rollbacked record
                         server.execute {
                             view.redo.add(
                                 PlayerData.RedoRecord(

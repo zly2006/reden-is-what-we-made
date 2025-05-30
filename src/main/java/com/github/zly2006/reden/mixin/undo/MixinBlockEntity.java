@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.BlockEntityInterface;
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -50,7 +50,7 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
     )
     private void onBlockEntityChanged(CallbackInfo ci) {
         if (level instanceof ServerLevel serverLevel) {
-            UpdateMonitorHelper.postSetBlock(serverLevel, worldPosition, blockState, true);
+            UndoMixinHelper.postSetBlock(serverLevel, worldPosition, blockState, true);
         }
     }
 

@@ -1,7 +1,7 @@
 package com.github.zly2006.reden.mixin.undo;
 
 import com.github.zly2006.reden.access.UndoableAccess;
-import com.github.zly2006.reden.mixinhelper.UpdateMonitorHelper;
+import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -36,14 +36,14 @@ public class MixinEntity implements UndoableAccess {
     )
     private void beforeEntitySpawn(EntityType<?> entityType, Level level, CallbackInfo ci) {
         if (!level.isClientSide) {
-            UpdateMonitorHelper.isInitializingEntity = true;
+            UndoMixinHelper.isInitializingEntity = true;
         }
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onEntitySpawn(EntityType<?> entityType, Level level, CallbackInfo ci) {
         if (!level.isClientSide) {
-            UpdateMonitorHelper.entitySpawned((Entity) (Object) this);
+            UndoMixinHelper.entitySpawned((Entity) (Object) this);
         }
     }
 }
