@@ -158,7 +158,7 @@ object UndoMixinHelper {
                 recording?.data?.computeIfAbsent(pos.asLong()) {
                     debugLogger("id ${recording?.id ?: 0}: set$pos, block entity, applying lastSavedNbt")
                     recording!!.fromWorld(world, pos, true).let {
-                        if (data != null) it.copy(blockEntity = data)
+                        if (data != null) it.copy(beData = data)
                         else it
                     }
                 }

@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.access
 
+import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.utils.multiver.Text
 import net.minecraft.commands.arguments.selector.EntitySelector
 import net.minecraft.core.BlockPos
@@ -10,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import java.util.*
 
@@ -37,13 +39,14 @@ class PlayerData(
 
     data class Entry(
         val state: BlockState,
-        val blockEntity: CompoundTag?,
+        val beData: Any?,
+        val beType: BlockEntityType<*>?,
         val time: Int
     ) {
-        fun getMemorySize() = (blockEntity?.sizeInBytes() ?: 0) + 20
+        fun getMemorySize() = 20
     }
 
-    @Suppress("INAPPLICABLE_JVM_NAME")
+    @Suppress("INAPPLICABLE_JVM_NAME", "FunctionName")
     internal interface PlayerDataAccess {
         fun `reden$playerData`(): PlayerData
     }
@@ -74,9 +77,9 @@ ${data.map { "${BlockPos.of(it.key).toShortString()} = ${it.value.state}" }.join
         fun fromWorld(world: ServerLevel, pos: BlockPos, putNearByEntities: Boolean): Entry {
             val be = world.getBlockEntity(pos)
             val state = world.getBlockState(pos)
-            return Entry(state, be?.lastSavedNbt(), world.server.tickCount).apply {
-                if (state.hasBlockEntity() && blockEntity == null) {
-//                    Reden.LOGGER.error("BlockEntity $be at $pos has no last saved nbt")
+            return Entry(state, be?.lastSavedNbt(), be?.type, world.server.tickCount).apply {
+                if (state.hasBlockEntity() && beData == null) {
+                    Reden.LOGGER.error("BlockEntity $be at $pos has no last saved nbt")
                 }
                 if (putNearByEntities &&
                     world.getBlockState(pos).getCollisionShape(world, pos).toAabbs().isNotEmpty()

@@ -5,6 +5,9 @@ import com.github.zly2006.reden.mixinhelper.UndoMixinHelper;
 import com.github.zly2006.reden.utils.DebugKt;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -24,24 +27,50 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
     @Shadow @Nullable protected Level level;
     @Final @Shadow protected BlockPos worldPosition;
     @Shadow private BlockState blockState;
-
+    @Shadow private DataComponentMap components;
     @Shadow public abstract CompoundTag saveWithId(HolderLookup.Provider provider);
 
     @Unique CompoundTag lastSavedNbt = null;
+    @Unique DataComponentMap lastComponents = null;
 
     @Override
     public void saveLastNbt$reden() {
         if (level != null && !level.isClientSide) {
-            DebugKt.debugLogger.invoke("before saving lastNBT at " + worldPosition.toShortString() + ", data=" + lastSavedNbt);
-            lastSavedNbt = this.saveWithId(level.registryAccess()).copy();
-            DebugKt.debugLogger.invoke("saved lastNBT at " + worldPosition.toShortString() + ", cause=manual, " + lastSavedNbt);
+            DebugKt.debugLogger.invoke("before saving lastNBT at " + worldPosition.toShortString() + ", nbt=" + lastSavedNbt + ", components=" + components);
+            if (isComponentsValid(components)) {
+                lastComponents = components;
+                DebugKt.debugLogger.invoke("saved lastComponents at " + worldPosition.toShortString() + ", cause=reden manually, " + lastComponents);
+            } else {
+                lastSavedNbt = this.saveWithId(level.registryAccess());
+                DebugKt.debugLogger.invoke("saved lastNBT at " + worldPosition.toShortString() + ", cause=reden manually, " + lastSavedNbt);
+            }
         }
     }
 
+    @Unique
+    private boolean isComponentsValid(DataComponentMap lastComponents) {
+        if (lastComponents == null) return false;
+        if (lastComponents.isEmpty()) return false;
+        for (DataComponentType<?> componentType : lastComponents.keySet()) {
+            if (componentType != DataComponents.BLOCK_STATE || componentType != DataComponents.BLOCK_ENTITY_DATA) {
+                return true; // has other components
+            }
+        }
+        return false; // only has block state and block entity data, which are not useful for undo
+    }
+
     @Override
-    @Nullable
-    public CompoundTag getLastSavedNbt$reden() {
-        return lastSavedNbt;
+    public @Nullable Object getLastSavedNbt$reden() {
+        if (isComponentsValid(lastComponents)) {
+            DebugKt.debugLogger.invoke("getLastSavedNbt at " + worldPosition.toShortString() + ", using lastComponents=" + lastComponents);
+            return lastComponents;
+        } else if (lastSavedNbt != null) {
+            DebugKt.debugLogger.invoke("getLastSavedNbt at " + worldPosition.toShortString() + ", using lastSavedNbt=" + lastSavedNbt);
+            return lastSavedNbt;
+        } else {
+            DebugKt.debugLogger.invoke("getLastSavedNbt at " + worldPosition.toShortString() + ", no saved data");
+            return null;
+        }
     }
 
     @Inject(
@@ -58,13 +87,19 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
             method = "loadWithComponents",
             at = @At("TAIL")
     )
+    // Only for initialization, do not call more than once
     private void onReadNbt(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
-        DebugKt.debugLogger.invoke("before saving lastNBT at " + worldPosition.toShortString() + ", data=" + lastSavedNbt);
-        if (lastSavedNbt == null) {
-            lastSavedNbt = nbt.copy();
-            DebugKt.debugLogger.invoke("saved lastNBT at " + worldPosition.toShortString() + ", cause=read, " + lastSavedNbt);
+        DebugKt.debugLogger.invoke("init: before saving lastNBT at " + worldPosition.toShortString() + ", data=" + lastSavedNbt);
+        if (lastSavedNbt == null && lastComponents == null) {
+            if (isComponentsValid(components)) {
+                lastComponents = components;
+                DebugKt.debugLogger.invoke("init: saved lastComponents at " + worldPosition.toShortString() + ", cause=reden init, " + lastComponents);
+            } else if (level != null) {
+                lastSavedNbt = this.saveWithId(level.registryAccess());
+                DebugKt.debugLogger.invoke("init: saved lastNBT at " + worldPosition.toShortString() + ", cause=reden init, " + lastSavedNbt);
+            }
         } else {
-            DebugKt.debugLogger.invoke("skip saving lastNBT at " + worldPosition.toShortString());
+            DebugKt.debugLogger.invoke("init: skip saving lastNBT at " + worldPosition.toShortString());
         }
     }
 }

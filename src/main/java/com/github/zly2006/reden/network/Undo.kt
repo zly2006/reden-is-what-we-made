@@ -14,11 +14,12 @@ import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.core.BlockPos
+import net.minecraft.core.component.DataComponentMap
+import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Mob
-import net.minecraft.world.level.block.entity.BlockEntity
 
 @Serializable
 class Undo(
@@ -51,9 +52,32 @@ class Undo(
 //                blockTickScheduler.removeTicksIf { it.pos == pos }
 //                fluidTickScheduler.removeTicksIf { it.pos == pos }
                 // apply block entity
-                entry.blockEntity?.let { beNbt ->
-                    debugLogger("undo block entity ${pos}, $beNbt")
-                    BlockEntity.loadStatic(pos, entry.state, beNbt, world.registryAccess())?.let { be ->
+                entry.beType?.let { beType ->
+                    debugLogger("undo block entity ${pos}, $beType")
+                    if (entry.state.hasBlockEntity()) {
+                        // Dont use EntityBlock.newBlockEntity, piston bug
+                        val be = beType.create(pos, entry.state)
+                            ?: return@let
+                        val beData = entry.beData ?: return@let
+
+                        when (beData) {
+                            is CompoundTag -> {
+                                be.loadWithComponents(beData, world.registryAccess())
+                            }
+
+                            is DataComponentMap -> {
+                                val prototype = entry.state.block.asItem().components()
+                                be.applyComponents(prototype, DataComponentPatch.builder().apply {
+                                    beData.forEach { typedDataComponent ->
+                                        this.set(typedDataComponent)
+                                    }
+                                }.build())
+                            }
+
+                            else -> {
+                                throw IllegalArgumentException("Unsupported block entity data type: ${beData::class.java}")
+                            }
+                        }
                         world.setBlockEntity(be)
                         (world.getBlockEntity(pos) as BlockEntityInterface).saveLastNbt()
                     }
