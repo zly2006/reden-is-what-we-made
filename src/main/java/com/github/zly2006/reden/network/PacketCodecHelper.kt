@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation
 import kotlin.reflect.typeOf
 
 @OptIn(ExperimentalSerializationApi::class)
-@Suppress("PropertyName", "MemberVisibilityCanBePrivate")
+@Suppress("PropertyName")
 interface PacketCodecHelper<T : CustomPacketPayload> {
     companion object {
         val cbor = Cbor {
