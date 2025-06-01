@@ -27,10 +27,7 @@ fun registerHello() {
                 Reden.MOD_VERSION, setOf(
                     "reden",
                     "undo",
-                    "hopper-cd",
-                    "experimental:debugger",
-                    "experimental:pearl",
-                )
+                 )
             )
         )
     }
