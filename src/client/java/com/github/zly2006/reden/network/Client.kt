@@ -2,7 +2,6 @@ package com.github.zly2006.reden.network
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.utils.multiver.Text
-import fi.dy.masa.malilib.util.StringUtils
 import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.network.chat.Component
@@ -15,8 +14,7 @@ import com.github.zly2006.reden.utils.multiver.sendSystemMessage
 private const val MESSAGE_PREFIX = "${Reden.MOD_ID}.message."
 
 fun translateMessage(category: String, key: String, vararg args: Any): Component {
-    val msg = StringUtils.translate("$MESSAGE_PREFIX$category.$key", args)
-    return Text.translatable("$MESSAGE_PREFIX$category.base", msg)
+    return Text.translatable("$MESSAGE_PREFIX$category.base", Text.translatable("$MESSAGE_PREFIX$category.$key", args))
 }
 
 fun registerClientPackets() {
