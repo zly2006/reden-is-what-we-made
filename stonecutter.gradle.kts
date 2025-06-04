@@ -9,19 +9,10 @@ plugins {
 stonecutter active "1.21.5" /* [SC] DO NOT EDIT */
 
 stonecutter parameters {
-    /*
-    See src/main/java/com/example/TemplateMod.java
-    and https://stonecutter.kikugie.dev/
-    */
-    // Swaps replace the scope with a predefined value
     swaps {
-        put("mod_version") {
-            "\"${property("mod.version")}\";"
-        }
+        put("mod_version", "\"${property("mod.version")}\";")
     }
     dependencies {
-        put("fapi") {
-            node.project.property("deps.fabric_api").toString()
-        }
+        put("fapi", node.project.property("deps.fabric_api").toString())
     }
 }
