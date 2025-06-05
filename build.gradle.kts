@@ -44,6 +44,9 @@ repositories {
     }
     strictMaven("https://www.cursemaven.com", "CurseForge", "curse.maven")
     strictMaven("https://api.modrinth.com/maven", "Modrinth", "maven.modrinth")
+    maven {
+        url = uri("https://maven.wispforest.io")
+    }
 }
 
 dependencies {
@@ -56,6 +59,11 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
     modImplementation("maven.modrinth:malilib:${property("deps.malilib")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${property("deps.fabric_language_kotlin")}")
+    modImplementation("io.wispforest:owo-lib:${property("deps.owo")}") {
+        exclude(group = "net.fabricmc.fabric-api")
+        exclude(group = "it.unimi.dsi")
+    }
+    modImplementation("maven.modrinth:litematica:${property("deps.litematica")}")
 
     fapi(
         // Add modules from https://github.com/FabricMC/fabric
