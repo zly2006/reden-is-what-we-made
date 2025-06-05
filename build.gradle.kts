@@ -99,7 +99,8 @@ tasks.processResources {
         "id" to mod.id,
         "name" to mod.name,
         "version" to mod.version,
-        "mcdep" to mcDep
+        "mcdep" to mcDep,
+        "malilib" to project.property("deps.malilib") as String
     )
 
     filesMatching("fabric.mod.json") { expand(map) }
