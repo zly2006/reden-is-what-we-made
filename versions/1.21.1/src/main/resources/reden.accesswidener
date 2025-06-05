@@ -7,3 +7,8 @@ extendable class net/minecraft/client/GuiMessage$Line
 accessible method net/minecraft/client/gui/components/ChatComponent screenToChatY (D)D
 accessible method net/minecraft/client/gui/components/ChatComponent getMessageLineIndexAt (DD)I
 accessible field net/minecraft/client/gui/components/ChatComponent trimmedMessages Ljava/util/List;
+accessible field com/mojang/blaze3d/systems/RenderSystem shaderTextures [I
+accessible field net/minecraft/client/Minecraft userApiService Lcom/mojang/authlib/minecraft/UserApiService;
+accessible field net/minecraft/client/gui/screens/worldselection/SelectWorldScreen list Lnet/minecraft/client/gui/screens/worldselection/WorldSelectionList;
+accessible field net/minecraft/client/gui/screens/worldselection/WorldSelectionList pendingLevels Ljava/util/concurrent/CompletableFuture;
+accessible method net/minecraft/client/gui/screens/Screen addRenderableWidget (Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;

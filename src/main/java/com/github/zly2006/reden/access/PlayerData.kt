@@ -93,9 +93,9 @@ ${data.map { "${BlockPos.of(it.key).toShortString()} = ${it.value.state}" }.join
                     list.forEach { entity ->
                         this@UndoRedoRecord.entities.computeIfAbsent(entity.uuid) {
                             //? if <= 1.21.5 {
-                            /*EntityEntryImpl(entity.type, CompoundTag().apply(entity::save), entity.blockPosition())
-                            *///?} else {
-                            EntityEntryImpl(
+                            EntityEntryImpl(entity.type, CompoundTag().apply(entity::save), entity.blockPosition())
+                            //?} else {
+                            /*EntityEntryImpl(
                                 entity.type,
                                 net.minecraft.world.level.storage.TagValueOutput.createWithContext(
                                     net.minecraft.util.ProblemReporter.DISCARDING,
@@ -103,7 +103,7 @@ ${data.map { "${BlockPos.of(it.key).toShortString()} = ${it.value.state}" }.join
                                 ).apply(entity::save).buildResult(),
                                 entity.blockPosition()
                             )
-                            //?}
+                            *///?}
                         }
                     }
                 }

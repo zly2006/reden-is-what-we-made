@@ -14,17 +14,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 // @formatter:off
 //? if <= 1.21.1 {
-/*import net.minecraft.world.level.Level;
+import net.minecraft.world.level.Level;
 @Mixin(net.minecraft.world.level.Explosion.class)
-*///?} else {
-@Mixin(net.minecraft.world.level.ServerExplosion.class)
-//?}
+//?} else {
+/*@Mixin(net.minecraft.world.level.ServerExplosion.class)
+*///?}
 public class MixinExplosion implements UndoableAccess {
 // @formatter:on
     @Unique long undoId;
     //? if <= 1.21.1 {
     
-    /*@Shadow @Final private Level level;
+    @Shadow @Final private Level level;
     @Inject(
             method = "<init>(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;Lnet/minecraft/world/level/ExplosionDamageCalculator;DDDFZLnet/minecraft/world/level/Explosion$BlockInteraction;Lnet/minecraft/core/particles/ParticleOptions;Lnet/minecraft/core/particles/ParticleOptions;Lnet/minecraft/core/Holder;)V",
             at = @At("RETURN")
@@ -61,8 +61,8 @@ public class MixinExplosion implements UndoableAccess {
         if (level.isClientSide) return;
         UndoMixinHelper.popRecord(() -> "explosion.entities");
     }
-    *///?} else {
-    @Shadow @Final private ServerLevel level;
+    //?} else {
+    /*@Shadow @Final private ServerLevel level;
 
     @Inject(
         method = "<init>",
@@ -85,7 +85,7 @@ public class MixinExplosion implements UndoableAccess {
     private void afterDamageEntities(CallbackInfo ci) {
         UndoMixinHelper.popRecord(() -> "explosion");
     }
-    //?}
+    *///?}
 
     @Override
     public void setUndoId$reden(long undoId) {

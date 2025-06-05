@@ -56,6 +56,16 @@ dependencies {
 
     minecraft("com.mojang:minecraft:$mcVersion")
     mappings(loom.officialMojangMappings())
+
+    if (stonecutter.eval(mcVersion, "=1.21.1")) {
+        modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}") {
+            exclude(group = "net.fabricmc.fabric-api")
+        }
+    }
+
+    include(implementation("com.squareup.okio:okio-jvm:3.2.0")!!)
+    include(implementation("com.squareup.okhttp3:okhttp:4.11.0")!!)
+
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
     modImplementation("maven.modrinth:malilib:${property("deps.malilib")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${property("deps.fabric_language_kotlin")}")
@@ -63,14 +73,21 @@ dependencies {
         exclude(group = "net.fabricmc.fabric-api")
         exclude(group = "it.unimi.dsi")
     }
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
     modImplementation("maven.modrinth:litematica:${property("deps.litematica")}")
 
-    fapi(
-        // Add modules from https://github.com/FabricMC/fabric
-        "fabric-lifecycle-events-v1",
-        "fabric-networking-api-v1",
-        "fabric-resource-loader-v0"
-    )
+//    fapi(
+//        // Add modules from https://github.com/FabricMC/fabric
+//        "fabric-lifecycle-events-v1",
+//        "fabric-networking-api-v1",
+//        "fabric-resource-loader-v0",
+//        "fabric-registry-sync-v0",
+//        "fabric-content-registries-v0",
+//        "fabric-loot-api-v2",
+//        "fabric-command-api-v2",
+//        "fabric-screen-api-v1",
+//        "fabric-screen-handler-api-v1",
+//    )
 }
 
 loom {

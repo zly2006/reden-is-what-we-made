@@ -6,7 +6,7 @@ plugins {
     //id("dev.kikugie.j52j") version "1.0.2" apply false // Enables asset processing by writing json5 files
     id("me.modmuss50.mod-publish-plugin") version "0.7.+" apply false
 }
-stonecutter active "1.21.6-pre3" /* [SC] DO NOT EDIT */
+stonecutter active "1.21.1" /* [SC] DO NOT EDIT */
 
 stonecutter parameters {
     swaps {
