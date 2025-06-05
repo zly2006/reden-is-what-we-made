@@ -106,6 +106,10 @@ tasks.processResources {
     filesMatching("fabric.mod.json") { expand(map) }
 }
 
+tasks.compileKotlin {
+    outputs.upToDateWhen { false }
+}
+
 tasks.register<Copy>("buildAndCollect") {
     group = "build"
     from(tasks.remapJar.get().archiveFile)

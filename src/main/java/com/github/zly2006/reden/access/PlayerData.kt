@@ -92,7 +92,18 @@ ${data.map { "${BlockPos.of(it.key).toShortString()} = ${it.value.state}" }.join
                     ) { x -> x !is ServerPlayer && x !is PrimedTnt }
                     list.forEach { entity ->
                         this@UndoRedoRecord.entities.computeIfAbsent(entity.uuid) {
-                            EntityEntryImpl(entity.type, CompoundTag().apply(entity::save), entity.blockPosition())
+                            //? if <= 1.21.5 {
+                            /*EntityEntryImpl(entity.type, CompoundTag().apply(entity::save), entity.blockPosition())
+                            *///?} else {
+                            EntityEntryImpl(
+                                entity.type,
+                                net.minecraft.world.level.storage.TagValueOutput.createWithContext(
+                                    net.minecraft.util.ProblemReporter.DISCARDING,
+                                    world.registryAccess()
+                                ).apply(entity::save).buildResult(),
+                                entity.blockPosition()
+                            )
+                            //?}
                         }
                     }
                 }

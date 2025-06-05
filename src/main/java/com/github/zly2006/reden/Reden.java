@@ -10,7 +10,7 @@ import com.github.zly2006.reden.network.ChannelsKt;
 
 public class Reden implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("template");
-    public static final String MOD_VERSION = /*$ mod_version*/ "0.10.0";
+    public static final String MOD_VERSION = /*$ mod_version*/ "0.10.1";
     public static final String MOD_ID = "reden";
     public static final String MOD_NAME = "Reden";
 

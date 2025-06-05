@@ -2,11 +2,11 @@ package com.github.zly2006.reden.mixinhelper
 
 import com.github.zly2006.reden.access.VisibleChatHudLineAccess
 import com.github.zly2006.reden.gui.QuickMenuWidget
+import com.github.zly2006.reden.utils.codec.TextSerializer
 import com.github.zly2006.reden.utils.multiver.Text
 import net.minecraft.client.GuiMessage
 import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.ClickEvent
-import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.Style
 import java.util.regex.Pattern
@@ -36,9 +36,8 @@ object ChatMixinHelper {
         menu.addEntry(
             Text.translatable("reden.widget.chat.copy_raw")
         ) { entry, button ->
-            client.keyboardHandler.clipboard = Component.Serializer.toJson(
-                text,
-                client.level!!.registryAccess()
+            client.keyboardHandler.clipboard = TextSerializer.textToStr(
+                text
             )
             entry!!.setName(Text.translatable("reden.widget.chat.copied"))
         }
@@ -53,14 +52,16 @@ object ChatMixinHelper {
                 //? if < 1.21.5 {
                 /*val action: HoverEvent.Action<*> = style.getHoverEvent()!!.action
                 if (action === HoverEvent.Action.SHOW_TEXT) {
+                    val hoverText = style.getHoverEvent()!!.getValue(HoverEvent.Action.SHOW_TEXT)!!
+                    menu.addEntry(
+                        Text.translatable("reden.widget.chat.copy_hover_text")
+                    ) { entry, button ->
+                        client.keyboardHandler.clipboard = hoverText.string
+                    }
                     menu.addEntry(
                         Text.translatable("reden.widget.chat.copy_hover_raw")
                     ) { entry, button ->
-                        val hoverText = style.getHoverEvent()!!.getValue(HoverEvent.Action.SHOW_TEXT)!!
-                        client.keyboardHandler.clipboard = Component.Serializer.toJson(
-                            hoverText,
-                            client.level!!.registryAccess()
-                        )
+                        client.keyboardHandler.clipboard = TextSerializer.textToStr(hoverText)
                         entry!!.setName(Text.translatable("reden.widget.chat.copied"))
                     }
                 }
@@ -84,10 +85,7 @@ object ChatMixinHelper {
                         menu.addEntry(
                             Text.translatable("reden.widget.chat.copy_hover_raw")
                         ) { entry, button ->
-                            client.keyboardHandler.clipboard = Component.Serializer.toJson(
-                                event.value,
-                                client.level!!.registryAccess()
-                            )
+                            client.keyboardHandler.clipboard = TextSerializer.textToStr(event.value)
                         }
                     }
                     is HoverEvent.ShowEntity -> {

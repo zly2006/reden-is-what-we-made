@@ -85,9 +85,15 @@ public abstract class QuickMenuWidget implements NarratableEntry, Renderable, Gu
         if (y + height > parent.height) {
             y = parent.height - height;
         }
-        context.pose().pushPose();
+        //? if <= 1.21.5 {
+        /*context.pose().pushPose();
         context.pose().translate(0.0F, 0.0F, 100);
         context.fillGradient(RenderType.guiOverlay(), x, y, x + width, y + height, 0x80000000, 0x80000000, 0);
+        *///?} else {
+        context.pose().pushMatrix();
+        context.pose().translate(0.0F, 0.0F, context.pose());
+        context.fillGradient(x, y, x + width, y + height, 0x80000000, 0x80000000);
+        //?}
         for (int i = 0; i < entries.size(); i++) {
             MenuEntry entry = entries.get(i);
             int color = 0xFFFFFF;
@@ -96,7 +102,10 @@ public abstract class QuickMenuWidget implements NarratableEntry, Renderable, Gu
             }
             context.drawCenteredString(client.font, entry.name, x + width / 2, y + i * 14 + 2, color);
         }
-        context.pose().popPose();
+        //? if <= 1.21.5
+        /*context.pose().popPose();*/
+        //? if >= 1.21.6
+        context.pose().popMatrix();
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.github.zly2006.reden.access.PlayerData.Companion.data
 import com.github.zly2006.reden.mixinhelper.UndoMixinHelper
 import com.github.zly2006.reden.mixinhelper.UndoMixinHelper.modified
 import com.github.zly2006.reden.utils.debugLogger
+import com.github.zly2006.reden.utils.multiver.*
 import com.github.zly2006.reden.utils.server
 import com.github.zly2006.reden.utils.setBlockNoPP
 import kotlinx.serialization.Serializable
@@ -62,7 +63,17 @@ class Undo(
 
                         when (beData) {
                             is CompoundTag -> {
-                                be.loadWithComponents(beData, world.registryAccess())
+                                //? if <= 1.21.5 {
+                                /*be.loadWithComponents(beData, world.registryAccess())*/
+                                //? } elif >= 1.21.6 {
+                                be.loadWithComponents(
+                                    net.minecraft.world.level.storage.TagValueInput.create(
+                                        net.minecraft.util.ProblemReporter.DISCARDING,
+                                        world.registryAccess(),
+                                        beData
+                                    )
+                                )
+                                //? }
                             }
 
                             is DataComponentMap -> {
@@ -166,7 +177,10 @@ class Undo(
                                 ).apply {
                                     data.putAll(undoRecord.data.keys.associateWith { posLong ->
                                         this.fromWorld( // add entity info to this redo record
-                                            context.player().serverLevel(),
+                                            //? if <= 1.21.5
+                                            /*context.player().serverLevel(),*/
+                                            //? if >= 1.21.6
+                                            context.player().level(),
                                             BlockPos.of(posLong),
                                             true
                                         )
@@ -174,7 +188,14 @@ class Undo(
                                     entities.clear()
                                 }
                             )
-                            operate(context.player().serverLevel(), undoRecord, view.redo.last())
+                            operate(
+                                //? if <= 1.21.5
+                                /*context.player().serverLevel(),*/
+                                //? if >= 1.21.6
+                                context.player().level(),
+                                undoRecord,
+                                view.redo.last()
+                            )
                             sendStatus(0)
                         }
                     } ?: sendStatus(2)
@@ -182,7 +203,15 @@ class Undo(
                     1 -> view.redo.lastValid()?.let {
                         view.redo.removeLast()
                         server.execute {
-                            operate(context.player().serverLevel(), it, null, isUndo = false)
+                            operate(
+                                //? if <= 1.21.5
+                                /*context.player().serverLevel(),*/
+                                //? if >= 1.21.6
+                                context.player().level(),
+                                it,
+                                null,
+                                isUndo = false
+                            )
                             view.undo.add(it.undoRecord)
                             sendStatus(1)
                         }

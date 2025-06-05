@@ -14,6 +14,7 @@ import com.github.zly2006.reden.mixinhelper.UndoMixinHelper.recording
 import com.github.zly2006.reden.mixinhelper.UndoMixinHelper.undoRecords
 import com.github.zly2006.reden.mixinhelper.UndoMixinHelper.undoRecordsMap
 import com.github.zly2006.reden.utils.debugLogger
+import com.github.zly2006.reden.utils.multiver.*
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
@@ -185,7 +186,10 @@ object UndoMixinHelper {
         }
         val undoRecord = PlayerData.UndoRecord(
             id = recordId,
-            lastChangedTick = player.server.tickCount,
+            //? if <= 1.21.5
+            /*lastChangedTick = player.server.tickCount,*/
+            //? if >= 1.21.6
+            lastChangedTick = player.server!!.tickCount,
             cause = cause
         )
         undoRecordsMap[recordId] = undoRecord
@@ -249,7 +253,7 @@ object UndoMixinHelper {
             recording?.entities?.computeIfAbsent(entity.uuid) {
                 PlayerData.EntityEntryImpl(
                     entity.type,
-                    CompoundTag().apply(entity::save),
+                    CompoundTag().apply(entity::saveWithoutId),
                     entity.blockPosition()
                 )
             }
