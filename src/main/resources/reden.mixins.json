@@ -11,6 +11,7 @@
     "undo.MixinEntity",
     "undo.MixinExplosion",
     "undo.MixinLivingEntity",
+    "undo.MixinMovingPiston",
     "undo.MixinPistonEntity",
     "undo.MixinPlayer",
     "undo.MixinPlayerMode",

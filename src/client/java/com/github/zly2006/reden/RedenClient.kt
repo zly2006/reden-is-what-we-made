@@ -1,5 +1,6 @@
 package com.github.zly2006.reden
 
+import com.github.zly2006.reden.malilib.GuiConfigs
 import com.github.zly2006.reden.malilib.HOTKEYS
 import com.github.zly2006.reden.malilib.configureKeyCallbacks
 import com.github.zly2006.reden.malilib.getAllOptions
@@ -52,6 +53,13 @@ class RedenClient : ClientModInitializer {
     override fun onInitializeClient() {
         checkMalilib()
         registerClientPackets()
+        fi.dy.masa.malilib.registry.Registry.CONFIG_SCREEN.registerConfigScreenFactory(
+            fi.dy.masa.malilib.util.data.ModInfo(
+                "reden",
+                "Reden",
+                ::GuiConfigs
+            )
+        )
         InitializationHandler.getInstance().registerInitializationHandler {
             ConfigManager.getInstance().registerConfigHandler("reden", object : IConfigHandler {
                 override fun load() {

@@ -19,10 +19,10 @@ private fun <T : ConfigBase<*>> T.generic() = apply { (GENERIC_TAB.add(this)) }
 private fun <T : ConfigBase<*>> T.debug() = apply { (DEBUG_TAB.add(this)) }
 
 // Generic
-@JvmField val REDEN_CONFIG_KEY = ConfigHotkey("redenConfigKey", "R,C").generic().hotkey()
-@JvmField val NO_TIME_OUT = ConfigBoolean("noTimeOut", false).generic()
-@JvmField val UNDO_KEY = ConfigHotkey("undoKey", "LEFT_CONTROL,Z").generic().hotkey()
-@JvmField val REDO_KEY = ConfigHotkey("redoKey", "LEFT_CONTROL,Y").generic().hotkey()
+@JvmField val REDEN_CONFIG_KEY = ConfigHotkey("redenConfigKey", "R,C", "reden.config.redenConfigKey.comment").generic().hotkey()
+@JvmField val NO_TIME_OUT = ConfigBoolean("noTimeOut", false, "reden.config.noTimeOut.comment").generic()
+@JvmField val UNDO_KEY = ConfigHotkey("undoKey", "LEFT_CONTROL,Z", "reden.config.undoKey.comment").generic().hotkey()
+@JvmField val REDO_KEY = ConfigHotkey("redoKey", "LEFT_CONTROL,Y", "reden.config.redoKey.comment").generic().hotkey()
 // Debug
 @JvmField val DEBUG_LOGGING = ConfigBoolean("debugLogging", false).debug()
 // @formatter:on

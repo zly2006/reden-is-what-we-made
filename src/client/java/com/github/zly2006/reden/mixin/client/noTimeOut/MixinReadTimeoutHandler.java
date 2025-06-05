@@ -1,5 +1,6 @@
 package com.github.zly2006.reden.mixin.client.noTimeOut;
 
+import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,7 +21,7 @@ public abstract class MixinReadTimeoutHandler {
             remap = false
     )
     private void onTimeOut(ReadTimeoutHandler handler, io.netty.channel.ChannelHandlerContext ctx) throws Exception {
-        if (1==1) {
+        if (MalilibSettingsKt.NO_TIME_OUT.getBooleanValue()) {
             readTimedOut(ctx); // call original method
         }
     }
