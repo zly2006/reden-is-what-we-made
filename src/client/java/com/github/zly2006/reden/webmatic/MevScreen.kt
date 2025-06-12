@@ -2,7 +2,6 @@ package com.github.zly2006.reden.webmatic
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.gui.componments.WebTextureComponent
-import com.github.zly2006.reden.minemev.MevItem
 import com.github.zly2006.reden.utils.multiver.Text
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
@@ -23,7 +22,7 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
     val client = Minecraft.getInstance()!!
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
-    var list = mutableListOf<MevItem>()
+    var list = mutableListOf<ItemDto>()
     val listComponent = Containers.verticalFlow(Sizing.fill(), Sizing.content())!!.apply {
         horizontalAlignment(HorizontalAlignment.CENTER)
     }
@@ -40,20 +39,20 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
 
     @Serializable
     class MevSearch(
-        val posts: List<MevItem>,
-        val total_pages: Int
+        val d: List<ItemDto>,
+        val count: Int
     )
 
-    inner class PostComponent(val mev: MevItem, val isLast: Boolean) :
+    inner class PostComponent(val mev: ItemDto, val isLast: Boolean) :
         FlowLayout(Sizing.fixed(300), Sizing.fixed(40), Algorithm.HORIZONTAL) {
-        private val nameLabel = Components.label(Text.literal(mev.post_name))
+        private val nameLabel = Components.label(Text.literal(mev.name))
 
         init {
             child(
                 Containers.verticalFlow(Sizing.expand(), Sizing.fixed(40)).apply {
                     this.child(nameLabel)
-                    this.child(Components.label(Text.literal("by ${mev.User}").withStyle(ChatFormatting.GRAY)))
-                    this.child(Components.label(Text.literal(mev.description.replace("\n", "  "))).apply {
+                    this.child(Components.label(Text.literal("by ${mev.author?.username}").withStyle(ChatFormatting.GRAY)))
+                    this.child(Components.label(Text.of(mev.description?.replace("\n", "  "))).apply {
                         lineSpacing(0)
                         horizontalSizing(Sizing.fill())
                     })
@@ -68,12 +67,14 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
                     true
                 } else false
             }
-            mev.display = this
+//            mev.display = this
 
             if (mev.images.isNotEmpty()) {
                 val size = client.options.guiScale().get() * 40 * 2
-                TextureStorage.getImage("https://www.minemev.com/api/preview/${mev.uuid}?size=$size") {
-                    this.child(0, WebTextureComponent(it, 0, 0, 40, 40))
+                mev.thumbnailUrl?.let { thumbnailUrl ->
+                    TextureStorage.getImage(thumbnailUrl) {
+                        this.child(0, WebTextureComponent(it, 0, 0, 40, 40))
+                    }
                 }
             }
         }
@@ -88,7 +89,7 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
             delta: Float
         ) {
             nameLabel.text(
-                Text.literal(mev.post_name)
+                Text.literal(mev.name)
                     .withStyle { it.withUnderlined(isInBoundingBox(mouseX.toDouble(), mouseY.toDouble())) })
             super.draw(context, mouseX, mouseY, partialTicks, delta)
             if (isLast && currentPage == page && page != totalPages) {
@@ -102,8 +103,16 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
         val requestStart = System.currentTimeMillis()
         httpClient.newCall(Request.Builder().apply {
             ua()
+            // todo
+            removeHeader("Authorization")
             get()
-            url("https://minemev.com/api/search?search=${search.value}&page=$page")
+            val lang = "zh_cn"
+            if (search.value.isNotBlank()) {
+                url("https://redenmc.com/api/mc-services/litematica/search?lang=$lang&q=${search.value}&page=$page")
+            }
+            else {
+                url("https://redenmc.com/api/mc-services/yisibite/?lang=$lang&page=$page")
+            }
         }.build()).apply {
             Reden.LOGGER.info("Started request: ${request().url}")
         }.enqueue(object : Callback {
@@ -122,11 +131,11 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
                         list.clear()
                     }
                     val mevSearch = jsonIgnoreUnknown.decodeFromString<MevSearch>(string)
-                    list.addAll(mevSearch.posts)
-                    totalPages = mevSearch.total_pages
+                    list.addAll(mevSearch.d)
+                    totalPages = (mevSearch.count.toDouble() / mevSearch.d.size).toInt()
 
-                    mevSearch.posts.forEachIndexed { index, mevItem ->
-                        listComponent.child(PostComponent(mevItem, index == mevSearch.posts.size - 1))
+                    mevSearch.d.forEachIndexed { index, mevItem ->
+                        listComponent.child(PostComponent(mevItem, index == mevSearch.d.size - 1))
                     }
                     if (list.isEmpty()) {
                         listComponent.child(
@@ -140,7 +149,7 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
 
     override fun build(rootComponent: FlowLayout) {
         listComponent.child(
-            Components.label(Text.literal("Loading content..."))
+            Components.label(Text.literal("加载中..."))
         )
         doRequest()
         rootComponent.surface(Surface.VANILLA_TRANSLUCENT)

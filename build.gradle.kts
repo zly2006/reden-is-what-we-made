@@ -132,7 +132,7 @@ tasks.processResources {
 }
 
 tasks.compileKotlin {
-    outputs.upToDateWhen { false }
+//    outputs.upToDateWhen { false }
 }
 
 tasks.register<Copy>("buildAndCollect") {

@@ -2,7 +2,6 @@ package com.github.zly2006.reden.webmatic
 
 import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.gui.componments.WebTextureComponent
-import com.github.zly2006.reden.minemev.MevItem
 import com.github.zly2006.reden.mixin.client.malilib.IMixinGuiListBase
 import com.github.zly2006.reden.utils.multiver.Text
 import com.github.zly2006.reden.utils.multiver.clickOpenUrl
@@ -19,8 +18,6 @@ import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
 import io.wispforest.owo.ui.container.ScrollContainer
 import io.wispforest.owo.ui.core.*
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import net.minecraft.ChatFormatting
 import net.minecraft.Util
 import net.minecraft.client.Minecraft
@@ -39,18 +36,18 @@ import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 import kotlin.io.path.*
 
-@Serializable
-data class FileItem(
-    val default_file_name: String,
-    @SerialName("file")
-    val url: String,
-    val file_size: Int,
-    val versions: List<String>,
-    val downloads: Int,
-    val file_type: String
-)
+/**
+ * Get the language code defined by reden.
+ */
+val Minecraft.lang: String get() = when (options.languageCode) {
+    "en_us" -> "en"
+    "zh_cn" -> "zh_cn"
+    "zh_tw" -> "zh_tw"
+    "ru_ru" -> "ru"
+    else     -> "en"
+}
 
-class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<FlowLayout>() {
+class MevDetailsScreen(val parent: Screen?, val info: ItemDto) : BaseOwoScreen<FlowLayout>() {
     val client = Minecraft.getInstance()!!
     private val loadingLabel = Components.label(Text.literal("Loading image...").withStyle(ChatFormatting.GRAY))!!
     private val images = ArrayList<Component>(info.images.size).apply {
@@ -77,10 +74,18 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
     override fun build(rootComponent: FlowLayout) {
+
+        description.child(Components.label(Text.of(info.description)).apply {
+            sizing(Sizing.fill(), Sizing.content())
+        })
+        while (description.children().size > 1) {
+            description.removeChild(description.children().first())
+        }
+        if (false)
         httpClient.newCall(Request.Builder().apply {
             ua()
             get()
-            url("https://minemev.com/api/details/${info.uuid}")
+            url("https://minemev.com/api/details/${info.key}")
         }.build()).apply {
             Reden.LOGGER.info("Started request: ${request().url}")
         }.enqueue(object : Callback {
@@ -93,22 +98,13 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
             override fun onResponse(call: Call, response: Response) {
                 response.body!!.use {
                     val string = it.string()
-                    val item = jsonIgnoreUnknown.decodeFromString<MevItem>(string)
-                    client!!.execute {
-                        description.child(Components.label(Text.of(item.description)).apply {
-                            sizing(Sizing.fill(), Sizing.content())
-                        })
-                        while (description.children().size > 1) {
-                            description.removeChild(description.children().first())
-                        }
-                    }
                 }
             }
         })
 
-        rootComponent.child(Components.label(Text.literal(info.post_name)
-            .clickOpenUrl("https://www.minemev.com/p/${info.uuid}")
-            .hoverShowText("View on minemev.com")
+        rootComponent.child(Components.label(Text.literal(info.name)
+            .clickOpenUrl("https://redenmc.com/${client.lang}/litematica/${info.key}")
+            .hoverShowText("在 RedenMC 网站 上查看详情")
         ).apply {
             margins(Insets.vertical(7))
             horizontalSizing(Sizing.fill())
@@ -152,32 +148,18 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
             }
         )
 
-        httpClient.newCall(Request.Builder().apply {
-            ua()
-            get()
-            url("https://www.minemev.com/api/files/${info.uuid}")
-        }.build()).apply {
-            Reden.LOGGER.info("Started request: ${request().url}")
-        }.enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {}
-
-            override fun onResponse(call: Call, response: Response) {
-                val fileItems = jsonIgnoreUnknown.decodeFromString<List<FileItem>>(response.body!!.use { it.string() })
-                client!!.execute {
-                    fileItems.forEach { file ->
-                        filesContainer.child(FileComponent(file))
-                    }
-                }
-            }
-        })
+        info.attachments.forEach { file ->
+            filesContainer.child(FileComponent(file))
+        }
         rootComponent.surface(Surface.VANILLA_TRANSLUCENT)
     }
 
     private fun getUniqueFilename(file: FileItem, parent: Path): Path {
-        val extension = "." + mapOf("world_download" to "zip").getOrDefault(file.file_type, file.file_type)
-        val name = file.default_file_name.replace(extension, "")
+        //todo
+        val extension = ".litematic"// + mapOf("world_download" to "zip").getOrDefault(file.name, file.name)
+        val name = file.name.replace(extension, "")
         var path = parent.resolve(
-            file.default_file_name + extension
+            file.name + extension
         )
         if (path.exists()) {
             var i = 2
@@ -193,13 +175,13 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
 
     private fun getLabel(file: FileItem, hover: Boolean): MutableComponent {
         val label = Text.empty()
-        label.append(Text.literal(file.default_file_name).withStyle {
+        label.append(Text.literal(file.name).withStyle {
             it.withUnderlined(hover)
         })
         label.append(" ")
-        label.append(Text.literal("${file.downloads} Downloads").withStyle(ChatFormatting.GRAY))
+//        label.append(Text.literal("${file} Downloads").withStyle(ChatFormatting.GRAY))
         label.append("\n")
-        label.append(Text.literal(file.versions.joinToString(" ")).withStyle(ChatFormatting.DARK_GREEN))
+        label.append(Text.of(file.description).copy().withStyle(ChatFormatting.DARK_GREEN))
         return label
     }
 
@@ -227,10 +209,10 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
                         path.writeBytes(it.bytes())
                     }
                     runCatching {
-                        when (file.file_type) {
+                        when (file.name.substringAfterLast('.')) {
                             "litematic"      -> openLitematica(path)
                             "world_download" -> openWorld(path, file)
-                            else             -> error("Unknown file type: ${file.file_type}")
+                            else             -> error("Unknown file type: ${file.name}")
                         }
                     }.onFailure {
                         Reden.LOGGER.error("Error opening $path", it)
@@ -248,7 +230,7 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
                 ?: error("Bad zip file: not a save")
             val prefix = levelDat.removeSuffix("level.dat")
 
-            val path = getUniqueFilename(file.copy(file_type = "unzipped"), Path("saves"))
+            val path = getUniqueFilename(file, Path("saves"))
             ZipInputStream(zipPath.toFile().inputStream().buffered()).use { stream ->
                 while (true) {
                     val entry = stream.nextEntry ?: break
@@ -299,11 +281,17 @@ class MevDetailsScreen(val parent: Screen?, val info: MevItem) : BaseOwoScreen<F
     }
 
     override fun render(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
-        imgContainer.child(0, images[imgId - 1])
-        while (imgContainer.children().size > 1) {
-            imgContainer.removeChild(imgContainer.children()[1])
+        try {
+            if (images.isNotEmpty()) {
+                imgContainer.child(0, images[imgId - 1])
+                while (imgContainer.children().size > 1) {
+                    imgContainer.removeChild(imgContainer.children()[1])
+                }
+                imageInfoLabel.text(Text.literal("Image $imgId / ${info.images.size}"))
+            }
+        } catch (e: Exception) {
+            Reden.LOGGER.error("Error rendering", e)
         }
-        imageInfoLabel.text(Text.literal("Image $imgId / ${info.images.size}"))
         super.render(context, mouseX, mouseY, delta)
     }
 
