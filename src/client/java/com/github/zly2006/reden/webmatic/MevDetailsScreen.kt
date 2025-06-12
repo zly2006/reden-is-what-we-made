@@ -4,8 +4,6 @@ import com.github.zly2006.reden.Reden
 import com.github.zly2006.reden.gui.componments.WebTextureComponent
 import com.github.zly2006.reden.mixin.client.malilib.IMixinGuiListBase
 import com.github.zly2006.reden.utils.multiver.Text
-import com.github.zly2006.reden.utils.multiver.clickOpenUrl
-import com.github.zly2006.reden.utils.multiver.hoverShowText
 import com.github.zly2006.reden.utils.red
 import fi.dy.masa.litematica.gui.GuiSchematicLoad
 import fi.dy.masa.litematica.gui.widgets.WidgetSchematicBrowser
@@ -49,7 +47,7 @@ val Minecraft.lang: String get() = when (options.languageCode) {
 
 class MevDetailsScreen(val parent: Screen?, val info: ItemDto) : BaseOwoScreen<FlowLayout>() {
     val client = Minecraft.getInstance()!!
-    private val loadingLabel = Components.label(Text.literal("Loading image...").withStyle(ChatFormatting.GRAY))!!
+    private val loadingLabel = Components.label(Text.literal("加载中...").withStyle(ChatFormatting.GRAY))!!
     private val images = ArrayList<Component>(info.images.size).apply {
         for (i in 0 until info.images.size) this.add(loadingLabel)
     }
@@ -74,13 +72,6 @@ class MevDetailsScreen(val parent: Screen?, val info: ItemDto) : BaseOwoScreen<F
     override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
 
     override fun build(rootComponent: FlowLayout) {
-
-        description.child(Components.label(Text.of(info.description)).apply {
-            sizing(Sizing.fill(), Sizing.content())
-        })
-        while (description.children().size > 1) {
-            description.removeChild(description.children().first())
-        }
         if (false)
         httpClient.newCall(Request.Builder().apply {
             ua()
@@ -102,13 +93,25 @@ class MevDetailsScreen(val parent: Screen?, val info: ItemDto) : BaseOwoScreen<F
             }
         })
 
-        rootComponent.child(Components.label(Text.literal(info.name)
-            .clickOpenUrl("https://redenmc.com/${client.lang}/litematica/${info.key}")
-            .hoverShowText("在 RedenMC 网站 上查看详情")
-        ).apply {
-            margins(Insets.vertical(7))
-            horizontalSizing(Sizing.fill())
-            horizontalTextAlignment(HorizontalAlignment.CENTER)
+        rootComponent.child(Containers.verticalFlow(Sizing.fill(), Sizing.content()).apply {
+            val text = Components.label(Text.literal(info.name)).apply {
+                margins(Insets.vertical(7))
+                horizontalSizing(Sizing.fill())
+                horizontalTextAlignment(HorizontalAlignment.CENTER)
+            }
+            child(text)
+            mouseEnter().subscribe {
+                tooltip(Text.literal("在 RedenMC 网站 上查看详情").withStyle(ChatFormatting.YELLOW))
+            }
+            mouseLeave().subscribe {
+                tooltip(null)
+            }
+            mouseDown().subscribe { _, _, b ->
+                if (b == 0) {
+                    Util.getPlatform().openUri("https://redenmc.com/${client.lang}/litematica/${info.key}")
+                    true
+                } else false
+            }
         })
         rootComponent.child(
             Containers.verticalScroll(Sizing.fill(), Sizing.expand(),
@@ -134,14 +137,15 @@ class MevDetailsScreen(val parent: Screen?, val info: ItemDto) : BaseOwoScreen<F
                             }
                         }
                         this.child(imgContainer)
-                        description.child(Components.label(Text.of(info.description)).apply {
-                            sizing(Sizing.fill(), Sizing.content())
-                        })
-                        this.child(description)
-                        this.child(Components.label(Text.of("\n\nFile Downloads")))
-                        this.child(filesContainer)
-                        this.horizontalAlignment(HorizontalAlignment.CENTER)
                     }
+                    description.child(Components.label(Text.of(info.description)).apply {
+                        sizing(Sizing.fill(), Sizing.content())
+                    })
+                    this.child(description)
+                    this.child(Components.label(Text.of("\n\n文件下载")))
+                    this.child(Components.label(Text.literal("敬请期待").withStyle(ChatFormatting.GRAY)))
+                    this.child(filesContainer)
+                    this.horizontalAlignment(HorizontalAlignment.CENTER)
                 }
             ).apply {
                 scrollbar(ScrollContainer.Scrollbar.vanillaFlat())
