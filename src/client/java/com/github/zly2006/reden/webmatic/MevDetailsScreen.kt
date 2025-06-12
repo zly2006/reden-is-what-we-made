@@ -116,6 +116,7 @@ class MevDetailsScreen(val parent: Screen?, val info: ItemDto) : BaseOwoScreen<F
         rootComponent.child(
             Containers.verticalScroll(Sizing.fill(), Sizing.expand(),
                 Containers.verticalFlow(Sizing.fill(), Sizing.content()).apply {
+                    gap(5)
                     if (info.images.isNotEmpty()) {
                         this.child(Containers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
                             child(btnPrev as Component)
@@ -142,7 +143,17 @@ class MevDetailsScreen(val parent: Screen?, val info: ItemDto) : BaseOwoScreen<F
                         sizing(Sizing.fill(), Sizing.content())
                     })
                     this.child(description)
-                    this.child(Components.label(Text.of("\n\n文件下载")))
+                    this.child(Components.label(
+                        Text.literal("点这里在 RedenMC 网站 上查看详情").withStyle(ChatFormatting.YELLOW)
+                    ).apply {
+                        mouseDown().subscribe { _, _, b ->
+                            if (b == 0) {
+                                Util.getPlatform().openUri("https://redenmc.com/${client.lang}/litematica/${info.key}")
+                                true
+                            } else false
+                        }
+                    })
+                    this.child(Components.label(Text.of("\n文件下载")))
                     this.child(Components.label(Text.literal("敬请期待").withStyle(ChatFormatting.GRAY)))
                     this.child(filesContainer)
                     this.horizontalAlignment(HorizontalAlignment.CENTER)
