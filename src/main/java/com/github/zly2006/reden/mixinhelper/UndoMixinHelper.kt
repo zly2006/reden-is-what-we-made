@@ -136,9 +136,9 @@ object UndoMixinHelper {
 
     fun ServerLevel.modified(pos: BlockPos, time: Int = server.tickCount) = getChunk(pos).run {
         //? if <= 1.21.1
-        isUnsaved = true
+        /*isUnsaved = true*/
         //? if >= 1.21.2
-        /*markUnsaved()*/
+        markUnsaved()
         getSection(getSectionIndex(pos.y)) as ChunkSectionInterface
     }.setModifyTime(pos, time)
 
@@ -187,9 +187,9 @@ object UndoMixinHelper {
         val undoRecord = PlayerData.UndoRecord(
             id = recordId,
             //? if <= 1.21.5
-            lastChangedTick = player.server.tickCount,
+            /*lastChangedTick = player.server.tickCount,*/
             //? if >= 1.21.6
-            /*lastChangedTick = player.server!!.tickCount,*/
+            lastChangedTick = player.server!!.tickCount,
             cause = cause
         )
         undoRecordsMap[recordId] = undoRecord

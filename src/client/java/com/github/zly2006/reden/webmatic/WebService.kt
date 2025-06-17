@@ -4,7 +4,9 @@ package com.github.zly2006.reden.webmatic
 
 import com.github.zly2006.reden.Reden.*
 import com.github.zly2006.reden.utils.isClient
-import com.github.zly2006.reden.utils.multiver.*
+import com.github.zly2006.reden.utils.multiver.Text
+import com.github.zly2006.reden.utils.multiver.clickOpenUrl
+import com.github.zly2006.reden.utils.multiver.sendSystemMessage
 import com.mojang.authlib.exceptions.InvalidCredentialsException
 import com.mojang.authlib.minecraft.UserApiService
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -17,7 +19,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.Version
 import net.minecraft.DetectedVersion
-import net.minecraft.SharedConstants
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ServerList
 import net.minecraft.server.MinecraftServer
@@ -37,6 +38,12 @@ import kotlin.time.toJavaDuration
 const val redenApiBaseUrl = "https://api.redenmc.com/api"
 var key = ""
 val gameVer = DetectedVersion.tryDetectVersion()!!
+//? if < 1.21.6 {
+/*val gameVerString = gameVer.name!!
+*///?} else {
+val gameVerString = gameVer.name()!!
+//?}
+
 
 val httpClient = OkHttpClient.Builder().apply {
     readTimeout(60.seconds.toJavaDuration())
@@ -56,7 +63,7 @@ inline fun <reified T> Request.Builder.json(data: T) = apply {
 
 fun Request.Builder.ua() = apply {
     header("Authorization", "ApiKey $key")
-    header("User-Agent", "RedenMC/${MOD_VERSION} Minecraft/${SharedConstants.getCurrentVersion().name} (Fabric) $userAgent")
+    header("User-Agent", "RedenMC/${MOD_VERSION} Minecraft/$gameVerString (Fabric) $userAgent")
 }
 
 @Serializable
@@ -229,9 +236,8 @@ fun checkUpdateFromModrinth(): UpdateInfo? {
     }.build()).execute().use {
         it.body!!.string()
     }
-    val curVersion = SharedConstants.getCurrentVersion().name
     val versions =
-        jsonIgnoreUnknown.decodeFromString<List<ModrinthVersion>>(res).filter { curVersion in it.game_versions }
+        jsonIgnoreUnknown.decodeFromString<List<ModrinthVersion>>(res).filter { gameVerString in it.game_versions }
     val latest = versions.maxByOrNull { Version.parse(it.version_number) }
     return if (latest != null && Version.parse(latest.version_number) > Version.parse(MOD_VERSION))
         UpdateInfo(latest.version_number, latest.files.first().url, latest.changelog, "modrinth")
@@ -298,7 +304,7 @@ fun updateOnlineInfo(client: Minecraft): Boolean {
             online_mode = client.userApiService != UserApiService.OFFLINE,
             os = System.getProperty("os.name") + " " + System.getProperty("os.version"),
             cpus = Runtime.getRuntime().availableProcessors(),
-            mc_version = gameVer.name,
+            mc_version = gameVerString,
             reden_version = MOD_VERSION,
             mods = FabricLoader.getInstance().allMods.map {
                 ModData(
@@ -345,7 +351,7 @@ fun redenSetup(client: Minecraft) {
                 online_mode = client.userApiService != UserApiService.OFFLINE,
                 os = System.getProperty("os.name") + " " + System.getProperty("os.version"),
                 cpus = Runtime.getRuntime().availableProcessors(),
-                mc_version = gameVer.name,
+                mc_version = gameVerString,
                 reden_version = MOD_VERSION,
                 mods = FabricLoader.getInstance().allMods.map {
                     ModData(

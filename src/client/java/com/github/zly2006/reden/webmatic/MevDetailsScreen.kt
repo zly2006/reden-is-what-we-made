@@ -258,7 +258,10 @@ class MevDetailsScreen(val parent: Screen?, val info: ItemDto) : BaseOwoScreen<F
                 }
             }
             if (client.connection != null) {
-                client.disconnect()
+                //? if < 1.21.6
+                /*client.disconnect()*/
+                //? if >= 1.21.6
+                client.disconnectWithProgressScreen()
             }
             val select = SelectWorldScreen(this@MevDetailsScreen)
             client.setScreen(select)
@@ -283,9 +286,9 @@ class MevDetailsScreen(val parent: Screen?, val info: ItemDto) : BaseOwoScreen<F
                 (guiSchematicLoad as IMixinGuiListBase<DirectoryEntry,
                         WidgetDirectoryEntry, WidgetSchematicBrowser>).`widget$reden`()
             //? if < 1.21.5
-            schematicBrowser.switchToDirectory(path.parent.toFile())
+            /*schematicBrowser.switchToDirectory(path.parent.toFile())*/
             //? if >= 1.21.5
-            /*schematicBrowser.switchToDirectory(path.parent)*/
+            schematicBrowser.switchToDirectory(path.parent)
             val entry = schematicBrowser.currentEntries.first {
                 it.name == path.name
             }

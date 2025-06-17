@@ -9,7 +9,6 @@ import io.wispforest.owo.ui.core.AnimatableProperty
 import io.wispforest.owo.ui.core.OwoUIDrawContext
 import io.wispforest.owo.ui.core.PositionedRectangle
 import io.wispforest.owo.ui.core.Sizing
-import org.joml.Matrix4f
 import kotlin.math.min
 
 open class WebTextureComponent(
@@ -46,18 +45,24 @@ open class WebTextureComponent(
     override fun draw(context: OwoUIDrawContext, mouseX: Int, mouseY: Int, partialTicks: Float, delta: Float) {
         //todo
         //? if < 1.21.5 {
-        RenderSystem.enableDepthTest()
+        /*RenderSystem.enableDepthTest()
 
         if (this.blend) {
             RenderSystem.enableBlend()
             RenderSystem.defaultBlendFunc()
         }
-        //?}
+        *///?}
 
         val matrices = context.pose()
-        matrices.pushPose()
+        //? if < 1.21.6 {
+        /*matrices.pushPose()
         matrices.translate(x.toFloat(), y.toFloat(), 0f)
         matrices.scale(this.width / regionWidth.toFloat(), this.height / regionHeight.toFloat(), 0f)
+        *///?} else {
+        matrices.pushMatrix()
+        matrices.translate(x.toFloat(), y.toFloat(), matrices)
+        matrices.scale(this.width / regionWidth.toFloat(), this.height / regionHeight.toFloat(), matrices)
+        //?}
 
         val visibleArea = visibleArea.get()
 
@@ -82,12 +87,15 @@ open class WebTextureComponent(
         )
 
         //? if < 1.21.5 {
-        if (this.blend) {
+        /*if (this.blend) {
             RenderSystem.disableBlend()
         }
-        //?}
+        *///?}
 
-        matrices.popPose()
+        //? if < 1.21.6
+        /*matrices.popPose()*/
+        //? if >= 1.21.6
+        matrices.popMatrix()
     }
 
     private fun drawTexturedQuad(
@@ -103,23 +111,43 @@ open class WebTextureComponent(
         v2: Float
     ) {
         //? if <= 1.21.1 {
-        RenderSystem.shaderTextures[0] = texture.id
+        /*RenderSystem.shaderTextures[0] = texture.id
         RenderSystem.setShader { net.minecraft.client.renderer.GameRenderer.getPositionTexShader() }
-        //?} elif <= 1.21.4 {
+        *///?} elif <= 1.21.4 {
         /*RenderSystem.setShader(net.minecraft.client.renderer.CoreShaders.POSITION_TEX)
         RenderSystem.setShaderTexture(0, texture.id)
+        *///?} elif = 1.21.5 {
+        /*RenderSystem.setShaderTexture(0, texture.texture)f
         *///?} else {
-        /*RenderSystem.setShaderTexture(0, texture.texture)
-        *///?}
-        val matrix4f: Matrix4f = context.pose().last().pose()
+         empty for 1.21.6 and above, as the texture is set in the context
+        //?}
+        //? if < 1.21.6 {
+        /*val matrix4f = context.pose().last().pose()
         val bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
         bufferBuilder.addVertex(matrix4f, x1.toFloat(), y1.toFloat(), z.toFloat()).setUv(u1, v1)
         bufferBuilder.addVertex(matrix4f, x1.toFloat(), y2.toFloat(), z.toFloat()).setUv(u1, v2)
         bufferBuilder.addVertex(matrix4f, x2.toFloat(), y2.toFloat(), z.toFloat()).setUv(u2, v2)
         bufferBuilder.addVertex(matrix4f, x2.toFloat(), y1.toFloat(), z.toFloat()).setUv(u2, v1)
+        *///?} else {
+        val matrix = context.pose()
+        context.submitBlit(
+            net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,
+            texture.textureView,
+            x1,
+            y1,
+            x2,
+            y2,
+            u1,
+            u2,
+            v1,
+            v2,
+            -1
+        )
+        //?}
+
         //? if < 1.21.5
-        com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(bufferBuilder.buildOrThrow())
-        //? if >= 1.21.5
+        /*com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(bufferBuilder.buildOrThrow())*/
+        //? if = 1.21.5
         /*1*/
     }
 

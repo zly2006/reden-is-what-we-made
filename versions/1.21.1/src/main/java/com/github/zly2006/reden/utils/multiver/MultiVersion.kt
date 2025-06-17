@@ -14,6 +14,10 @@ object Text {
     }
 }
 
+fun sendSystemMessage() {
+    // dummy function to avoid import issues
+}
+
 fun MutableComponent.clickOpenUrl(url: String) = apply {
     withStyle { style ->
         style.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, url))

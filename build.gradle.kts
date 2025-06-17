@@ -47,6 +47,9 @@ repositories {
     maven {
         url = uri("https://maven.wispforest.io")
     }
+    maven {
+        url = uri("https://jitpack.io")
+    }
 }
 
 dependencies {
@@ -67,14 +70,20 @@ dependencies {
     include(implementation("com.squareup.okhttp3:okhttp:4.11.0")!!)
 
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
-    modImplementation("maven.modrinth:malilib:${property("deps.malilib")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${property("deps.fabric_language_kotlin")}")
-    modImplementation("io.wispforest:owo-lib:${property("deps.owo")}") {
+    compileOnly("io.wispforest:owo-lib:${property("deps.owo")}") {
         exclude(group = "net.fabricmc.fabric-api")
         exclude(group = "it.unimi.dsi")
     }
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
-    modImplementation("maven.modrinth:litematica:${property("deps.litematica")}")
+
+    if (stonecutter.eval(mcVersion, "<1.21.6")) {
+        modImplementation("maven.modrinth:malilib:${property("deps.malilib")}")
+        modImplementation("maven.modrinth:litematica:${property("deps.litematica")}")
+    } else {
+        modImplementation("com.github.sakura-ryoko:malilib:f57bacf")
+        modImplementation("com.github.sakura-ryoko:litematica:9e225e0")
+    }
 
 //    fapi(
 //        // Add modules from https://github.com/FabricMC/fabric
