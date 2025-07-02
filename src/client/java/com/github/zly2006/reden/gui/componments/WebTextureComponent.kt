@@ -1,9 +1,5 @@
 package com.github.zly2006.reden.gui.componments
 
-import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import com.mojang.blaze3d.vertex.Tesselator
-import com.mojang.blaze3d.vertex.VertexFormat
 import io.wispforest.owo.ui.base.BaseComponent
 import io.wispforest.owo.ui.core.AnimatableProperty
 import io.wispforest.owo.ui.core.OwoUIDrawContext
@@ -53,15 +49,17 @@ open class WebTextureComponent(
         }
         *///?}
 
-        val matrices = context.pose()
         //? if < 1.21.6 {
-        /*matrices.pushPose()
+        
+        /*val matrices = context.pose()
+        matrices.pushPose()
         matrices.translate(x.toFloat(), y.toFloat(), 0f)
         matrices.scale(this.width / regionWidth.toFloat(), this.height / regionHeight.toFloat(), 0f)
         *///?} else {
-        matrices.pushMatrix()
-        matrices.translate(x.toFloat(), y.toFloat(), matrices)
-        matrices.scale(this.width / regionWidth.toFloat(), this.height / regionHeight.toFloat(), matrices)
+        val matrices = context
+        matrices.push()
+        matrices.translate(x.toDouble(), y.toDouble())
+        matrices.scale(this.width / regionWidth.toFloat(), this.height / regionHeight.toFloat())
         //?}
 
         val visibleArea = visibleArea.get()
@@ -95,7 +93,7 @@ open class WebTextureComponent(
         //? if < 1.21.6
         /*matrices.popPose()*/
         //? if >= 1.21.6
-        matrices.popMatrix()
+        matrices.pop()
     }
 
     private fun drawTexturedQuad(
@@ -119,7 +117,7 @@ open class WebTextureComponent(
         *///?} elif = 1.21.5 {
         /*RenderSystem.setShaderTexture(0, texture.texture)f
         *///?} else {
-         empty for 1.21.6 and above, as the texture is set in the context
+         "empty for 1.21.6 and above, as the texture is set in the context"
         //?}
         //? if < 1.21.6 {
         /*val matrix4f = context.pose().last().pose()

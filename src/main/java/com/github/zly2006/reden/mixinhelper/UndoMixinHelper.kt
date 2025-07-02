@@ -14,13 +14,13 @@ import com.github.zly2006.reden.mixinhelper.UndoMixinHelper.recording
 import com.github.zly2006.reden.mixinhelper.UndoMixinHelper.undoRecords
 import com.github.zly2006.reden.mixinhelper.UndoMixinHelper.undoRecordsMap
 import com.github.zly2006.reden.utils.debugLogger
-import com.github.zly2006.reden.utils.multiver.*
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 
 /**
@@ -129,9 +129,30 @@ object UndoMixinHelper {
         world.modified(pos)
 
         recording?.data?.computeIfAbsent(pos.asLong()) {
+            (world.getChunk(pos).getBlockEntity(pos) as? BlockEntityInterface)?.saveLastNbt()
             recording!!.fromWorld(world, pos, true)
         }
         recording?.lastChangedTick = world.server.tickCount
+    }
+
+    /**
+     * Only for transformers to call.
+     */
+    @JvmStatic
+    fun monitorSetBlock(blockEntity: Any?) {
+        if (blockEntity !is BlockEntity) return
+        val world = blockEntity.level
+        if (world is ServerLevel) {
+            debugLogger("id ${recording?.id ?: 0}: set${blockEntity.blockPos}, block entity ${blockEntity.blockState}")
+            // update modified time, so undo can work properly
+            world.modified(blockEntity.blockPos)
+
+            recording?.data?.computeIfAbsent(blockEntity.blockPos.asLong()) {
+                (blockEntity as BlockEntityInterface).saveLastNbt()
+                recording!!.fromWorld(world, blockEntity.blockPos, true)
+            }
+            recording?.lastChangedTick = world.server.tickCount
+        }
     }
 
     fun ServerLevel.modified(pos: BlockPos, time: Int = server.tickCount) = getChunk(pos).run {
@@ -165,7 +186,6 @@ object UndoMixinHelper {
                 }
             }
 
-            be.saveLastNbt()
             debugLogger("postSetBlock: done.")
         }
     }

@@ -55,13 +55,6 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
 
     @Unique
     private boolean isComponentsValid(DataComponentMap lastComponents) {
-        if (lastComponents == null) return false;
-        if (lastComponents.isEmpty()) return false;
-        for (DataComponentType<?> componentType : lastComponents.keySet()) {
-            if (componentType != DataComponents.BLOCK_STATE || componentType != DataComponents.BLOCK_ENTITY_DATA) {
-                return true; // has other components
-            }
-        }
         return false; // only has block state and block entity data, which are not useful for undo
     }
 

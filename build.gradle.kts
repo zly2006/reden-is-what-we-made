@@ -33,6 +33,10 @@ loom {
     }
 }
 
+tasks.compileKotlin {
+    outputs.upToDateWhen { false }
+}
+
 repositories {
     fun strictMaven(url: String, alias: String, vararg groups: String) = exclusiveContent {
         forRepository { maven(url) { name = alias } }
@@ -71,7 +75,7 @@ dependencies {
 
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${property("deps.fabric_language_kotlin")}")
-    compileOnly("io.wispforest:owo-lib:${property("deps.owo")}") {
+    modImplementation("io.wispforest:owo-lib:${property("deps.owo")}") {
         exclude(group = "net.fabricmc.fabric-api")
         exclude(group = "it.unimi.dsi")
     }
@@ -84,6 +88,12 @@ dependencies {
         modImplementation("com.github.sakura-ryoko:malilib:f57bacf")
         modImplementation("com.github.sakura-ryoko:litematica:9e225e0")
     }
+
+    // Add Fabric mapping-io for name mapping functionality
+    // implementation("net.fabricmc:mapping-io:0.5.0")
+
+    // Also add tiny-mappings-parser for better compatibility
+    // implementation("net.fabricmc:tiny-mappings-parser:0.3.0+build.17")
 
 //    fapi(
 //        // Add modules from https://github.com/FabricMC/fabric
@@ -149,6 +159,16 @@ tasks.register<Copy>("buildAndCollect") {
     from(tasks.remapJar.get().archiveFile)
     into(rootProject.layout.buildDirectory.file("libs/${mod.version}"))
     dependsOn("build")
+}
+// 使用buildSrc中的自定义任务来映射方法名
+tasks.register<com.github.zly2006.reden.build.MapMojangToIntermediaryTask>("mapMojangToIntermediary") {
+    inputFile.set(rootProject.file("src/methods.txt"))
+    outputFile.set(project.file("build/mapped-methods.txt"))
+    minecraftVersion.set(stonecutter.current.version)
+
+    outputs.upToDateWhen {
+        false
+    }
 }
 
 publishMods {
