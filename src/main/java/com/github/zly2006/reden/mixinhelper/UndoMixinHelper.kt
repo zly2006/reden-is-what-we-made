@@ -207,9 +207,9 @@ object UndoMixinHelper {
         val undoRecord = PlayerData.UndoRecord(
             id = recordId,
             //? if <= 1.21.5
-            /*lastChangedTick = player.server.tickCount,*/
+            lastChangedTick = player.server.tickCount,
             //? if >= 1.21.6
-            lastChangedTick = player.server!!.tickCount,
+            /*lastChangedTick = player.server!!.tickCount,*/
             cause = cause
         )
         undoRecordsMap[recordId] = undoRecord
@@ -273,7 +273,14 @@ object UndoMixinHelper {
             recording?.entities?.computeIfAbsent(entity.uuid) {
                 PlayerData.EntityEntryImpl(
                     entity.type,
+                    //? if < 1.21.6 {
                     CompoundTag().apply(entity::saveWithoutId),
+                    //?} else {
+                    /*net.minecraft.world.level.storage.TagValueOutput.createWithContext(
+                        net.minecraft.util.ProblemReporter.DISCARDING,
+                        entity.level().registryAccess()
+                    ).apply(entity::saveWithoutId).buildResult(),
+                    *///?}
                     entity.blockPosition()
                 )
             }

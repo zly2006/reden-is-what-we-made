@@ -39,10 +39,10 @@ const val redenApiBaseUrl = "https://api.redenmc.com/api"
 var key = ""
 val gameVer = DetectedVersion.tryDetectVersion()!!
 //? if < 1.21.6 {
-/*val gameVerString = gameVer.name!!
-*///?} else {
-val gameVerString = gameVer.name()!!
-//?}
+val gameVerString = gameVer.name!!
+//?} else {
+/*val gameVerString = gameVer.name()!!
+*///?}
 
 
 val httpClient = OkHttpClient.Builder().apply {

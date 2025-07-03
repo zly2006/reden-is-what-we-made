@@ -259,9 +259,9 @@ class MevDetailsScreen(val parent: Screen?, val info: ItemDto) : BaseOwoScreen<F
             }
             if (client.connection != null) {
                 //? if < 1.21.6
-                /*client.disconnect()*/
+                client.disconnect()
                 //? if >= 1.21.6
-                client.disconnectWithProgressScreen()
+                /*client.disconnectWithProgressScreen()*/
             }
             val select = SelectWorldScreen(this@MevDetailsScreen)
             client.setScreen(select)

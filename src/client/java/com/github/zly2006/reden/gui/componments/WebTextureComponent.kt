@@ -1,5 +1,9 @@
 package com.github.zly2006.reden.gui.componments
 
+import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import com.mojang.blaze3d.vertex.Tesselator
+import com.mojang.blaze3d.vertex.VertexFormat
 import io.wispforest.owo.ui.base.BaseComponent
 import io.wispforest.owo.ui.core.AnimatableProperty
 import io.wispforest.owo.ui.core.OwoUIDrawContext
@@ -51,16 +55,16 @@ open class WebTextureComponent(
 
         //? if < 1.21.6 {
         
-        /*val matrices = context.pose()
+        val matrices = context.pose()
         matrices.pushPose()
         matrices.translate(x.toFloat(), y.toFloat(), 0f)
         matrices.scale(this.width / regionWidth.toFloat(), this.height / regionHeight.toFloat(), 0f)
-        *///?} else {
-        val matrices = context
+        //?} else {
+        /*val matrices = context
         matrices.push()
         matrices.translate(x.toDouble(), y.toDouble())
         matrices.scale(this.width / regionWidth.toFloat(), this.height / regionHeight.toFloat())
-        //?}
+        *///?}
 
         val visibleArea = visibleArea.get()
 
@@ -91,9 +95,9 @@ open class WebTextureComponent(
         *///?}
 
         //? if < 1.21.6
-        /*matrices.popPose()*/
+        matrices.popPose()
         //? if >= 1.21.6
-        matrices.pop()
+        /*matrices.pop()*/
     }
 
     private fun drawTexturedQuad(
@@ -115,19 +119,19 @@ open class WebTextureComponent(
         /*RenderSystem.setShader(net.minecraft.client.renderer.CoreShaders.POSITION_TEX)
         RenderSystem.setShaderTexture(0, texture.id)
         *///?} elif = 1.21.5 {
-        /*RenderSystem.setShaderTexture(0, texture.texture)f
-        *///?} else {
-         "empty for 1.21.6 and above, as the texture is set in the context"
-        //?}
+        RenderSystem.setShaderTexture(0, texture.texture)
+        //?} else {
+         /*"empty for 1.21.6 and above, as the texture is set in the context"
+        *///?}
         //? if < 1.21.6 {
-        /*val matrix4f = context.pose().last().pose()
+        val matrix4f = context.pose().last().pose()
         val bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
         bufferBuilder.addVertex(matrix4f, x1.toFloat(), y1.toFloat(), z.toFloat()).setUv(u1, v1)
         bufferBuilder.addVertex(matrix4f, x1.toFloat(), y2.toFloat(), z.toFloat()).setUv(u1, v2)
         bufferBuilder.addVertex(matrix4f, x2.toFloat(), y2.toFloat(), z.toFloat()).setUv(u2, v2)
         bufferBuilder.addVertex(matrix4f, x2.toFloat(), y1.toFloat(), z.toFloat()).setUv(u2, v1)
-        *///?} else {
-        val matrix = context.pose()
+        //?} else {
+        /*val matrix = context.pose()
         context.submitBlit(
             net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,
             texture.textureView,
@@ -141,12 +145,12 @@ open class WebTextureComponent(
             v2,
             -1
         )
-        //?}
+        *///?}
 
         //? if < 1.21.5
         /*com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(bufferBuilder.buildOrThrow())*/
         //? if = 1.21.5
-        /*1*/
+        1
     }
 
     fun resetVisibleArea(): WebTextureComponent {
