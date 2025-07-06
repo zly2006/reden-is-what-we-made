@@ -64,16 +64,16 @@ class Undo(
                         when (beData) {
                             is CompoundTag -> {
                                 //? if <= 1.21.5 {
-                                be.loadWithComponents(beData, world.registryAccess())
-                                //?} elif >= 1.21.6 {
-                                /*be.loadWithComponents(
+                                /*be.loadWithComponents(beData, world.registryAccess())
+                                *///?} elif >= 1.21.6 {
+                                be.loadWithComponents(
                                     net.minecraft.world.level.storage.TagValueInput.create(
                                         net.minecraft.util.ProblemReporter.DISCARDING,
                                         world.registryAccess(),
                                         beData
                                     )
                                 )
-                                *///?}
+                                //?}
                             }
 
                             is DataComponentMap -> {
@@ -178,9 +178,9 @@ class Undo(
                                     data.putAll(undoRecord.data.keys.associateWith { posLong ->
                                         this.fromWorld( // add entity info to this redo record
                                             //? if <= 1.21.5
-                                            context.player().serverLevel(),
+                                            /*context.player().serverLevel(),*/
                                             //? if >= 1.21.6
-                                            /*context.player().level(),*/
+                                            context.player().level(),
                                             BlockPos.of(posLong),
                                             true
                                         )
@@ -190,9 +190,9 @@ class Undo(
                             )
                             operate(
                                 //? if <= 1.21.5
-                                context.player().serverLevel(),
+                                /*context.player().serverLevel(),*/
                                 //? if >= 1.21.6
-                                /*context.player().level(),*/
+                                context.player().level(),
                                 undoRecord,
                                 view.redo.last()
                             )
@@ -205,9 +205,9 @@ class Undo(
                         server.execute {
                             operate(
                                 //? if <= 1.21.5
-                                context.player().serverLevel(),
+                                /*context.player().serverLevel(),*/
                                 //? if >= 1.21.6
-                                /*context.player().level(),*/
+                                context.player().level(),
                                 it,
                                 null,
                                 isUndo = false

@@ -29,10 +29,10 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
     @Shadow private BlockState blockState;
     @Shadow private DataComponentMap components;
     //? if < 1.21.6 {
-    @Shadow public abstract CompoundTag saveWithId(HolderLookup.Provider provider);
-    //?} else {
-    /*@Shadow public abstract void saveWithId(net.minecraft.world.level.storage.ValueOutput par1);
-    *///?}
+    /*@Shadow public abstract CompoundTag saveWithId(HolderLookup.Provider provider);
+    *///?} else {
+    @Shadow public abstract void saveWithId(net.minecraft.world.level.storage.ValueOutput par1);
+    //?}
 
     @Unique CompoundTag lastSavedNbt = null;
     @Unique DataComponentMap lastComponents = null;
@@ -46,9 +46,9 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
                 DebugKt.debugLogger.invoke("saved lastComponents at " + worldPosition.toShortString() + ", cause=reden manually, " + lastComponents);
             } else {
                 //? if < 1.21.6 {
-                lastSavedNbt = this.saveWithId(level.registryAccess());
+                /*lastSavedNbt = this.saveWithId(level.registryAccess());
                 DebugKt.debugLogger.invoke("saved lastNBT at " + worldPosition.toShortString() + ", cause=reden manually, " + lastSavedNbt);
-                //?}
+                *///?}
             }
         }
     }
@@ -95,9 +95,9 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
                 DebugKt.debugLogger.invoke("init: saved lastComponents at " + worldPosition.toShortString() + ", cause=reden init, " + lastComponents);
             } else if (level != null) {
                 //? if < 1.21.6 {
-                lastSavedNbt = this.saveWithId(level.registryAccess());
+                /*lastSavedNbt = this.saveWithId(level.registryAccess());
                 DebugKt.debugLogger.invoke("init: saved lastNBT at " + worldPosition.toShortString() + ", cause=reden init, " + lastSavedNbt);
-                //?}
+                *///?}
             }
         } else {
             DebugKt.debugLogger.invoke("init: skip saving lastNBT at " + worldPosition.toShortString());
