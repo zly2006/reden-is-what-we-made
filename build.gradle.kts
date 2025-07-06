@@ -33,6 +33,10 @@ loom {
     }
 }
 
+tasks.compileKotlin {
+    outputs.upToDateWhen { false }
+}
+
 repositories {
     fun strictMaven(url: String, alias: String, vararg groups: String) = exclusiveContent {
         forRepository { maven(url) { name = alias } }
@@ -47,6 +51,9 @@ repositories {
     maven {
         url = uri("https://maven.wispforest.io")
     }
+    maven {
+        url = uri("https://jitpack.io")
+    }
 }
 
 dependencies {
@@ -56,21 +63,50 @@ dependencies {
 
     minecraft("com.mojang:minecraft:$mcVersion")
     mappings(loom.officialMojangMappings())
+
+    if (stonecutter.eval(mcVersion, "=1.21.1")) {
+        modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}") {
+            exclude(group = "net.fabricmc.fabric-api")
+        }
+    }
+
+    include(implementation("com.squareup.okio:okio-jvm:3.2.0")!!)
+    include(implementation("com.squareup.okhttp3:okhttp:4.11.0")!!)
+
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
-    modImplementation("maven.modrinth:malilib:${property("deps.malilib")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${property("deps.fabric_language_kotlin")}")
     modImplementation("io.wispforest:owo-lib:${property("deps.owo")}") {
         exclude(group = "net.fabricmc.fabric-api")
         exclude(group = "it.unimi.dsi")
     }
-    modImplementation("maven.modrinth:litematica:${property("deps.litematica")}")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
 
-    fapi(
-        // Add modules from https://github.com/FabricMC/fabric
-        "fabric-lifecycle-events-v1",
-        "fabric-networking-api-v1",
-        "fabric-resource-loader-v0"
-    )
+    if (stonecutter.eval(mcVersion, "<1.21.6")) {
+        modImplementation("maven.modrinth:malilib:${property("deps.malilib")}")
+        modImplementation("maven.modrinth:litematica:${property("deps.litematica")}")
+    } else {
+        modImplementation("com.github.sakura-ryoko:malilib:f57bacf")
+        modImplementation("com.github.sakura-ryoko:litematica:9e225e0")
+    }
+
+    // Add Fabric mapping-io for name mapping functionality
+    // implementation("net.fabricmc:mapping-io:0.5.0")
+
+    // Also add tiny-mappings-parser for better compatibility
+    // implementation("net.fabricmc:tiny-mappings-parser:0.3.0+build.17")
+
+//    fapi(
+//        // Add modules from https://github.com/FabricMC/fabric
+//        "fabric-lifecycle-events-v1",
+//        "fabric-networking-api-v1",
+//        "fabric-resource-loader-v0",
+//        "fabric-registry-sync-v0",
+//        "fabric-content-registries-v0",
+//        "fabric-loot-api-v2",
+//        "fabric-command-api-v2",
+//        "fabric-screen-api-v1",
+//        "fabric-screen-handler-api-v1",
+//    )
 }
 
 loom {
@@ -115,7 +151,7 @@ tasks.processResources {
 }
 
 tasks.compileKotlin {
-    outputs.upToDateWhen { false }
+//    outputs.upToDateWhen { false }
 }
 
 tasks.register<Copy>("buildAndCollect") {
@@ -123,6 +159,16 @@ tasks.register<Copy>("buildAndCollect") {
     from(tasks.remapJar.get().archiveFile)
     into(rootProject.layout.buildDirectory.file("libs/${mod.version}"))
     dependsOn("build")
+}
+// 使用buildSrc中的自定义任务来映射方法名
+tasks.register<com.github.zly2006.reden.build.MapMojangToIntermediaryTask>("mapMojangToIntermediary") {
+    inputFile.set(rootProject.file("src/methods.txt"))
+    outputFile.set(project.file("build/mapped-methods.txt"))
+    minecraftVersion.set(stonecutter.current.version)
+
+    outputs.upToDateWhen {
+        false
+    }
 }
 
 publishMods {

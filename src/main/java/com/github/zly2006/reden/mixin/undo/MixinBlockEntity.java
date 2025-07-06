@@ -28,7 +28,11 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
     @Final @Shadow protected BlockPos worldPosition;
     @Shadow private BlockState blockState;
     @Shadow private DataComponentMap components;
-    @Shadow public abstract CompoundTag saveWithId(HolderLookup.Provider provider);
+    //? if < 1.21.6 {
+    /*@Shadow public abstract CompoundTag saveWithId(HolderLookup.Provider provider);
+    *///?} else {
+    @Shadow public abstract void saveWithId(net.minecraft.world.level.storage.ValueOutput par1);
+    //?}
 
     @Unique CompoundTag lastSavedNbt = null;
     @Unique DataComponentMap lastComponents = null;
@@ -41,21 +45,16 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
                 lastComponents = components;
                 DebugKt.debugLogger.invoke("saved lastComponents at " + worldPosition.toShortString() + ", cause=reden manually, " + lastComponents);
             } else {
-                lastSavedNbt = this.saveWithId(level.registryAccess());
+                //? if < 1.21.6 {
+                /*lastSavedNbt = this.saveWithId(level.registryAccess());
                 DebugKt.debugLogger.invoke("saved lastNBT at " + worldPosition.toShortString() + ", cause=reden manually, " + lastSavedNbt);
+                *///?}
             }
         }
     }
 
     @Unique
     private boolean isComponentsValid(DataComponentMap lastComponents) {
-        if (lastComponents == null) return false;
-        if (lastComponents.isEmpty()) return false;
-        for (DataComponentType<?> componentType : lastComponents.keySet()) {
-            if (componentType != DataComponents.BLOCK_STATE || componentType != DataComponents.BLOCK_ENTITY_DATA) {
-                return true; // has other components
-            }
-        }
         return false; // only has block state and block entity data, which are not useful for undo
     }
 
@@ -83,20 +82,22 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
         }
     }
 
+    // Only for initialization, do not call more than once
     @Inject(
             method = "loadWithComponents",
             at = @At("TAIL")
     )
-    // Only for initialization, do not call more than once
-    private void onReadNbt(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
+    private void onReadNbt(CallbackInfo ci) {
         DebugKt.debugLogger.invoke("init: before saving lastNBT at " + worldPosition.toShortString() + ", data=" + lastSavedNbt);
         if (lastSavedNbt == null && lastComponents == null) {
             if (isComponentsValid(components)) {
                 lastComponents = components;
                 DebugKt.debugLogger.invoke("init: saved lastComponents at " + worldPosition.toShortString() + ", cause=reden init, " + lastComponents);
             } else if (level != null) {
-                lastSavedNbt = this.saveWithId(level.registryAccess());
+                //? if < 1.21.6 {
+                /*lastSavedNbt = this.saveWithId(level.registryAccess());
                 DebugKt.debugLogger.invoke("init: saved lastNBT at " + worldPosition.toShortString() + ", cause=reden init, " + lastSavedNbt);
+                *///?}
             }
         } else {
             DebugKt.debugLogger.invoke("init: skip saving lastNBT at " + worldPosition.toShortString());

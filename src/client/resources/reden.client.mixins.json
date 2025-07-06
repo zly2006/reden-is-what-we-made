@@ -3,10 +3,14 @@
   "package": "com.github.zly2006.reden.mixin.client",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "MixinGuiSchematicLoad",
     "chat.ChatHudMixin",
     "chat.ChatScreenMixin",
     "chat.VisibleChatHudLineMixin",
-    "keybind.MixinKeyMapping"
+    "keybind.MixinKeyMapping",
+    "malilib.IMixinGuiListBase",
+    "malilib.IMixinWidgetListBase",
+    "malilib.MixinGuiSchematicLoad"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,0 +1,166 @@
+package com.github.zly2006.reden.webmatic
+
+import com.github.zly2006.reden.Reden
+import com.github.zly2006.reden.gui.componments.WebTextureComponent
+import com.github.zly2006.reden.utils.multiver.Text
+import io.wispforest.owo.ui.base.BaseOwoScreen
+import io.wispforest.owo.ui.component.Components
+import io.wispforest.owo.ui.container.Containers
+import io.wispforest.owo.ui.container.FlowLayout
+import io.wispforest.owo.ui.container.ScrollContainer
+import io.wispforest.owo.ui.core.*
+import kotlinx.serialization.Serializable
+import net.minecraft.ChatFormatting
+import net.minecraft.client.Minecraft
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Request
+import okhttp3.Response
+import java.io.IOException
+
+class MevScreen : BaseOwoScreen<FlowLayout>() {
+    val client = Minecraft.getInstance()!!
+    override fun createAdapter() = OwoUIAdapter.create(this, Containers::verticalFlow)!!
+
+    var list = mutableListOf<ItemDto>()
+    val listComponent = Containers.verticalFlow(Sizing.fill(), Sizing.content())!!.apply {
+        horizontalAlignment(HorizontalAlignment.CENTER)
+    }
+    val search = Components.textBox(Sizing.fill())!!.apply {
+        setHint(Text.literal("Search..."))
+        onChanged().subscribe {
+            page = 1
+            httpClient.dispatcher.cancelAll()
+            doRequest()
+        }
+    }
+    var page = 1
+    var totalPages = 1
+
+    @Serializable
+    class MevSearch(
+        val d: List<ItemDto>,
+        val count: Int
+    )
+
+    inner class PostComponent(val mev: ItemDto, val isLast: Boolean) :
+        FlowLayout(Sizing.fixed(300), Sizing.fixed(40), Algorithm.HORIZONTAL) {
+        private val nameLabel = Components.label(Text.literal(mev.name))
+
+        init {
+            child(
+                Containers.verticalFlow(Sizing.expand(), Sizing.fixed(40)).apply {
+                    this.child(nameLabel)
+                    this.child(Components.label(Text.literal("by ${mev.author?.username}").withStyle(ChatFormatting.GRAY)))
+                    this.child(Components.label(Text.of(mev.description?.replace("\n", "  "))).apply {
+                        lineSpacing(0)
+                        horizontalSizing(Sizing.fill())
+                    })
+                    gap(2)
+                }
+            )
+            gap(5)
+            margins(Insets.vertical(3))
+            mouseDown().subscribe { _, _, b ->
+                if (b == 0) {
+                    client!!.setScreen(MevDetailsScreen(this@MevScreen, mev))
+                    true
+                } else false
+            }
+//            mev.display = this
+
+            if (mev.images.isNotEmpty()) {
+                val size = client.options.guiScale().get() * 40 * 2
+                mev.thumbnailUrl?.let { thumbnailUrl ->
+                    TextureStorage.getImage(thumbnailUrl) {
+                        this.child(0, WebTextureComponent(it, 0, 0, 40, 40))
+                    }
+                }
+            }
+        }
+
+        val currentPage = page
+
+        override fun draw(
+            context: OwoUIDrawContext?,
+            mouseX: Int,
+            mouseY: Int,
+            partialTicks: Float,
+            delta: Float
+        ) {
+            nameLabel.text(
+                Text.literal(mev.name)
+                    .withStyle { it.withUnderlined(isInBoundingBox(mouseX.toDouble(), mouseY.toDouble())) })
+            super.draw(context, mouseX, mouseY, partialTicks, delta)
+            if (isLast && currentPage == page && page != totalPages) {
+                page++
+                doRequest()
+            }
+        }
+    }
+
+    private fun doRequest() {
+        val requestStart = System.currentTimeMillis()
+        httpClient.newCall(Request.Builder().apply {
+            ua()
+            // todo
+            removeHeader("Authorization")
+            get()
+            val lang = "zh_cn"
+            if (search.value.isNotBlank()) {
+                url("https://redenmc.com/api/mc-services/litematica/search?lang=$lang&q=${search.value}&page=$page")
+            }
+            else {
+                url("https://redenmc.com/api/mc-services/yisibite/?lang=$lang&page=$page")
+            }
+        }.build()).apply {
+            Reden.LOGGER.info("Started request: ${request().url}")
+        }.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                if (e.message != "Canceled") {
+                    Reden.LOGGER.error("Failed request: ${call.request().url}", e)
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val string = response.body!!.string()
+                response.body!!.close()
+                client!!.execute {
+                    if (page == 1) {
+                        listComponent.clearChildren()
+                        list.clear()
+                    }
+                    val mevSearch = jsonIgnoreUnknown.decodeFromString<MevSearch>(string)
+                    list.addAll(mevSearch.d)
+                    totalPages = (mevSearch.count.toDouble() / mevSearch.d.size).toInt()
+
+                    mevSearch.d.forEachIndexed { index, mevItem ->
+                        listComponent.child(PostComponent(mevItem, index == mevSearch.d.size - 1))
+                    }
+                    if (list.isEmpty()) {
+                        listComponent.child(
+                            Components.label(Text.literal("Sorry, didn't found anything."))
+                        )
+                    }
+                }
+            }
+        })
+    }
+
+    override fun build(rootComponent: FlowLayout) {
+        listComponent.child(
+            Components.label(Text.literal("加载中..."))
+        )
+        doRequest()
+        rootComponent.surface(Surface.VANILLA_TRANSLUCENT)
+        rootComponent.horizontalAlignment(HorizontalAlignment.CENTER)
+        rootComponent.children(
+            listOf(
+                search as Component,
+                Containers.verticalScroll(Sizing.fill(), Sizing.expand(), listComponent).apply {
+                    scrollbar(ScrollContainer.Scrollbar.vanillaFlat())
+                }
+            )
+        )
+    }
+}

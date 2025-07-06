@@ -16,3 +16,5 @@ AndroidProjectSystem.xml
 /jarRepositories.xml
 /kotlinc.xml
 !/codeStyles
+discord.xml
+detekt.xml

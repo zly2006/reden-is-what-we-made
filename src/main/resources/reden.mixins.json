@@ -2,6 +2,7 @@
   "required": true,
   "package": "com.github.zly2006.reden.mixin",
   "compatibilityLevel": "JAVA_17",
+  "plugin": "com.github.zly2006.reden.mixinhelper.RedenServersideMixinPlugin",
   "mixins": [
     "access.MixinServerPlayer",
     "undo.MixinBlockEntity",
@@ -22,7 +23,8 @@
     "undo.MixinServerWorld",
     "undo.MixinServerWorldChunk",
     "undo.MixinTntEntity",
-    "undo.data.MixinChunkSection"
+    "undo.data.MixinChunkSection",
+    "undo.helper.NoOpMixin"
   ],
   "injectors": {
     "defaultRequire": 1

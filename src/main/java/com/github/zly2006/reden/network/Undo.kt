@@ -64,8 +64,8 @@ class Undo(
                         when (beData) {
                             is CompoundTag -> {
                                 //? if <= 1.21.5 {
-                                /*be.loadWithComponents(beData, world.registryAccess())*/
-                                //? } elif >= 1.21.6 {
+                                /*be.loadWithComponents(beData, world.registryAccess())
+                                *///?} elif >= 1.21.6 {
                                 be.loadWithComponents(
                                     net.minecraft.world.level.storage.TagValueInput.create(
                                         net.minecraft.util.ProblemReporter.DISCARDING,
@@ -73,7 +73,7 @@ class Undo(
                                         beData
                                     )
                                 )
-                                //? }
+                                //?}
                             }
 
                             is DataComponentMap -> {

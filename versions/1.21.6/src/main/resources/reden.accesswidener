@@ -7,3 +7,5 @@ extendable class net/minecraft/client/GuiMessage$Line
 accessible method net/minecraft/client/gui/components/ChatComponent screenToChatY (D)D
 accessible method net/minecraft/client/gui/components/ChatComponent getMessageLineIndexAt (DD)I
 accessible field net/minecraft/client/gui/components/ChatComponent trimmedMessages Ljava/util/List;
+accessible field net/minecraft/client/Minecraft userApiService Lcom/mojang/authlib/minecraft/UserApiService;
+accessible method net/minecraft/client/gui/GuiGraphics submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;IIIIFFFFI)V
