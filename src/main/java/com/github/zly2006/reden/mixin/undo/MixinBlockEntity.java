@@ -35,21 +35,25 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
     //?}
 
     @Unique CompoundTag lastSavedNbt = null;
+    @Unique int lastSaveTime = 0;
     @Unique DataComponentMap lastComponents = null;
 
     @Override
     public void saveLastNbt$reden() {
         if (level != null && !level.isClientSide) {
             DebugKt.debugLogger.invoke("before saving lastNBT at " + worldPosition.toShortString() + ", nbt=" + lastSavedNbt + ", components=" + components);
+            if (lastSaveTime == level.getServer().getTickCount()) {
+                return;
+            }
             if (isComponentsValid(components)) {
                 lastComponents = components;
                 DebugKt.debugLogger.invoke("saved lastComponents at " + worldPosition.toShortString() + ", cause=reden manually, " + lastComponents);
             } else {
-                //? if < 1.21.6 {
                 /*lastSavedNbt = this.saveWithId(level.registryAccess());
                 DebugKt.debugLogger.invoke("saved lastNBT at " + worldPosition.toShortString() + ", cause=reden manually, " + lastSavedNbt);
-                *///?}
+                */
             }
+            lastSaveTime = level.getServer().getTickCount();
         }
     }
 
@@ -94,10 +98,9 @@ public abstract class MixinBlockEntity implements BlockEntityInterface {
                 lastComponents = components;
                 DebugKt.debugLogger.invoke("init: saved lastComponents at " + worldPosition.toShortString() + ", cause=reden init, " + lastComponents);
             } else if (level != null) {
-                //? if < 1.21.6 {
                 /*lastSavedNbt = this.saveWithId(level.registryAccess());
                 DebugKt.debugLogger.invoke("init: saved lastNBT at " + worldPosition.toShortString() + ", cause=reden init, " + lastSavedNbt);
-                *///?}
+                */
             }
         } else {
             DebugKt.debugLogger.invoke("init: skip saving lastNBT at " + worldPosition.toShortString());
