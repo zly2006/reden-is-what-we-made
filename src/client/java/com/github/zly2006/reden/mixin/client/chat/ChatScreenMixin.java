@@ -1,6 +1,7 @@
 package com.github.zly2006.reden.mixin.client.chat;
 
 import com.github.zly2006.reden.gui.QuickMenuWidget;
+import com.github.zly2006.reden.malilib.MalilibSettingsKt;
 import com.github.zly2006.reden.mixinhelper.ChatMixinHelper;
 import net.minecraft.client.GuiMessage;
 import net.minecraft.client.Minecraft;
@@ -54,7 +55,7 @@ public abstract class ChatScreenMixin extends Screen {
         if (button == GLFW.GLFW_MOUSE_BUTTON_2) { // Right click
             Minecraft client = Minecraft.getInstance();
             GuiMessage.Line line = reden$geMessageAt(mouseX, mouseY);
-            if (line != null) {
+            if (line != null && MalilibSettingsKt.CHAT_RIGHT_CLICK_MENU.getBooleanValue()) {
                 rightClickMenu((int) mouseX, (int) mouseY, client, line, getComponentStyleAt(mouseX, mouseY));
                 cir.setReturnValue(true);
             }

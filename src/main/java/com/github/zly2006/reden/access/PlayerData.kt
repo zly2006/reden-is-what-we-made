@@ -133,9 +133,7 @@ ${data.map { "${BlockPos.of(it.key).toShortString()} = ${it.value.state}" }.join
             COMMAND(Text.translatable("reden.feature.undo.cause.command")),
             LITEMATICA_TASK(Text.translatable("reden.feature.undo.cause.litematica_task")),
             PROJECTILE(Text.translatable("reden.feature.undo.cause.projectile")),
-            RVC_MOVE(Text.translatable("reden.feature.undo.cause.rvc_move")),
-            RVC_RESTORE(Text.translatable("reden.feature.undo.cause.rvc_restore")),
-            RVC_CHECKOUT(Text.translatable("reden.feature.undo.cause.rvc_checkout")),
+            CONTAINER_MENU(Text.translatable("reden.feature.undo.cause.container_menu")),
             UNKNOWN(Text.translatable("reden.feature.undo.cause.unknown"))
         }
     }
