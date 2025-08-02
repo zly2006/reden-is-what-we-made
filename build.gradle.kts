@@ -81,13 +81,8 @@ dependencies {
     }
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
 
-    if (stonecutter.eval(mcVersion, "<1.21.6")) {
-        modImplementation("maven.modrinth:malilib:${property("deps.malilib")}")
-        modImplementation("maven.modrinth:litematica:${property("deps.litematica")}")
-    } else {
-        modImplementation("com.github.sakura-ryoko:malilib:f57bacf")
-        modImplementation("com.github.sakura-ryoko:litematica:9e225e0")
-    }
+    modImplementation("maven.modrinth:malilib:${property("deps.malilib")}")
+    modImplementation("maven.modrinth:litematica:${property("deps.litematica")}")
 
     // Add Fabric mapping-io for name mapping functionality
     // implementation("net.fabricmc:mapping-io:0.5.0")

@@ -1,0 +1,11 @@
+accessWidener	v1  named
+accessible field net/minecraft/commands/arguments/selector/EntitySelector ANY_TYPE Lnet/minecraft/world/level/entity/EntityTypeTest;
+accessible field net/minecraft/world/level/chunk/ChunkAccess heightmaps Ljava/util/Map;
+extendable class net/minecraft/world/ticks/ScheduledTick
+extendable class net/minecraft/world/level/BlockEventData
+extendable class net/minecraft/client/GuiMessage$Line
+accessible method net/minecraft/client/gui/components/ChatComponent screenToChatY (D)D
+accessible method net/minecraft/client/gui/components/ChatComponent getMessageLineIndexAt (DD)I
+accessible field net/minecraft/client/gui/components/ChatComponent trimmedMessages Ljava/util/List;
+accessible field net/minecraft/client/Minecraft userApiService Lcom/mojang/authlib/minecraft/UserApiService;
+accessible method net/minecraft/client/gui/GuiGraphics submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;IIIIFFFFI)V
