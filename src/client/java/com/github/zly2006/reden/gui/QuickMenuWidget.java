@@ -96,9 +96,9 @@ public abstract class QuickMenuWidget implements NarratableEntry, Renderable, Gu
         //?}
         for (int i = 0; i < entries.size(); i++) {
             MenuEntry entry = entries.get(i);
-            int color = 0xFFFFFF;
+            int color = 0xFFFFFFFF;
             if (mouseX >= x && mouseX <= x + width && mouseY >= y + i * 14 && mouseY <= y + i * 14 + 14) {
-                color = 0xFFFF00;
+                color = 0xFFFFFF00;
             }
             context.drawCenteredString(client.font, entry.name, x + width / 2, y + i * 14 + 2, color);
         }

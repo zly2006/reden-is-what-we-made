@@ -1,6 +1,7 @@
 # gradle
 
 .gradle/
+.kotlin/
 build/
 out/
 classes/
