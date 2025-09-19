@@ -2,7 +2,6 @@ package com.github.zly2006.reden.mixin.client.greenStone;
 
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.RedStoneWireBlock;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,7 +19,7 @@ public class MixinRedstone {
             float r = f * 0.6F + (f > 0.0F ? 0.4F : 0.3F);
             float g = Mth.clamp(f * f * 0.7F - 0.5F, 0.0F, 1.0F);
             float b = Mth.clamp(f * f * 0.6F - 0.7F, 0.0F, 1.0F);
-            is[i] = ARGB.colorFromFloat(1.0F, g, r, b);
+            is[i] = 0xFF000000 | ((int)(r * 255.0F) << 16) | ((int)(g * 255.0F) << 8) | (int)(b * 255.0F);
         }
     });
 
