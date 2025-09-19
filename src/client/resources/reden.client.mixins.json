@@ -10,7 +10,8 @@
     "keybind.MixinKeyMapping",
     "malilib.IMixinGuiListBase",
     "malilib.IMixinWidgetListBase",
-    "malilib.MixinGuiSchematicLoad"
+    "malilib.MixinGuiSchematicLoad",
+    "greenStone.MixinRedstone"
   ],
   "injectors": {
     "defaultRequire": 1
