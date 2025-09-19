@@ -1,6 +1,4 @@
-# 0.10.0
+# 0.10.4
 
-The project has been rewritten to support all 1.21 ~ 1.21.5 versions.
-
-Most of the experimental and complicated features have been removed.
-If you need them, please submit an issue on github or contact me on Discord.
+- 应粉丝要求，添加绿石菜单
+- 修复投影页面崩溃

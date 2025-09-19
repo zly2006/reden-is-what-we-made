@@ -15,6 +15,7 @@ AndroidProjectSystem.xml
 /compiler.xml
 /jarRepositories.xml
 /kotlinc.xml
+/copilot.*.xml
 !/codeStyles
 discord.xml
 detekt.xml
